@@ -1,0 +1,2 @@
+import {build} from 'esbuild';
+await build({entryPoints:{worker:'scripts/worker.ts',seed:'scripts/seed.ts',owner:'scripts/create-owner.ts',migrate:'scripts/migrate.ts',provision:'scripts/provision-database.ts','runtime-validate':'scripts/runtime-validate.ts'},outdir:'dist/runtime',bundle:true,platform:'node',format:'esm',packages:'external',target:'node24',logLevel:'warning'});

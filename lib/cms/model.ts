@@ -9,8 +9,8 @@ export const textDoc=(paragraphs:readonly string[]):CmsDoc=>({type:'doc',content
 export const docText=(doc:CmsDoc):string=>doc.text|| (doc.content||[]).map(docText).join(doc.type==='doc'?'\n':' ');
 export function slugify(value:string){return value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
 export function safeUrl(url:string){return /^(https?:\/\/|mailto:|tel:|\/(?!\/))[^\s]*$/i.test(url)&&!/[<>"\\]/.test(url);}
-export function articleContent(a:CmsArticle):ArticleContent{const {contentType,storyFormat,title,slug,intro,body,coverId,author,category,tags,teamId,season,seo,featured,publishedAt}=a;return structuredClone({contentType,storyFormat,title,slug,intro,body,coverId,author,category,tags,teamId,season,seo,featured,publishedAt});}
-export function pageContent(p:CmsPage):PageContent{const {title,slug,intro,body,parentId,menuGroup,menuVisible,order,seo,useBuilder}=p;return structuredClone({title,slug,intro,body,parentId,menuGroup,menuVisible,order,seo,useBuilder});}
+export function articleContent(a:CmsArticle):ArticleContent{const {contentType,storyFormat,title,slug,intro,body,coverId,authorId,author,category,tags,teamId,season,seo,featured,publishedAt}=a;return structuredClone({contentType,storyFormat,title,slug,intro,body,coverId,...(authorId?{authorId}:{}),author,category,tags,teamId,season,seo,featured,publishedAt});}
+export function pageContent(p:CmsPage):PageContent{const {bodyFormat,title,slug,intro,body,parentId,menuGroup,menuVisible,order,seo,useBuilder}=p;return structuredClone({...(bodyFormat?{bodyFormat}:{}),title,slug,intro,body,parentId,menuGroup,menuVisible,order,seo,useBuilder});}
 export function allowed(state:CmsState,roleId:string,permission:Permission,teamId?:string){const role=state.roles.find(r=>r.id===roleId);if(!role?.permissions.includes(permission))return false;if(role.teamScoped){if(!teamId)return false;return state.members.some(m=>m.active&&m.roleId===roleId&&m.teamIds.includes(teamId));}return true;}
 function validateDocument(doc:CmsDoc,state:CmsState):string[]{
  const errors=new Set<string>();

@@ -1,4 +1,4 @@
-import {env} from 'cloudflare:workers';
+import {sportlinkStore, type SportlinkStatement} from './server/sportlink-store';
 import {currentPool,finished,matchesForTeam,mergeTeamCatalog,normalizeRoster,poolsForTeam,record,seasonForDate,standingsForTeam,teamCatalog,text,validSeason,validTeamId} from './sportlink-team-normalize';
 import type {SportlinkTeamDetail,TeamAvailability,TeamPlayer,TeamPool} from './sportlink-team-types';
 import type {SportlinkMatch} from './sportlink-types';
@@ -11,7 +11,7 @@ const TTL=15*60*1000;
 const CATALOG='team-catalog-v1:';
 const inFlight=new Map<string,Promise<Cached<unknown>>>();
 export class TeamDataError extends Error{constructor(message:string,public status:number){super(message);}}
-function database(){if(!env.DB)throw new Error('De teamgegevens zijn nog niet beschikbaar.');return env.DB;}
+function database(){if(!sportlinkStore)throw new Error('De teamgegevens zijn nog niet beschikbaar.');return sportlinkStore;}
 async function read(key:string){return database().prepare('SELECT payload_json,updated_at,expires_at,refresh_after FROM sportlink_cache WHERE cache_key=?').bind(key).first<CacheRow>();}
 function fromRow<T>(row:CacheRow,stale:boolean):Cached<T>{return {value:JSON.parse(row.payload_json!) as T,updatedAt:row.updated_at,stale};}
 
@@ -43,7 +43,7 @@ async function safe<T>(promise:Promise<Cached<T>>,empty:T):Promise<Dataset<T>>{
  try{return {...await promise,available:true};}catch{return {value:empty,available:false,updatedAt:0,stale:false};}
 }
 async function requestArticle(name:string,params:Record<string,string>={}):Promise<unknown>{
- const clientId=(env as unknown as Record<string,unknown>).SPORTLINK_CLIENT_ID;
+ const clientId=process.env.SPORTLINK_CLIENT_ID;
  if(typeof clientId!=='string'||!clientId)throw new Error('Sportlink-configuratie ontbreekt.');
  const url=new URL(`https://data.sportlink.com/${name}`);url.search=new URLSearchParams({client_id:clientId,...params}).toString();
  let response:Response;
@@ -82,7 +82,7 @@ async function downloadRoster(teamId:string,season:string):Promise<Roster>{
  const rows=await article('team-indeling',{teamcode,lokaleteamcode,toonlidfoto:'JA'});
  const roster=normalizeRoster(rows,teamId);
  const db=database(),now=Date.now();
- const statements:D1PreparedStatement[]=[];
+ const statements:SportlinkStatement[]=[];
  let chunk:(string|number)[][]=[],bytes=0;
  const flush=()=>{if(!chunk.length)return;statements.push(db.prepare(`INSERT INTO sportlink_cache(cache_key,payload_json,updated_at,expires_at,refresh_after) VALUES ${chunk.map(()=>'(?,?,?,?,0)').join(',')} ON CONFLICT(cache_key) DO UPDATE SET payload_json=excluded.payload_json,updated_at=excluded.updated_at,expires_at=excluded.expires_at`).bind(...chunk.flat()));chunk=[];bytes=0;};
  for(const photo of roster.photos){
@@ -91,7 +91,7 @@ async function downloadRoster(teamId:string,season:string):Promise<Roster>{
   chunk.push([rosterPhotoKey(teamId,photo.id,season),payload,now,now+TTL]);bytes+=payload.length;
  }
  flush();
- // Bulk writes respect D1's bound-parameter and payload limits. Never store raw member contact data.
+ // Bulk writes respect bounded parameter and payload limits. Never store raw member contact data.
  if(statements.length)await db.batch(statements);
  return {players:roster.players.map(player=>({...player,photoUrl:player.photoUrl?`${player.photoUrl}&season=${encodeURIComponent(season)}`:null})),hiddenPlayers:roster.hiddenPlayers};
 }

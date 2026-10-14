@@ -1,4 +1,4 @@
-import {env} from 'cloudflare:workers';
+import {sportlinkStore, type SportlinkStatement} from './server/sportlink-store';
 import {normalizeSportlink} from './sportlink-normalize';
 import type {SportlinkSnapshot,SportlinkSide} from './sportlink-types';
 
@@ -8,7 +8,7 @@ type CacheRow={payload_json:string|null;updated_at:number;expires_at:number;refr
 let inFlight:Promise<SportlinkSnapshot>|null=null;
 
 async function article(name:string,params:Record<string,string>={}){
- const clientId=(env as unknown as Record<string,unknown>).SPORTLINK_CLIENT_ID;
+ const clientId=process.env.SPORTLINK_CLIENT_ID;
  if(typeof clientId!=='string'||!clientId)throw new Error('Sportlink-configuratie ontbreekt.');
  const url=new URL(`https://data.sportlink.com/${name}`);
  url.search=new URLSearchParams({client_id:clientId,...params}).toString();
@@ -37,10 +37,10 @@ async function downloadSnapshot():Promise<SportlinkSnapshot>{
 }
 
 async function persist(data:SportlinkSnapshot){
- const db=env.DB;
+ const db=sportlinkStore;
  if(!db)throw new Error('De competitiegegevens zijn nog niet beschikbaar.');
- const statements:D1PreparedStatement[]=[db.prepare('UPDATE sportlink_teams SET active = 0')];
- // D1 limits each statement to 100 bound parameters. Multi-row inserts also
+ const statements:SportlinkStatement[]=[db.prepare('UPDATE sportlink_teams SET active = 0')];
+ // Bounded batches limit statement size. Multi-row inserts also
  // keep a large club import well below its per-invocation query limit.
  const appendUpserts=(table:string,columns:string[],rows:(string|number|null)[][],conflict:string)=>{
   const rowsPerStatement=Math.floor(100/columns.length);
@@ -71,7 +71,7 @@ async function persist(data:SportlinkSnapshot){
   'ON CONFLICT(club_code) DO UPDATE SET name=excluded.name,logo_url=excluded.logo_url,updated_at=excluded.updated_at');
  const now=Date.now();
  statements.push(db.prepare('UPDATE sportlink_cache SET payload_json=?,updated_at=?,expires_at=?,refresh_after=0 WHERE cache_key=?').bind(JSON.stringify(data),now,now+CACHE_MS,CACHE_KEY));
- // D1 batch is transactional: the visible snapshot changes only after every row succeeds.
+ // PostgreSQL batch is transactional: the visible snapshot changes only after every row succeeds.
  await db.batch(statements);
 }
 
@@ -81,7 +81,7 @@ function cachedSnapshot(row:CacheRow,stale=false):SportlinkSnapshot{
 }
 
 async function readOrRefresh():Promise<SportlinkSnapshot>{
- const db=env.DB;
+ const db=sportlinkStore;
  if(!db)throw new Error('De competitiegegevens zijn nog niet beschikbaar.');
  await db.prepare('INSERT INTO sportlink_cache (cache_key) VALUES (?) ON CONFLICT(cache_key) DO NOTHING').bind(CACHE_KEY).run();
  const row=await db.prepare('SELECT payload_json,updated_at,expires_at,refresh_after FROM sportlink_cache WHERE cache_key=?').bind(CACHE_KEY).first<CacheRow>();

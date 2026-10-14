@@ -1,0 +1,79 @@
+import {mapBrowserMedia} from './browser-media-import';
+import {createHash} from 'node:crypto';
+import {sqlClient} from '../../db';
+import {parseCmsState} from '../cms/validation';
+import {referencesIn,migrateLayout} from '../cms/layout/document';
+import {validateCandidate,type ContentModule} from './records';
+import {putObject} from './storage';
+import {authorize,type Principal} from './permissions';
+import {CmsError} from './errors';
+import type {CmsState} from '../cms/types';
+const modules=['articles','pages','people','media','folders','albums','forms','documents'] as const;
+export async function inspectImport(p:Principal,input:unknown){authorize(p,'settings','manage');if(p.roleId!=='admin')throw new CmsError('forbidden','Volledige back-upimport vereist een beheerder.',403);if(!input||typeof input!=='object')throw new CmsError('import','Kies een CMS-back-up.');const backup=input as any;if(backup.format!=='duindorp-cms-backup-v1')throw new CmsError('import-format','Deze importer verwacht een oorspronkelijke v1-browserback-up. Gebruik databaseherstel voor serverbackups.');const raw=JSON.stringify(backup),checksum=createHash('sha256').update(raw).digest('hex');const state=parseCmsState(JSON.stringify(backup.state));const issues:{id:string;message:string}[]=[],missingMedia:string[]=[];const current=await sqlClient()`select id,version from cms_records`;const conflicts:{id:string;version:number}[]=[];
+ for(const module of modules)for(const data of state[module]){if(current.some(r=>r.id===data.id))conflicts.push({id:data.id,version:current.find(r=>r.id===data.id)!.version});try{validateCandidate(module,data as any);if(module==='pages'||module==='articles'){const page=data as CmsState['pages'][number];if(page.live){validateCandidate(module,{...page.live,id:page.id});}for(const revision of page.revisions)validateCandidate(module,{...revision.data,id:page.id});}}catch(e){issues.push({id:data.id,message:e instanceof Error?e.message:'Onbekende inhoud.'});}if(module==='media'&&(data as any).blobKey&&!backup.blobs?.some((b:any)=>b.key===(data as any).blobKey))missingMedia.push(data.id);}
+ for(const id of ['settings',...(backup.appearance?.heroCards?['site-hero']:[]),...(backup.appearance?.navigation?['site-navigation']:[])]){const row=current.find(r=>r.id===id);if(row)conflicts.push({id,version:row.version});}
+ const report={checksum,counts:Object.fromEntries(modules.map(k=>[k,state[k].length])),conflicts,issues,missingMedia,demoAccountsIgnored:state.members.length,demoSubmissionsIgnored:state.submissions.filter(s=>s.demo).length,submissionsRequireSeparateReview:state.submissions.filter(s=>!s.demo).length};return {state,backup,raw,report};}
+export async function applyImport(p:Principal,input:unknown,resolutions:Record<string,number>={}){const inspected=await inspectImport(p,input);let {state}=inspected;const {raw,report}=inspected;authorize(p,'settings','manage');if(report.issues.length||report.missingMedia.length)throw new CmsError('import-unresolved','Los onbekende inhoud en ontbrekende uploads eerst op.',422,report);
+ const [previous]=await sqlClient()`select report from cms_imports where checksum=${report.checksum}`;if(previous)return publicReport(previous.report);
+ await putObject(`imports/${report.checksum}.json`,Buffer.from(raw),'application/json');
+ for(const t of state.settings.teams)await sqlClient()`insert into cms_teams(id,name) values (${t.id},${t.name}) on conflict do nothing`;
+ let idMapping:Record<string,string>={};if(state.media.some(m=>m.blobKey)){const mapped=await mapBrowserMedia(p,state,inspected.backup.blobs||[],report.checksum);state=mapped.state;idMapping=mapped.mapping;}
+ const sql=sqlClient(),batch=crypto.randomUUID(),key=`imports/${report.checksum}.json`;await putObject(key,Buffer.from(raw),'application/json');return sql.begin(async tx=>{
+  await tx`select pg_advisory_xact_lock(736402)`;const [prior]=await tx`select report from cms_imports where checksum=${report.checksum}`;if(prior)return publicReport(prior.report);
+  const imported:string[]=[],skipped:string[]=[],preimages:any[]=[],pathsBefore=await tx`select * from cms_paths`,redirectsBefore=await tx`select * from cms_redirects`;
+  for(const d of state.departments)await tx`insert into cms_departments(id,name,description,emails,active,confirmation) values (${d.id},${d.name},${d.description},${tx.json(d.emails)},${d.active},${d.confirmation}) on conflict do nothing`;
+  for(const t of state.settings.teams)await tx`insert into cms_teams(id,name) values (${t.id},${t.name}) on conflict do nothing`;
+  for(const module of modules)for(const source of state[module]){
+   const [old]=await tx`select * from cms_records where id=${source.id} for update`;if(old){if(resolutions[source.id]===undefined){skipped.push(source.id);continue;}if(old.version!==resolutions[source.id])throw new CmsError('conflict','Een importdoel is ondertussen gewijzigd.',409,{id:source.id});preimages.push(old);}
+   const draft=validateCandidate(module,source as any);let live=(source as any).live||((source as any).published||module==='forms'&&(source as any).active?structuredClone(draft):null);
+   if(module==='pages'&&live){live={...live,body:migrateLayout(live.body,`${source.id}:live`),bodyFormat:'page-layout-v2'};validateCandidate('pages',{...live,id:source.id});}
+   const version=(old?.version||0)+1;
+   await tx`insert into cms_records(id,module,title,slug,content_type,story_format,team_id,department_id,status,version,draft,live,import_batch,deleted_at) values (${source.id},${module},${draft.title||draft.name||''},${draft.slug||null},${draft.contentType||null},${draft.storyFormat||null},${draft.teamId||null},${draft.departmentId||null},${(source as any).status||(live?'published':'draft')},${version},${tx.json(draft)},${live?tx.json(live):null},${batch},${(source as any).deletedAt||null}) on conflict(id) do update set title=excluded.title,slug=excluded.slug,content_type=excluded.content_type,story_format=excluded.story_format,team_id=excluded.team_id,department_id=excluded.department_id,status=excluded.status,draft=excluded.draft,live=excluded.live,version=excluded.version,import_batch=excluded.import_batch,deleted_at=excluded.deleted_at,updated_at=now()`;
+   if(!live)await tx`update cms_records set live_id=null where id=${source.id}`;
+   await tx`delete from cms_paths where record_id=${source.id}`;
+   if(live){const publication=crypto.randomUUID();await tx`insert into cms_publications(id,record_id,record_version,snapshot,actor_id) values (${publication},${source.id},${version},${tx.json(live)},${p.id})`;await tx`update cms_records set live_id=${publication} where id=${source.id}`;}
+   const pathFor=(value:any)=>!value.slug?null:module==='pages'?`/clubmuur/${value.slug}`:module==='articles'?`/clubmuur/${value.contentType==='story'?'verhalen':'nieuws'}/${value.slug}`:module==='albums'?`/clubmuur/media/fotos/${value.slug}`:null;
+   const livePath=live?pathFor(live):null,draftPath=pathFor(draft);
+   for(const path of new Set([livePath,draftPath].filter(Boolean))){const [used]=await tx`select record_id from cms_paths where path=${path!}`;if(used&&used.record_id!==source.id)throw new CmsError('path-conflict','Importpad is al bezet.',409,{path});await tx`insert into cms_paths(path,record_id,kind) values (${path!},${source.id},${path===livePath?'live':'draft'})`;}
+   const [minimum]=await tx`select coalesce(min(version),0)::int as minimum from cms_revisions where record_id=${source.id}`;const revisionBase=Math.min(-1000,minimum.minimum-1);
+   for(const [i,r] of ((source as any).revisions||[]).entries()){const snapshot=module==='pages'?{...r.data,bodyFormat:'page-layout-v2',body:migrateLayout(r.data.body,`${source.id}:revision:${r.id}`)}:r.data;await tx`insert into cms_revisions(id,record_id,version,snapshot,label,actor_id) values (${`${batch}:${r.id}`},${source.id},${revisionBase-i},${tx.json(snapshot)},${r.label},${p.id})`;}
+   imported.push(source.id);
+  }
+  if(resolutions.settings!==undefined){const [old]=await tx`select * from cms_records where id='settings' for update`;if(old.version!==resolutions.settings)throw new CmsError('conflict','Homepage-instellingen zijn ondertussen gewijzigd.',409);preimages.push(old);const data=validateCandidate('settings',state.settings as any);await tx`update cms_records set draft=${tx.json(data)},live=${tx.json(data)},version=version+1,import_batch=${batch} where id='settings'`;const pub=crypto.randomUUID();await tx`insert into cms_publications(id,record_id,record_version,snapshot,actor_id) values (${pub},'settings',${old.version+1},${tx.json(data)},${p.id})`;await tx`update cms_records set live_id=${pub} where id='settings'`;imported.push('settings');}else skipped.push('settings');
+  for(const [module,id,items] of [['hero','site-hero',inspected.backup.appearance?.heroCards],['navigation','site-navigation',inspected.backup.appearance?.navigation]] as const){if(!items)continue;const [old]=await tx`select * from cms_records where id=${id} for update`;if(old&&resolutions[id]===undefined){skipped.push(id);continue;}if(old&&old.version!==resolutions[id])throw new CmsError('conflict','Website-indeling is ondertussen gewijzigd.',409,{id});if(old)preimages.push(old);const content=validateCandidate(module,{id,items}),version=(old?.version||0)+1;await tx`insert into cms_records(id,module,draft,live,version,import_batch,status) values (${id},${module},${tx.json(content)},${tx.json(content)},${version},${batch},'published') on conflict(id) do update set draft=excluded.draft,live=excluded.live,version=excluded.version,import_batch=excluded.import_batch`;const publication=crypto.randomUUID();await tx`insert into cms_publications(id,record_id,record_version,snapshot,actor_id) values (${publication},${id},${version},${tx.json(content)},${p.id})`;await tx`update cms_records set live_id=${publication} where id=${id}`;imported.push(id);}
+  let submissionsImported=0;
+  for(const s of state.submissions.filter(s=>!s.demo)){const [form]=await tx`select id from cms_records where id=${s.formId} and module='forms'`;if(!form)throw new CmsError('submission-form','Historische inzending verwijst naar ontbrekend formulier.',422,{id:s.id});const id=`legacy:${s.id}`;const snapshot={...s,legacyDefinitionUnavailable:true,definition:{name:s.formName,kind:s.kind,fields:s.answers.map(a=>({id:a.fieldId,label:a.label,type:a.type})),departmentId:s.departmentId}};const inserted=await tx`insert into cms_submissions(id,operation_id,form_id,form_version,kind,department_id,snapshot,answers,status,delivery_status,integration_status,created_at) values (${id},${`legacy:${s.id}`},${s.formId},0,${s.kind},${s.departmentId},${tx.json(snapshot)},${tx.json(s.answers)},${s.status},'legacy-unknown','not-applicable',${s.createdAt}) on conflict(operation_id) do nothing returning id`;submissionsImported+=inserted.length;}
+  await rebuildReferences(tx);const versions=imported.length?Object.fromEntries((await tx`select id,version from cms_records where id in ${tx(imported)}`).map(r=>[r.id,r.version])):{};const result={...report,batch,imported,skipped,preimages,pathsBefore:pathsBefore.filter(r=>imported.includes(r.record_id)),redirectsBefore:redirectsBefore.filter(r=>imported.includes(r.record_id)),versions,idMapping,accountsImported:0,submissionsImported};await tx`insert into cms_imports(id,checksum,archive_key,report) values (${batch},${report.checksum},${key},${tx.json(result)})`;await tx`insert into cms_audit(id,actor_id,action,record_id,request_id) values (${crypto.randomUUID()},${p.id},'import',${batch},${crypto.randomUUID()})`;return publicReport(result);
+ });}
+
+function publicReport(report:any){const {preimages,pathsBefore,redirectsBefore,...safe}=report;return safe;}
+export async function rebuildReferences(tx:any){
+ const records=await tx`select id,module,draft,live from cms_records`;
+ await tx`delete from cms_references`;await tx`delete from cms_album_media`;
+ const ids=new Set(records.map((r:any)=>r.id));
+ for(const record of records){for(const part of ['draft','live'])for(const target of referencesIn(record[part]))if(ids.has(target))await tx`insert into cms_references(record_id,target_id,snapshot) values (${record.id},${target},${part}) on conflict do nothing`;
+ if(record.module==='albums')for(const [position,id] of (record.draft.mediaIds||[]).entries())if(ids.has(id))await tx`insert into cms_album_media(album_id,media_id,position) values (${record.id},${id},${position}) on conflict do nothing`;}
+}
+export async function rollbackImport(p:Principal,batch:string){
+ authorize(p,'settings','manage');if(p.roleId!=='admin')throw new CmsError('forbidden','Import terugdraaien vereist een volledige beheerder.',403);
+ return sqlClient().begin(async tx=>{
+  await tx`select pg_advisory_xact_lock(736402)`;
+  const [source]=await tx`select * from cms_imports where id=${batch} for update`;
+  if(!source||!source.report.versions)throw new CmsError('import','Deze import heeft geen terugdraaibare servermutaties.',422);
+  const report=source.report;if(report.rolledBackAt)return {batch,status:'rolled-back'};
+  const ids=report.imported as string[];if(!ids.length)return {batch,status:'no-content-changes'};
+  for(const id of ids){const [current]=await tx`select * from cms_records where id=${id} for update`;if(!current||current.version!==report.versions[id])throw new CmsError('conflict','Een geïmporteerd record is na de import bewerkt. Draai dit niet automatisch terug.',409,{id});}
+  await tx`delete from cms_paths where record_id in ${tx(ids)}`;await tx`delete from cms_redirects where record_id in ${tx(ids)}`;
+  for(const id of ids){const [current]=await tx`select version,draft from cms_records where id=${id}`,old=report.preimages.find((r:any)=>r.id===id),version=current.version+1;
+   if(old){await tx`update cms_records set title=${old.title},slug=${old.slug},content_type=${old.content_type},story_format=${old.story_format},team_id=${old.team_id},department_id=${old.department_id},status=${old.status},draft=${tx.json(old.draft)},live=${old.live?tx.json(old.live):null},live_id=null,deleted_at=${old.deleted_at},import_batch=${old.import_batch},version=${version},updated_at=now() where id=${id}`;if(old.live){const publication=crypto.randomUUID();await tx`insert into cms_publications(id,record_id,record_version,snapshot,actor_id) values (${publication},${id},${version},${tx.json(old.live)},${p.id})`;await tx`update cms_records set live_id=${publication} where id=${id}`;}}
+   else await tx`update cms_records set live=null,live_id=null,status='archived',deleted_at=now(),version=${version},updated_at=now() where id=${id}`;
+   await tx`insert into cms_revisions(id,record_id,version,snapshot,label,actor_id) values (${crypto.randomUUID()},${id},${version},${tx.json(old?.draft||current.draft)},'import-rollback',${p.id})`;
+  }
+  for(const path of report.pathsBefore){const [used]=await tx`select record_id from cms_paths where path=${path.path}`;if(used)throw new CmsError('path-conflict','Een vroeger pad is inmiddels door een ander record bezet.',409);await tx`insert into cms_paths(path,record_id,kind) values (${path.path},${path.record_id},${path.kind})`;}
+  for(const redirect of report.redirectsBefore)await tx`insert into cms_redirects(from_path,to_path,record_id) values (${redirect.from_path},${redirect.to_path},${redirect.record_id}) on conflict(from_path) do nothing`;
+  // Historical submissions are retained; rolling back content never erases intake.
+  await rebuildReferences(tx);report.rolledBackAt=new Date().toISOString();await tx`update cms_imports set report=${tx.json(report)} where id=${batch}`;
+  await tx`insert into cms_audit(id,actor_id,action,record_id,request_id) values (${crypto.randomUUID()},${p.id},'import-rollback',${batch},${crypto.randomUUID()})`;
+  return {batch,status:'rolled-back'};
+ });
+}

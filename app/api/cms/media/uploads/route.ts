@@ -1,0 +1,4 @@
+import {principal,verifyOrigin} from '@/lib/server/permissions';
+import {uploadMedia} from '@/lib/server/media';
+import {bodyBytes,CmsError,errorResponse} from '@/lib/server/errors';
+export async function POST(request:Request){try{verifyOrigin(request);const p=await principal(request.headers);if(Number(request.headers.get('content-length')||0)>13_000_000)throw new CmsError('too-large','Upload is te groot.',413);const form=await new Request(request.url,{method:'POST',headers:request.headers,body:Buffer.from(await bodyBytes(request,13_000_000))}).formData(),file=form.get('file');if(!(file instanceof File))throw new CmsError('file','Kies een bestand.');return Response.json(await uploadMedia(p,file,{teamId:String(form.get('teamId')||''),season:String(form.get('season')||''),folderId:String(form.get('folderId')||'')}),{status:201});}catch(e){return errorResponse(e);}}
