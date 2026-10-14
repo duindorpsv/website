@@ -35,27 +35,13 @@ const legacyDefault:ClubNavigationItem[] = [
 
 export function useClubNavigation(baseOnly=false):ClubNavigationItem[]{
  const {state}=useCMS();
- const [items,setItems]=useState<ClubNavigationItem[]>(defaultClubNavigation);
- useEffect(()=>{
-  const read=()=>{
-   try{
-    const stored=localStorage.getItem(STORAGE_KEY);
-    const value=stored&&stored.length<=40000?JSON.parse(stored):null;
-    const oldDefault=Array.isArray(value)&&JSON.stringify(value)===JSON.stringify(legacyDefault);
-    const migrated=migrateClubNavigation(value);
-    setItems(validClubNavigation(migrated)&&!oldDefault?migrated:defaultClubNavigation);
-   }catch{setItems(defaultClubNavigation);}
-  };
-  const onStorage=(event:StorageEvent)=>{if(event.key===STORAGE_KEY||event.key===null)read();};
-  read();window.addEventListener('storage',onStorage);window.addEventListener(CONTENT_EVENT,read);
-  return()=>{window.removeEventListener('storage',onStorage);window.removeEventListener(CONTENT_EVENT,read);};
- },[]);
+ const items=state.appearance?.navigation||defaultClubNavigation;
  return baseOnly?items:cmsNavigation(items,state,seedNavigationPages);
 }
 
-export function saveClubNavigation(items:ClubNavigationItem[]):void{
- if(!validClubNavigation(items))throw new Error('Controleer de namen en bestemmingen. Kies bestaande Clubmuur-pagina’s en maximaal 13 subpagina’s per onderdeel.');
- try{localStorage.setItem(STORAGE_KEY,JSON.stringify(items));}
- catch{throw new Error('Opslaan is niet gelukt. Controleer of lokale opslag in deze browser is toegestaan.');}
- window.dispatchEvent(new Event(CONTENT_EVENT));
+export async function saveClubNavigation(items:ClubNavigationItem[]):Promise<void>{
+ if(!validClubNavigation(items))throw new Error('Controleer namen en bestemmingen.');
+ const current=await fetch('/api/cms/navigation/site-navigation').then(r=>r.ok?r.json():null);
+ const response=await fetch('/api/cms/mutations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operationId:crypto.randomUUID(),changes:[{module:'navigation',id:'site-navigation',expectedVersion:current?.version||0,action:'publish',data:{items}}]})});
+ const data=await response.json();if(!response.ok)throw new Error(data.message);window.dispatchEvent(new Event(CONTENT_EVENT));
 }

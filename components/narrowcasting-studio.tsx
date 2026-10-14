@@ -32,6 +32,7 @@ export function NarrowcastingStudio() {
 }
 
 function Studio() {
+  const serverVersion=useRef(0),saveChain=useRef(Promise.resolve()),screenOnly=useRef(false);
   const [groups,setGroups] = useState<NarrowcastGroup[]>(initialGroups);
   const [groupId,setGroupId] = useState('clubmuur');
   const [selected,setSelected] = useState('wedstrijd');
@@ -59,13 +60,16 @@ function Studio() {
   const height = portrait ? 1920 : 1080;
 
   useEffect(()=>{
-    const query = new URLSearchParams(window.location.search);
+   const load=async()=>{
+    const query = new URLSearchParams(window.location.search);screenOnly.current=query.get('tv')==='1';
+    const serverResponse=screenOnly.current?await fetch('/api/site/config'):await fetch('/api/cms/narrowcasting/studio');
+    const serverData=serverResponse.ok?await serverResponse.json():null;const serverSaved=screenOnly.current?serverData?.narrowcasting:serverData;serverVersion.current=serverSaved?.version||0;
     let loaded = initialGroups(); let chosen = loaded[0]; let activeId = chosen.slides[0].id;
     let included = chosen.slides.map(s=>s.id);
     try {
-      const saved = JSON.parse(localStorage.getItem(STORE)||'{}');
+      const saved = serverSaved||JSON.parse(localStorage.getItem(STORE)||'{}');
       const valid = parseGroups(saved.groups);
-      if(valid.length){loaded=valid;chosen=loaded.find(g=>g.id===saved.groupId)||loaded[0];}
+      if(valid.length){loaded=valid;chosen=loaded.find(g=>g.id===(query.get('groep')||saved.groupId))||loaded[0];}
       for(const item of loaded){
         const remembered=saved.enabledByGroup?.[item.id];
         if(Array.isArray(remembered)){const ids=item.slides.filter(s=>remembered.includes(s.id)).map(s=>s.id);if(ids.length)enabledByGroup.current[item.id]=ids;}
@@ -93,13 +97,15 @@ function Studio() {
     if(query.get('tv')==='1')setPlayer(true);
     else if(window.location.hash){const clean=new URL(window.location.href);clean.hash='';window.history.replaceState(null,'',clean);}
     setReady(true);
+   };void load().catch(()=>{setReady(true);setStatus('Schermconfiguratie kon niet worden geladen.');});
   },[]);
 
   useEffect(()=>{
     if(!ready)return;
     enabledByGroup.current[groupId]=enabled;
-    try{localStorage.setItem(STORE,JSON.stringify({groups,groupId,selected,seconds,enabled,enabledByGroup:enabledByGroup.current}));}
-    catch{setStatus('Bewaren in deze browser lukt niet. Kopieer de schermlink om je groep te behouden.');}
+    if(screenOnly.current)return;
+    const configuration={groups,groupId,selected,seconds,enabled,enabledByGroup:enabledByGroup.current};
+    const timer=setTimeout(()=>{saveChain.current=saveChain.current.then(async()=>{const response=await fetch('/api/cms/mutations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operationId:crypto.randomUUID(),changes:[{module:'narrowcasting',id:'studio',expectedVersion:serverVersion.current,action:'save',data:configuration}]})});const data=await response.json();if(response.ok){serverVersion.current=data.versions.studio;setStatus('Schermconfiguratie opgeslagen als concept.');}else setStatus(data.message||'Opslaan mislukt.');});},650);return()=>clearTimeout(timer);
   },[groups,groupId,selected,seconds,enabled,ready]);
 
   useEffect(()=>{
@@ -177,13 +183,13 @@ function Studio() {
     const copy=[...slides];const index=copy.findIndex(s=>s.id===id);const target=index+direction;if(target<0||target>=copy.length)return;
     [copy[index],copy[target]]=[copy[target],copy[index]];setGroups(current=>current.map(g=>g.id===group.id?{...g,slides:copy}:g));setEnabled(copy.filter(s=>enabled.includes(s.id)).map(s=>s.id));
   }
-  function removeGroup(){if(groups.length<2)return;const remaining=groups.filter(g=>g.id!==group.id);setGroups(remaining);chooseGroup(remaining[0]);setStatus(`Groep ‘${group.name}’ verwijderd uit deze browser.`);}
+  function removeGroup(){if(groups.length<2)return;const remaining=groups.filter(g=>g.id!==group.id);setGroups(remaining);chooseGroup(remaining[0]);setStatus(`Groep ‘${group.name}’ verwijderd uit het concept.`);}
 
   return <div className={`nc-studio ${player?'nc-player-mode':''} ${controlsVisible?'nc-player-controls-visible':''}`} ref={root} data-theme="light" onPointerMove={revealControls} onPointerDown={revealControls}>
     <header className="nc-topbar"><a href="/clubmuur" className="nc-studio-brand"><img src="/assets/logo.png" alt="Duindorp SV"/><span>ONZETROTS<span className="nc-tv-label">TV</span><small>DUINDORP SV · NARROWCASTING</small></span></a><a className="nc-back" href="/clubmuur"><ArrowLeft size={15}/>Terug naar Clubmuur</a><span className="nc-concept-label">SCHERMSTUDIO</span></header>
     <main className="nc-workspace">
       <div className="nc-intro"><div><span className="nc-eyebrow">Onze Club. Onze Trots.</span><h1>Jouw <span>clubschermen.</span></h1><p>Maak een groep met teams, overzichten en een indeling voor jouw scherm.</p></div><div className="nc-format-switch" role="group" aria-label="Schermformaat"><button aria-pressed={!portrait} onClick={()=>setPortrait(false)}><Monitor size={19}/><span>Liggend<b>16:9</b></span></button><button aria-pressed={portrait} onClick={()=>setPortrait(true)}><Smartphone size={19}/><span>Staand<b>9:16</b></span></button></div></div>
-      <div className="nc-group-bar"><label>Schermgroep<select value={group.id} onChange={e=>{const next=groups.find(g=>g.id===e.target.value);if(next)chooseGroup(next);}}>{groups.map(g=><option key={g.id} value={g.id}>{g.name} · {g.slides.length} slides</option>)}</select></label><button className="nc-new-group" disabled={groups.length>=30} onClick={()=>setWizard(true)}><Plus size={17}/>Groep maken</button>{groups.length>1&&<button className="nc-delete-group" onClick={removeGroup} aria-label={`Groep ${group.name} verwijderen`}><Trash2 size={16}/></button>}<span>Groepen worden in deze browser bewaard.</span></div>
+      <div className="nc-group-bar"><label>Schermgroep<select value={group.id} onChange={e=>{const next=groups.find(g=>g.id===e.target.value);if(next)chooseGroup(next);}}>{groups.map(g=><option key={g.id} value={g.id}>{g.name} · {g.slides.length} slides</option>)}</select></label><button className="nc-new-group" disabled={groups.length>=30} onClick={()=>setWizard(true)}><Plus size={17}/>Groep maken</button>{groups.length>1&&<button className="nc-delete-group" onClick={removeGroup} aria-label={`Groep ${group.name} verwijderen`}><Trash2 size={16}/></button>}<span>Schermgroepen worden centraal als concept bewaard.</span><button onClick={async()=>{await saveChain.current;const response=await fetch('/api/cms/mutations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operationId:crypto.randomUUID(),changes:[{module:'narrowcasting',id:'studio',expectedVersion:serverVersion.current,action:'publish',data:{groups,groupId,selected,seconds,enabled,enabledByGroup:enabledByGroup.current}}]})});const data=await response.json();if(response.ok){serverVersion.current=data.versions.studio;setStatus('Schermconfiguratie gepubliceerd.');}else setStatus(data.message);}}>Schermen publiceren</button></div>
       <div className="nc-main-grid">
         <aside className="nc-playlist"><div className="nc-playlist-heading"><span>JOUW AFSPEELLIJST</span><b>{String(enabled.length).padStart(2,'0')}</b></div><p>Kies, verplaats of pauzeer een slide.</p><div className="nc-screen-list">{slides.map((slide,index)=>{const Icon=icons[slide.kind];return <div className={`nc-screen-option ${active.id===slide.id?'nc-selected':''}`} key={slide.id}><button className="nc-option-main" aria-pressed={active.id===slide.id} onClick={()=>{setSelected(slide.id);setProgress(0);tickStart.current=performance.now();}}><span className="nc-option-icon"><Icon size={19}/></span><span><strong>{slide.title}</strong><small>{kindTitles[slide.kind]}</small></span></button><div className="nc-order-buttons"><button disabled={index===0} aria-label={`${slide.title} omhoog`} onClick={()=>reorder(slide.id,-1)}><ArrowUp size={11}/></button><button disabled={index===slides.length-1} aria-label={`${slide.title} omlaag`} onClick={()=>reorder(slide.id,1)}><ArrowDown size={11}/></button></div><button className="nc-include" aria-label={`${slide.title} ${enabled.includes(slide.id)?'uit':'in'} de afspeellijst`} aria-pressed={enabled.includes(slide.id)} onClick={()=>toggleScreen(slide.id)}>{enabled.includes(slide.id)&&<Check size={12}/>}</button></div>;})}</div><div className="nc-playlist-note"><span className="nc-small-line"/><strong>Programma, uitslagen en standen</strong><p>Dezelfde Sportlink-bron als de website. Tijdens afspelen wisselen overzichten automatisch door alle beschikbare rijen.</p></div></aside>
         <section className="nc-preview-panel" aria-label="Voorbeeld van het scherm">

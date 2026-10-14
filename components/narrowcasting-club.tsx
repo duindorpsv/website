@@ -1,3 +1,5 @@
+'use client';
+import {useCMS} from './cms/provider';
 type ClubScreenProps = { kind: string; portrait: boolean };
 
 const menu = [
@@ -27,26 +29,7 @@ function CanteenScreen() {
   </>;
 }
 
-function NewsScreen() {
-  return <>
-    <div className="nk-heading nk-news-heading"><div><span className="nk-eyebrow">BERICHTEN VAN DUINDORP SV</span><h1>Club<em>nieuws.</em></h1></div><span className="nk-header-label">TRAININGEN · VRIJWILLIGERS · JEUGD</span></div>
-    <div className="nk-news-layout">
-      <section className="nk-walking-feature">
-        <span className="nk-feature-kicker">NIEUW BIJ DUINDORP SV</span>
-        <h2>Walking<br/><em>Football.</em></h2>
-        <p>Voetbal in wandeltempo.<br/>Eerste training: 27 oktober 2026.</p>
-        <div className="nk-training-date"><strong>27</strong><div><span>OKTOBER 2026</span><b>Eerste training</b></div></div>
-        <span className="nk-walking-word" aria-hidden="true">WALKING</span>
-        <img className="nk-walking-people" src="/assets/clubmuur-portraits-v14/07-walking-1280.webp" alt="Het Walking Football-team van Duindorp SV"/>
-        <div className="nk-walking-foot">Onze Club. Onze Trots.</div>
-      </section>
-      <div className="nk-notice-stack">
-        <section className="nk-club-notice nk-volunteer"><span className="nk-notice-index">01 / VRIJWILLIGERS</span><svg className="nk-notice-symbol" viewBox="0 0 80 80" aria-hidden="true"><path d="M40 67S9 47 9 26c0-17 23-22 31-6 8-16 31-11 31 6 0 21-31 41-31 41Z"/></svg><h2>Vrijwilligers<br/>bij de club.</h2><p>Vraag bij de club naar<br/>de mogelijkheden om te helpen.</p><b>Voorbeeld van een vrijwilligersbericht.</b></section>
-        <section className="nk-club-notice nk-support"><span className="nk-notice-index">02 / LANGS DE LIJN</span><h2>Jeugd &<br/>supporters.</h2><p>Respecteer spelers,<br/>scheidsrechters en begeleiding.</p><span className="nk-notice-demo">Voorbeelden van clubberichten</span></section>
-      </div>
-    </div>
-  </>;
-}
+function NewsScreen(){const {state}=useCMS();const articles=state.articles.filter(a=>a.live?.contentType==='news'&&!a.deletedAt).slice(0,3);return <><div className="nk-heading nk-news-heading"><h1>Club<em>nieuws.</em></h1></div><div className="nk-news-layout">{articles.length?articles.map(a=><article key={a.id}><h2>{a.live!.title}</h2><p>{a.live!.intro}</p>{a.demo&&<small>Voorbeeldbericht</small>}</article>):<p>Er zijn nog geen gepubliceerde nieuwsberichten.</p>}</div></>;}
 
 function PartnersScreen() {
   return <>

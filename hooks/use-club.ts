@@ -28,9 +28,5 @@ function migrateHeroCards(cards:HeroCardConfig[]){
   return unchangedDefault?{...defaultHeroCards.find(value=>value.id===card.id)!}:card;
  });
 }
-export function useHeroCards(){
- const [cards,setCards]=useState<HeroCardConfig[]>(defaultHeroCards);
- useEffect(()=>{const read=()=>{try{const v=JSON.parse(localStorage.getItem('duindorp-hero-cards')||'null');setCards(validHeroCards(v)?migrateHeroCards(v):defaultHeroCards);}catch{setCards(defaultHeroCards)}};read();window.addEventListener('storage',read);window.addEventListener('duindorp-hero',read);return()=>{window.removeEventListener('storage',read);window.removeEventListener('duindorp-hero',read)}},[]);
- return cards;
-}
-export function saveHeroCards(cards:HeroCardConfig[]){if(!validHeroCards(cards))throw new Error('Controleer de vier vakken.');localStorage.setItem('duindorp-hero-cards',JSON.stringify(cards));window.dispatchEvent(new Event('duindorp-hero'));}
+export function useHeroCards(){const {state}=useCMS();return state.appearance?.hero||defaultHeroCards;}
+export async function saveHeroCards(cards:HeroCardConfig[]){if(!validHeroCards(cards))throw new Error('Controleer de vier vakken.');const current=await fetch('/api/cms/hero/site-hero').then(r=>r.ok?r.json():null);const response=await fetch('/api/cms/mutations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operationId:crypto.randomUUID(),changes:[{module:'hero',id:'site-hero',expectedVersion:current?.version||0,action:'publish',data:{items:cards}}]})});const data=await response.json();if(!response.ok)throw new Error(data.message);window.dispatchEvent(new Event('duindorp-hero'));}

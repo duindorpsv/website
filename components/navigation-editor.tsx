@@ -27,8 +27,8 @@ export function NavigationEditor(){
  function move(groupId:string,index:number,direction:-1|1){
   updateGroup(groupId,children=>{const next=[...children];const destination=index+direction;if(destination<0||destination>=next.length)return children;[next[index],next[destination]]=[next[destination],next[index]];return next;});
  }
- function save(next:ClubNavigationItem[]){
-  try{saveClubNavigation(next);setDraft(next);setError('');setNotice('Het mobiele menu is opgeslagen in deze browser. Open de Clubmuur om je wijzigingen te bekijken.');return true;}
+ async function save(next:ClubNavigationItem[]){
+  try{await saveClubNavigation(next);setDraft(next);setError('');setNotice('Het mobiele menu is gepubliceerd op de server. Open de Clubmuur om je wijzigingen te bekijken.');return true;}
   catch(reason){setError(reason instanceof Error?reason.message:'Opslaan is niet gelukt.');setNotice('');return false;}
  }
  return <section className="cm-navigation-editor">
@@ -48,6 +48,6 @@ export function NavigationEditor(){
    <div className="cm-navigation-save"><Button type="button" className="btn btn-outline" onClick={()=>setReset(true)}><RotateCcw size={16}/>Herstel standaard</Button><span>{dirty?'Niet-opgeslagen wijzigingen':'Alle wijzigingen opgeslagen'}</span><Button type="submit" className="btn btn-blue" disabled={!dirty||!canSave}><Save size={17}/>Menu opslaan</Button></div>
    {notice&&<p className="cms-status cm-navigation-notice" role="status"><Check size={18}/>{notice}</p>}{error&&<p className="cm-navigation-error" role="alert">{error}</p>}
   </form>
-  <Dialog open={reset} onOpenChange={setReset}><DialogContent className="club-dialog"><DialogHeader><DialogTitle>Standaardmenu herstellen?</DialogTitle><DialogDescription>Je eigen menulinks in deze browser worden vervangen door de oorspronkelijke indeling. De pagina’s zelf blijven behouden.</DialogDescription></DialogHeader><div className="form-actions"><Button className="btn btn-outline" onClick={()=>setReset(false)}>Annuleren</Button><Button className="btn btn-blue" onClick={()=>{if(save(defaultClubNavigation))setReset(false);}}>Menu herstellen</Button></div></DialogContent></Dialog>
+  <Dialog open={reset} onOpenChange={setReset}><DialogContent className="club-dialog"><DialogHeader><DialogTitle>Standaardmenu herstellen?</DialogTitle><DialogDescription>Je eigen menulinks in deze browser worden vervangen door de oorspronkelijke indeling. De pagina’s zelf blijven behouden.</DialogDescription></DialogHeader><div className="form-actions"><Button className="btn btn-outline" onClick={()=>setReset(false)}>Annuleren</Button><Button className="btn btn-blue" onClick={async()=>{if(await save(defaultClubNavigation))setReset(false);}}>Menu herstellen</Button></div></DialogContent></Dialog>
  </section>;
 }
