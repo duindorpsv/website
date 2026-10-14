@@ -50,3 +50,5 @@ Integratietests weigeren de gewone development-/productiedatabase. Het [acceptat
 - [CMS-handleiding](ops/cms-guide.md) en [servercontracten](ops/api-contract.md).
 
 Staging/production vereisen eigen private S3-buckets, beperkte databaseaccounts, HTTPS, SMTP, testmailafbakening en externe backupconfiguratie. Sportlink-lezen vereist het bevoegde club-client-ID. Het openbare leescontract verleent geen Sportlink-schrijfrechten. Bewaartermijnen en echte ontvangers worden door de club vastgesteld. De hosting-VPS en externe credentials volgen na de developmentbuild en push naar `main`; er is nog geen deployment of externe verwerking bewezen.
+
+Op een gedeelde VPS met uitgeputte watcherlimieten kan development met `WATCHPACK_POLLING=1500 pnpm dev --port 62500 --webpack` draaien. Dit is uitsluitend een developmentoptie; het geteste productie-image gebruikt de standalone server en de eigen beperkte workerworkspace. Backendversies worden door één pnpm-catalogus gedeeld.

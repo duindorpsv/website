@@ -42,7 +42,7 @@ Een geïsoleerde restore naar `duindorp_restore_test` plus gekopieerde private o
 | SEO02 | Deels | Echte 404 en redirectopslag getest; preview is geautoriseerd/noindex. Volledige HTTP-redirect/previewmatrix nog nalopen. |
 | REG01 | Deels | Goedgekeurde historie/vrijwilligersbestanden behouden; historie responsive zonder JS gecontroleerd. Geen volledige screenshotvergelijking van alle pagina’s. |
 | REG02 | Deels | Bestaande regressiescripts behouden en geslaagd; runtimeport en narrowcastingopslag aanwezig. Werkelijke Sportlink-client-ID/feed ontbreekt; één observed-fixturetest overgeslagen. |
-| OPS01 | Nog te verifiëren | main-workflow bevat alleen checks. Push/remote-CI wordt in uitvoerlog vastgelegd. |
+| OPS01 | Geslaagd | Main-push draait alleen GitHub-hosted CI; run 38566921981 is geslaagd. Geen hostingdeployment uitgevoerd. |
 | OPS02 | Niet uitgevoerd | Staging/productionrunners en serving-host ontbreken; exacte digestpromotie geïmplementeerd. |
 | OPS03 | Niet uitgevoerd | Serverlock, monotone run-ID en branch/treebinding geïmplementeerd; echte runnerwachtrij nog testen. |
 | OPS04 | Niet uitgevoerd | Rollbackscript/healthfallback aanwezig; daadwerkelijke serving-host-foutrelease nog simuleren. |
@@ -72,3 +72,5 @@ Hostnaam/SSH- of Tailscale-toegang; bestaande proxy/sites/poorten/gebruikers/fir
 ## Definitieve imagecontrole
 
 De werkende developmentcode en eerdere imagebuilds zijn lokaal gecontroleerd. De laatste volledige imageherhaling liep op de volle development-VPS vast bij uitpakken/dependencykopiëren; dit is geen geslaagde runtimecontrole. Alleen eigen gegenereerde Next-artifacts en aantoonbare Duindorp-buildcache zijn opgeruimd. De worker heeft nu een eigen klein runtimeworkspacepakket. Main-CI bouwt het image op GitHub-hosted infrastructuur, draait web/worker met readonly filesystem, voert de browsersuite uit en controleert readiness na restart. Die run moet daadwerkelijk slagen voordat het definitieve image als getest wordt gerapporteerd.
+
+De definitieve [main-CI-run 38566921981](https://github.com/duindorpsv/website/actions/runs/38566921981) is geslaagd voor broncommit `3cb0248baf194a6cbce1642736986d80f1dce6e4`. Bewijs: frozen installatie van beide workspaces, 97 unit/regressietests + één skip, 18 PostgreSQL-integraties, types, Next/runtimebuild, concrete Dockerimagebuild, beperkt DB-account, web/worker op readonly filesystem, acht browserproeven en readiness na webcontainerrestart. Dit is getest op de GitHub-hosted buildrunner; externe staging/S3/SMTP/restore blijven open.

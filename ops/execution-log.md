@@ -29,3 +29,11 @@ Nog geen staging/productiondeployment, browserdatamigratie of externe verzending
 - Lokale laatste image-export liep tegen schijfcapaciteit aan. Alleen eigen gegenereerde Next-output en geverifieerde eigen buildcache aangepakt. Andere Docker-projecten/volumes blijven behouden. Eerdere imagebuilds worden niet als bewijs voor de laatste runtimewijzigingen gebruikt.
 - Worker/migratie/seed/owner gebruiken een aparte runtimeworkspace met gedeelde catalog-versies; main-CI bouwt en controleert het concrete image op de GitHub-hosted runner.
 - Staging-approved artifact verschijnt pas na vereiste menselijke stagingacceptatie. Production vereist passend extern restorebewijs voor hetzelfde digest; een developmentmarker is onvoldoende.
+
+## Main en definitieve CI
+
+- Code naar `duindorpsv/website:main` gepusht; main heeft uitsluitend de verificatieworkflow. Geen staging-/productionbranch gemaakt of deployment gestart.
+- Eerste remote runs faalden bij de service-initialisatie door quoting van het PostgreSQL-healthcommando. Quoting gecorrigeerd, opnieuw gepusht.
+- Broncommit `3cb0248baf194a6cbce1642736986d80f1dce6e4`: [GitHub-run 38566921981](https://github.com/duindorpsv/website/actions/runs/38566921981) volledig geslaagd. 97 unit/regressietests + 1 skip; 18 echte DB-integraties; typecheck/build/bundles; concrete imagebuild; beperkt databaseaccount; readonly web/worker; 8 browserproeven; readiness na webrestart.
+- Het uiteindelijke image is op de GitHub-hosted buildrunner bewezen, zoals de afgesproken scheiding van build- en serving-host vereist. De lokale volle schijf wordt niet omzeild door andere projecten te verwijderen.
+- Developmentbestandwatchers liepen daarna tegen de per-user watchercapaciteit op deze gedeelde VPS aan. Voor lokale preview wordt process-local Watchpack-polling gebruikt; systeemlimieten en andere diensten zijn niet gewijzigd.
