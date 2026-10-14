@@ -10,3 +10,8 @@ attachments
 test-results
 playwright-report
 *.tsbuildinfo
+
+**/node_modules
+__pycache__
+*.pyc
+dist
