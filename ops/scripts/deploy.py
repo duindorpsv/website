@@ -31,6 +31,12 @@ def deploy(target,request):
  if not isinstance(token,str) or not 1<len(token)<4096:raise ValueError('Invalid token')
  config=json.loads((CONFIG_ROOT/target/'deploy.json').read_text())
  if set(config)!=set(['dockerHost','webPort','baseUrl']):raise ValueError('Invalid installed configuration')
+ import shlex
+ runtime={}
+ for line in (CONFIG_ROOT/target/'runtime.env').read_text().splitlines():
+  if not line.strip() or line.lstrip().startswith('#') or '=' not in line:continue
+  key,value=line.split('=',1);parts=shlex.split(value);runtime[key.strip()]=parts[0] if parts else ''
+ if runtime.get('APP_ENV')!=target or runtime.get('MEDIA_DRIVER')!='s3' or runtime.get('APP_BASE_URL','').rstrip('/')!=config['baseUrl'].rstrip('/'):raise ValueError('Runtime environment does not match the installed target')
  state=STATE_ROOT/target;state.mkdir(parents=True,exist_ok=True)
  with open(state/'deploy.lock','a') as lock:
   fcntl.flock(lock,fcntl.LOCK_EX)
@@ -50,7 +56,9 @@ def deploy(target,request):
    command([*compose,'pull','web','worker','migration'],base)
    labels=json.loads(command(['docker','image','inspect',base['APP_IMAGE'],'--format','{{json .Config.Labels}}'],base))
    if labels.get('org.opencontainers.image.revision')!=release['sourceSha']:raise ValueError('Image source label mismatch')
-   if target=='production' and not (state/'restore-tested.json').exists():raise ValueError('Production requires restore evidence')
+   if target=='production':
+    evidence=json.loads((state/'restore-tested.json').read_text())
+    if evidence.get('digest')!=release['digest'] or evidence.get('externalBackup') is not True or not evidence.get('backupRef') or evidence.get('checks')!={'login':True,'page':True,'media':True,'formHistory':True}:raise ValueError('Production requires matching external restore evidence')
    # Backup execution is a separately installed fixed command; no destructive DB rollback.
    command([str(CONFIG_ROOT/target/'backup.sh')],base)
    command([*compose,'up','-d','database'],base)

@@ -39,23 +39,53 @@ jobs:
           corepack prepare pnpm@11.25.0 --activate
           pnpm install --frozen-lockfile
           mkdir -p .runtime
-          printf 'AUTH_SESSION_SECRET=%s\n' "$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          session_secret=$(openssl rand -hex 32)
+          echo "::add-mask::$session_secret"
+          printf 'AUTH_SESSION_SECRET=%s\n' "$session_secret" >> "$GITHUB_ENV"
       - run: pnpm test && pnpm typecheck
       - run: pnpm db:migrate && pnpm db:seed && pnpm test:integration
       - run: pnpm build && pnpm build:runtime
       - run: |
           pnpm exec tsx scripts/development-test-account.ts
-          cp -r public .next/standalone/public
-          cp -r .next/static .next/standalone/.next/static
-          node .next/standalone/server.js > .runtime/web.log 2>&1 &
-          pnpm worker > .runtime/worker.log 2>&1 &
+          docker build -t duindorp-ci .
+          node --input-type=module <<'JS'
+          import {writeFileSync} from 'node:fs';
+          import {randomBytes} from 'node:crypto';
+          const values={};
+          for(const key of ['APP_ENV','APP_BASE_URL','DATABASE_URL','AUTH_SESSION_SECRET','MEDIA_DRIVER','TEST_MAIL_TO']) values[key]=process.env[key];
+          const password=randomBytes(24).toString('hex');console.log('::add-mask::'+password);
+          writeFileSync('.runtime/provision.env','MIGRATION_DATABASE_URL='+process.env.DATABASE_URL+'\nAPP_DATABASE_PASSWORD='+password+'\n',{mode:0o600});
+          const url=new URL(values.DATABASE_URL);url.username='duindorp_app';url.password=password;values.DATABASE_URL=url.href;
+          values.MEDIA_ROOT='/data/media';values.RELEASE_DIGEST='ci-image';
+          writeFileSync('.runtime/image.env',Object.entries(values).map(([key,value])=>key+'='+value).join('\n')+'\n',{mode:0o600});
+          JS
+          set -a
+          source .runtime/provision.env
+          set +a
+          pnpm exec tsx scripts/provision-database.ts
+          sudo chown -R 1000:1000 .runtime/media
+          pnpm exec tsx -e 'import {sqlClient,closeDb} from "./db/index.ts";void(async()=>{await sqlClient()`delete from cms_heartbeats`;await closeDb();})();'
+          docker run -d --name duindorp-ci-worker --network host --env-file .runtime/image.env --mount type=bind,src="$PWD/.runtime/media",dst=/data/media --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges duindorp-ci worker
+          docker run -d --name duindorp-ci-web --network host --env-file .runtime/image.env --mount type=bind,src="$PWD/.runtime/media",dst=/data/media --read-only --tmpfs /tmp --tmpfs /app/.next/cache:uid=1000,gid=1000 --cap-drop ALL --security-opt no-new-privileges duindorp-ci
           pnpm exec playwright install --with-deps chromium --only-shell
           for attempt in $(seq 1 40); do
             if curl --fail --silent http://127.0.0.1:3000/health/ready >/dev/null; then break; fi
             sleep 1
           done
           curl --fail --silent http://127.0.0.1:3000/health/ready >/dev/null
+          test "$(docker inspect -f '{{.State.Running}}' duindorp-ci-worker)" = true
           pnpm test:e2e
+          docker restart duindorp-ci-web
+          for attempt in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:3000/health/ready >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:3000/health/ready >/dev/null
+      - if: always()
+        run: |
+          docker logs duindorp-ci-web > .runtime/web.log 2>&1 || true
+          docker logs duindorp-ci-worker > .runtime/worker.log 2>&1 || true
+          docker rm -f duindorp-ci-web duindorp-ci-worker >/dev/null 2>&1 || true
       - if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

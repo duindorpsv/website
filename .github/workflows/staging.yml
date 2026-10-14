@@ -65,6 +65,27 @@ jobs:
           import json,os
           print(json.dumps({'release':json.load(open('release.json')),'token':os.environ['DEPLOY_TOKEN']}))
           PY
+  acceptance:
+    needs: deploy
+    runs-on: ubuntu-24.04
+    environment: staging-acceptance
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release
+      - name: Require configured human acceptance
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import json,os,urllib.request
+          request=urllib.request.Request('https://api.github.com/repos/duindorpsv/website/environments/staging-acceptance',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
+          with urllib.request.urlopen(request,timeout=15) as response: environment=json.load(response)
+          assert any(rule.get('type')=='required_reviewers' and rule.get('reviewers') for rule in environment.get('protection_rules',[])), 'Configure required reviewers before staging acceptance'
+          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: staging-approved

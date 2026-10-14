@@ -2,7 +2,7 @@
 
 Dit is een verslag van uitgevoerde developmentcontroles, geen productieacceptatie. Bron: Sites v44, commit e91ed87f3e5917f286885c6593fe397f8e67cdf4; repository duindorpsv/website. Private fixtures, testaccounts, logs en backups staan uitsluitend in `.runtime/` en gaan niet naar Git.
 
-`pnpm test`: 98 scenario’s, 97 geslaagd, één bewust overgeslagen Sportlink-observed-fixture. `pnpm typecheck`: geslaagd. `pnpm test:integration`: 15 echte PostgreSQL-scenario’s geslaagd. De browsersuite heeft acht scenario’s: login/401/SSR, bouwer/undo, responsive historie, contactontvangst, pointer/menuverplaatsingen, twee-browsernieuwsopslag, emulated touch/cancel en gepubliceerde layout/metadata zonder JS. De definitieve image/runtime- en remote-CI-resultaten staan in het uitvoerlog.
+`pnpm test`: 98 scenario’s, 97 geslaagd, één bewust overgeslagen Sportlink-observed-fixture. `pnpm typecheck`: geslaagd. `pnpm test:integration`: 18 echte PostgreSQL-scenario’s geslaagd. De browsersuite heeft acht scenario’s: login/401/SSR, bouwer/undo, responsive historie, contactontvangst, pointer/menuverplaatsingen, twee-browsernieuwsopslag, emulated touch/cancel en gepubliceerde layout/metadata zonder JS. De definitieve image/runtime- en remote-CI-resultaten staan in het uitvoerlog.
 
 Een geïsoleerde restore naar `duindorp_restore_test` plus gekopieerde private objecten is werkelijk uitgevoerd. Login, historische pagina, synthetische upload en oorspronkelijke formulierdefinitie werkten. SMTP is uitsluitend tegen de afzonderlijke lokale Mailpit getest; Brevo-responses zijn herkenbare contractfixtures. Geen werkende externe nieuwsbrief, Sportlink-schrijfactie, S3-backup of stagingdeployment wordt hiermee geclaimd.
 
@@ -68,3 +68,7 @@ Een geïsoleerde restore naar `duindorp_restore_test` plus gekopieerde private o
 ## Nog aan te leveren of op de hosting-VPS uit te voeren
 
 Hostnaam/SSH- of Tailscale-toegang; bestaande proxy/sites/poorten/gebruikers/firewall inventariseren; staging- en productiedomeinen; private S3-buckets/credentials en externe restic/rclone-backupbestemming; echte SMTP-afzender/toegang/testadres; nieuwsbriefprovider/list; Sportlink lees-client-ID en het afzonderlijk geautoriseerde ledenaanmeldcontract of bevestigde handmatige procedure; echte eigenaaractivatie/MFA; ontvangers/bewaarbeleid; eventueel eigen browserbackup/D1/narrowcastingexport. Daarna runners, GitHub-omgevingsbescherming, stagingacceptatie, rollback, externe restore en regressie van bestaande sites bewijzen. Production blijft geblokkeerd zonder hetzelfde goedgekeurde stagingdigest en restorebewijs.
+
+## Definitieve imagecontrole
+
+De werkende developmentcode en eerdere imagebuilds zijn lokaal gecontroleerd. De laatste volledige imageherhaling liep op de volle development-VPS vast bij uitpakken/dependencykopiëren; dit is geen geslaagde runtimecontrole. Alleen eigen gegenereerde Next-artifacts en aantoonbare Duindorp-buildcache zijn opgeruimd. De worker heeft nu een eigen klein runtimeworkspacepakket. Main-CI bouwt het image op GitHub-hosted infrastructuur, draait web/worker met readonly filesystem, voert de browsersuite uit en controleert readiness na restart. Die run moet daadwerkelijk slagen voordat het definitieve image als getest wordt gerapporteerd.

@@ -101,3 +101,26 @@ test('FORM03: unavailable mail transport leaves a retryable job and durable subm
  await runOnce();const [job]=await sql`select status,attempts,last_error from cms_jobs where id=${id}`;assert.equal(job.status,'pending');assert.equal(job.attempts,1);assert.equal(job.last_error,'mail-unconfigured');
  }finally{if(previous===undefined)delete process.env.SMTP_HOST;else process.env.SMTP_HOST=previous;}
 });
+test('PUB03 and MEDIA03: scheduled publication indexes its frozen live references after a different draft',async()=>{
+ const {createCmsSeed}=await import('../../lib/cms/seed'),mediaId=createCmsSeed().media.find(m=>m.published)!.id,id='frozen-ref-'+crypto.randomUUID(),data=page(id);
+ data.body.content[0].content![0].content=[{type:'cmsWidget',attrs:{id:'image-'+id,kind:'image',data:{refId:mediaId}}}];
+ await mutate(admin,[{module:'pages',id,expectedVersion:0,action:'schedule',data,scheduledAt:new Date(Date.now()+60000).toISOString()}],crypto.randomUUID(),crypto.randomUUID());
+ await mutate(admin,[{module:'pages',id,expectedVersion:1,action:'save',data:page(id)}],crypto.randomUUID(),crypto.randomUUID());await sql`update cms_jobs set run_at='1999-01-01T00:00:00Z' where payload->>'id'=${id}`;await runOnce();
+ assert.equal((await sql`select target_id from cms_references where record_id=${id} and snapshot='live'`)[0].target_id,mediaId);
+ const [media]=await sql`select version from cms_records where id=${mediaId}`;await assert.rejects(mutate(admin,[{module:'media',id:mediaId,expectedVersion:media.version,action:'trash'}],crypto.randomUUID(),crypto.randomUUID()),(e:any)=>e.code==='in-use');
+});
+test('AUTH06: password-only production administrators cannot read CMS data, but can initialize MFA',async()=>{
+ const {principal}=await import('../../lib/server/permissions'),password=crypto.randomUUID()+crypto.randomUUID(),user=await getAuth().api.createUser({body:{email:'mfa-gate-'+crypto.randomUUID()+'@example.invalid',name:'MFA gate fixture',password,role:'admin'}});await sql`insert into cms_memberships(user_id,role_id) values (${user.user.id},'admin')`;
+ const response=await getAuth().api.signInEmail({body:{email:user.user.email,password},asResponse:true}),headers=new Headers({cookie:response.headers.getSetCookie().map(v=>v.split(';')[0]).join('; ')});
+ const keys=['APP_ENV','APP_BASE_URL','MEDIA_DRIVER','S3_BUCKET','S3_ACCESS_KEY_ID','S3_SECRET_ACCESS_KEY'] as const,previous=Object.fromEntries(keys.map(key=>[key,process.env[key]]));
+ try{Object.assign(process.env,{APP_ENV:'production',APP_BASE_URL:'https://club.example.invalid',MEDIA_DRIVER:'s3',S3_BUCKET:'synthetic',S3_ACCESS_KEY_ID:'synthetic',S3_SECRET_ACCESS_KEY:'synthetic'});await assert.rejects(principal(headers),(e:any)=>e.code==='mfa-required');assert.equal((await principal(headers,{allowMfaSetup:true})).id,user.user.id);
+ }finally{for(const key of keys){if(previous[key]===undefined)delete process.env[key];else process.env[key]=previous[key];}}
+});
+test('DATA04 and MEDIA04: browser blob URLs become durable mapped originals and repeat import stays idempotent',async()=>{
+ const {createCmsSeed}=await import('../../lib/cms/seed'),{inspectImport,applyImport}=await import('../../lib/server/imports');const state=createCmsSeed();
+ for(const key of ['articles','pages','people','media','folders','albums','forms','documents','departments','submissions'] as const)state[key]=[] as never;
+ const id='browser-'+crypto.randomUUID(),blobKey='blob-'+id,source=createCmsSeed().media[0];state.media=[{...source,id,blobKey,src:'blob:http://localhost/synthetic',published:false,folderId:'',teamId:'',alt:'Synthetische importfoto'}];
+ const image=await sharp({create:{width:64,height:48,channels:3,background:'#184f87'}}).png().toBuffer(),backup={format:'duindorp-cms-backup-v1',state,blobs:[{key:blobKey,data:'data:image/png;base64,'+image.toString('base64')}]};
+ assert.equal((await inspectImport(admin,backup)).report.issues.length,0);const applied=await applyImport(admin,backup);assert.ok(applied.idMapping[id]);const replay=await applyImport(admin,backup);assert.equal(replay.batch,applied.batch);assert.equal(replay.idMapping[id],applied.idMapping[id]);
+ const [object]=await sql`select state,variants from cms_media_objects where id=${applied.idMapping[id]}`;assert.equal(object.state,'ready');assert.equal(object.variants.length,3);assert.equal((await sql`select media_id from cms_import_media where checksum=${applied.checksum} and source_id=${id}`).length,1);
+});

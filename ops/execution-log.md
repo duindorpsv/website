@@ -24,3 +24,8 @@ Nog geen staging/productiondeployment, browserdatamigratie of externe verzending
 - Eerdere schoon opgebouwde Node/Docker-images geslaagd; definitieve artifact/runtimeherhaling volgt na de laatste beheercorrecties. Geen GHCR-/staging-/productiedigest als goedgekeurd gemarkeerd.
 - Specifieke proef vond en corrigeerde lege-slugreservering, Next-streamingmetadata zonder JS en een achtergebleven developmentworker met eerdere JSON-codering. Constraints voorkomen opnieuw verkeerd gecodeerde object-/arraygegevens.
 - Hosting-VPS-installatie, reverse proxy/firewall, runners, staging/production en externe credentials zijn niet uitgevoerd/aangeleverd. Acceptatiematrix in acceptance-report.md benoemt de resterende scenario’s afzonderlijk.
+
+- Werk vastgelegd in controleerbare runtime-, database-, editor-, beheer- en opscommits. Native PostgreSQL-suite uitgebreid naar 16 geslaagde scenario’s; geplande publicaties werken ook de bevroren live-verwijzingsindex bij.
+- Lokale laatste image-export liep tegen schijfcapaciteit aan. Alleen eigen gegenereerde Next-output en geverifieerde eigen buildcache aangepakt. Andere Docker-projecten/volumes blijven behouden. Eerdere imagebuilds worden niet als bewijs voor de laatste runtimewijzigingen gebruikt.
+- Worker/migratie/seed/owner gebruiken een aparte runtimeworkspace met gedeelde catalog-versies; main-CI bouwt en controleert het concrete image op de GitHub-hosted runner.
+- Staging-approved artifact verschijnt pas na vereiste menselijke stagingacceptatie. Production vereist passend extern restorebewijs voor hetzelfde digest; een developmentmarker is onvoldoende.
