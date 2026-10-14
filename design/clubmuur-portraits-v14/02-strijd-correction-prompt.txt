@@ -1,0 +1,14 @@
+Sources in order:
+/workspace/scratch/75a86e84a210/clubmuur-real-players-v14/02-strijd.png
+/workspace/scratch/75a86e84a210/upload/NIPR8245.JPG
+/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_41.png
+/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png
+
+PROMPT:
+Use case: precise-object-edit.
+Edit target: Image 1 is the existing transparent PNG "02-strijd.png". Supporting references: Image 2 is the original real player's NIPR8245 photo, Image 3 exact white STANNO shirt, Image 4 exact club crest.
+Make ONLY TWO targeted corrections to image 1:
+1. The sleeve on the VIEWER'S LEFT currently has TWO blue geometric STANNO brand logos stacked vertically (one at the shoulder and another lower down). REMOVE THE LOWER DUPLICATE completely and reconstruct the plain white sleeve fabric under it, with natural existing folds. Leave exactly ONE original geometric STANNO mark on that sleeve, at the upper shoulder like the source kit. Do not alter the chest STANNO logo, opposite sleeve sponsor, any other logos, or any other part of the shirt design.
+2. Change ONLY the blue FABRIC AND BLUE PRINT ELEMENTS of the field kit in image 1 from vivid royal blue to noticeably deeper authentic club blue, #03438A (sRGB 3,67,138) as the base/midtone under neutral light. Match collar, sleeve cuffs, crest blue, shoulder/chest blue marks, lower chevron pinstripes and shorts consistently. Retain physically realistic lighter highlights and darker shadows, exact pinstripe geometry and fabric texture. Neutral white fabric and black sponsor stay unchanged. DO NOT globally grade the image and DO NOT alter any skin, hair, beard, eyes or tattoo colors.
+ALL OTHER PIXELS AND CONTENT SHOULD STAY AS CLOSE TO IDENTICAL AS POSSIBLE: exact same real man's facial identity, relaxed determined expression, eye direction, original anatomy, face size, beard, eyebrow piercing, hairstyle, tattoos, pose, low clenched fist, body proportions and complete photographic composition. Keep existing fine skin pores, cloth sharpness and premium natural lighting. Do not beautify or reinterpret. Keep black ZARAUTZ DINER CAFE sponsor artwork, crest shape and exact lettering unchanged.
+Maintain the existing genuine TRANSPARENT ALPHA BACKGROUND and silhouette boundaries, with natural anti-aliased hair/skin/cloth edges. Absolutely no opaque backdrop, no halo, no new graphics, no captions, no additional marks or people. Preserve portrait 2:3 native composition and maximum available native detail/resolution. This is a tiny logo cleanup plus selective kit-blue color correction, NOT a new portrait.

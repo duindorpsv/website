@@ -1,0 +1,37 @@
+Duindorp SV — achtergronden v25
+
+Drie scènes, elk apart gemaakt als liggende en staande compositie:
+- Houtrust: kantine, bronfoto's 01-1000310210, 02-1000310213 en 04-1000310212.
+- De wijk: Meeuwenhof, 06-1000310218; kerk, 03-1000310214.
+- Aan zee: havenlicht, 05-1000310216; luchtfoto, 07-1000310220.
+
+De bestaande houtrust-wide-1672.webp uit clubmuur-brush-v10 is als
+stijlreferentie gebruikt. Architectuur komt uit de hierboven genoemde foto's.
+Alle definitieve generaties zijn gemaakt met de ingebouwde image_gen-tool.
+De exacte prompts staan naast de masters. De eerste Houtrust-generatie is
+vervangen na controle van de perspectiefrichting van de gevelband.
+
+Native uitvoer: 1672 × 941 of 941 × 1672 pixels. Hoewel 4K werd aangevraagd,
+leverde de generator deze afmetingen. Er is niet kunstmatig opgeschaald.
+De PNG-masters hebben 300-DPI-metadata, zonder wijziging van de pixels.
+300 DPI bepaalt de afdrukmaat en voegt geen scherpte of detail toe.
+
+Gebouwvormen, raamverdeling, bogen, kerktoren en havenlicht zijn visueel
+vergeleken met de referenties. De beelden zijn AI-interpretaties, geen exacte
+fotografische afdrukken: kleine details kunnen afwijken.
+
+Havenlicht referentiefoto: © Dennis Nijhuis — www.nederlandsevuurtorens.nl
+Deze bronvermelding is ook opgenomen in de PNG-metadata en het manifest.
+
+Webbestanden: public/assets/clubmuur-brush-v25. AVIF met WebP-fallback,
+meerdere breedtes, aparte portretcomposities tot 999 px viewportbreedte.
+Grootste AVIF ca. 310 KiB. Eerst alleen scène 1, volgende scène pas na
+decoderen en een korte vertraging. De bestaande sliderlogica en de vijf
+voorgrondindelingen zijn behouden. Sectiekunst laadt afzonderlijk en lazy.
+
+export-web.py voegt DPI-metadata toe en produceert alleen verkleiningen en
+compressieversies; het tekent of retoucheert niets. manifest.json vermeldt
+de concrete pixelafmetingen en bestandsgroottes.
+
+Controle: TypeScript, git diff --check, en browsercontrole van de drie
+achtergronden op desktop; staande bronselectie en compositie op mobiel.

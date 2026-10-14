@@ -1,0 +1,418 @@
+{
+  "created_at": "2026-10-09",
+  "toolmode": "built-in tools.image_gen__imagegen",
+  "transparent_background": true,
+  "status": "completed",
+  "selected_map": {
+    "08-samen-vooruit.png": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/08-samen-vooruit-clubblauw.png",
+    "09-high-five.png": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/09-high-five-clubblauw.png",
+    "10-strijd.png": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/10-strijd-clubblauw.png",
+    "11-overwinning.png": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/11-overwinning-clubblauw.png",
+    "12-een-team.png": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/12-een-team-clubblauw-alpha-clean.png",
+    "13-clubtrots.png": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/13-clubtrots-clubblauw-alpha-clean.png"
+  },
+  "review": {
+    "all_ten_players_included": true,
+    "all_six_requested_compositions": true,
+    "rounds": "Six initial parallel calls, six targeted color/tattoo edit calls, then two requested targeted alpha cleanup calls for 12 and 13 after Site QA found opaque black corner artifacts.",
+    "general_caveats": [
+      "Generative likeness and logos were visually reviewed, not certified pixel-identical to source photos/artwork.",
+      "Hair, skin texture, tattoos and fine logo lettering can vary from photographic reference.",
+      "No baked fade; root handles site CSS masking. Actual alpha is present even when RGB-only previews show colored haze.",
+      "All chosen images were generated at native tool dimensions; no resampling applied.",
+      "Final alpha-cleanup is generative: small skin/hair texture variations are possible; pixel-identical preservation is not certified."
+    ],
+    "no_api_used": true
+  },
+  "assets": [
+    {
+      "assetname": "08-samen-vooruit.png",
+      "exactrefs": [
+        "/workspace/scratch/75a86e84a210/upload/NIPR8447.JPG",
+        "/workspace/scratch/75a86e84a210/upload/NIPR8359.JPG",
+        "/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png",
+        "/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_41.png"
+      ],
+      "prompt": "Use case: identity-preserve, compositing.\nAsset type: premium photorealistic cutout for Duindorp SV football club website hero. Create one finished PNG with real alpha transparency.\nPrimary request: Recompose ONLY the exact adult men in the specified portrait references into the requested lively football celebration pose. Facial identity is the highest priority: keep each man's actual face, age, facial proportions, build, skin texture and tone, hairline, hair, eye color, beard/goatee and existing tattoos. Preserve their individual differences and natural physique. Do not beautify, rejuvenate, slim, bulk up, or substitute model faces. Faces are front-facing or very nearly front-facing and unobstructed; lively but restrained natural expressions help retain identity.\nInput roles: first input photos are the exact subject identity and body references, also their own kit references. Penultimate image is the exact Duindorp S.V. crest artwork. Last image is exact field-shirt construction and sponsor logo/print reference. The supplied files are visual sources, not content to print as a collage.\nClothing: field players wear the reference white STANNO short sleeve shirts, deep club blue #03438A V-neck trim, sleeve trim, shoulder marks, fine vertical lower-body pinstripes forming the exact broad V pattern. Preserve blue STANNO chest mark, exact blue-and-white DUINDORP S.V. shield on the wearer's left chest, and the reference blue sleeve sponsor print. Match the separate crest artwork and actual kit placement faithfully. NO invented badges, extra crests or improvised marks. The large chest sponsor must match the provided shirt's graphic, exact words \"ZARAUTZ\" over \"DINER CAFE\", distinctive extended serif lettering and stylized final Z, flanking cutlery/plate ornaments, black ink with DINER CAFE in white inside its black horizontal bar. Spell Z-A-R-A-U-T-Z, D-I-N-E-R C-A-F-E. Do not replace with generic text. Keep each complete sponsor and crest visible, correctly oriented, sharp, naturally following cloth; no arms or fingers across the printing. Blue shorts below shirt. Keep natural folds and fabric texture. For any goalkeeper, obey the separate specific keeper clothing instruction instead.\nPhotographic finish: maximum available native resolution and detail, sharp realistic sports editorial photography, 85mm-equivalent natural perspective, consistent soft natural lighting, believable skin pores and individual hairs, crisp fabric and legible garment printing. Freeze action cleanly, no motion blur.\nFraming: each player visible from full head through at least upper thighs, with extra garment/shorts length below for a website CSS fade later. All heads, fingertips, elbows and raised arms completely within canvas with generous clear transparent margin. Closely grouped subjects, clear silhouette, faces at comparable scale. Clean actual transparent background and natural hair edges. The only visible pixels are the players. No pitch, grass, scenery, studio wall, floor, cast shadow plane, fog, glow, aura, grunge, vignette, added writing or watermark. No checkerboard painted into image. No baked-in bottom fade. Exactly the requested count of people. Hands anatomically natural, five fingers, correct wrists/arms, no fused limbs, duplicate people or extra hands.\nSpecific composition:\nExactly TWO men: reference 1 (NIPR8447, dark slicked-back hair, separate small chin beard) on the left, reference 2 (NIPR8359, black curly hair and full beard) on the right. Compact portrait composition near 4:5. Both taking a small forward celebratory step, shoulder-to-shoulder with strong camaraderie. Man 1 proudly points one index finger to the cloth immediately BESIDE his own left-chest Duindorp crest, with fingertip outside the shield and no print obscured; his other arm links around his teammate's shoulder. Man 2 smiles enthusiastically and makes one compact victory fist at his outer side/chest height, never over sponsor or crest. Keep both faces front-facing, distinctly their exact real faces, not exaggerated open-mouthed distortions.",
+      "original_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/08-samen-vooruit.png",
+      "original_tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-1e491d1d-9999-412c-9af8-037d5277bd1a.png",
+      "status": "completed",
+      "selected_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/08-samen-vooruit-clubblauw.png",
+      "review_caveat": "Pointing forearm partly overlaps the left player's sponsor; compact silhouette reaches side edges.",
+      "color_edit": {
+        "assetname": "08-samen-vooruit-clubblauw.png",
+        "exactrefs": [
+          "/workspace/scratch/75a86e84a210/clubmuur-players-v17/08-samen-vooruit.png"
+        ],
+        "prompt": "Use case: precise-object-edit. The SINGLE attached PNG is the edit target.\nMake one narrowly restricted color correction to the EXISTING photograph. Change ONLY the blue fabric areas of the FIELD PLAYERS' kit: blue V-neck collar, blue sleeve cuffs, blue lower-shirt pinstripe panels, and blue shorts. Replace their too-bright royal blue with deep, muted, dark club blue/navy with base color EXACTLY #03438A (RGB 3,67,138), respecting the existing cloth highlights and shadows. The intended result is visibly deeper and darker and less electric than this image's current bright royal blue. Do not darken or tint white cloth.\nLOCK everything else to this image: EXACT existing faces, eyes, mouth/expression, age, skin, hair, bodies, hands, poses, arms, tattoos except the explicit correction below, lighting, white fabric, background alpha, image size and crop. Preserve the EXACT existing shield crest shape/text, STANNO graphics, sponsor ZARAUTZ DINER CAFE logo, sleeve typography, and logo placement. Do not redraw faces, logos, fingers or stripes. Preserve white pinstripe geometry and the V boundary, only recolor blue cloth between the lines. No additional people, new garments or new objects. Preserve sharpness and native detail, retain actual transparent PNG alpha and clean silhouette; do not add background, checkerboard, fog, glow, shadow, or baked fade.",
+        "toolmode": "built-in tools.image_gen__imagegen",
+        "tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-23dd3fa4-d587-421c-8a03-a9fe6bafd706.png",
+        "status": "completed",
+        "native_dimensions": {
+          "width": 1122,
+          "height": 1402
+        },
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "bytes": 2046320
+      },
+      "native_dimensions": {
+        "width": 1122,
+        "height": 1402
+      }
+    },
+    {
+      "assetname": "09-high-five.png",
+      "exactrefs": [
+        "/workspace/scratch/75a86e84a210/upload/NIPR8269.JPG",
+        "/workspace/scratch/75a86e84a210/upload/NIPR8151.JPG",
+        "/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png",
+        "/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_41.png"
+      ],
+      "prompt": "Use case: identity-preserve, compositing.\nAsset type: premium photorealistic cutout for Duindorp SV football club website hero. Create one finished PNG with real alpha transparency.\nPrimary request: Recompose ONLY the exact adult men in the specified portrait references into the requested lively football celebration pose. Facial identity is the highest priority: keep each man's actual face, age, facial proportions, build, skin texture and tone, hairline, hair, eye color, beard/goatee and existing tattoos. Preserve their individual differences and natural physique. Do not beautify, rejuvenate, slim, bulk up, or substitute model faces. Faces are front-facing or very nearly front-facing and unobstructed; lively but restrained natural expressions help retain identity.\nInput roles: first input photos are the exact subject identity and body references, also their own kit references. Penultimate image is the exact Duindorp S.V. crest artwork. Last image is exact field-shirt construction and sponsor logo/print reference. The supplied files are visual sources, not content to print as a collage.\nClothing: field players wear the reference white STANNO short sleeve shirts, deep club blue #03438A V-neck trim, sleeve trim, shoulder marks, fine vertical lower-body pinstripes forming the exact broad V pattern. Preserve blue STANNO chest mark, exact blue-and-white DUINDORP S.V. shield on the wearer's left chest, and the reference blue sleeve sponsor print. Match the separate crest artwork and actual kit placement faithfully. NO invented badges, extra crests or improvised marks. The large chest sponsor must match the provided shirt's graphic, exact words \"ZARAUTZ\" over \"DINER CAFE\", distinctive extended serif lettering and stylized final Z, flanking cutlery/plate ornaments, black ink with DINER CAFE in white inside its black horizontal bar. Spell Z-A-R-A-U-T-Z, D-I-N-E-R C-A-F-E. Do not replace with generic text. Keep each complete sponsor and crest visible, correctly oriented, sharp, naturally following cloth; no arms or fingers across the printing. Blue shorts below shirt. Keep natural folds and fabric texture. For any goalkeeper, obey the separate specific keeper clothing instruction instead.\nPhotographic finish: maximum available native resolution and detail, sharp realistic sports editorial photography, 85mm-equivalent natural perspective, consistent soft natural lighting, believable skin pores and individual hairs, crisp fabric and legible garment printing. Freeze action cleanly, no motion blur.\nFraming: each player visible from full head through at least upper thighs, with extra garment/shorts length below for a website CSS fade later. All heads, fingertips, elbows and raised arms completely within canvas with generous clear transparent margin. Closely grouped subjects, clear silhouette, faces at comparable scale. Clean actual transparent background and natural hair edges. The only visible pixels are the players. No pitch, grass, scenery, studio wall, floor, cast shadow plane, fog, glow, aura, grunge, vignette, added writing or watermark. No checkerboard painted into image. No baked-in bottom fade. Exactly the requested count of people. Hands anatomically natural, five fingers, correct wrists/arms, no fused limbs, duplicate people or extra hands.\nSpecific composition:\nExactly TWO men: reference 1 (NIPR8269, long center-parted dark hair/mullet and full beard) left, reference 2 (NIPR8151, swept wavy hair, clean-shaven, tattooed left arm) right. Compact near-square or 4:5 portrait. A joyful overhead high-five: one raised inner arm from each man, natural open palms meeting directly above the narrow gap between their heads; keep every fingertip in frame with substantial transparent headroom. Bodies and faces stay nearly square to camera, smiling at camera slightly rather than turning to profile. Their heads remain fairly close at comparable heights. Their free arms hang naturally outward/by their own hips. Torsos and full shirt sponsor graphics clearly visible. Natural five-finger palms and physical contact, no merged or extra hands.",
+      "original_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/09-high-five.png",
+      "original_tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-c53ea329-be5c-40e7-bc4f-3db1196bac4e.png",
+      "status": "completed",
+      "selected_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/09-high-five-clubblauw.png",
+      "review_caveat": "High-five palms and all fingertips visible; small top margin and wide outer arms.",
+      "color_edit": {
+        "assetname": "09-high-five-clubblauw.png",
+        "exactrefs": [
+          "/workspace/scratch/75a86e84a210/clubmuur-players-v17/09-high-five.png"
+        ],
+        "prompt": "Use case: precise-object-edit. The SINGLE attached PNG is the edit target.\nMake one narrowly restricted color correction to the EXISTING photograph. Change ONLY the blue fabric areas of the FIELD PLAYERS' kit: blue V-neck collar, blue sleeve cuffs, blue lower-shirt pinstripe panels, and blue shorts. Replace their too-bright royal blue with deep, muted, dark club blue/navy with base color EXACTLY #03438A (RGB 3,67,138), respecting the existing cloth highlights and shadows. The intended result is visibly deeper and darker and less electric than this image's current bright royal blue. Do not darken or tint white cloth.\nLOCK everything else to this image: EXACT existing faces, eyes, mouth/expression, age, skin, hair, bodies, hands, poses, arms, tattoos except the explicit correction below, lighting, white fabric, background alpha, image size and crop. Preserve the EXACT existing shield crest shape/text, STANNO graphics, sponsor ZARAUTZ DINER CAFE logo, sleeve typography, and logo placement. Do not redraw faces, logos, fingers or stripes. Preserve white pinstripe geometry and the V boundary, only recolor blue cloth between the lines. No additional people, new garments or new objects. Preserve sharpness and native detail, retain actual transparent PNG alpha and clean silhouette; do not add background, checkerboard, fog, glow, shadow, or baked fade.",
+        "toolmode": "built-in tools.image_gen__imagegen",
+        "tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-2bd6bbd9-db7f-49bc-bd54-e65ebb621276.png",
+        "status": "completed",
+        "native_dimensions": {
+          "width": 1122,
+          "height": 1402
+        },
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "bytes": 1635574
+      },
+      "native_dimensions": {
+        "width": 1122,
+        "height": 1402
+      }
+    },
+    {
+      "assetname": "10-strijd.png",
+      "exactrefs": [
+        "/workspace/scratch/75a86e84a210/upload/NIPR8344.JPG",
+        "/workspace/scratch/75a86e84a210/upload/NIPR8244.JPG",
+        "/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png",
+        "/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_41.png"
+      ],
+      "prompt": "Use case: identity-preserve, compositing.\nAsset type: premium photorealistic cutout for Duindorp SV football club website hero. Create one finished PNG with real alpha transparency.\nPrimary request: Recompose ONLY the exact adult men in the specified portrait references into the requested lively football celebration pose. Facial identity is the highest priority: keep each man's actual face, age, facial proportions, build, skin texture and tone, hairline, hair, eye color, beard/goatee and existing tattoos. Preserve their individual differences and natural physique. Do not beautify, rejuvenate, slim, bulk up, or substitute model faces. Faces are front-facing or very nearly front-facing and unobstructed; lively but restrained natural expressions help retain identity.\nInput roles: first input photos are the exact subject identity and body references, also their own kit references. Penultimate image is the exact Duindorp S.V. crest artwork. Last image is exact field-shirt construction and sponsor logo/print reference. The supplied files are visual sources, not content to print as a collage.\nClothing: field players wear the reference white STANNO short sleeve shirts, deep club blue #03438A V-neck trim, sleeve trim, shoulder marks, fine vertical lower-body pinstripes forming the exact broad V pattern. Preserve blue STANNO chest mark, exact blue-and-white DUINDORP S.V. shield on the wearer's left chest, and the reference blue sleeve sponsor print. Match the separate crest artwork and actual kit placement faithfully. NO invented badges, extra crests or improvised marks. The large chest sponsor must match the provided shirt's graphic, exact words \"ZARAUTZ\" over \"DINER CAFE\", distinctive extended serif lettering and stylized final Z, flanking cutlery/plate ornaments, black ink with DINER CAFE in white inside its black horizontal bar. Spell Z-A-R-A-U-T-Z, D-I-N-E-R C-A-F-E. Do not replace with generic text. Keep each complete sponsor and crest visible, correctly oriented, sharp, naturally following cloth; no arms or fingers across the printing. Blue shorts below shirt. Keep natural folds and fabric texture. For any goalkeeper, obey the separate specific keeper clothing instruction instead.\nPhotographic finish: maximum available native resolution and detail, sharp realistic sports editorial photography, 85mm-equivalent natural perspective, consistent soft natural lighting, believable skin pores and individual hairs, crisp fabric and legible garment printing. Freeze action cleanly, no motion blur.\nFraming: each player visible from full head through at least upper thighs, with extra garment/shorts length below for a website CSS fade later. All heads, fingertips, elbows and raised arms completely within canvas with generous clear transparent margin. Closely grouped subjects, clear silhouette, faces at comparable scale. Clean actual transparent background and natural hair edges. The only visible pixels are the players. No pitch, grass, scenery, studio wall, floor, cast shadow plane, fog, glow, aura, grunge, vignette, added writing or watermark. No checkerboard painted into image. No baked-in bottom fade. Exactly the requested count of people. Hands anatomically natural, five fingers, correct wrists/arms, no fused limbs, duplicate people or extra hands.\nSpecific composition:\nExactly TWO men: reference 1 (NIPR8344, dark pushed-back hair with gray temples and short beard) left; reference 2 (NIPR8244, bald, short goatee and tattooed right arm) right. Compact 4:5 portrait. A strong fighting-spirit victory moment, grouped close and leaning slightly forward with restrained intense expressions matching their own real faces. Man 1 proudly grips a little plain shirt fabric immediately beneath and just outside his own Duindorp crest, pulling it forward subtly to show club pride; thumb/fingers stay OFF the shield and sponsor, and printing remains readable. Man 2 makes a powerful natural fist pump at his OUTER side, with elbow bent and fist around waist/chest height, clear of all shirt graphics. Avoid caricature screaming and avoid clenched faces that lose identity.",
+      "original_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/10-strijd.png",
+      "original_tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-1d4a4d03-478b-4a7b-93f4-99a9ff46aa9d.png",
+      "status": "completed",
+      "selected_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/10-strijd-clubblauw.png",
+      "review_caveat": "Wrong outside-arm tattoo on NIPR8244 removed in color edit; correct tattooed inner arm mostly hidden by pose.",
+      "color_edit": {
+        "assetname": "10-strijd-clubblauw.png",
+        "exactrefs": [
+          "/workspace/scratch/75a86e84a210/clubmuur-players-v17/10-strijd.png"
+        ],
+        "prompt": "Use case: precise-object-edit. The SINGLE attached PNG is the edit target.\nMake one narrowly restricted color correction to the EXISTING photograph. Change ONLY the blue fabric areas of the FIELD PLAYERS' kit: blue V-neck collar, blue sleeve cuffs, blue lower-shirt pinstripe panels, and blue shorts. Replace their too-bright royal blue with deep, muted, dark club blue/navy with base color EXACTLY #03438A (RGB 3,67,138), respecting the existing cloth highlights and shadows. The intended result is visibly deeper and darker and less electric than this image's current bright royal blue. Do not darken or tint white cloth.\nLOCK everything else to this image: EXACT existing faces, eyes, mouth/expression, age, skin, hair, bodies, hands, poses, arms, tattoos except the explicit correction below, lighting, white fabric, background alpha, image size and crop. Preserve the EXACT existing shield crest shape/text, STANNO graphics, sponsor ZARAUTZ DINER CAFE logo, sleeve typography, and logo placement. Do not redraw faces, logos, fingers or stripes. Preserve white pinstripe geometry and the V boundary, only recolor blue cloth between the lines. No additional people, new garments or new objects. Preserve sharpness and native detail, retain actual transparent PNG alpha and clean silhouette; do not add background, checkerboard, fog, glow, shadow, or baked fade.\nSpecific tattoo repair in this same edit: the BALD man on the RIGHT currently incorrectly has a dense tattoo on his OUTSIDE arm at IMAGE RIGHT (his own LEFT arm), from short sleeve down to fist. Remove that tattoo ONLY and restore natural untattooed skin with the exact same arm/hand shape, fist, skin tone, lighting and pose. His real tattoo belongs on his OWN RIGHT arm, which is on his inner side and largely hidden in this pose. Do NOT invent or add any new tattoo where that arm is hidden. Keep the bearded left man's skin unchanged.",
+        "toolmode": "built-in tools.image_gen__imagegen",
+        "tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-b46374d5-3eea-4b8d-9156-fa98792f4dee.png",
+        "status": "completed",
+        "native_dimensions": {
+          "width": 1122,
+          "height": 1402
+        },
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "bytes": 2198984
+      },
+      "native_dimensions": {
+        "width": 1122,
+        "height": 1402
+      }
+    },
+    {
+      "assetname": "11-overwinning.png",
+      "exactrefs": [
+        "/workspace/scratch/75a86e84a210/upload/NIPR8379.JPG",
+        "/workspace/scratch/75a86e84a210/upload/NIPR8278.JPG",
+        "/workspace/scratch/75a86e84a210/upload/NIPR8262.JPG",
+        "/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png",
+        "/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_41.png"
+      ],
+      "prompt": "Use case: identity-preserve, compositing.\nAsset type: premium photorealistic cutout for Duindorp SV football club website hero. Create one finished PNG with real alpha transparency.\nPrimary request: Recompose ONLY the exact adult men in the specified portrait references into the requested lively football celebration pose. Facial identity is the highest priority: keep each man's actual face, age, facial proportions, build, skin texture and tone, hairline, hair, eye color, beard/goatee and existing tattoos. Preserve their individual differences and natural physique. Do not beautify, rejuvenate, slim, bulk up, or substitute model faces. Faces are front-facing or very nearly front-facing and unobstructed; lively but restrained natural expressions help retain identity.\nInput roles: first input photos are the exact subject identity and body references, also their own kit references. Penultimate image is the exact Duindorp S.V. crest artwork. Last image is exact field-shirt construction and sponsor logo/print reference. The supplied files are visual sources, not content to print as a collage.\nClothing: field players wear the reference white STANNO short sleeve shirts, deep club blue #03438A V-neck trim, sleeve trim, shoulder marks, fine vertical lower-body pinstripes forming the exact broad V pattern. Preserve blue STANNO chest mark, exact blue-and-white DUINDORP S.V. shield on the wearer's left chest, and the reference blue sleeve sponsor print. Match the separate crest artwork and actual kit placement faithfully. NO invented badges, extra crests or improvised marks. The large chest sponsor must match the provided shirt's graphic, exact words \"ZARAUTZ\" over \"DINER CAFE\", distinctive extended serif lettering and stylized final Z, flanking cutlery/plate ornaments, black ink with DINER CAFE in white inside its black horizontal bar. Spell Z-A-R-A-U-T-Z, D-I-N-E-R C-A-F-E. Do not replace with generic text. Keep each complete sponsor and crest visible, correctly oriented, sharp, naturally following cloth; no arms or fingers across the printing. Blue shorts below shirt. Keep natural folds and fabric texture. For any goalkeeper, obey the separate specific keeper clothing instruction instead.\nPhotographic finish: maximum available native resolution and detail, sharp realistic sports editorial photography, 85mm-equivalent natural perspective, consistent soft natural lighting, believable skin pores and individual hairs, crisp fabric and legible garment printing. Freeze action cleanly, no motion blur.\nFraming: each player visible from full head through at least upper thighs, with extra garment/shorts length below for a website CSS fade later. All heads, fingertips, elbows and raised arms completely within canvas with generous clear transparent margin. Closely grouped subjects, clear silhouette, faces at comparable scale. Clean actual transparent background and natural hair edges. The only visible pixels are the players. No pitch, grass, scenery, studio wall, floor, cast shadow plane, fog, glow, aura, grunge, vignette, added writing or watermark. No checkerboard painted into image. No baked-in bottom fade. Exactly the requested count of people. Hands anatomically natural, five fingers, correct wrists/arms, no fused limbs, duplicate people or extra hands.\nSpecific composition:\nExactly THREE men in reference order left to right: NIPR8379 (short dark hair, stubble), NIPR8278 (wavy light brown hair, small goatee), NIPR8262 (slicked-back darker hair, light blue eyes, tattooed left arm). Compact landscape 3:2 composition. All three are celebrating a winning goal, arms around one another's upper shoulders, bodies close and a small energetic forward step. Vary natural smiling/brief cheering expressions while preserving exact identity; all three look front/near-front toward camera, heads uncovered and at comparable scale. Some outer elbows can angle outward for vitality, but no hands cross chests, no stretched head spacing, no giant arm spread. Complete shirt sponsor graphics and all crests clearly visible. Upper thighs and extra shorts area visible for a later CSS mask.",
+      "original_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/11-overwinning.png",
+      "original_tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-7d55d755-987e-4614-8f28-58f62b325920.png",
+      "status": "completed",
+      "selected_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/11-overwinning-clubblauw.png",
+      "review_caveat": "Some outer elbows touch side borders; central cheering expression differs from neutral source portrait.",
+      "color_edit": {
+        "assetname": "11-overwinning-clubblauw.png",
+        "exactrefs": [
+          "/workspace/scratch/75a86e84a210/clubmuur-players-v17/11-overwinning.png"
+        ],
+        "prompt": "Use case: precise-object-edit. The SINGLE attached PNG is the edit target.\nMake one narrowly restricted color correction to the EXISTING photograph. Change ONLY the blue fabric areas of the FIELD PLAYERS' kit: blue V-neck collar, blue sleeve cuffs, blue lower-shirt pinstripe panels, and blue shorts. Replace their too-bright royal blue with deep, muted, dark club blue/navy with base color EXACTLY #03438A (RGB 3,67,138), respecting the existing cloth highlights and shadows. The intended result is visibly deeper and darker and less electric than this image's current bright royal blue. Do not darken or tint white cloth.\nLOCK everything else to this image: EXACT existing faces, eyes, mouth/expression, age, skin, hair, bodies, hands, poses, arms, tattoos except the explicit correction below, lighting, white fabric, background alpha, image size and crop. Preserve the EXACT existing shield crest shape/text, STANNO graphics, sponsor ZARAUTZ DINER CAFE logo, sleeve typography, and logo placement. Do not redraw faces, logos, fingers or stripes. Preserve white pinstripe geometry and the V boundary, only recolor blue cloth between the lines. No additional people, new garments or new objects. Preserve sharpness and native detail, retain actual transparent PNG alpha and clean silhouette; do not add background, checkerboard, fog, glow, shadow, or baked fade.",
+        "toolmode": "built-in tools.image_gen__imagegen",
+        "tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-087ca4d4-9f1f-4971-b784-62e6c6c6051a.png",
+        "status": "completed",
+        "native_dimensions": {
+          "width": 1536,
+          "height": 1024
+        },
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "bytes": 2495508
+      },
+      "native_dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "assetname": "12-een-team.png",
+      "exactrefs": [
+        "/workspace/scratch/75a86e84a210/upload/NIPR8305.JPG",
+        "/workspace/scratch/75a86e84a210/upload/NIPR8151.JPG",
+        "/workspace/scratch/75a86e84a210/upload/NIPR8447.JPG",
+        "/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png",
+        "/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_41.png"
+      ],
+      "prompt": "Use case: identity-preserve, compositing.\nAsset type: premium photorealistic cutout for Duindorp SV football club website hero. Create one finished PNG with real alpha transparency.\nPrimary request: Recompose ONLY the exact adult men in the specified portrait references into the requested lively football celebration pose. Facial identity is the highest priority: keep each man's actual face, age, facial proportions, build, skin texture and tone, hairline, hair, eye color, beard/goatee and existing tattoos. Preserve their individual differences and natural physique. Do not beautify, rejuvenate, slim, bulk up, or substitute model faces. Faces are front-facing or very nearly front-facing and unobstructed; lively but restrained natural expressions help retain identity.\nInput roles: first input photos are the exact subject identity and body references, also their own kit references. Penultimate image is the exact Duindorp S.V. crest artwork. Last image is exact field-shirt construction and sponsor logo/print reference. The supplied files are visual sources, not content to print as a collage.\nClothing: field players wear the reference white STANNO short sleeve shirts, deep club blue #03438A V-neck trim, sleeve trim, shoulder marks, fine vertical lower-body pinstripes forming the exact broad V pattern. Preserve blue STANNO chest mark, exact blue-and-white DUINDORP S.V. shield on the wearer's left chest, and the reference blue sleeve sponsor print. Match the separate crest artwork and actual kit placement faithfully. NO invented badges, extra crests or improvised marks. The large chest sponsor must match the provided shirt's graphic, exact words \"ZARAUTZ\" over \"DINER CAFE\", distinctive extended serif lettering and stylized final Z, flanking cutlery/plate ornaments, black ink with DINER CAFE in white inside its black horizontal bar. Spell Z-A-R-A-U-T-Z, D-I-N-E-R C-A-F-E. Do not replace with generic text. Keep each complete sponsor and crest visible, correctly oriented, sharp, naturally following cloth; no arms or fingers across the printing. Blue shorts below shirt. Keep natural folds and fabric texture. For any goalkeeper, obey the separate specific keeper clothing instruction instead.\nPhotographic finish: maximum available native resolution and detail, sharp realistic sports editorial photography, 85mm-equivalent natural perspective, consistent soft natural lighting, believable skin pores and individual hairs, crisp fabric and legible garment printing. Freeze action cleanly, no motion blur.\nFraming: each player visible from full head through at least upper thighs, with extra garment/shorts length below for a website CSS fade later. All heads, fingertips, elbows and raised arms completely within canvas with generous clear transparent margin. Closely grouped subjects, clear silhouette, faces at comparable scale. Clean actual transparent background and natural hair edges. The only visible pixels are the players. No pitch, grass, scenery, studio wall, floor, cast shadow plane, fog, glow, aura, grunge, vignette, added writing or watermark. No checkerboard painted into image. No baked-in bottom fade. Exactly the requested count of people. Hands anatomically natural, five fingers, correct wrists/arms, no fused limbs, duplicate people or extra hands.\nSpecific composition:\nExactly THREE men: reference 1 goalkeeper NIPR8305 in CENTER, reference 2 NIPR8151 on LEFT, reference 3 NIPR8447 on RIGHT. Compact landscape 3:2 composition. Energetic spontaneous goal celebration with the goalkeeper slightly forward in the middle, one arm around each teammate's shoulders; teammates lean toward him but keep face and torso near-front to camera. Outer player on right lifts a small outer fist near shoulder height, left teammate's free hand opens low in excitement. Joyful personal expressions, preserve each man's real face and natural proportions. Pose should feel in motion rather than formal lineup.\nCRITICAL goalkeeper clothing invariant: center man NIPR8305 MUST retain his OWN cyan geometric-pattern LONG-SLEEVE goalkeeper shirt from input 1, with its orange collar accents, orange STANNO chest mark, pale/orange shoulder symbols, and white Duindorp S.V. shield plus WHITE ZARAUTZ / DINER CAFE sponsor printing. His own portrait is the authoritative keeper clothing reference. Do NOT put him in the white/blue field kit, do NOT recolor his keeper shirt to navy, do NOT copy black sponsor onto him. The two field players retain the exact white/deep-blue kit specified above.",
+      "original_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/12-een-team.png",
+      "original_tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-d4f740a0-590e-4a3f-be69-a22ca16b70b0.png",
+      "status": "completed",
+      "selected_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/12-een-team-clubblauw-alpha-clean.png",
+      "review_caveat": "Wrong outside-arm tattoo on NIPR8447 removed; goalkeeper cyan/orange kit preserved. Previous opaque corner artifacts corrected by one alpha-cleanup edit. Top corner 50x50 regions alpha 0; whole top 25px strip has alpha range 0-1.",
+      "color_edit": {
+        "assetname": "12-een-team-clubblauw.png",
+        "exactrefs": [
+          "/workspace/scratch/75a86e84a210/clubmuur-players-v17/12-een-team.png"
+        ],
+        "prompt": "Use case: precise-object-edit. The SINGLE attached PNG is the edit target.\nMake one narrowly restricted color correction to the EXISTING photograph. Change ONLY the blue fabric areas of the FIELD PLAYERS' kit: blue V-neck collar, blue sleeve cuffs, blue lower-shirt pinstripe panels, and blue shorts. Replace their too-bright royal blue with deep, muted, dark club blue/navy with base color EXACTLY #03438A (RGB 3,67,138), respecting the existing cloth highlights and shadows. The intended result is visibly deeper and darker and less electric than this image's current bright royal blue. Do not darken or tint white cloth.\nLOCK everything else to this image: EXACT existing faces, eyes, mouth/expression, age, skin, hair, bodies, hands, poses, arms, tattoos except the explicit correction below, lighting, white fabric, background alpha, image size and crop. Preserve the EXACT existing shield crest shape/text, STANNO graphics, sponsor ZARAUTZ DINER CAFE logo, sleeve typography, and logo placement. Do not redraw faces, logos, fingers or stripes. Preserve white pinstripe geometry and the V boundary, only recolor blue cloth between the lines. No additional people, new garments or new objects. Preserve sharpness and native detail, retain actual transparent PNG alpha and clean silhouette; do not add background, checkerboard, fog, glow, shadow, or baked fade.\nCRITICAL keeper preservation: the bald CENTER goalkeeper's entire cyan and orange kit, white logos and gloves must remain EXACTLY unchanged. Apply blue darkening only to the white-shirt field players on LEFT and RIGHT. Do not recolor any cyan.\nSpecific tattoo repair in this same edit: the man on the FAR RIGHT with slicked-back dark hair and a chin beard currently incorrectly has a dense full tattoo on his raised OUTSIDE arm at IMAGE RIGHT (his own LEFT arm). Remove that tattoo ONLY and restore natural untattooed skin with the same raised fist, forearm, elbow, pose, skin tone and lighting. His real tattoo belongs on his OWN RIGHT arm, on his inner side, not this raised arm. Do not invent or add tattoos on hidden parts. Keep the left man's skin and any authentic visible tattoo unchanged.",
+        "toolmode": "built-in tools.image_gen__imagegen",
+        "tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-9e01e65a-8801-4d15-91f9-940a9bde29f0.png",
+        "status": "completed",
+        "native_dimensions": {
+          "width": 1536,
+          "height": 1024
+        },
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "bytes": 2465611
+      },
+      "native_dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "previous_selected_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/12-een-team-clubblauw.png",
+      "alpha_cleanup": {
+        "assetname": "12-een-team-clubblauw-alpha-clean.png",
+        "exactrefs": [
+          "/workspace/scratch/75a86e84a210/clubmuur-players-v17/12-een-team-clubblauw.png"
+        ],
+        "prompt": "Use case: background-extraction. The attached PNG is the edit target. Perform ONLY a precise transparent-background cleanup of this existing photo.\nThere are black rectangular corner artifacts and a brown/blue blurred background accidentally carrying opacity. Remove ALL of this surrounding background completely. Outside the people the output must have genuine fully clear alpha=0, including EVERY pixel across both top corners, the entire top-edge strip, all empty side/bottom regions, and holes between arms/bodies. No visible or semitransparent black/gray rectangle, colored haze, blurred background, shadow, mist, glow, gradient, vignette, matting, or checkerboard. Pure transparent empty space. Do not replace it with any new background.\nKeep ONLY the three existing men as a clean photographic cutout. Do not regenerate, re-pose or restyle them. Preserve EXACT existing faces and expressions, hair/hairline, skin, body proportions, hands, tattoos, clothing folds and textures, every sponsor and crest, composition, native 1536x1024 canvas, positions, crop, photographic detail and lighting. Preserve the final deep navy #03438A clothing colors as they are. No tint or color correction. Natural sharp hair and fabric silhouette with antialiasing only at real person edges, no halo. Do not erase any part of a person, and do not introduce a bottom fade. All actual subject interiors remain opaque.\nEspecially preserve the middle goalkeeper's cyan geometric longsleeve/orange details/white logo/gloves exactly; preserve the outside right man's now UNTATTOOED raised forearm.\nThis is a background/alpha repair ONLY. Return a true RGBA PNG with uniformly alpha=0 everywhere outside the three people.",
+        "toolmode": "built-in tools.image_gen__imagegen",
+        "tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-ca378b80-5afb-4c4d-a2d0-11d9db1e94ab.png",
+        "native_dimensions": {
+          "width": 1536,
+          "height": 1024
+        },
+        "mode": "RGBA",
+        "alpha_qa": {
+          "file": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/12-een-team-clubblauw-alpha-clean.png",
+          "width": 1536,
+          "height": 1024,
+          "mode": "RGBA",
+          "alpha_extrema": [
+            0,
+            254
+          ],
+          "top_samples": [
+            [
+              0,
+              0
+            ],
+            [
+              50,
+              0
+            ],
+            [
+              100,
+              0
+            ],
+            [
+              768,
+              0
+            ],
+            [
+              1435,
+              0
+            ],
+            [
+              1485,
+              0
+            ],
+            [
+              1535,
+              0
+            ]
+          ],
+          "top_left_50": [
+            0,
+            0
+          ],
+          "top_right_50": [
+            0,
+            0
+          ],
+          "top_strip_25": [
+            0,
+            1
+          ],
+          "bottom_left_20": [
+            0,
+            0
+          ],
+          "bottom_right_20": [
+            0,
+            0
+          ]
+        },
+        "status": "completed"
+      }
+    },
+    {
+      "assetname": "13-clubtrots.png",
+      "exactrefs": [
+        "/workspace/scratch/75a86e84a210/upload/NIPR8359.JPG",
+        "/workspace/scratch/75a86e84a210/upload/NIPR8244.JPG",
+        "/workspace/scratch/75a86e84a210/upload/NIPR8269.JPG",
+        "/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png",
+        "/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_41.png"
+      ],
+      "prompt": "Use case: identity-preserve, compositing.\nAsset type: premium photorealistic cutout for Duindorp SV football club website hero. Create one finished PNG with real alpha transparency.\nPrimary request: Recompose ONLY the exact adult men in the specified portrait references into the requested lively football celebration pose. Facial identity is the highest priority: keep each man's actual face, age, facial proportions, build, skin texture and tone, hairline, hair, eye color, beard/goatee and existing tattoos. Preserve their individual differences and natural physique. Do not beautify, rejuvenate, slim, bulk up, or substitute model faces. Faces are front-facing or very nearly front-facing and unobstructed; lively but restrained natural expressions help retain identity.\nInput roles: first input photos are the exact subject identity and body references, also their own kit references. Penultimate image is the exact Duindorp S.V. crest artwork. Last image is exact field-shirt construction and sponsor logo/print reference. The supplied files are visual sources, not content to print as a collage.\nClothing: field players wear the reference white STANNO short sleeve shirts, deep club blue #03438A V-neck trim, sleeve trim, shoulder marks, fine vertical lower-body pinstripes forming the exact broad V pattern. Preserve blue STANNO chest mark, exact blue-and-white DUINDORP S.V. shield on the wearer's left chest, and the reference blue sleeve sponsor print. Match the separate crest artwork and actual kit placement faithfully. NO invented badges, extra crests or improvised marks. The large chest sponsor must match the provided shirt's graphic, exact words \"ZARAUTZ\" over \"DINER CAFE\", distinctive extended serif lettering and stylized final Z, flanking cutlery/plate ornaments, black ink with DINER CAFE in white inside its black horizontal bar. Spell Z-A-R-A-U-T-Z, D-I-N-E-R C-A-F-E. Do not replace with generic text. Keep each complete sponsor and crest visible, correctly oriented, sharp, naturally following cloth; no arms or fingers across the printing. Blue shorts below shirt. Keep natural folds and fabric texture. For any goalkeeper, obey the separate specific keeper clothing instruction instead.\nPhotographic finish: maximum available native resolution and detail, sharp realistic sports editorial photography, 85mm-equivalent natural perspective, consistent soft natural lighting, believable skin pores and individual hairs, crisp fabric and legible garment printing. Freeze action cleanly, no motion blur.\nFraming: each player visible from full head through at least upper thighs, with extra garment/shorts length below for a website CSS fade later. All heads, fingertips, elbows and raised arms completely within canvas with generous clear transparent margin. Closely grouped subjects, clear silhouette, faces at comparable scale. Clean actual transparent background and natural hair edges. The only visible pixels are the players. No pitch, grass, scenery, studio wall, floor, cast shadow plane, fog, glow, aura, grunge, vignette, added writing or watermark. No checkerboard painted into image. No baked-in bottom fade. Exactly the requested count of people. Hands anatomically natural, five fingers, correct wrists/arms, no fused limbs, duplicate people or extra hands.\nSpecific composition:\nExactly THREE men in reference order left to right: NIPR8359 (curly black hair and full beard), NIPR8244 (bald, goatee, tattooed right arm), NIPR8269 (long center-parted dark hair/mullet and full beard). Compact landscape 3:2 composition of natural connected club pride, each player doing a distinct celebratory gesture. Left man NIPR8359 points with one index finger immediately beside his own Duindorp chest crest, fingertip just outside shield, smiling. Center man NIPR8244 lightly grips the shirt fabric immediately beside/below his own club badge and subtly pulls it forward, spirited proud expression, without covering any logo. Right man NIPR8269 happily places one arm around the center teammate's upper shoulder and raises his free outer fist at the right side, all fingers/forearm fully inside image. Keep sponsor logos and all three crests completely visible and readable, bodies close, faces front-facing/near-front and faithful. Enough clear transparent room around outer arms; show upper thighs plus extra lower margin.",
+      "original_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/13-clubtrots.png",
+      "original_tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-c5f95e7b-42e8-4946-9405-c0635bd4fd7e.png",
+      "status": "completed",
+      "selected_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/13-clubtrots-clubblauw-alpha-clean.png",
+      "review_caveat": "Correct NIPR8244 right-arm tattoo preserved; pointing/gripping arms obscure parts of left and center sponsor graphics; right elbow near edge. Previous opaque corner artifacts corrected by one alpha-cleanup edit. Top corner 50x50 regions alpha 0; whole top 25px strip has alpha range 0-1.",
+      "color_edit": {
+        "assetname": "13-clubtrots-clubblauw.png",
+        "exactrefs": [
+          "/workspace/scratch/75a86e84a210/clubmuur-players-v17/13-clubtrots.png"
+        ],
+        "prompt": "Use case: precise-object-edit. The SINGLE attached PNG is the edit target.\nMake one narrowly restricted color correction to the EXISTING photograph. Change ONLY the blue fabric areas of the FIELD PLAYERS' kit: blue V-neck collar, blue sleeve cuffs, blue lower-shirt pinstripe panels, and blue shorts. Replace their too-bright royal blue with deep, muted, dark club blue/navy with base color EXACTLY #03438A (RGB 3,67,138), respecting the existing cloth highlights and shadows. The intended result is visibly deeper and darker and less electric than this image's current bright royal blue. Do not darken or tint white cloth.\nLOCK everything else to this image: EXACT existing faces, eyes, mouth/expression, age, skin, hair, bodies, hands, poses, arms, tattoos except the explicit correction below, lighting, white fabric, background alpha, image size and crop. Preserve the EXACT existing shield crest shape/text, STANNO graphics, sponsor ZARAUTZ DINER CAFE logo, sleeve typography, and logo placement. Do not redraw faces, logos, fingers or stripes. Preserve white pinstripe geometry and the V boundary, only recolor blue cloth between the lines. No additional people, new garments or new objects. Preserve sharpness and native detail, retain actual transparent PNG alpha and clean silhouette; do not add background, checkerboard, fog, glow, shadow, or baked fade.",
+        "toolmode": "built-in tools.image_gen__imagegen",
+        "tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-ecd29ac0-cc07-40b5-ad94-7f5fae046f43.png",
+        "status": "completed",
+        "native_dimensions": {
+          "width": 1536,
+          "height": 1024
+        },
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          254
+        ],
+        "bytes": 2522711
+      },
+      "native_dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "previous_selected_output": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/13-clubtrots-clubblauw.png",
+      "alpha_cleanup": {
+        "assetname": "13-clubtrots-clubblauw-alpha-clean.png",
+        "exactrefs": [
+          "/workspace/scratch/75a86e84a210/clubmuur-players-v17/13-clubtrots-clubblauw.png"
+        ],
+        "prompt": "Use case: background-extraction. The attached PNG is the edit target. Perform ONLY a precise transparent-background cleanup of this existing photo.\nThere are black rectangular corner artifacts and a brown/blue blurred background accidentally carrying opacity. Remove ALL of this surrounding background completely. Outside the people the output must have genuine fully clear alpha=0, including EVERY pixel across both top corners, the entire top-edge strip, all empty side/bottom regions, and holes between arms/bodies. No visible or semitransparent black/gray rectangle, colored haze, blurred background, shadow, mist, glow, gradient, vignette, matting, or checkerboard. Pure transparent empty space. Do not replace it with any new background.\nKeep ONLY the three existing men as a clean photographic cutout. Do not regenerate, re-pose or restyle them. Preserve EXACT existing faces and expressions, hair/hairline, skin, body proportions, hands, tattoos, clothing folds and textures, every sponsor and crest, composition, native 1536x1024 canvas, positions, crop, photographic detail and lighting. Preserve the final deep navy #03438A clothing colors as they are. No tint or color correction. Natural sharp hair and fabric silhouette with antialiasing only at real person edges, no halo. Do not erase any part of a person, and do not introduce a bottom fade. All actual subject interiors remain opaque.\nEspecially preserve the middle bald man's existing tattoo on his own RIGHT arm pointing across his chest, and the raised fist of the rightmost man.\nThis is a background/alpha repair ONLY. Return a true RGBA PNG with uniformly alpha=0 everywhere outside the three people.",
+        "toolmode": "built-in tools.image_gen__imagegen",
+        "tool_source": "/workspace/scratch/75a86e84a210/generated_images/exec-7424988e-76cc-4a1b-8a03-a9ec17be847e.png",
+        "native_dimensions": {
+          "width": 1536,
+          "height": 1024
+        },
+        "mode": "RGBA",
+        "alpha_qa": {
+          "file": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/13-clubtrots-clubblauw-alpha-clean.png",
+          "width": 1536,
+          "height": 1024,
+          "mode": "RGBA",
+          "alpha_extrema": [
+            0,
+            254
+          ],
+          "top_samples": [
+            [
+              0,
+              0
+            ],
+            [
+              50,
+              0
+            ],
+            [
+              100,
+              0
+            ],
+            [
+              768,
+              0
+            ],
+            [
+              1435,
+              0
+            ],
+            [
+              1485,
+              0
+            ],
+            [
+              1535,
+              0
+            ]
+          ],
+          "top_left_50": [
+            0,
+            0
+          ],
+          "top_right_50": [
+            0,
+            0
+          ],
+          "top_strip_25": [
+            0,
+            1
+          ],
+          "bottom_left_20": [
+            0,
+            0
+          ],
+          "bottom_right_20": [
+            0,
+            0
+          ]
+        },
+        "status": "completed"
+      }
+    }
+  ]
+}

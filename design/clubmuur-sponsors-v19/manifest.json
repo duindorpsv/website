@@ -1,0 +1,251 @@
+{
+  "description": "Six sponsor logos normalized by cropping transparent outer padding only. All artwork, colors, lettering, and original aspect ratios are preserved.",
+  "targetStripHeightPx": 150,
+  "targetVisibleHeightPx": 120,
+  "measurement": "SVG alpha bounds sampled at 8 pixels per original viewBox unit; a <=0.125-unit safety edge is retained. All alpha > 0 counts as artwork, including white paths. PNG cropped to exact alpha > 0 bounds. SVG inner markup retained byte-for-byte.",
+  "logos": [
+    {
+      "company": "BNU",
+      "file": "bnu.svg",
+      "original": "BNU_logo_vector.svg",
+      "originalBytes": 9801,
+      "originalViewBox": [
+        0,
+        0,
+        838,
+        838
+      ],
+      "viewBox": [
+        29,
+        28.875,
+        778.375,
+        778.75
+      ],
+      "visibleBoundsInOriginalUnits": [
+        29.125,
+        29,
+        778.125,
+        778.5
+      ],
+      "visibleWidth": 778.125,
+      "visibleHeight": 778.5,
+      "intrinsicWidth": 778.375,
+      "intrinsicHeight": 778.75,
+      "widthAt120pxHeight": 119.94221508828251,
+      "bytes": 9817,
+      "changes": [
+        "Only outer SVG viewBox, width, and height adjusted to alpha bounds.",
+        "All SVG child markup preserved byte-for-byte; intentional white paths retained."
+      ],
+      "notes": [],
+      "validation": {
+        "artworkPreserved": true,
+        "rasterizedDisplayWidth": 120,
+        "rasterizedDisplayHeight": 120,
+        "displayAlphaRows": 120
+      }
+    },
+    {
+      "company": "Kwaliteit Kozijnen Holland",
+      "file": "kwaliteit-kozijnen-holland.svg",
+      "original": "KKH-logo-8K-transparant(1).svg",
+      "originalBytes": 46850,
+      "originalViewBox": [
+        0,
+        0,
+        674,
+        322
+      ],
+      "viewBox": [
+        55.75,
+        58.875,
+        548.375,
+        198.5
+      ],
+      "visibleBoundsInOriginalUnits": [
+        55.875,
+        59,
+        548.125,
+        198.25
+      ],
+      "visibleWidth": 548.125,
+      "visibleHeight": 198.25,
+      "intrinsicWidth": 548.375,
+      "intrinsicHeight": 198.5,
+      "widthAt120pxHeight": 331.5113350125945,
+      "bytes": 46866,
+      "changes": [
+        "Only outer SVG viewBox, width, and height adjusted to alpha bounds.",
+        "All SVG child markup preserved byte-for-byte; intentional white paths retained."
+      ],
+      "notes": [],
+      "validation": {
+        "artworkPreserved": true,
+        "rasterizedDisplayWidth": 332,
+        "rasterizedDisplayHeight": 120,
+        "displayAlphaRows": 120
+      }
+    },
+    {
+      "company": "Deelman daktechniek",
+      "file": "deelman-daktechniek.svg",
+      "original": "Deelman-daktechniek-logo-8K-transparant.svg",
+      "originalBytes": 64055,
+      "originalViewBox": [
+        0,
+        0,
+        1536,
+        474
+      ],
+      "viewBox": [
+        0,
+        8.125,
+        1536,
+        454.375
+      ],
+      "visibleBoundsInOriginalUnits": [
+        0,
+        8.25,
+        1536,
+        454.125
+      ],
+      "visibleWidth": 1536,
+      "visibleHeight": 454.125,
+      "intrinsicWidth": 1536,
+      "intrinsicHeight": 454.375,
+      "widthAt120pxHeight": 405.656121045392,
+      "bytes": 64066,
+      "changes": [
+        "Only outer SVG viewBox, width, and height adjusted to alpha bounds.",
+        "All SVG child markup preserved byte-for-byte; intentional white paths retained."
+      ],
+      "notes": [
+        "Blue horizontal bar is original artwork and remains full width."
+      ],
+      "validation": {
+        "artworkPreserved": true,
+        "rasterizedDisplayWidth": 406,
+        "rasterizedDisplayHeight": 120,
+        "displayAlphaRows": 120
+      }
+    },
+    {
+      "company": "DG Webservices",
+      "file": "dg-webservices.svg",
+      "original": "DG-Webservices-Combined-Light-Mode-8192-1.svg",
+      "originalBytes": 9263,
+      "originalViewBox": [
+        0,
+        0,
+        2191,
+        548
+      ],
+      "viewBox": [
+        125.75,
+        163.5,
+        1799.75,
+        220.875
+      ],
+      "visibleBoundsInOriginalUnits": [
+        125.875,
+        163.625,
+        1799.5,
+        220.625
+      ],
+      "visibleWidth": 1799.5,
+      "visibleHeight": 220.625,
+      "intrinsicWidth": 1799.75,
+      "intrinsicHeight": 220.875,
+      "widthAt120pxHeight": 977.792869269949,
+      "bytes": 9286,
+      "changes": [
+        "Only outer SVG viewBox, width, and height adjusted to alpha bounds.",
+        "All SVG child markup preserved byte-for-byte; intentional white paths retained."
+      ],
+      "notes": [],
+      "validation": {
+        "artworkPreserved": true,
+        "rasterizedDisplayWidth": 977,
+        "rasterizedDisplayHeight": 120,
+        "displayAlphaRows": 120
+      }
+    },
+    {
+      "company": "RW Repair",
+      "file": "rw-repair.png",
+      "original": "logo-sidebar.png",
+      "originalBytes": 31762,
+      "originalDimensions": [
+        250,
+        250
+      ],
+      "crop": {
+        "left": 12,
+        "top": 12,
+        "width": 226,
+        "height": 226
+      },
+      "visibleWidth": 226,
+      "visibleHeight": 226,
+      "intrinsicWidth": 226,
+      "intrinsicHeight": 226,
+      "widthAt120pxHeight": 120,
+      "bytes": 30510,
+      "changes": [
+        "Removed transparent outer pixels only.",
+        "Losslessly re-encoded as RGBA PNG; no resizing, recoloring, or quantization.",
+        "Removed nonvisual authoring metadata."
+      ],
+      "notes": [
+        "Original raster is 250 × 250; cropped dimensions provide 1.88× pixel density at 120px display."
+      ],
+      "validation": {
+        "artworkPreserved": true,
+        "rasterizedDisplayWidth": 120,
+        "rasterizedDisplayHeight": 120,
+        "displayAlphaRows": 120
+      }
+    },
+    {
+      "company": "Proto Tegelzetbedrijf",
+      "file": "proto-tegelzetbedrijf.svg",
+      "original": "Proto-Tegelzetbedrijf-logo-8K-transparant(1).svg",
+      "originalBytes": 30262,
+      "originalViewBox": [
+        0,
+        0,
+        671,
+        298
+      ],
+      "viewBox": [
+        13.75,
+        33.75,
+        643.625,
+        230.75
+      ],
+      "visibleBoundsInOriginalUnits": [
+        13.875,
+        33.875,
+        643.375,
+        230.5
+      ],
+      "visibleWidth": 643.375,
+      "visibleHeight": 230.5,
+      "intrinsicWidth": 643.625,
+      "intrinsicHeight": 230.75,
+      "widthAt120pxHeight": 334.71289274106175,
+      "bytes": 30279,
+      "changes": [
+        "Only outer SVG viewBox, width, and height adjusted to alpha bounds.",
+        "All SVG child markup preserved byte-for-byte; intentional white paths retained."
+      ],
+      "notes": [],
+      "validation": {
+        "artworkPreserved": true,
+        "rasterizedDisplayWidth": 335,
+        "rasterizedDisplayHeight": 120,
+        "displayAlphaRows": 120
+      }
+    }
+  ]
+}

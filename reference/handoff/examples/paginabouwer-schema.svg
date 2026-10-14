@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="870" viewBox="0 0 1120 870">
+<title>Duindorp SV paginabouwer met rijen en twee kolommen</title>
+<desc>Bouwspecificatie: een volle rij, twee kolommen met losse widgets, en een volgende rij. Rijen en widgets hebben aparte sleepgrepen. Op mobiel volgen de rechterkolommen na de linker.</desc>
+<style>text{font-family:Arial,sans-serif;fill:#172432}.title{font-size:27px;font-weight:700}.sub{font-size:16px;fill:#536374}.label{font-size:17px;font-weight:700}.small{font-size:14px;fill:#536374}.white{fill:#fff}.card{fill:#fff;stroke:#a9b8c5;stroke-width:1.5}.row{fill:#f0f5f8;stroke:#b5c3cc;stroke-width:1.5}.zone{fill:none;stroke:#6c8194;stroke-dasharray:7 5;stroke-width:1.4}</style>
+<rect width="1120" height="870" fill="#fff"/>
+<text x="48" y="51" class="title">Een pagina bouwen met rijen en containers</text>
+<text x="48" y="81" class="sub">Bouwopdracht voor Codex · één Tiptap-document · maximaal twee kolommen per rij</text>
+<rect x="48" y="110" width="220" height="639" rx="10" fill="#172f45"/>
+<text x="70" y="148" class="label white">Widgets toevoegen</text>
+<g fill="#fff" font-family="Arial" font-size="16">
+<text x="72" y="191" class="white">Tekst</text><text x="72" y="232" class="white">Persoon</text><text x="72" y="273" class="white">Afbeelding</text><text x="72" y="314" class="white">Album</text><text x="72" y="355" class="white">Nieuwsselectie</text><text x="72" y="396" class="white">Verhalenselectie</text><text x="72" y="437" class="white">Formulier</text><text x="72" y="478" class="white">Documenten</text>
+</g>
+<text x="72" y="592" class="small white">Slepen naar een container</text><text x="72" y="618" class="small white">of toevoegen via de knop</text>
+<rect x="292" y="110" width="780" height="159" rx="10" class="row"/>
+<text x="312" y="142" class="label">⠿  Rij 1 · volle breedte</text>
+<text x="868" y="142" class="small">Rij verplaatsen / instellen</text>
+<rect x="314" y="161" width="736" height="83" rx="7" class="card"/>
+<text x="336" y="190" class="label">⠿  Tekstwidget</text><text x="336" y="221" class="small">Introductie van de pagina, direct bewerkbaar met Tiptap</text>
+<rect x="292" y="291" width="780" height="291" rx="10" class="row"/>
+<text x="312" y="324" class="label">⠿  Rij 2 · twee kolommen van 50/50</text>
+<rect x="314" y="343" width="357" height="218" rx="7" class="zone"/>
+<rect x="693" y="343" width="357" height="218" rx="7" class="zone"/>
+<text x="329" y="369" class="small">Linkercontainer</text><text x="708" y="369" class="small">Rechtercontainer</text>
+<rect x="329" y="383" width="327" height="60" rx="6" class="card"/><text x="345" y="419" class="label">⠿  Persoonswidget</text>
+<rect x="329" y="455" width="327" height="60" rx="6" class="card"/><text x="345" y="491" class="label">⠿  Tekstwidget</text>
+<rect x="708" y="383" width="327" height="60" rx="6" class="card"/><text x="724" y="419" class="label">⠿  Afbeeldingwidget</text>
+<rect x="708" y="455" width="327" height="60" rx="6" class="card"/><text x="724" y="491" class="label">⠿  Formulierwidget</text>
+<text x="345" y="546" class="small">+ Widget toevoegen</text><text x="724" y="546" class="small">+ Widget toevoegen</text>
+<rect x="292" y="604" width="780" height="145" rx="10" class="row"/>
+<text x="312" y="637" class="label">⠿  Rij 3 · volle breedte</text>
+<rect x="314" y="656" width="736" height="68" rx="7" class="card"/><text x="336" y="697" class="label">⠿  Albumwidget</text>
+<text x="48" y="793" class="label">Rijen én widgets kunnen worden verplaatst. Eén actie is één undo-stap.</text>
+<text x="48" y="823" class="sub">Op mobiel: rij 1 → linkercontainer van rij 2 → rechtercontainer van rij 2 → rij 3.</text>
+</svg>

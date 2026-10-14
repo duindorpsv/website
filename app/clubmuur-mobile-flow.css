@@ -1,0 +1,53 @@
+/* Stable desktop slots; DOM order starts with the match and latest news. */
+@media(min-width:1000px){
+ .cm-opening[data-hero-layout="04"] .cm-composition{grid-template-rows:minmax(0,1fr) clamp(240px,28svh,290px)}
+ .cm-tile-grid>[data-slot-id="top-left"]{grid-area:1/1}
+ .cm-tile-grid>[data-slot-id="top-right"]{grid-area:1/2}
+ .cm-tile-grid>[data-slot-id="bottom-left"]{grid-area:2/1}
+ .cm-tile-grid>[data-slot-id="bottom-right"]{grid-area:2/2}
+ .cm-opening[data-hero-layout="04"] .cm-tile-grid>[data-slot-id="top-left"]{grid-area:1/1}
+ .cm-opening[data-hero-layout="04"] .cm-tile-grid>[data-slot-id="top-right"]{grid-area:1/2}
+ .cm-opening[data-hero-layout="04"] .cm-tile-grid>[data-slot-id="bottom-left"]{grid-area:1/3}
+ .cm-opening[data-hero-layout="04"] .cm-tile-grid>[data-slot-id="bottom-right"]{grid-area:1/4}
+}
+
+/* One instance of every card. Mobile interleaves the competition between them. */
+@media(max-width:999px){
+ .cm-opening{
+  grid-template-rows:var(--cm-mobile-head) minmax(330px,calc(100svh - var(--cm-header-h) - var(--cm-mobile-head) - var(--cm-band-h) - var(--cm-dock-h) - env(safe-area-inset-bottom,0px))) var(--cm-band-h) 150px repeat(6,auto);
+ }
+ .cm-opening .cm-tile-grid{display:contents}
+ .cm-opening .cm-tile-grid>[data-slot-id]{width:min(704px,calc(100% - 36px));height:280px;min-height:0;justify-self:center;align-self:start;margin:18px 0 0;border-radius:14px}
+ .cm-opening .cm-tile-grid>[data-slot-id="top-right"]{grid-area:5/1/6/2}
+ .cm-opening .cm-tile-grid>[data-slot-id="top-left"]{grid-area:6/1/7/2;margin-bottom:24px}
+ .cm-opening .cm-competition{grid-area:7/1/8/2}
+ .cm-opening .cm-tile-grid>[data-slot-id="bottom-left"]{grid-area:8/1/9/2;margin-top:24px}
+ .cm-opening .cm-tile-grid>[data-slot-id="bottom-right"]{grid-area:9/1/10/2;margin-bottom:20px}
+ .cm-opening .cm-newsline{grid-area:10/1/11/2}
+ .cm-opening .cm-tile-grid>.cm-news-tile{height:365px}
+
+ .cm-opening .cm-tile-grid .cm-match-top{min-height:43px;padding:11px 18px}
+ .cm-opening .cm-tile-grid .cm-match h2{font-size:23px}
+ .cm-opening .cm-tile-grid .cm-match-top>span{display:flex;font-size:8px}
+ .cm-opening .cm-tile-grid .cm-match-body{padding:15px 18px 17px;gap:8px}
+ .cm-opening .cm-tile-grid .cm-clubs{gap:18px}
+ .cm-opening .cm-tile-grid .cm-clubs .cm-club-logo{width:48px;height:55px}
+ .cm-opening .cm-tile-grid .cm-clubs .cm-club-logo>img{width:100%;height:100%}
+ .cm-opening .cm-tile-grid .cm-clubs strong{font-size:15px}
+ .cm-opening .cm-tile-grid .cm-match-date{font-size:35px}
+ .cm-opening .cm-tile-grid .cm-match-location{font-size:11px;gap:5px}
+ .cm-opening .cm-tile-grid .cm-match-location svg{width:12px;height:12px}
+ .cm-opening .cm-tile-grid .cm-match .btn{height:40px;min-height:40px;font-size:12px}
+
+ .cm-opening .cm-tile-grid .cm-story h3{font-size:40px;line-height:1}
+ .cm-opening .cm-tile-grid .cm-card-kicker{left:18px;top:18px;font-size:8px;padding:5px 8px}
+ .cm-opening .cm-tile-grid .cm-story-label{display:flex;left:18px;right:18px;bottom:19px}
+ .cm-opening .cm-tile-grid .cm-story .cm-circle{position:static;flex:none;width:32px;height:32px}
+ .cm-opening .cm-tile-grid .cm-walking{display:flex;flex-direction:row;height:245px}
+ .cm-opening .cm-tile-grid .cm-walking-photo{position:relative;inset:auto;width:45%;height:100%}
+ .cm-opening .cm-tile-grid .cm-walking-copy{display:flex;flex-direction:column;justify-content:center;height:100%;padding:22px 15px 35px;background:linear-gradient(115deg,#fff 55%,#edf3fa);color:var(--cm-text)}
+ .cm-opening .cm-tile-grid .cm-walking-kicker{position:static;max-width:none;font-size:8px;line-height:1.4;padding:0;margin:0 0 12px;opacity:.65;border:0;border-radius:0;background:none;backdrop-filter:none}
+ .cm-opening .cm-tile-grid .cm-walking h3{font-size:36px;line-height:1}
+ .cm-opening .cm-tile-grid .cm-walking p{font-size:12px;line-height:1.5;margin:10px 0 0;padding:0}
+ .cm-opening .cm-tile-grid .cm-walking .cm-circle{width:28px;height:28px;right:14px;bottom:13px;background:#edf3fa;color:var(--cm-text);border-color:var(--cm-border)}
+}

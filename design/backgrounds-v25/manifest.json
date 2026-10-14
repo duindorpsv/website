@@ -1,0 +1,312 @@
+{
+  "mode": "Built-in image_gen reference-based edit",
+  "masters": [
+    {
+      "file": "houtrust-original.png",
+      "width": 1672,
+      "height": 941,
+      "dpi": 300
+    },
+    {
+      "file": "houtrust-portrait-original.png",
+      "width": 941,
+      "height": 1672,
+      "dpi": 300
+    },
+    {
+      "file": "de-wijk-original.png",
+      "width": 1672,
+      "height": 941,
+      "dpi": 300
+    },
+    {
+      "file": "de-wijk-portrait-original.png",
+      "width": 941,
+      "height": 1672,
+      "dpi": 300
+    },
+    {
+      "file": "aan-zee-original.png",
+      "width": 1672,
+      "height": 941,
+      "dpi": 300
+    },
+    {
+      "file": "aan-zee-portrait-original.png",
+      "width": 941,
+      "height": 1672,
+      "dpi": 300
+    }
+  ],
+  "requested_native_size": "3840 × 2160 / 2160 × 3840",
+  "actual_native_long_edge": 1672,
+  "upscaled": false,
+  "reference_attribution": "Beacon reference: © Dennis Nijhuis — www.nederlandsevuurtorens.nl",
+  "note": "300 DPI is print metadata, not added detail. Small generated architectural details can differ from reference photographs.",
+  "exports": [
+    {
+      "file": "houtrust-wide-960.avif",
+      "width": 960,
+      "height": 540,
+      "bytes": 130211
+    },
+    {
+      "file": "houtrust-wide-960.webp",
+      "width": 960,
+      "height": 540,
+      "bytes": 231434
+    },
+    {
+      "file": "houtrust-wide-1280.avif",
+      "width": 1280,
+      "height": 720,
+      "bytes": 211521
+    },
+    {
+      "file": "houtrust-wide-1280.webp",
+      "width": 1280,
+      "height": 720,
+      "bytes": 389140
+    },
+    {
+      "file": "houtrust-wide-1672.avif",
+      "width": 1672,
+      "height": 941,
+      "bytes": 317569
+    },
+    {
+      "file": "houtrust-wide-1672.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 596258
+    },
+    {
+      "file": "houtrust-portrait-480.avif",
+      "width": 480,
+      "height": 853,
+      "bytes": 94810
+    },
+    {
+      "file": "houtrust-portrait-480.webp",
+      "width": 480,
+      "height": 853,
+      "bytes": 167620
+    },
+    {
+      "file": "houtrust-portrait-800.avif",
+      "width": 800,
+      "height": 1421,
+      "bytes": 221064
+    },
+    {
+      "file": "houtrust-portrait-800.webp",
+      "width": 800,
+      "height": 1421,
+      "bytes": 404902
+    },
+    {
+      "file": "houtrust-portrait-941.avif",
+      "width": 941,
+      "height": 1672,
+      "bytes": 285000
+    },
+    {
+      "file": "houtrust-portrait-941.webp",
+      "width": 941,
+      "height": 1672,
+      "bytes": 524608
+    },
+    {
+      "file": "de-wijk-wide-960.avif",
+      "width": 960,
+      "height": 540,
+      "bytes": 124566
+    },
+    {
+      "file": "de-wijk-wide-960.webp",
+      "width": 960,
+      "height": 540,
+      "bytes": 221152
+    },
+    {
+      "file": "de-wijk-wide-1280.avif",
+      "width": 1280,
+      "height": 720,
+      "bytes": 204599
+    },
+    {
+      "file": "de-wijk-wide-1280.webp",
+      "width": 1280,
+      "height": 720,
+      "bytes": 370978
+    },
+    {
+      "file": "de-wijk-wide-1672.avif",
+      "width": 1672,
+      "height": 941,
+      "bytes": 307962
+    },
+    {
+      "file": "de-wijk-wide-1672.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 570048
+    },
+    {
+      "file": "de-wijk-portrait-480.avif",
+      "width": 480,
+      "height": 853,
+      "bytes": 91066
+    },
+    {
+      "file": "de-wijk-portrait-480.webp",
+      "width": 480,
+      "height": 853,
+      "bytes": 164734
+    },
+    {
+      "file": "de-wijk-portrait-800.avif",
+      "width": 800,
+      "height": 1421,
+      "bytes": 224169
+    },
+    {
+      "file": "de-wijk-portrait-800.webp",
+      "width": 800,
+      "height": 1421,
+      "bytes": 412282
+    },
+    {
+      "file": "de-wijk-portrait-941.avif",
+      "width": 941,
+      "height": 1672,
+      "bytes": 288892
+    },
+    {
+      "file": "de-wijk-portrait-941.webp",
+      "width": 941,
+      "height": 1672,
+      "bytes": 538010
+    },
+    {
+      "file": "aan-zee-wide-960.avif",
+      "width": 960,
+      "height": 540,
+      "bytes": 113042
+    },
+    {
+      "file": "aan-zee-wide-960.webp",
+      "width": 960,
+      "height": 540,
+      "bytes": 204436
+    },
+    {
+      "file": "aan-zee-wide-1280.avif",
+      "width": 1280,
+      "height": 720,
+      "bytes": 187681
+    },
+    {
+      "file": "aan-zee-wide-1280.webp",
+      "width": 1280,
+      "height": 720,
+      "bytes": 346978
+    },
+    {
+      "file": "aan-zee-wide-1672.avif",
+      "width": 1672,
+      "height": 941,
+      "bytes": 285955
+    },
+    {
+      "file": "aan-zee-wide-1672.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 535874
+    },
+    {
+      "file": "aan-zee-portrait-480.avif",
+      "width": 480,
+      "height": 853,
+      "bytes": 89315
+    },
+    {
+      "file": "aan-zee-portrait-480.webp",
+      "width": 480,
+      "height": 853,
+      "bytes": 161710
+    },
+    {
+      "file": "aan-zee-portrait-800.avif",
+      "width": 800,
+      "height": 1421,
+      "bytes": 218250
+    },
+    {
+      "file": "aan-zee-portrait-800.webp",
+      "width": 800,
+      "height": 1421,
+      "bytes": 400046
+    },
+    {
+      "file": "aan-zee-portrait-941.avif",
+      "width": 941,
+      "height": 1672,
+      "bytes": 280282
+    },
+    {
+      "file": "aan-zee-portrait-941.webp",
+      "width": 941,
+      "height": 1672,
+      "bytes": 517752
+    },
+    {
+      "file": "section-houtrust-800.avif",
+      "width": 800,
+      "height": 450,
+      "bytes": 90448
+    },
+    {
+      "file": "section-houtrust-800.webp",
+      "width": 800,
+      "height": 450,
+      "bytes": 162394
+    },
+    {
+      "file": "section-houtrust-1600.avif",
+      "width": 1600,
+      "height": 900,
+      "bytes": 291490
+    },
+    {
+      "file": "section-houtrust-1600.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 556410
+    },
+    {
+      "file": "section-wijkpanorama-800.avif",
+      "width": 800,
+      "height": 450,
+      "bytes": 78707
+    },
+    {
+      "file": "section-wijkpanorama-800.webp",
+      "width": 800,
+      "height": 450,
+      "bytes": 143282
+    },
+    {
+      "file": "section-wijkpanorama-1600.avif",
+      "width": 1600,
+      "height": 900,
+      "bytes": 263702
+    },
+    {
+      "file": "section-wijkpanorama-1600.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 496012
+    }
+  ]
+}

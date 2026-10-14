@@ -1,0 +1,88 @@
+{
+  "fixturePurpose": "Voorbeeld van het te implementeren formaat; referenties eerst koppelen aan testrecords. Geen bestaande productie-import.",
+  "page": {
+    "title": "Bestuur en contact",
+    "slug": "club/bestuur",
+    "intro": "De mensen achter Duindorp SV.",
+    "bodyFormat": "page-layout-v2",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "cmsRow",
+          "attrs": { "id": "row-intro", "layout": "full", "gap": "normal", "padding": "normal", "tone": "default", "verticalAlign": "start" },
+          "content": [
+            {
+              "type": "cmsColumn",
+              "attrs": { "id": "column-intro" },
+              "content": [
+                {
+                  "type": "cmsRichText",
+                  "attrs": { "id": "widget-intro" },
+                  "content": [
+                    { "type": "heading", "attrs": { "level": 2 }, "content": [{ "type": "text", "text": "Samen voor onze vereniging" }] },
+                    { "type": "paragraph", "content": [{ "type": "text", "text": "Voor algemene vragen is het bestuur bereikbaar via het secretariaat." }] }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "cmsRow",
+          "attrs": { "id": "row-board", "layout": "equal", "gap": "normal", "padding": "normal", "tone": "subtle", "verticalAlign": "start" },
+          "content": [
+            {
+              "type": "cmsColumn",
+              "attrs": { "id": "column-chair" },
+              "content": [
+                { "type": "cmsWidget", "attrs": { "id": "widget-chair", "kind": "person", "data": { "refId": "fixture-person-danny-goldenbelt", "title": "Voorzitter" } } },
+                {
+                  "type": "cmsRichText",
+                  "attrs": { "id": "widget-chair-note" },
+                  "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Deze tekst is een zelfstandig verplaatsbare widget onder de persoonskaart." }] }]
+                }
+              ]
+            },
+            {
+              "type": "cmsColumn",
+              "attrs": { "id": "column-contact" },
+              "content": [
+                { "type": "cmsWidget", "attrs": { "id": "widget-contact-link", "kind": "contact", "data": { "refId": "fixture-department-secretariaat", "title": "Secretariaat", "text": "Neem contact op met het secretariaat.", "label": "Naar het contactformulier" } } },
+                { "type": "cmsWidget", "attrs": { "id": "widget-contact-form", "kind": "form", "data": { "formId": "fixture-form-contact-secretariaat", "title": "Stel je vraag" } } }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "cmsRow",
+          "attrs": { "id": "row-publications", "layout": "wide-left", "gap": "wide", "padding": "normal", "tone": "default", "verticalAlign": "start" },
+          "content": [
+            {
+              "type": "cmsColumn",
+              "attrs": { "id": "column-news" },
+              "content": [{ "type": "cmsWidget", "attrs": { "id": "widget-news", "kind": "news", "data": { "title": "Clubnieuws", "contentType": "news", "limit": 3 } } }]
+            },
+            {
+              "type": "cmsColumn",
+              "attrs": { "id": "column-stories" },
+              "content": [{ "type": "cmsWidget", "attrs": { "id": "widget-stories", "kind": "news", "data": { "title": "Columns van de club", "contentType": "story", "storyFormat": "column", "limit": 2 } } }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "referenceFixtures": {
+    "fixture-person-danny-goldenbelt": { "resource": "person", "name": "Danny Goldenbelt", "role": "Voorzitter", "email": "danny.goldenbelt@duindorpsv.nl", "phone": "0659019035", "showContact": true, "published": true },
+    "fixture-department-secretariaat": { "resource": "department", "name": "Secretariaat", "emails": ["secretariaat@duindorpsv.nl"], "active": true },
+    "fixture-form-contact-secretariaat": { "resource": "form", "kind": "contact", "name": "Contact met het secretariaat", "departmentId": "fixture-department-secretariaat", "active": true }
+  },
+  "implementationNotes": [
+    "De envelop fixturePurpose/page/referenceFixtures/implementationNotes is voor documentatie; alleen page gaat naar de paginamigratie/API, na aanvullen van verplichte bestaande PageContent-velden.",
+    "bodyFormat, cmsRow, cmsColumn, cmsRichText, structurele widget-IDs, kind=form, limit en storyFormat in widgetdata moeten nog worden geïmplementeerd en gevalideerd.",
+    "Nieuws en verhalen blijven apart, ook wanneer beide widgets in dezelfde rij staan.",
+    "Mobiel is de volgorde: introductie, voorzitter, tekst onder voorzitter, contactlink, contactformulier, nieuws, columns.",
+    "Deze fixture bevat geen verzendautorisatie of werkende mailboxkoppeling. Testformulieren mogen geen echte e-mail versturen."
+  ]
+}

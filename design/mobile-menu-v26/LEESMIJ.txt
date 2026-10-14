@@ -1,0 +1,38 @@
+Clubmuur mobiele navigatie — v26
+
+Het generieke menuvenster is vervangen door een schermhoge navigatielaag:
+blauwe grunge-masthead, witte inhoud, vijf hoofdrubrieken, geanimeerde
+uitklapbare sublinks, vaste sluitknop en vaste aanmeldknop. Op grotere
+schermen is de laag maximaal 480 px breed. Safe-area, dynamische
+viewporthoogte, interne scroll en verminderde beweging zijn ondersteund.
+
+Radix Dialog en Accordion regelen focus, Escape en toetsenbordbediening.
+De echte DialogTrigger zorgt voor focusherstel bij sluiten. Een overzicht
+blijft bereikbaar als de redacteur de standaard overzichtslink wegneemt.
+
+CMS → Navigatie: sublinks toevoegen, naam/bestemming wijzigen, verwijderen
+en in volgorde verplaatsen. Maximaal twaalf sublinks per hoofdrubriek.
+De vijf hoofdrubrieken blijven gelijk aan de bestaande desktopnavigatie.
+Deze CMS-demo gebruikt lokale browseropslag, met synchronisatie naar
+andere tabs op hetzelfde apparaat. Het is geen productie-CMS en maakt
+geen nieuwe inhoudspagina's aan. Bestemmingen zijn bestaande Clubmuur-
+pagina's, met optionele filters of sectieankers. Onveilige URLs en
+ongeldige opgeslagen menugegevens worden geweigerd.
+
+Functionele bestemmingen toegevoegd:
+- /clubmuur/club#clubwaarden
+- /clubmuur/club#bezoek
+- /clubmuur/nieuws?categorie=Clubnieuws (en andere bestaande categorieën)
+- Same-page hashwisselingen voor het wedstrijdcentrum.
+
+Verificatie:
+- TypeScript --noEmit --incremental false en git diff --check geslaagd.
+- Browser: 390 × 800 menu, geen horizontale overflow, footer binnen scherm.
+- Rubrieken uitklappen en navigeren naar Uitslagen werkt.
+- Escape sluit; focus keert terug naar Menu openen.
+- Menu → Lid worden opent de bestaande aanmelding.
+- Nieuwe tijdelijke sublink opgeslagen via CMS en zichtbaar in het menu.
+  De tijdelijke testlink is daarna verwijderd en het menu opnieuw opgeslagen.
+- Veilige URL-validatie en structuurvalidatie afzonderlijk gecontroleerd.
+
+Screenshot: menu-preview.jpg

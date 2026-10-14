@@ -1,0 +1,2860 @@
+{
+  "project": "Duindorp SV Onze Trots",
+  "prepared_on": "2026-10-13",
+  "source_site_version": 44,
+  "source_commit": "e91ed87f3e5917f286885c6593fe397f8e67cdf4",
+  "source_site_url": "https://duindorp-onze-trots.dgwebserv.chatgpt.site",
+  "source_file_count": 568,
+  "source_bytes": 179746582,
+  "format": "Full tracked-source snapshot without Git history",
+  "not_included": [
+    "Git credentials and .git",
+    "node_modules and ignored build output",
+    "personal browser CMS and uploaded media data",
+    "personal narrowcasting settings",
+    "D1 database contents",
+    "VPS credentials and production configuration"
+  ],
+  "source_files": [
+    {
+      "path": ".gitignore",
+      "bytes": 609,
+      "sha256": "21ab2bf22045124f8d5f067fadf3634771d950f5488b10e4dac107e2ab9e988f"
+    },
+    {
+      "path": ".npmrc",
+      "bytes": 45,
+      "sha256": "a3909ac0447c469fda12c57374993be70f47ce73e49fd3124678c7c047f2214d"
+    },
+    {
+      "path": ".openai/hosting.json",
+      "bytes": 91,
+      "sha256": "0ad84a9dc3df7a1f6b0cf30c2021115edd0746f7bbb4e2ec6a128d518a911fec"
+    },
+    {
+      "path": "README.md",
+      "bytes": 9971,
+      "sha256": "f58c41a80cb9bdb6b1d6c45ebaaa6144fe993b0deedc826ac1cb20dfab28c1dd"
+    },
+    {
+      "path": "app/[concept]/[[...view]]/page.tsx",
+      "bytes": 2825,
+      "sha256": "4af6c7ecfec5fa482cf25067f065cf9f582b9fcf20677bdb1d01667a7e2195e2"
+    },
+    {
+      "path": "app/api/sportlink/route.ts",
+      "bytes": 554,
+      "sha256": "879f25adcf62211191c411be3efed72433789000ad348359dfd85d64be124283"
+    },
+    {
+      "path": "app/api/sportlink/team/photo/route.ts",
+      "bytes": 682,
+      "sha256": "0b8f52656af69c5c812cda7088c88ee8ed3f57e1b596a8fb09d705ebd7c2ecce"
+    },
+    {
+      "path": "app/api/sportlink/team/route.ts",
+      "bytes": 694,
+      "sha256": "1747219eeb299a97770d6014689bdf226b44eced1a4ffb1140cec96d5607dc80"
+    },
+    {
+      "path": "app/beheer/page.tsx",
+      "bytes": 97,
+      "sha256": "321c5ce633fd72207164179ff32b24151c55796e886a3dacd05ac510c329adc2"
+    },
+    {
+      "path": "app/chatgpt-auth.ts",
+      "bytes": 2550,
+      "sha256": "4265a2e7c2dcb3a6f4b7026f762bf5b6e4caec76cc13c0a45987ee9a9f2e42cc"
+    },
+    {
+      "path": "app/clubmuur-community-cards.css",
+      "bytes": 12869,
+      "sha256": "57737fd57c63dfcfd5899708ccaee3e378dcc225c20cfecb721d0f60376a51c8"
+    },
+    {
+      "path": "app/clubmuur-competition.css",
+      "bytes": 18812,
+      "sha256": "4774f18852c5e98d140d39afdac7f6ae4c08311cdf4afc447ec36e5c73173052"
+    },
+    {
+      "path": "app/clubmuur-content-updates.css",
+      "bytes": 3267,
+      "sha256": "2f1dc0726a74edd0340489a72909a1ec01a4b77407f72cc538541fac43a98139"
+    },
+    {
+      "path": "app/clubmuur-desktop-nav.css",
+      "bytes": 6694,
+      "sha256": "ff8f78589fff60ebbfc4ae5e76904522de68c2ed1ac00caacf890b038f77860b"
+    },
+    {
+      "path": "app/clubmuur-extra-pages.css",
+      "bytes": 18300,
+      "sha256": "6cae19acb2c75e02164d89820d8d13cb022aa0d774aecc376d8548c7d6da9c5f"
+    },
+    {
+      "path": "app/clubmuur-headers.css",
+      "bytes": 9944,
+      "sha256": "39233ddc69ac80a3f7fcaf70b6533ebc43dc8d73574953c2c9449ebc449a57e0"
+    },
+    {
+      "path": "app/clubmuur-hero-focus.css",
+      "bytes": 13716,
+      "sha256": "0d36a43601e262aa3225aca5948beeb4ebeb6d0ff23c5bf0e792acf39f074176"
+    },
+    {
+      "path": "app/clubmuur-history-page.css",
+      "bytes": 6639,
+      "sha256": "d3c258f2a7d4eea687a5f868024a8262dc513fdefa823b9f888e7dc600b41e56"
+    },
+    {
+      "path": "app/clubmuur-home-finish.css",
+      "bytes": 2088,
+      "sha256": "19bd519ed0474e6d651ba36c52dc47d9391ec36384addba89a156cb023099a14"
+    },
+    {
+      "path": "app/clubmuur-info-pages.css",
+      "bytes": 18851,
+      "sha256": "60eab5fc6983aae1b137916db37f4b1e72305bac96da25c9f1af2ae54d45e7cc"
+    },
+    {
+      "path": "app/clubmuur-layouts.css",
+      "bytes": 9622,
+      "sha256": "f15719cc68d6e08dbf44df3dc21d2e20297d7e1f5c560a36a6b06e82eb08bb5b"
+    },
+    {
+      "path": "app/clubmuur-menu.css",
+      "bytes": 7685,
+      "sha256": "82c9f68b3488f6d815b3e53cd9b01f8e0fcceaf3c478925f868cadbe091c0080"
+    },
+    {
+      "path": "app/clubmuur-mobile-flow.css",
+      "bytes": 4017,
+      "sha256": "ed6807e792e8fb5fc27e9ed5f72fc253c2412f520bb6e73afc93b6007601f708"
+    },
+    {
+      "path": "app/clubmuur-navigation-editor.css",
+      "bytes": 4623,
+      "sha256": "3f387040a3d4f775ed052f2a6fc8f7171b5edad0cd0731f55addb6937ddf364d"
+    },
+    {
+      "path": "app/clubmuur-news-tile.css",
+      "bytes": 6875,
+      "sha256": "8124a8a94bfe5ffe3e9fdc227d0d612ea584f707831af884f3527806fd22f6b6"
+    },
+    {
+      "path": "app/clubmuur-organisation-pages.css",
+      "bytes": 16684,
+      "sha256": "a0922e2967ac1f86c471300b0b353f7f5f7cd0d978fec3e106f99b6fc7b99d29"
+    },
+    {
+      "path": "app/clubmuur-pages.css",
+      "bytes": 10106,
+      "sha256": "4d37e5d8ebd899026c6ed2416d899317936d24fca82fe70e7ce8664d89997ec4"
+    },
+    {
+      "path": "app/clubmuur-photo-wall.css",
+      "bytes": 10138,
+      "sha256": "ac7e57dfc3af8f0b4511a61875ee3ceca790fdfa5b42b3700dfc70dead310ba6"
+    },
+    {
+      "path": "app/clubmuur-sponsors.css",
+      "bytes": 2726,
+      "sha256": "08d1e574d26e799f00ddb45d572c3f5caac8f4048fd254c704ba2f448d887c81"
+    },
+    {
+      "path": "app/clubmuur-story.css",
+      "bytes": 5581,
+      "sha256": "ca2ca03968720e32af953a43b364df7eded86ae23f90219cc13abe2d1d9d8e33"
+    },
+    {
+      "path": "app/clubmuur-team-detail.css",
+      "bytes": 15295,
+      "sha256": "7f599fbfaa765fb1acbeda9e4088df6e5908c35141f13e97a73303e4f059c9b3"
+    },
+    {
+      "path": "app/clubmuur-team-pages.css",
+      "bytes": 18979,
+      "sha256": "2b260cc3ac0f5a90ccdc7a5ad3465dd2c2856860b71638cbe888f0d4cc8d6626"
+    },
+    {
+      "path": "app/clubmuur.css",
+      "bytes": 35822,
+      "sha256": "747bc059e6b32877a85fb621e8c866e119f1b82b438b81d270b316dad525fedf"
+    },
+    {
+      "path": "app/cms-public.css",
+      "bytes": 31817,
+      "sha256": "698ddb4d68688f0ac86201c430d217ad9688d1aadb94b3c2f20b58b2d4e90328"
+    },
+    {
+      "path": "app/cms.css",
+      "bytes": 15723,
+      "sha256": "cfd9a3f3f6eae58822edf258bb896b06513bf0d982fb266a147f5dcded4add01"
+    },
+    {
+      "path": "app/fonts.css",
+      "bytes": 2772,
+      "sha256": "50ec6b08b97fb5599277cc885f1e6dc769ceaa02f04fca98089e15298a41619e"
+    },
+    {
+      "path": "app/globals.css",
+      "bytes": 111050,
+      "sha256": "01e38b2aafd94bc51b2d1849c6069d1ced733aa5eee3e48cf152108818e333df"
+    },
+    {
+      "path": "app/headers/page.tsx",
+      "bytes": 98,
+      "sha256": "5fcbf8eca41fa6d4974c8f37269a77148299f29ef2accbced78e21c48cd38179"
+    },
+    {
+      "path": "app/layout.tsx",
+      "bytes": 1485,
+      "sha256": "1b131c48d3c482e9b3fd7953c893e0cf2720fe6a060c6f6a587449a1e350326d"
+    },
+    {
+      "path": "app/narrowcasting-club.css",
+      "bytes": 13768,
+      "sha256": "8701b6bfdad9f74a279997906c27b1c992ccf6cab5409ccaaa4e2215eb4623c9"
+    },
+    {
+      "path": "app/narrowcasting-sports.css",
+      "bytes": 18852,
+      "sha256": "e1ecd34a5be828e29e4e792c4e48d2d58ae3f2d8345c9ca142e5c210dd160c64"
+    },
+    {
+      "path": "app/narrowcasting-wizard.css",
+      "bytes": 9905,
+      "sha256": "d6ced097f82d65ac67fec9bf7ee90d019d76ad30eefc3c6336f1e2892fa20870"
+    },
+    {
+      "path": "app/narrowcasting.css",
+      "bytes": 18293,
+      "sha256": "8865e3ad963f956aaf4ad832c42b570151077bf65beff7a7f50e39ba38464d13"
+    },
+    {
+      "path": "app/narrowcasting/page.tsx",
+      "bytes": 506,
+      "sha256": "62533eedfb385741edcd8d0ded71e0c8a45887fc76b30cd5b50e63f7d6235860"
+    },
+    {
+      "path": "app/not-found.module.css",
+      "bytes": 2450,
+      "sha256": "3dbf4daee246857b4e46e3007d68d3db021cc7b0270b2cf7057a451c3540b479"
+    },
+    {
+      "path": "app/not-found.tsx",
+      "bytes": 1339,
+      "sha256": "ae253e53be844fe9c7fdc5ea62f821b01393d6e1471acb9118cd483a60a182be"
+    },
+    {
+      "path": "app/page.tsx",
+      "bytes": 98,
+      "sha256": "5fcbf8eca41fa6d4974c8f37269a77148299f29ef2accbced78e21c48cd38179"
+    },
+    {
+      "path": "app/preview/page.tsx",
+      "bytes": 98,
+      "sha256": "5fcbf8eca41fa6d4974c8f37269a77148299f29ef2accbced78e21c48cd38179"
+    },
+    {
+      "path": "app/sportlink-match-filters.css",
+      "bytes": 9290,
+      "sha256": "6b5bc79edd40e8300ce9cb5ab26bb7db7d380f385ee836fca49d7c408ef1436c"
+    },
+    {
+      "path": "app/sportlink-pages.css",
+      "bytes": 16203,
+      "sha256": "f4ebba5d2be4d5510f18f863bc63dd2c20a5876df04f17e2077110c4023b0175"
+    },
+    {
+      "path": "build/connector-preview-plugin.mjs",
+      "bytes": 7211,
+      "sha256": "a6a9fe2086e302f94a3f91e3c1a68a45bb3aa07d4a79faf01b14732191eb4e80"
+    },
+    {
+      "path": "build/connector-preview-worker.mjs",
+      "bytes": 594,
+      "sha256": "c1b6b2c420cb67d9e28f8f4ae440f578c0dfd4cb840a12cfe4b58076629a17ba"
+    },
+    {
+      "path": "build/sites-vite-plugin.LICENSE",
+      "bytes": 1063,
+      "sha256": "7de1e115d165f176e68f962acdb809b5ab8d8ae78d3981e0701392b2ac50c713"
+    },
+    {
+      "path": "build/sites-vite-plugin.ts",
+      "bytes": 7185,
+      "sha256": "07af20e7097d9ed1d76f7c446d02997550b8fc5ca89668b249e25eabd62c6834"
+    },
+    {
+      "path": "build/sites-worker.ts",
+      "bytes": 1279,
+      "sha256": "28a75f74adfc226a773d1c00d5779c26412eea40a104da5c77f7d0f0fc30f0e8"
+    },
+    {
+      "path": "cloudflare-env.d.ts",
+      "bytes": 133,
+      "sha256": "f0f0023a5c203a0b977c523163f221ca767c27e5cc41661c313e503617199114"
+    },
+    {
+      "path": "components.json",
+      "bytes": 420,
+      "sha256": "31f4ca67a4a62572571003d3d5aac85ee6fbfca67a192924bac6b168d95e98fd"
+    },
+    {
+      "path": "components/club-cms.tsx",
+      "bytes": 12373,
+      "sha256": "d981ad6a42ecc05fb4bd3f2bebb419ac086d823cf2ab125ffe0981d8c6f0ccb2"
+    },
+    {
+      "path": "components/club-site.tsx",
+      "bytes": 20642,
+      "sha256": "e28bcb38fa8c1304ff7ae374e3c7b30a4beff8f710120da5ec1fdc1452a3d532"
+    },
+    {
+      "path": "components/clubmuur-background.tsx",
+      "bytes": 6499,
+      "sha256": "b66bae39974a89daf178dddc898b2158a545b17ad1dd54967cf26baebdc8e0f8"
+    },
+    {
+      "path": "components/clubmuur-board-contacts.tsx",
+      "bytes": 786,
+      "sha256": "b397cadef4b07bb2982529b0d74791d01260a9fc6e685db192112c2f3b908899"
+    },
+    {
+      "path": "components/clubmuur-community-cards.tsx",
+      "bytes": 5123,
+      "sha256": "8b9439b6d695be613fe6e4d6056700d824f822bc0977185fed8d72527b23d6a0"
+    },
+    {
+      "path": "components/clubmuur-competition.tsx",
+      "bytes": 14090,
+      "sha256": "32ffcf58888a7dd0a8ca4eeefec3756a748ced0003b81b1480f6d2bf18611a94"
+    },
+    {
+      "path": "components/clubmuur-content-pages.tsx",
+      "bytes": 4709,
+      "sha256": "68ef03337cf75859a1036ada9160e0b649795d488203a58061b5ab7d4ddce599"
+    },
+    {
+      "path": "components/clubmuur-desktop-nav.tsx",
+      "bytes": 3261,
+      "sha256": "44e809c950996ff95af10ca1d136b78d33bf6583e074ec0e1db7aef41e2a3f6c"
+    },
+    {
+      "path": "components/clubmuur-extra-pages.tsx",
+      "bytes": 27063,
+      "sha256": "c0079528cfe6888e2d1e485b09d7cb60bb1fb1be94bbafe687d32348e893a9a6"
+    },
+    {
+      "path": "components/clubmuur-header.tsx",
+      "bytes": 2066,
+      "sha256": "1fcb0bb65e6167d70a7563506db594a4fe802950c47c599e8b48f6a0fc702102"
+    },
+    {
+      "path": "components/clubmuur-hero-match.tsx",
+      "bytes": 2796,
+      "sha256": "d8fbc7f8cf4d6476a3f857be1be77891086d04783cf05ab0787fd6d6bfa0da85"
+    },
+    {
+      "path": "components/clubmuur-history-page.tsx",
+      "bytes": 3146,
+      "sha256": "e0de4c6e794a85dbf2dd8b43b2a8321af65c3c818fa8fe84079601c74f1df293"
+    },
+    {
+      "path": "components/clubmuur-home.tsx",
+      "bytes": 8162,
+      "sha256": "04aca674b18cf00fda96b130c8e3308379785d5d6eca6f6d05b5727c4ccbadee"
+    },
+    {
+      "path": "components/clubmuur-info-pages.tsx",
+      "bytes": 24464,
+      "sha256": "23c2b2a26e54d90904c6b47022fb6ef2b4ee0be2a4ef6b6d7dd170816961172b"
+    },
+    {
+      "path": "components/clubmuur-live-match.tsx",
+      "bytes": 1835,
+      "sha256": "d12c3f176de7eddc08712273032b3e2e9a80140a7acd82d68efbdec1012a3e6b"
+    },
+    {
+      "path": "components/clubmuur-mobile-menu.tsx",
+      "bytes": 5020,
+      "sha256": "4fcc69a9eeb51adf5c99034b7dea6fb1d511d62ebc3684477d086b9d795de7de"
+    },
+    {
+      "path": "components/clubmuur-news-feed.tsx",
+      "bytes": 8151,
+      "sha256": "c1d187c5fa8702a859b73764b2bd6cb785d1d6005b45ab29ba103ac5d2f91db4"
+    },
+    {
+      "path": "components/clubmuur-news-tile.tsx",
+      "bytes": 6824,
+      "sha256": "46a015231815776dbe2f2b5d03ae160adf4521b3d9aaa38bc02057d7a3c0b296"
+    },
+    {
+      "path": "components/clubmuur-organisation-pages.tsx",
+      "bytes": 17387,
+      "sha256": "8cf098461083cd60ca1c37e09aecf82bb678cd19bfa0119e6c0aeb6dd0881eb0"
+    },
+    {
+      "path": "components/clubmuur-page-kit.tsx",
+      "bytes": 2661,
+      "sha256": "0ae7cf01788812632282980c4dff38557552efaaf671a0437d363068eb743fc6"
+    },
+    {
+      "path": "components/clubmuur-photo-wall.tsx",
+      "bytes": 6281,
+      "sha256": "cc6ded52f02c0e795b9b155ef70612876e1946b50b9d633d87c0f132f4109519"
+    },
+    {
+      "path": "components/clubmuur-placeholder-page.tsx",
+      "bytes": 1196,
+      "sha256": "2c57e6f2f3786a9b815409353207aeee71b204d007235a9430b1876c2df68f21"
+    },
+    {
+      "path": "components/clubmuur-section-art.tsx",
+      "bytes": 649,
+      "sha256": "aa342d4ee560fe3af99d99e6a7015b7726f4e7089fed4151ec87c768946af33b"
+    },
+    {
+      "path": "components/clubmuur-sponsors.tsx",
+      "bytes": 2321,
+      "sha256": "c5a4a703b8f7576f259242e10be00b7b5eec6706d060e5a54fbd2aff148f6fdf"
+    },
+    {
+      "path": "components/clubmuur-team-detail.tsx",
+      "bytes": 19715,
+      "sha256": "9513e0d21f17022d6220d4f3289f4cbacfc4785dc2d7a12e540142ad843f8e1a"
+    },
+    {
+      "path": "components/clubmuur-team-pages.tsx",
+      "bytes": 10348,
+      "sha256": "907ec22728386bda0a1289efdf0717e2d0f4cf40b7bc34e78e40f7d507fe46ba"
+    },
+    {
+      "path": "components/clubmuur-volunteer-story.tsx",
+      "bytes": 1525,
+      "sha256": "9bf81272950296270c4560181370fd89d1f8ef0c549f40dca9c47d0c326ef0e5"
+    },
+    {
+      "path": "components/cms/admin-managers.tsx",
+      "bytes": 26844,
+      "sha256": "cb3b3b881c39faa4108575870e29f5916ab9c448fe053d89a8edfa7bdc80ec69"
+    },
+    {
+      "path": "components/cms/admin.css",
+      "bytes": 14991,
+      "sha256": "388c2aea22b3e94bb52ffc97980fdb929a0dfbaa4f3814c5c282bc314e74d8a0"
+    },
+    {
+      "path": "components/cms/block-editor.tsx",
+      "bytes": 20617,
+      "sha256": "034cfafb538d222c836ce4a86930924bcdcade39cf2c79c83906e172e8776696"
+    },
+    {
+      "path": "components/cms/forms-manager.tsx",
+      "bytes": 25191,
+      "sha256": "6878a3f9cf2867ff23821b2e3b50dcfc15e1f0b97b16c4f159fa160fcf558cda"
+    },
+    {
+      "path": "components/cms/media-manager.tsx",
+      "bytes": 30774,
+      "sha256": "7411fb9e649b94776bf542cc19ab537e51e6821c97fbd246a42327f64c26904b"
+    },
+    {
+      "path": "components/cms/media.css",
+      "bytes": 17713,
+      "sha256": "516e126c7a761c94fe7d72d8908731a43095f44aa1226b3b7cca66e1bf8cffab"
+    },
+    {
+      "path": "components/cms/news-manager.tsx",
+      "bytes": 23304,
+      "sha256": "4c3389a5be7b14315e960d214d5869d07f004a9b13bff10f962e28f74a1e1bd4"
+    },
+    {
+      "path": "components/cms/news.css",
+      "bytes": 17859,
+      "sha256": "8bfd6dd5b7ebf561e20feed8ff4412fc2529af9c780d88bb0da0173557e57bf6"
+    },
+    {
+      "path": "components/cms/pages-manager.tsx",
+      "bytes": 24538,
+      "sha256": "61a227111fbac6a20f326a3e5f42d14d9e185737e7a6310aa0340d750d1e48ec"
+    },
+    {
+      "path": "components/cms/pages.css",
+      "bytes": 21610,
+      "sha256": "674f9381dbe9b87c878b1791ea8b0e4dc78839cf7f56cefe56d9ce128da174dd"
+    },
+    {
+      "path": "components/cms/provider.tsx",
+      "bytes": 5202,
+      "sha256": "3ef3bceb06a7d0e85d41e85de92ba6c4c788c6a6085f78a4f8f3818972e3a17d"
+    },
+    {
+      "path": "components/cms/public-content.tsx",
+      "bytes": 34628,
+      "sha256": "cedc0fb4f5055a21082d897935090d8b54f28b7b0d37c4d0c20a7b4a85568e83"
+    },
+    {
+      "path": "components/cms/rich-editor.tsx",
+      "bytes": 9231,
+      "sha256": "7419746774e88690dbabf68357c32e812c9fdd501125c2ec0cc03b637597724b"
+    },
+    {
+      "path": "components/cms/site-managers.tsx",
+      "bytes": 29271,
+      "sha256": "2ebd1de8c292020a0f950b99ca68a8b69f6276c438fb8f6632fa7db798013824"
+    },
+    {
+      "path": "components/connector-error.tsx",
+      "bytes": 1082,
+      "sha256": "2d0d04559952ce9c9a327cca499f4b99f35d885cccfce375230e116695d3f155"
+    },
+    {
+      "path": "components/hero-editor.tsx",
+      "bytes": 5846,
+      "sha256": "232d75a10e82cd2edee907132a904c25e47c26da8f8d6b9ed089ee1f5e88b655"
+    },
+    {
+      "path": "components/narrowcasting-club.tsx",
+      "bytes": 5952,
+      "sha256": "da4108ab73c0196e3598345cbea306f434bfbd5e20239586fde57896b5c8b269"
+    },
+    {
+      "path": "components/narrowcasting-sports.tsx",
+      "bytes": 19100,
+      "sha256": "db7a30305156614c0ccc24f70e526bc40056cbea1c058ddc3b630223417273de"
+    },
+    {
+      "path": "components/narrowcasting-studio.tsx",
+      "bytes": 18360,
+      "sha256": "60162d87fe1113d812ba2b94fde55f6662634c83c5275eba816a97545d376690"
+    },
+    {
+      "path": "components/narrowcasting-wizard.tsx",
+      "bytes": 16935,
+      "sha256": "ae744ed8b940836a9ca5d452ac5ea74f5e80243e481324ca151c5d5648a1b7fa"
+    },
+    {
+      "path": "components/navigation-editor.tsx",
+      "bytes": 7176,
+      "sha256": "4c9eb03d999af4103505b028d2eb76ab5830ea921ca91911320598ddcc8145b6"
+    },
+    {
+      "path": "components/sportlink-match-filters.tsx",
+      "bytes": 8233,
+      "sha256": "2181c60ff71905c228a95dc5b457ef278ae3d00209ac48c3d1de0e9977416025"
+    },
+    {
+      "path": "components/sportlink-pages.tsx",
+      "bytes": 17546,
+      "sha256": "ca86059fa54dfea7b4dd568e4639b0aeb2b13bd6f51d73eeb80f9effe6841bd5"
+    },
+    {
+      "path": "components/ui/accordion.tsx",
+      "bytes": 2048,
+      "sha256": "a4f153089ba886dfcf73fac26b5c01ca933fa12fbe88df6fb723912bfffdfbb0"
+    },
+    {
+      "path": "components/ui/alert-dialog.tsx",
+      "bytes": 5439,
+      "sha256": "9a8d950f2b9b4352d5ebb762fb44d5c28c2d353aa29712071973656a8736e311"
+    },
+    {
+      "path": "components/ui/alert.tsx",
+      "bytes": 1614,
+      "sha256": "2cc59b5f7bda91c1670884b1bf46bfc8a2a6f226cef184f5762acc037188885b"
+    },
+    {
+      "path": "components/ui/aspect-ratio.tsx",
+      "bytes": 274,
+      "sha256": "b1c157886236782cb92d8fbcd4749532aaf6d8aabefd6e157ca40358f902f407"
+    },
+    {
+      "path": "components/ui/attachment.tsx",
+      "bytes": 6002,
+      "sha256": "ae8a25dd1a896d3964e3ef54d97e51221b418cde287dfd794428b89951c5c790"
+    },
+    {
+      "path": "components/ui/avatar.tsx",
+      "bytes": 2916,
+      "sha256": "58a846bf1617b94b9681921db9b8461d0145f311424663d11678a06b6153cb34"
+    },
+    {
+      "path": "components/ui/badge.tsx",
+      "bytes": 1776,
+      "sha256": "46a0de5224f6a5d5d63d45246534288518dce888f031064bff925bbc7fe6ad97"
+    },
+    {
+      "path": "components/ui/breadcrumb.tsx",
+      "bytes": 2350,
+      "sha256": "d4c0831bba2212e778248f54a6ace6ef378df8bba4616d1abf27787a31eabae5"
+    },
+    {
+      "path": "components/ui/bubble.tsx",
+      "bytes": 4699,
+      "sha256": "870cc0c5cfc8a515053f7e41e706a6bd017a909b45f1305fd3b164a52cc4483b"
+    },
+    {
+      "path": "components/ui/button-group.tsx",
+      "bytes": 2202,
+      "sha256": "784c89d8ee683e1bc972ae69e6ea8225a7f63abe22aa1b5fc3423ae8a2a399c0"
+    },
+    {
+      "path": "components/ui/button.tsx",
+      "bytes": 2392,
+      "sha256": "cc36af0f8b5019c33cc039fbf03bb952a513072b15b55b53c592b78af3e5f4c4"
+    },
+    {
+      "path": "components/ui/calendar.tsx",
+      "bytes": 7832,
+      "sha256": "3855fbe0d3f8ad3a4b93071f98b76a9f6782d46ec8b05f5d2ddbee1e4e39bc84"
+    },
+    {
+      "path": "components/ui/card.tsx",
+      "bytes": 1987,
+      "sha256": "c48dd3b96be90a7066f1aebf294f0af9d00ebcdc367d5d4aca55429ade570c1c"
+    },
+    {
+      "path": "components/ui/carousel.tsx",
+      "bytes": 5556,
+      "sha256": "b7ea0dda3903d972c186f739e23da61f547bc83b5a0bf13b16856577846d5fc3"
+    },
+    {
+      "path": "components/ui/chart.tsx",
+      "bytes": 10614,
+      "sha256": "45aa5ea4a386f4fb5b8869ff4bab3a08cf89255190ee322043baf84c3e950b6a"
+    },
+    {
+      "path": "components/ui/checkbox.tsx",
+      "bytes": 1214,
+      "sha256": "b23ab9d4deeedf2ac8f512c368361ede681aa383437ef48563a6f9b7dbe95f27"
+    },
+    {
+      "path": "components/ui/collapsible.tsx",
+      "bytes": 795,
+      "sha256": "c6598e5584f4258b5d9fefadbc5ad6a66888ad58729f4b634a0bb2d9c513188b"
+    },
+    {
+      "path": "components/ui/combobox.tsx",
+      "bytes": 9158,
+      "sha256": "2d68e78b2dc7e38a085f222dede60a80b4f8229a6e91732c484605e204d46735"
+    },
+    {
+      "path": "components/ui/command.tsx",
+      "bytes": 4818,
+      "sha256": "361193df1e3d64a9e9b5048f045264782fcb387aab3f00f2b805fdcbf538b16a"
+    },
+    {
+      "path": "components/ui/context-menu.tsx",
+      "bytes": 8268,
+      "sha256": "2cf1fcf59df0649a3e2a126d1df2f639145f6b6bf5689ee54af1f40ab1245017"
+    },
+    {
+      "path": "components/ui/dialog.tsx",
+      "bytes": 4307,
+      "sha256": "2436f6d69a9ba058cc43dd9e384e8297f2dcc3737c74d79eeb5959f68828aef7"
+    },
+    {
+      "path": "components/ui/direction.tsx",
+      "bytes": 506,
+      "sha256": "84ae2ad658207f0e0f367978e5508cd8027cd00c29c41d3d13db21a708c3d1e6"
+    },
+    {
+      "path": "components/ui/drawer.tsx",
+      "bytes": 4255,
+      "sha256": "cb6eaf58eb0757ca91af284e5d925b89a42ad7eb19cb3f44c575a3487aa9350f"
+    },
+    {
+      "path": "components/ui/dropdown-menu.tsx",
+      "bytes": 8418,
+      "sha256": "98f0dcdae38225b73734aceeb9213dd751fea2c72ea520df31003cd133deac8a"
+    },
+    {
+      "path": "components/ui/empty.tsx",
+      "bytes": 2396,
+      "sha256": "ae95bdcf367a076ae02e7925f14522a148798f72d9651749c6d55497dba584c0"
+    },
+    {
+      "path": "components/ui/field.tsx",
+      "bytes": 6159,
+      "sha256": "ba67d76f017ac059fc86cf8c344e0b2991c4322d3619e125498c19b87f6eefbd"
+    },
+    {
+      "path": "components/ui/form.tsx",
+      "bytes": 3757,
+      "sha256": "315b46bb75ab7d1c6061b5d750aa4bedf6e7a455e15e2d7f9182f053d5972b1e"
+    },
+    {
+      "path": "components/ui/hover-card.tsx",
+      "bytes": 1526,
+      "sha256": "f5d8df42c59370ec14d61bcc54f7d68e9bb7dfa0d6a872b2f7cffc2aafbf23b8"
+    },
+    {
+      "path": "components/ui/input-group.tsx",
+      "bytes": 5065,
+      "sha256": "6afbd58fea4c438e6252dc4568bddc122e84ababead4ad5cee50ace01100c9a0"
+    },
+    {
+      "path": "components/ui/input-otp.tsx",
+      "bytes": 2254,
+      "sha256": "161946daa89f0eda2575b9271c0494e35807c4ffb55598a49f67160c17fec299"
+    },
+    {
+      "path": "components/ui/input.tsx",
+      "bytes": 962,
+      "sha256": "8c4612a7c41319ac5049daa3b34b080f9784b6245c17780eb87c127e58e473db"
+    },
+    {
+      "path": "components/ui/item.tsx",
+      "bytes": 4486,
+      "sha256": "6e2144d6d87142dbbe56d568810bf546318c8aa661447ebb0d76ebbf382cb45f"
+    },
+    {
+      "path": "components/ui/kbd.tsx",
+      "bytes": 862,
+      "sha256": "6088c3a5432338b1719c17e9b5d0e1fa74fd1f66060f248fc88909d33a82cd13"
+    },
+    {
+      "path": "components/ui/label.tsx",
+      "bytes": 606,
+      "sha256": "a476e41f08b9de5bd447de66a33d8bc2ad18f2fa6b96c064778bab4b6f439f4c"
+    },
+    {
+      "path": "components/ui/marker.tsx",
+      "bytes": 1864,
+      "sha256": "3d798763f094b2bb5e7ade2d5cd1b9bab498bc8ca7fd4cfaf4e5835bdedc34a0"
+    },
+    {
+      "path": "components/ui/menubar.tsx",
+      "bytes": 8389,
+      "sha256": "9243af8afcea03703398ccd1c2a8c0a87ad6cbaf2bd272fb609f5b79fe46aebb"
+    },
+    {
+      "path": "components/ui/message-scroller.tsx",
+      "bytes": 3992,
+      "sha256": "bb7660a248e4e9589c3816c7c1c199ea1381a70d2c8476ae895b567a7a4d86cf"
+    },
+    {
+      "path": "components/ui/message.tsx",
+      "bytes": 2232,
+      "sha256": "9d2952bf3b641081f09aa2739535e6bbd1be0a4946789752a2c20d8aaef43185"
+    },
+    {
+      "path": "components/ui/native-select.tsx",
+      "bytes": 1995,
+      "sha256": "007516b111fca8c98a6c40c94ab91bb68cc5b52afce1ed1f5e510c3d86e7347c"
+    },
+    {
+      "path": "components/ui/navigation-menu.tsx",
+      "bytes": 6658,
+      "sha256": "889d358a77de88e9cb6f39ea4895ea4c76eaf01d731b74e44f1c41e97a78a044"
+    },
+    {
+      "path": "components/ui/pagination.tsx",
+      "bytes": 2717,
+      "sha256": "374ad135c3d4ff3ec080a0009cd9745cdd0e12faa89d2b0e86074f11e5127fd1"
+    },
+    {
+      "path": "components/ui/popover.tsx",
+      "bytes": 2357,
+      "sha256": "31c350309ff5d3034e6ecf1b0eda75ba8855bdbf987fc7ad6d71f0ef07c5a447"
+    },
+    {
+      "path": "components/ui/progress.tsx",
+      "bytes": 755,
+      "sha256": "c8c26e8f5f041c3cdf4915347dc1d9c022f9448f149990fadcaf303e952fa57d"
+    },
+    {
+      "path": "components/ui/radio-group.tsx",
+      "bytes": 1460,
+      "sha256": "fe5ce39636d0818c2bf9c4eebddff893d1225fa2c81b5fa4bb8cbb39a8c913ce"
+    },
+    {
+      "path": "components/ui/resizable.tsx",
+      "bytes": 1815,
+      "sha256": "bc63958467aa00557c551bb0d96a5ae4c965c1e1ba2380e595949d933b132f7c"
+    },
+    {
+      "path": "components/ui/scroll-area.tsx",
+      "bytes": 1639,
+      "sha256": "8bd9d986b2844c9a87de825c6de4787b6739b36c3dc9a05ccf3eb107160e4043"
+    },
+    {
+      "path": "components/ui/select.tsx",
+      "bytes": 6353,
+      "sha256": "0b796a108a4eb5ba52d9ad938b7aea36dc56ae66c703a6d0a23dbc24f96daff3"
+    },
+    {
+      "path": "components/ui/separator.tsx",
+      "bytes": 694,
+      "sha256": "6da346505c8629a4668420d2a5ca48891383bbe0b0ceb14163537c671879427e"
+    },
+    {
+      "path": "components/ui/sheet.tsx",
+      "bytes": 4188,
+      "sha256": "63863cf2df8f8973e52b3459ac9bdbf81be1262dbc70eb53d5271ffb03488e16"
+    },
+    {
+      "path": "components/ui/sidebar.tsx",
+      "bytes": 21526,
+      "sha256": "4a8d73e7730a2b1fcecfca31299ed26db65c2307b84197a59c6ec7c01c7ad28e"
+    },
+    {
+      "path": "components/ui/skeleton.tsx",
+      "bytes": 276,
+      "sha256": "ba48dd5be5a6a1378bd4e011028654b5bf419f1e7d20ee4b9f8330c1264e7239"
+    },
+    {
+      "path": "components/ui/slider.tsx",
+      "bytes": 1991,
+      "sha256": "0e37484f4b416e79ac18c655cac961aefacf6e67085cfc2b320ea8af545635a3"
+    },
+    {
+      "path": "components/ui/sonner.tsx",
+      "bytes": 1034,
+      "sha256": "13ccc9b0fe4248e622f83a1d3b2f0566b72b5e04162d7d0c8db8945ecc71b55f"
+    },
+    {
+      "path": "components/ui/spinner.tsx",
+      "bytes": 331,
+      "sha256": "3e6e6e8d37fb4069f8e43e55318f8db06fbc36e6c8be0096da3c9337c1c798b9"
+    },
+    {
+      "path": "components/ui/switch.tsx",
+      "bytes": 1408,
+      "sha256": "386d4d4deb39f34126f9700fe9bf5393d238485dd94018bba9d154dda84c62ae"
+    },
+    {
+      "path": "components/ui/table.tsx",
+      "bytes": 2478,
+      "sha256": "20e5a7f224959c6b75802995706a97e9da171f693d4b6b1b436388fcd9df96f3"
+    },
+    {
+      "path": "components/ui/tabs.tsx",
+      "bytes": 3782,
+      "sha256": "865d0194331b9b2be36723fa79d3575dc83078b4cb941cafee87cb72fc2cff46"
+    },
+    {
+      "path": "components/ui/textarea.tsx",
+      "bytes": 759,
+      "sha256": "253cdeb487c73beaaccdf47fc163e36e7d5b7ae6ddf09a4f64998a109a112979"
+    },
+    {
+      "path": "components/ui/toggle-group.tsx",
+      "bytes": 2308,
+      "sha256": "69f643e889e933f05c1439084480d8646f66a161c7d1cf0730ee926382ade35e"
+    },
+    {
+      "path": "components/ui/toggle.tsx",
+      "bytes": 1565,
+      "sha256": "ba4d0b0a2b2fee75dc36dfc19e32082e721024b919050c97fd5dc70faa924e16"
+    },
+    {
+      "path": "components/ui/tooltip.tsx",
+      "bytes": 1830,
+      "sha256": "a0784eb77831a799fad7991df4f1b666f876201565a80175e1aa68733574a2e4"
+    },
+    {
+      "path": "db/index.ts",
+      "bytes": 423,
+      "sha256": "dc7610b00b918e0ffff1360a63626f16655ced3064b2eaf96095a4101fb14bcd"
+    },
+    {
+      "path": "db/schema.ts",
+      "bytes": 1473,
+      "sha256": "91f34e9e3ff15bf6f1be4ac186fbd987efe8e5e5aa397703ae331f0347cd90e1"
+    },
+    {
+      "path": "design/backgrounds-v25/LEESMIJ.txt",
+      "bytes": 2031,
+      "sha256": "b0ec5ae1c1d88570a974260a4505161cafac4ee69cbee893770a06aeaa916a93"
+    },
+    {
+      "path": "design/backgrounds-v25/aan-zee-original.png",
+      "bytes": 3567116,
+      "sha256": "8ee6926903e533e0380a1253245f4badda224e524c597d22a489a94aeec01f74"
+    },
+    {
+      "path": "design/backgrounds-v25/aan-zee-portrait-original.png",
+      "bytes": 3429294,
+      "sha256": "1d718fa38558340ee1cfde833720d167fe7bd4f30adca754eaffe217254ce91f"
+    },
+    {
+      "path": "design/backgrounds-v25/aan-zee-prompts.json",
+      "bytes": 5218,
+      "sha256": "ad6e9285be335f0030d8e4a86da00d563bde20e4cf8f7491bec2039df77191e2"
+    },
+    {
+      "path": "design/backgrounds-v25/de-wijk-original.png",
+      "bytes": 3652023,
+      "sha256": "97a837f172e341e5f80ed17c0f91b1cbe96ef7d2bf886db79cadc40fefcb177d"
+    },
+    {
+      "path": "design/backgrounds-v25/de-wijk-portrait-original.png",
+      "bytes": 3480712,
+      "sha256": "338873a8712e2600a50f924dbd8dc3968f854a570b91f66ba989bc120f54b5c8"
+    },
+    {
+      "path": "design/backgrounds-v25/de-wijk-prompts.txt",
+      "bytes": 5323,
+      "sha256": "e30a3f7c5f4b9867977e765f422e218cdf6dabffed6bd8ce2d2b829dd3d7625d"
+    },
+    {
+      "path": "design/backgrounds-v25/desktop-preview.jpg",
+      "bytes": 271896,
+      "sha256": "b9149b44844bb999962d8176cf164d3259f323af74e62fa8abee291c0908ae92"
+    },
+    {
+      "path": "design/backgrounds-v25/export-web.py",
+      "bytes": 3574,
+      "sha256": "94da29809e560f57fedc5cd969319306fefc95cea137e34d2bfea99e0e17a535"
+    },
+    {
+      "path": "design/backgrounds-v25/houtrust-original.png",
+      "bytes": 3638006,
+      "sha256": "7dbcffd69dad033e3613f54a5dc98436e97a8e3f427848df0252b37ca0f5fc39"
+    },
+    {
+      "path": "design/backgrounds-v25/houtrust-portrait-original.png",
+      "bytes": 3357544,
+      "sha256": "b0b678edaa255a368cbbb9bc105d6ad357ca05875b864a007cab1b79eba9e5a8"
+    },
+    {
+      "path": "design/backgrounds-v25/houtrust-portrait-prompt.txt",
+      "bytes": 1760,
+      "sha256": "6f151ddffcba731fe7cb05834bee50d9a81e419ae994a352ea0f50c4cd680214"
+    },
+    {
+      "path": "design/backgrounds-v25/houtrust-prompt.txt",
+      "bytes": 1841,
+      "sha256": "7a7b23ea6dcf99f5e9345ae6c1fbf924c18227a5fbfb2c31d06df3cae830c71b"
+    },
+    {
+      "path": "design/backgrounds-v25/manifest.json",
+      "bytes": 6362,
+      "sha256": "cef594c08122a4896e57a492f26c292cc2755cdfbe719117e7b9b3d9942cf100"
+    },
+    {
+      "path": "design/club-life-v28/README.md",
+      "bytes": 2706,
+      "sha256": "d5cf15f786cb2e347f2c47ed6c888c0c7cdf92983f2ce69010de6c9f70a88a9a"
+    },
+    {
+      "path": "design/club-life-v28/canteen-source.png",
+      "bytes": 2133900,
+      "sha256": "104fc09342ccfd0413e1a4a1d9656e3336851d0bf8c1410e8509ee27a558b167"
+    },
+    {
+      "path": "design/club-life-v28/clubmuur-v28-fotomuur.jpg",
+      "bytes": 156624,
+      "sha256": "c8a216e3219c445b6aaa7b4c3e40f3fd372066e8125242f46665680f9d940965"
+    },
+    {
+      "path": "design/club-life-v28/clubmuur-v28-kaarten.jpg",
+      "bytes": 107171,
+      "sha256": "b6e035347d85924241dfe35e7b3fc862320bda93cd7f869897d5f31a5b340377"
+    },
+    {
+      "path": "design/club-life-v28/prompts-a.md",
+      "bytes": 3593,
+      "sha256": "14d6f6e74b38bb660fca34566a9da70dd8b6f019845a79bc5dbcf0a2bf79a1fd"
+    },
+    {
+      "path": "design/club-life-v28/prompts-b.md",
+      "bytes": 3112,
+      "sha256": "e399a5e7504c4e6f442f5fbe57235acf0fc9485de042e4cd49fd261ab3e201c5"
+    },
+    {
+      "path": "design/club-life-v28/supporters-source.png",
+      "bytes": 2358581,
+      "sha256": "4e2f77a808c7332a864197b6bc5762f55a263f99bd4ff8442582eb4ed594a6d9"
+    },
+    {
+      "path": "design/club-life-v28/walking-original.png",
+      "bytes": 2251130,
+      "sha256": "f703121bec556bdf6fdff2ca2e53f74f41a82f47e0d2feb4a44cc22b34a18a6e"
+    },
+    {
+      "path": "design/club-life-v28/youth-original.png",
+      "bytes": 2622234,
+      "sha256": "41dabe3f28d6829ad5877d0bb684225195f6f2646546be62be6fd5a74d913d86"
+    },
+    {
+      "path": "design/clubmuur-brush-v10/README.md",
+      "bytes": 2593,
+      "sha256": "740e5a250af1f0c0807d2038f3323978d39c3f9c260a550270bb6bed65a16aa4"
+    },
+    {
+      "path": "design/clubmuur-brush-v10/heroes-manifest.json",
+      "bytes": 4453,
+      "sha256": "359b2ca9c48146ffd28473981db9ca4176eac960d06a075a7dab01614adf7de0"
+    },
+    {
+      "path": "design/clubmuur-brush-v10/manifest.json",
+      "bytes": 6260,
+      "sha256": "dff4c0c0523fa869e13a5b007524c4b4023f72c6c0ff64bb2e24816546000748"
+    },
+    {
+      "path": "design/clubmuur-brush-v10/masters/01-hero-houtrust.png",
+      "bytes": 3931425,
+      "sha256": "9cdd1ecde78a05fef83f626b08a7447a55fc2ab1a40239c5b8dfe67f2527f201"
+    },
+    {
+      "path": "design/clubmuur-brush-v10/masters/02-hero-meeuwenhof.png",
+      "bytes": 3989093,
+      "sha256": "53a3a185614e950a182f72224147a5e2888ea41660b2a2c73791b0f1dfc8a27a"
+    },
+    {
+      "path": "design/clubmuur-brush-v10/masters/03-hero-havenhoofd.png",
+      "bytes": 3831661,
+      "sha256": "98da2ab4f3b23e0acf85fc717c10a4ea3da630a16725df7ce0ae1752bde7eca4"
+    },
+    {
+      "path": "design/clubmuur-brush-v10/masters/04-section-wijkpanorama.png",
+      "bytes": 3821880,
+      "sha256": "3b2a46b2115c58f8a74388e226ea7d6fb98d2315532ea385a28372076d6ca818"
+    },
+    {
+      "path": "design/clubmuur-brush-v10/masters/05-section-houtrust.png",
+      "bytes": 3891124,
+      "sha256": "85c8d7df642cace687d1274554e9881851ace04b0f538533b320a82ac8c67ce8"
+    },
+    {
+      "path": "design/clubmuur-brush-v10/masters/06-reserve-kerk.png",
+      "bytes": 4050928,
+      "sha256": "837f9eee6d8a7936c73310a5b539d2d43c6019a0e5f3f8173f5be782a38f191a"
+    },
+    {
+      "path": "design/clubmuur-brush-v10/masters/07-reserve-meeuwenhof.png",
+      "bytes": 3861207,
+      "sha256": "eb4691c34a1395a9ebdccecbdaffa96ffa152a5cf58e8dbf974a9b4ec1ffb3bf"
+    },
+    {
+      "path": "design/clubmuur-brush-v10/prepare-assets.mjs",
+      "bytes": 3151,
+      "sha256": "e887e49ed381807bc3716e910d5eda2dcbf806d6ecd0bf218efd119046483bfe"
+    },
+    {
+      "path": "design/clubmuur-brush-v10/prompts.json",
+      "bytes": 22586,
+      "sha256": "4fffe201e3d42a89a0657e4835d4226ff03d08fd0b0891d8b287d8d5c39ae347"
+    },
+    {
+      "path": "design/clubmuur-foreground-v13/masters/duo.png",
+      "bytes": 1981557,
+      "sha256": "c93cb03671832de0402745151096587a895b2aeca6b56a1cf29f16e26e5b60ff"
+    },
+    {
+      "path": "design/clubmuur-foreground-v13/masters/trio.png",
+      "bytes": 2623323,
+      "sha256": "140e4da4e5698814e6791aa3443db592cc95b71201d1d8c09576c1cf1e0304ee"
+    },
+    {
+      "path": "design/clubmuur-foreground-v13/prompts.txt",
+      "bytes": 4371,
+      "sha256": "0ddff30e023c02d82b2817fa32ee8cfdd281e6124b2e861fadce21134551f962"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/02-strijd-correction-prompt.txt",
+      "bytes": 2612,
+      "sha256": "bbc4a4b4d84438892a780f5b25f5ef349fc7f061734134b4d81f65d9c72d8c16"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/LEESMIJ.txt",
+      "bytes": 2115,
+      "sha256": "4faa465188dc5b55b862be5a3db5338bae4ea3282158f76f64381edab4de8fde"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/color-correction-prompts.txt",
+      "bytes": 13037,
+      "sha256": "e6890d10d77bafd5bf59faa3e4c58386a013ffee71a515bc94539c993c2ec26e"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/masters/01-trots.png",
+      "bytes": 2013982,
+      "sha256": "ad8c502f3e4bc77fcf9ec1734dd5f01592d66d89198fa401c04269fd5b6fcff6"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/masters/02-strijd.png",
+      "bytes": 2139167,
+      "sha256": "c7fa465fe75c8160a99dfe72cfe932f4ad6a6747aa60518db20adecc1ccdbcae"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/masters/03-vreugde.png",
+      "bytes": 1947583,
+      "sha256": "f5892c858276e2e758d91dee5abe6b2ce72987fe6ef35a9d9e9585202d791c6f"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/masters/04-samen.png",
+      "bytes": 1995884,
+      "sha256": "9776d8f369c7721aee7986d27b8ac7cd3f040e859c31fcab08589fd5646c0f18"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/masters/05-juichen.png",
+      "bytes": 2422815,
+      "sha256": "c1628ddf2f6df67529396016951ae7829f26ef821d0c1d941674134ab0b51136"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/masters/06-keeper.png",
+      "bytes": 2231444,
+      "sha256": "408045bd7fc19aa0e68c698078b854dc1c71fc7e5fba179860dcfd777d148968"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/masters/07-walking.png",
+      "bytes": 1900491,
+      "sha256": "657804d331edf897a063b086bd82363ec80ad3ee60e0fbede448e85dc245eaee"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/prompts.txt",
+      "bytes": 20946,
+      "sha256": "37f787cf25a549f6801824324bb1c79c4b60b74fdf043c663069fe491466fca3"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/references/clublogo.png",
+      "bytes": 69175,
+      "sha256": "832c642ea9735b87452a6508ae5525f4f87fe528408efc58ad0f86f1a456a930"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/references/keeper-8217.jpg",
+      "bytes": 621676,
+      "sha256": "9fa1ac3c992d01e9dbe5af02d0dde05d72df2a337da745418b4530442d1e85be"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/references/speler-8228.jpg",
+      "bytes": 625987,
+      "sha256": "faf12b8ef8983ef0dbc425dccc1bbf16bcbf3649edbadb0ef1985f695161b426"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/references/speler-8229.jpg",
+      "bytes": 634362,
+      "sha256": "9d199cc84a42c3eaeb774877f923c0e22c32ec373dca0e1b7fec920368f2b3db"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/references/speler-8245.jpg",
+      "bytes": 625162,
+      "sha256": "bfed92c148c8f6115003fa93d631e422f71d2d579a602ab6e030c23f2a5d93ec"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/references/speler-8401.jpg",
+      "bytes": 606597,
+      "sha256": "52e02509a0757bfa1f5d8a7bc40be534873606f7dd1e7d69f278a6cb5b6fd184"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/references/veldtenue.png",
+      "bytes": 779358,
+      "sha256": "3249df7ede83efc3a23b38db0466663677839664d35aef53d841a6c0e94d8fee"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/references/walking-team.png",
+      "bytes": 3154226,
+      "sha256": "98d9eb8e87caa434cdd95f828446cc506007514a696ea0b14bc907a3cd7706dd"
+    },
+    {
+      "path": "design/clubmuur-portraits-v14/references/walking-tenue.png",
+      "bytes": 1020018,
+      "sha256": "f1175a975890c67bbcf225e14e3269a3479fc166d90ffc65bf36b99e254986d3"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/LEESMIJ.txt",
+      "bytes": 2325,
+      "sha256": "da9c8d9b036f8de4e8bb501bdf6d14017e156a2c9f877b3e3ac594f264a34f84"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/alpha-clean-qa.json",
+      "bytes": 1529,
+      "sha256": "e3e3423f7a600b710efa3a7d663d95984a81981a27e04bb68b57cc1668883128"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/manifest.json",
+      "bytes": 53882,
+      "sha256": "bc7cf8a7fc617946e2ed684b174d8e22d9c2afd34c0097de10840d6d10038b73"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/masters/08-samen-vooruit.png",
+      "bytes": 2046320,
+      "sha256": "cc5f9076e29a0677f9d0ce63f52034db34b2fe73adc00d2f2bb0a71ba887c21f"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/masters/09-high-five.png",
+      "bytes": 1635574,
+      "sha256": "cbad925343dff6aaeda6fe7a1db21e533169381979d7906eb4930392759f8b3e"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/masters/10-strijd.png",
+      "bytes": 2198984,
+      "sha256": "1f633a2b89461c788ed9ada771d7b54919156c2236751b5a755f402f8aba5c9c"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/masters/11-overwinning.png",
+      "bytes": 2495508,
+      "sha256": "77fd2e754161d7c6f3ffac3141c1c233101de376db2d1e1c8b296f195ceef1a7"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/masters/12-een-team.png",
+      "bytes": 2382951,
+      "sha256": "28fa5b27f2ef0beba3c5bdfa4c2c95b3612655423fda5df13b83720e55b54f2c"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/masters/13-clubtrots.png",
+      "bytes": 2476228,
+      "sha256": "5f8f6afedf12c0824d478c8ca76b7eb0c53f3549cd713b2828a0d02617f0f5ec"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/prompts.txt",
+      "bytes": 41235,
+      "sha256": "456cc94fc6a616ee010df14143a37e66927b3e78f51546ed7ed3cd838ca03de1"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/references/NIPR8151.JPG",
+      "bytes": 577301,
+      "sha256": "d7936b34d98a767e71363b97cbfe860c924c25cdd88a5e5310c68a5e99c5669b"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/references/NIPR8244.JPG",
+      "bytes": 573644,
+      "sha256": "283ddecfd69a1ea31d8d5f68497d65d5e7736be30ae7552807d29d91ec6c291c"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/references/NIPR8262.JPG",
+      "bytes": 603547,
+      "sha256": "3c2c67472866ea293ec0f98fc8f4a3bcdd288ffd84b7445a89d146455996347d"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/references/NIPR8269.JPG",
+      "bytes": 598227,
+      "sha256": "cd11ef210dca854f2f3b0d3971807a8852f489b2eac6de178a8970724f115e57"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/references/NIPR8278.JPG",
+      "bytes": 602309,
+      "sha256": "bb1137a38e8fe97980b57c8c1c380d32e963a21a8ccd13967d9e5b96a60046ad"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/references/NIPR8305.JPG",
+      "bytes": 584171,
+      "sha256": "32bb6ce96fa4d53748e4219caa89f07b0ba5ed4d9dc5c1bfa638f335ef5456d5"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/references/NIPR8344.JPG",
+      "bytes": 596302,
+      "sha256": "3c4d2e2ae4ce6f091ee702375668ecd0065ba1af7400c4e48d40e31fe72d1b35"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/references/NIPR8359.JPG",
+      "bytes": 625257,
+      "sha256": "a77e56c03f74a7f3e64f2465b16c848cda96eaac34f625fa904e2fac7fc560fa"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/references/NIPR8379.JPG",
+      "bytes": 604944,
+      "sha256": "83a67dd4a50758d814615ad99bdf223b573583609ca765f0a586ef2aa1e4f15b"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/references/NIPR8447.JPG",
+      "bytes": 563861,
+      "sha256": "5dd27503e53b8288be296a2539fa6535c86ddc5b361203e5d170707f8644d32c"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/references/clublogo.png",
+      "bytes": 69175,
+      "sha256": "832c642ea9735b87452a6508ae5525f4f87fe528408efc58ad0f86f1a456a930"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/references/veldtenue.png",
+      "bytes": 779358,
+      "sha256": "3249df7ede83efc3a23b38db0466663677839664d35aef53d841a6c0e94d8fee"
+    },
+    {
+      "path": "design/clubmuur-portraits-v17/web-manifest.json",
+      "bytes": 2467,
+      "sha256": "c2199324337daa39e478daa3379873c84266c41931e4b8c765325ab986a54f92"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/LEESMIJ.txt",
+      "bytes": 1618,
+      "sha256": "08c8511907d73e00e10fe5c2846ecbdd7cb2f474634550ea301ea4a7150413f8"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/manifest.json",
+      "bytes": 5989,
+      "sha256": "4a866b094e4ddb75f722dde8f03a3ab6ec783788c891f98cd9058a067e37fd45"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/masters/14-natuurlijk-samen.png",
+      "bytes": 2020202,
+      "sha256": "5a9bb6946eafc03983b85e3e9e4feece5ef425f7ec2d6da993f7f49435840052"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/masters/15-clubgenoten.png",
+      "bytes": 1913363,
+      "sha256": "e0a0344eda51bb4764b03d08a2de56eb73956e39f5e36e1e255a36b418ab742c"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/masters/16-een-vereniging.png",
+      "bytes": 2119442,
+      "sha256": "9a4860300dd9f4bed70e39133a3f795904674677c230093da25853c2708d96fb"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/preview-desktop.jpg",
+      "bytes": 266001,
+      "sha256": "778d8dfb9439b4a0574cea5dcc6900ac269faa8ae1a13fc86108feaadf34b858"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/prompts.txt",
+      "bytes": 11547,
+      "sha256": "da27c073631985a74d4abde5788dce38fd0a9a9b20843c411576131e6b20cb13"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/references/NIPR8123.JPG",
+      "bytes": 588237,
+      "sha256": "1503c8f17950570e8ddaaf3e09ab6343a389f64a927b6bf42b264857c49106a6"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/references/NIPR8170.JPG",
+      "bytes": 591482,
+      "sha256": "aa93c7a7ec02a3d16ead2bbf98665cb9bd4c4a72bbc785f830cab081c2ae6868"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/references/NIPR8193.JPG",
+      "bytes": 629122,
+      "sha256": "3952b3e95e15f4e8018d61720c5216bc766c55bb8df24c226c5b55e8b240bd4e"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/references/NIPR8278(1).JPG",
+      "bytes": 602310,
+      "sha256": "f4bcf9d497dcac6c3d1fbb243fd1b5d85db6c6b123facd055177eb3c96a26052"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/references/NIPR8287.JPG",
+      "bytes": 583243,
+      "sha256": "a5f2e3a8d1be1c59ac531df64dacfd1fcd8f74fd1405ee65ab1fbb4a03f84a78"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/references/NIPR8332.JPG",
+      "bytes": 543925,
+      "sha256": "81cfce169a66c4da112cfce2f7ae2757cc5d92bc6941ca6715f486fc6fd913e5"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/references/NIPR8394.JPG",
+      "bytes": 631598,
+      "sha256": "9f6e5b93d2e748fdff877918a66a96f3cd0107f64b0a87c4e662a3070856c51e"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/references/clublogo.png",
+      "bytes": 69175,
+      "sha256": "832c642ea9735b87452a6508ae5525f4f87fe528408efc58ad0f86f1a456a930"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/references/tenue-referentie.png",
+      "bytes": 779358,
+      "sha256": "3249df7ede83efc3a23b38db0466663677839664d35aef53d841a6c0e94d8fee"
+    },
+    {
+      "path": "design/clubmuur-portraits-v18/web-manifest.json",
+      "bytes": 1586,
+      "sha256": "1ef69f26cf532d6e559cc7702947b45cf9c06e79b502c59a23d5f387ba4b9ba3"
+    },
+    {
+      "path": "design/clubmuur-scenes/README.md",
+      "bytes": 1575,
+      "sha256": "71a551f41af2c10a13fdfe6031e8f8a30e339617abf904dda9c2ca63c45c31d2"
+    },
+    {
+      "path": "design/clubmuur-scenes/aan-zee.png",
+      "bytes": 3978258,
+      "sha256": "026100dbdcd9f26fc73c51703a3a87c011c653e4c1a3633d2a767ddc5d89f45b"
+    },
+    {
+      "path": "design/clubmuur-scenes/de-wijk.png",
+      "bytes": 3939420,
+      "sha256": "3c204eb6da82e17ff09796769bee4d88ad772994e73ba8a508d51449e022be10"
+    },
+    {
+      "path": "design/clubmuur-scenes/houtrust.png",
+      "bytes": 4041139,
+      "sha256": "2cdc51f046fb4f1b3b91ad7730d9294c45971858d5a30055012b93c61ffe508a"
+    },
+    {
+      "path": "design/clubmuur-scenes/manifest.json",
+      "bytes": 4535,
+      "sha256": "a6d0baaa63635eb9f687ec7a7b8298bc40175db22d6146b8be7153a1e48145ac"
+    },
+    {
+      "path": "design/clubmuur-scenes/prompts.json",
+      "bytes": 13779,
+      "sha256": "cb9b1ac807dba767a37302fcca0dc55e04eb78adf72839a7f863b9b72a035852"
+    },
+    {
+      "path": "design/clubmuur-sponsors-v19/manifest.json",
+      "bytes": 6825,
+      "sha256": "76294bb130c2020f539b51fe8a2a20f67c95c4f3426f4d8d6b8e926edfb2f0cb"
+    },
+    {
+      "path": "design/clubmuur-sponsors-v19/preview.jpg",
+      "bytes": 173581,
+      "sha256": "1c32369d16c020d52a54ec93f3d87e6ab64ff538f0affc080369be8e3ef48431"
+    },
+    {
+      "path": "design/cms-vps/README.md",
+      "bytes": 17248,
+      "sha256": "3e91bec406c2792a2b5011748b95e93340d67bcda37e6aa52a39b3d650c4fa61"
+    },
+    {
+      "path": "design/home-v29/README.md",
+      "bytes": 1895,
+      "sha256": "98e4e5e270c9c5bf5387029789cbcadba65fd525a57e5bc2544f5bf9a70731a2"
+    },
+    {
+      "path": "design/home-v29/clubmuur-v29-filters.jpg",
+      "bytes": 91365,
+      "sha256": "fdbf248664257a05f1c36ed55e47f4f5f4eb2114e5ca009afc6d5e90c53a225c"
+    },
+    {
+      "path": "design/home-v29/clubmuur-v29-fotomuur.jpg",
+      "bytes": 182693,
+      "sha256": "a5cc818f2c022813a4f2b3515bd80bc255bc0733a173b1112bacc40119174c93"
+    },
+    {
+      "path": "design/home-v29/clubmuur-v29-mobiel.jpg",
+      "bytes": 64515,
+      "sha256": "7d6d5bb804f01baccdc14e6c1cebfefaa9960d7e5d49be7e7f2cedbd62d95ae6"
+    },
+    {
+      "path": "design/mobile-menu-v26/LEESMIJ.txt",
+      "bytes": 1964,
+      "sha256": "9f9344816dec142621e2a446fc2c51ce62be5f49d56910b1601cb4eb32d710b6"
+    },
+    {
+      "path": "design/mobile-menu-v26/menu-preview.jpg",
+      "bytes": 63432,
+      "sha256": "d5d94b678f4e22d1a9eeabaddd8356aaf530024ce383c7a1349625ad0f272fc7"
+    },
+    {
+      "path": "design/mobile-menu-v27/README.md",
+      "bytes": 1226,
+      "sha256": "f1da77f791177be3a51043d347a626e0c5d00c5023c2c5e260e721529b9daefd"
+    },
+    {
+      "path": "design/mobile-menu-v27/desktop-menu-v27.jpg",
+      "bytes": 265387,
+      "sha256": "71a197ee6c882fb43e7fb5a043e457e331f033ff691d220db76ca164884c8bca"
+    },
+    {
+      "path": "design/mobile-menu-v27/mobile-menu-v27.jpg",
+      "bytes": 63304,
+      "sha256": "2b1580708a105b59d7d899acb2bc4f859b7871664419f8b6cae7a937ff811fad"
+    },
+    {
+      "path": "design/pages-v30/README.md",
+      "bytes": 3113,
+      "sha256": "95d3eb2f8e18c1269e7c69df18cc0f5bf8f446e5864cacc429754345ab6d6217"
+    },
+    {
+      "path": "drizzle.config.ts",
+      "bytes": 148,
+      "sha256": "af081f7384aaeb0082cf422e29f139d137ca2f6a57c69b2c37b9fb1f8479867b"
+    },
+    {
+      "path": "drizzle/0000_keen_night_nurse.sql",
+      "bytes": 1113,
+      "sha256": "1014f0825e302f1c5a0cc972b03408cc49a7441d6c397c7504825897a8d73cc0"
+    },
+    {
+      "path": "drizzle/meta/0000_snapshot.json",
+      "bytes": 6623,
+      "sha256": "1fc13b0bed269f066178341b3270a0369307cebf68816bda5698a69ed4ade940"
+    },
+    {
+      "path": "drizzle/meta/_journal.json",
+      "bytes": 206,
+      "sha256": "e61b3eb0d995e5d11d6984a524c71d479cb670afd2270e1eacfda85b65397887"
+    },
+    {
+      "path": "eslint.config.mjs",
+      "bytes": 846,
+      "sha256": "f22a254df7d934bbf9be499d3c969a13abb7f7f64c03f5967d0095cad81dfe06"
+    },
+    {
+      "path": "examples/d1/app/api/notes/route.ts",
+      "bytes": 1700,
+      "sha256": "a3d4a74fd53b7bf53e2df41f169d9d9d44a8b22aeb6d92f4e754956079af8909"
+    },
+    {
+      "path": "examples/d1/db/schema.ts",
+      "bytes": 370,
+      "sha256": "d89eabd95716ce404f5f7ca2a254220435be8ddce7c899d7ef461ff22ec80454"
+    },
+    {
+      "path": "hooks/use-club-navigation.ts",
+      "bytes": 3203,
+      "sha256": "c0138c18cb639b15f462569347c7c0d04f19278daeb68f6cb26f05c79e067a22"
+    },
+    {
+      "path": "hooks/use-club.ts",
+      "bytes": 2943,
+      "sha256": "18d9b3cb3c9f0c4f7901414e716d01a4459411699b09ac1182a0551ecc809d71"
+    },
+    {
+      "path": "hooks/use-mobile.ts",
+      "bytes": 565,
+      "sha256": "ad0936f84f1df79d3697bfbff9c18f8ad58431c1cbaf2359c6a853b0fcc9f28b"
+    },
+    {
+      "path": "hooks/use-sportlink-team.ts",
+      "bytes": 2125,
+      "sha256": "934d33febac071a7223e0b1009c656b9b5dbae936c0e5e6337e156e08da418e2"
+    },
+    {
+      "path": "hooks/use-sportlink.tsx",
+      "bytes": 1901,
+      "sha256": "623e1205c399393d25b284d29c24f9f2614bea47948106d19c946a6343d20132"
+    },
+    {
+      "path": "hooks/use-standings-scroll.ts",
+      "bytes": 2903,
+      "sha256": "9045489d0d3c42e47880469144a1199a31793eea64c23eb9c9c7db4869611d42"
+    },
+    {
+      "path": "lib/club-data.ts",
+      "bytes": 9341,
+      "sha256": "4d654215b1e47696c66396a62a104233e4446f439edbf6034f860313691b6880"
+    },
+    {
+      "path": "lib/clubmuur-articles.ts",
+      "bytes": 817,
+      "sha256": "f41a6422e5c51c0f76511d7e63607c70cb24e04b9587fd1ca8ec2347f0caf8b3"
+    },
+    {
+      "path": "lib/clubmuur-community.ts",
+      "bytes": 3772,
+      "sha256": "62dc1993594a1668ed41c7070550e39596ff1f26ebdc87e8630a1d847218d016"
+    },
+    {
+      "path": "lib/clubmuur-config.ts",
+      "bytes": 3665,
+      "sha256": "d5f67ab87e07b2a63fd5191a9005b1ad46bbd015903da0f4ce507651ace6688a"
+    },
+    {
+      "path": "lib/clubmuur-destinations.ts",
+      "bytes": 882,
+      "sha256": "279199f9f3695bf87c51613d114f5108ae855251299d2c693c08408d65c13b93"
+    },
+    {
+      "path": "lib/clubmuur-history.ts",
+      "bytes": 9477,
+      "sha256": "261044d0cb99fc1cde9f6bb60bd26655072989096f7be056b6fe56b7c340a2df"
+    },
+    {
+      "path": "lib/clubmuur-info-content.ts",
+      "bytes": 7112,
+      "sha256": "88dd7069d99bf75fa61446e0db7fa0bb613109f48fa15dbf9fd6b727d6f956f1"
+    },
+    {
+      "path": "lib/clubmuur-layouts.ts",
+      "bytes": 3246,
+      "sha256": "5145121fb1e1f65c87fbe413fc029d1051d806bce005d702001a95294039fffa"
+    },
+    {
+      "path": "lib/clubmuur-navigation.ts",
+      "bytes": 7198,
+      "sha256": "1004abe4d62b11fa603d1e53aab91f57520f3426e885fdae478f73c0e2cc5f43"
+    },
+    {
+      "path": "lib/clubmuur-page-routes.ts",
+      "bytes": 2596,
+      "sha256": "78f05683377d00ec96ccff400b2d0b45ed924336e1822209d05c6ac1c52a0b50"
+    },
+    {
+      "path": "lib/clubmuur-people.ts",
+      "bytes": 8352,
+      "sha256": "08649ffbcdc568635de5bc023db6a7b68ee5005c445b5053a73fd52be39870c5"
+    },
+    {
+      "path": "lib/clubmuur-team-content.ts",
+      "bytes": 3882,
+      "sha256": "711b3d919e02d7740f91611c7e000f14e0ccf96d0b9a753ba01218c4bf9b3752"
+    },
+    {
+      "path": "lib/clubmuur-training.ts",
+      "bytes": 8303,
+      "sha256": "9d2a84d63a2623a149c21623e2ab07f76567b1c4db7abd2c8637808732ff5a74"
+    },
+    {
+      "path": "lib/clubmuur-volunteer-story.json",
+      "bytes": 2929,
+      "sha256": "06a1346d87347efe25f73705cfa20e5b223413625f447926f40b41fdd0e1c34c"
+    },
+    {
+      "path": "lib/cms/adapters.ts",
+      "bytes": 69,
+      "sha256": "b327a710ca05f7c0b8c4a6966cffdd34e784784778669af9f53399b2575e51d2"
+    },
+    {
+      "path": "lib/cms/content.ts",
+      "bytes": 504,
+      "sha256": "cb9f77c33ea1c43a178ee1e32fe9d7fa11da352b90eb2ec53ce4382ae3c10126"
+    },
+    {
+      "path": "lib/cms/forms.ts",
+      "bytes": 2733,
+      "sha256": "8316f6ea0cf75ff7bf6025b6060f695d9a36af2fd0b6a0d578e9efd3a5c26080"
+    },
+    {
+      "path": "lib/cms/media-storage.ts",
+      "bytes": 4049,
+      "sha256": "378eeaa125db2e4160f87bdf251f301fe76e3531682209158202bfe81ff812b0"
+    },
+    {
+      "path": "lib/cms/model.ts",
+      "bytes": 8561,
+      "sha256": "f11ce2cb0cf3c938a63aaf8b77589dfd94ac821ed3a75e9e119cc0ee5491fb78"
+    },
+    {
+      "path": "lib/cms/navigation.ts",
+      "bytes": 3355,
+      "sha256": "06f7f309faf900f2f385139a557d88547baf775cd86f941dc0faa39228e8a45a"
+    },
+    {
+      "path": "lib/cms/public-adapters.ts",
+      "bytes": 1292,
+      "sha256": "9874407d5e9d7e47cd5c0f413dab95071bfcc3d5e3daf0b25e4a281540a2c977"
+    },
+    {
+      "path": "lib/cms/seed.ts",
+      "bytes": 8493,
+      "sha256": "0b524506fd6ffef2539e88f4d7c978f7aa42000bb0f0b5b8260d114e6f71d52a"
+    },
+    {
+      "path": "lib/cms/types.ts",
+      "bytes": 4426,
+      "sha256": "28a736e0a2c66b89d22881951dc9139d11698f498f4a9591cf60a5ae74d7c54b"
+    },
+    {
+      "path": "lib/cms/validation.ts",
+      "bytes": 7571,
+      "sha256": "97791521cb1d69131218f6a1c7f6076f6cbde5d798b9b0ed360471f2ce111267"
+    },
+    {
+      "path": "lib/connector-context.ts",
+      "bytes": 612,
+      "sha256": "bbddff68689cb0f6926fecd4b8b96f12f2054277c296e97b0df07d4ad5ece24e"
+    },
+    {
+      "path": "lib/connector-contract.mts",
+      "bytes": 5362,
+      "sha256": "e1a7b24a8793af34b595690d9b1300c897c7321c14f215cedf58ad95799d7c3e"
+    },
+    {
+      "path": "lib/connector-errors.mts",
+      "bytes": 2717,
+      "sha256": "a22edf13d6873ae832c4a2a0d579fc666c73ec996ef0722d39172649d38f0871"
+    },
+    {
+      "path": "lib/connector-preview.d.ts",
+      "bytes": 433,
+      "sha256": "abd69a94f7f61f1359063bb557574faae35e8ff5a028cc4c04b9ee248ef52642"
+    },
+    {
+      "path": "lib/connectors.ts",
+      "bytes": 416,
+      "sha256": "1c93d747e384c8e17e3e3dd5361b24412babf5eba2a11d2ae7a75f4e0924112c"
+    },
+    {
+      "path": "lib/narrowcasting-config.ts",
+      "bytes": 2748,
+      "sha256": "f7cd84454c89cb774fd6f11ebdad625ca36ba481f3de68169328e8346b4b1f01"
+    },
+    {
+      "path": "lib/sportlink-match-filters.ts",
+      "bytes": 6160,
+      "sha256": "5ff1d4924ea4b23c59e0d722b33e0f7c8a8704891f980c061a508b72a6c82e75"
+    },
+    {
+      "path": "lib/sportlink-normalize.ts",
+      "bytes": 11178,
+      "sha256": "ff98248431e66b4c16de00259fc86c76669971a7497f8bbb60e4cefcdb2678dd"
+    },
+    {
+      "path": "lib/sportlink-server.ts",
+      "bytes": 7242,
+      "sha256": "e27d33bc66dad17fce1d186468e3ab36356df0314f05de2c35564606a55d6278"
+    },
+    {
+      "path": "lib/sportlink-team-normalize.ts",
+      "bytes": 11813,
+      "sha256": "fda19a83ff589c2a13e9e4f5c96b38b083cf7656376181bf7b7812793a7eb41a"
+    },
+    {
+      "path": "lib/sportlink-team-server.ts",
+      "bytes": 16686,
+      "sha256": "0eea0505b8014503ddd7eb497c2d1274c82967017ad6a6730580f420a0f591c6"
+    },
+    {
+      "path": "lib/sportlink-team-types.ts",
+      "bytes": 988,
+      "sha256": "f20be6439226ef0a06bcf89096821b4dc7ff14849efa9d47ca1df38648a345a9"
+    },
+    {
+      "path": "lib/sportlink-types.ts",
+      "bytes": 1279,
+      "sha256": "70943255d2f60f51c8c2fa083944e42e8916eaf47cec5f80a4e4e86b0eebed73"
+    },
+    {
+      "path": "lib/utils.ts",
+      "bytes": 177,
+      "sha256": "53f3d3d070f0a9082934da25b875f9499855c2b0693868dd28be8c23d8730f68"
+    },
+    {
+      "path": "next.config.ts",
+      "bytes": 133,
+      "sha256": "614bce25b089c3f19b1e17a6346c74b858034040154c6621e7d35303004767cc"
+    },
+    {
+      "path": "package.json",
+      "bytes": 2448,
+      "sha256": "6681a6f23b915e36ea63c1427f37ff120b9b9f56423ee69cd95e273e4b0dab94"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "bytes": 367270,
+      "sha256": "86a03cf5e7fd9a025d4f76f503c820d294b2f894465ae70b4e05617c3d609fcc"
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "bytes": 736,
+      "sha256": "4a69dc93a75ff4a33f54c2853d5317c8e7374faab592f3472b5164257bff8066"
+    },
+    {
+      "path": "postcss.config.mjs",
+      "bytes": 94,
+      "sha256": "dfac7ac2d86d326a0e5adb024e7943c181393ed17a5fcb8f0315b24c7da6ddde"
+    },
+    {
+      "path": "public/assets/club-life-v28/canteen-1280.webp",
+      "bytes": 83174,
+      "sha256": "f85b57c43871e7f78bd65a3192342abfbe2d04b1c19fef912ef74858b2ea3df7"
+    },
+    {
+      "path": "public/assets/club-life-v28/canteen-640.webp",
+      "bytes": 34166,
+      "sha256": "258ef691128336bf68c7a8456f1549664a1ef1570814a0e465c1f6c392ffe1ef"
+    },
+    {
+      "path": "public/assets/club-life-v28/supporters-1280.webp",
+      "bytes": 100916,
+      "sha256": "0e7f2ccf9098f71db2ca6404ae2de4672100d00c509f11b9c0b307ca52396970"
+    },
+    {
+      "path": "public/assets/club-life-v28/supporters-640.webp",
+      "bytes": 36614,
+      "sha256": "68b35de4beaed700ce28ed34db869ffedf9d0669b30f96d0c3f56d13e0ff364a"
+    },
+    {
+      "path": "public/assets/club-life-v28/walking-1280.webp",
+      "bytes": 100548,
+      "sha256": "e48d17d104d69a28b1cced837571329c7ae2e1fd15bc8347e63846539ca598be"
+    },
+    {
+      "path": "public/assets/club-life-v28/walking-640.webp",
+      "bytes": 41088,
+      "sha256": "85d28e4e3f06f98ef10c484ef300bd0435b571122be59c2f264c05e3eb75bbde"
+    },
+    {
+      "path": "public/assets/club-life-v28/youth-1280.webp",
+      "bytes": 164320,
+      "sha256": "2b4a067849babae998366f91ce77b89b05a0ca85186b6b2b7299a296eaeb0c31"
+    },
+    {
+      "path": "public/assets/club-life-v28/youth-640.webp",
+      "bytes": 62396,
+      "sha256": "ea534f807c2362daf97a99c748e54f5a3122d241d2767dbcae863db25d17aa60"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/aan-zee-portrait-480.avif",
+      "bytes": 50910,
+      "sha256": "7d52ffa80b6ee031723cb05d5ceb1480908041683e72a8d76dded4a946bfddb7"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/aan-zee-portrait-480.webp",
+      "bytes": 90114,
+      "sha256": "b78cb4fb10b12a20f5c99c6248703ddce30855148ca1ccbd4c41aa63d5174521"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/aan-zee-portrait-800.avif",
+      "bytes": 129034,
+      "sha256": "ee39acd47264ed607ca61e57f41db07791cdf66f56dfc30a34baea8993b6054b"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/aan-zee-portrait-800.webp",
+      "bytes": 236088,
+      "sha256": "adc2eefc6cb62cc330463500dadd8997f95a51980368120ccb99ece229010034"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/aan-zee-wide-1280.avif",
+      "bytes": 190408,
+      "sha256": "cf4fcdd3255cbc755f8be787053b6bc3e0005d6546cb6282f77bad6fa5c9987b"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/aan-zee-wide-1280.webp",
+      "bytes": 347258,
+      "sha256": "8822944c7f2fe188745580dbc4bc99205fbd1221337000df6bca0217eedbea72"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/aan-zee-wide-1672.avif",
+      "bytes": 289512,
+      "sha256": "20cc1960ba0a054ddd9bb74782d0053fb98948f04084c0b1d74de556f7a96dbc"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/aan-zee-wide-1672.webp",
+      "bytes": 549306,
+      "sha256": "6d9f7516bcf279e77052a24d08a6d9ee51eee0449a2dc1a4b972730eea08224c"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/aan-zee-wide-960.avif",
+      "bytes": 114250,
+      "sha256": "9363cb139dce14bd6eeddf556f49de53db67a8a8d9add3d778caf76aa289eff6"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/aan-zee-wide-960.webp",
+      "bytes": 202144,
+      "sha256": "c11a0b3e31c47083dc53e970282077fc15946f1a85f844bf82772699fe007b14"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/de-wijk-portrait-480.avif",
+      "bytes": 54035,
+      "sha256": "52ed2cfa9af99553e3916f0ee92710209f81f0705e2442a451550d03eff2ec64"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/de-wijk-portrait-480.webp",
+      "bytes": 94790,
+      "sha256": "548830dc5770c80fd86b00b01a9aaa423f0ec6850d051a716bcb35f482a40fad"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/de-wijk-portrait-800.avif",
+      "bytes": 136323,
+      "sha256": "233b141bbbad431257a67a528644acddeabe15f9ad120f024b5e895e93487157"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/de-wijk-portrait-800.webp",
+      "bytes": 248344,
+      "sha256": "72e1e84b3236d9634a858f67da88e88024c1d29a2523dcb4b421c5fa057ceb4a"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/de-wijk-wide-1280.avif",
+      "bytes": 212968,
+      "sha256": "6f810ae2c4d62ed1bfc34beb62440b3862b0115f1ebf3e8dab9a7a59d0ab04f0"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/de-wijk-wide-1280.webp",
+      "bytes": 384392,
+      "sha256": "7a246f0d1ca21d1f089fd3f97b54c9b2a0f7be46b24f24c631bac6683dc4205d"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/de-wijk-wide-1672.avif",
+      "bytes": 317194,
+      "sha256": "5a99e4f356f7ed5f96ec96159a8144f76e1d943f5c5919426f49a4031a657f7b"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/de-wijk-wide-1672.webp",
+      "bytes": 598004,
+      "sha256": "f599f3804505a1387866eef662bd69308031e1211a2da9ee6fbe5054657e3e07"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/de-wijk-wide-960.avif",
+      "bytes": 127959,
+      "sha256": "068f19d4e7a3b9e9d1d4ef35ee05977b94c46e2a9780c01c1d72c51ab36ac631"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/de-wijk-wide-960.webp",
+      "bytes": 225312,
+      "sha256": "2e3002ad98d992317ef006d9d805d39c66efa6fcba6a6bd0709a1ce0ce4692f0"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/houtrust-portrait-480.avif",
+      "bytes": 49497,
+      "sha256": "d03e99784e57c2e71ad35b71f2a0c6688bfe28fd716547b2c9ec23c9582fcd1b"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/houtrust-portrait-480.webp",
+      "bytes": 87140,
+      "sha256": "2782847dcfd739081fec186e5472a9fdad91db595f2144a5bab9d0352e538a70"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/houtrust-portrait-800.avif",
+      "bytes": 123368,
+      "sha256": "13df1fed6a6288e7deb63b2ec0328903b58b6f5aab476ffb8dddfbb6c708ad14"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/houtrust-portrait-800.webp",
+      "bytes": 226628,
+      "sha256": "4f4106f08d1700ce0f97d2744eaf51dfcaa77a90e83e735ea959a57711ce882a"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/houtrust-wide-1280.avif",
+      "bytes": 208603,
+      "sha256": "860e0e6e441910fe94d06640f77e17e3b8f75b66ee7c0f1ffaa1ed5257f17798"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/houtrust-wide-1280.webp",
+      "bytes": 379326,
+      "sha256": "dc2be52c393f2968b07e0679d73cea037c1c846de9505a3090325ad56180b6a8"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/houtrust-wide-1672.avif",
+      "bytes": 312321,
+      "sha256": "038dd7c3ca14ef312484f07fc80c822a408f6c977e1b30a362293a2001df4c2c"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/houtrust-wide-1672.webp",
+      "bytes": 593912,
+      "sha256": "2ff1cc07cc69913db19cfd9392aa39e05558562ea13465fbcf249a5d3bf27d1c"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/houtrust-wide-960.avif",
+      "bytes": 126751,
+      "sha256": "bb5ba47955e1f74f414ad0019ed7628edf376a6931b8155f41fb312afc648f97"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/houtrust-wide-960.webp",
+      "bytes": 223440,
+      "sha256": "8c49dc329d9107a0101dbb415e17e08d561b63c797ab91f66df6da56056bc6d7"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/section-houtrust-1600.avif",
+      "bytes": 284984,
+      "sha256": "59e556acd5879a5d00deed8029f2d6b7425e5f098cc6ed3d9c4d3ff7ab2892ce"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/section-houtrust-1600.webp",
+      "bytes": 540344,
+      "sha256": "8d189fdcbdaca8a1ac7715659537773e778a39ab7a1478ea895a6b503111db8f"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/section-houtrust-800.avif",
+      "bytes": 89991,
+      "sha256": "ca29f798d78a33d86bf42e0c602c2685c6173e5ed0a807e3c36c89f90d00c34c"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/section-houtrust-800.webp",
+      "bytes": 156684,
+      "sha256": "e5db6c77f4bff2793e126485e8a15bbe460da18772be425367da20a5aa4d1e66"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/section-wijkpanorama-1600.avif",
+      "bytes": 276900,
+      "sha256": "43ff708b100c494df13db2d388cd0d1019dbb3c746acb6975e001524fc9bf308"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/section-wijkpanorama-1600.webp",
+      "bytes": 531990,
+      "sha256": "869176ad8f43fa8a15d46a172a55d0451b68968691fc989e1aa629e1e0e7f9f7"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/section-wijkpanorama-800.avif",
+      "bytes": 86558,
+      "sha256": "50174bb21b7818af316345fc8f7641d29b063d5fcef0e9cac08d3466a2cc58e5"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v10/section-wijkpanorama-800.webp",
+      "bytes": 154436,
+      "sha256": "870db25386ded60ffe82da534e6465f22d7472b249b433d514bc29593ce41387"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/aan-zee-portrait-480.avif",
+      "bytes": 89315,
+      "sha256": "923a74144576469508808034099af485493e01ec6fb47dba2cb2b7bba0fa30f3"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/aan-zee-portrait-480.webp",
+      "bytes": 161710,
+      "sha256": "c48e2e4447089cdd98f11d73c143d72702de7e25457ab66c287c3d1f47b35de1"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/aan-zee-portrait-800.avif",
+      "bytes": 218250,
+      "sha256": "85e84c20fc7b8b0b11d6c2b363791414ebfbd8fb909678c55b4298b2ee8c6224"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/aan-zee-portrait-800.webp",
+      "bytes": 400046,
+      "sha256": "99df2db87566109b727719bdde03971fcda68f81858b2c7260d5ade37a26efcd"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/aan-zee-portrait-941.avif",
+      "bytes": 280282,
+      "sha256": "7fe31ca51cdf55af2cd3863fb72c3f019e6d361a7b11f241a91cce4c2285d00a"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/aan-zee-portrait-941.webp",
+      "bytes": 517752,
+      "sha256": "446eeeaa84b0e032d34fa6aac10615716d4927917bf9258d245ddad0ebc347d6"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/aan-zee-wide-1280.avif",
+      "bytes": 187681,
+      "sha256": "ec700ac0c548e1fd52bafffe37b7f8e30d37724793dcbaa0c726783ae5c236e8"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/aan-zee-wide-1280.webp",
+      "bytes": 346978,
+      "sha256": "ac90d1b3ed6461ca5c95465e3a8ef304f8168c57b03ef34995d1dc7234253512"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/aan-zee-wide-1672.avif",
+      "bytes": 285955,
+      "sha256": "ebaeb4f1c85eb156f0c71b1f6339313619ad42b5bdd5ca407959cd21ce87621a"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/aan-zee-wide-1672.webp",
+      "bytes": 535874,
+      "sha256": "ab1df0dd01e1f5ed768e099897377e12b92b85c2856eb80c48c7a06416ece3ae"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/aan-zee-wide-960.avif",
+      "bytes": 113042,
+      "sha256": "772e05f5fc9892faa036b82f43f78431b82e81b3bc68f63e3b4cfd141513a288"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/aan-zee-wide-960.webp",
+      "bytes": 204436,
+      "sha256": "8ff569384403e586d92aec02e0a08949716a4f568330039711ad5385c9db6e9f"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/de-wijk-portrait-480.avif",
+      "bytes": 91066,
+      "sha256": "eda4ffb4072d9b06371abd7f371a728197d05d84b35cbdc58fec7b3a8551bd7b"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/de-wijk-portrait-480.webp",
+      "bytes": 164734,
+      "sha256": "f51a6275ec2266c88cd6f0ec64ebe045b65f3b130b5f923892e751794a338452"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/de-wijk-portrait-800.avif",
+      "bytes": 224169,
+      "sha256": "3497de2f3c9c6312d949a380d8c3d420b3296b85ec0eb55520ed8857d48d81af"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/de-wijk-portrait-800.webp",
+      "bytes": 412282,
+      "sha256": "bf95f0eb159b4271215eec3ed615499fa9471bd3310f2e40aefd52bad53c05cf"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/de-wijk-portrait-941.avif",
+      "bytes": 288892,
+      "sha256": "0216ae469e62f802496a3e59a66f869d5d8ff79ff0d5cc64ba33cf8b1d5b42d3"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/de-wijk-portrait-941.webp",
+      "bytes": 538010,
+      "sha256": "a9aab1cb20cbd4abcf92ed90463d8e50a2a67c4cf1637bd2cdeb55dbd265ae70"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/de-wijk-wide-1280.avif",
+      "bytes": 204599,
+      "sha256": "f9b47774a24d9384a118f29d7044feca82d80429ea6ee30354c9e060fef2d011"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/de-wijk-wide-1280.webp",
+      "bytes": 370978,
+      "sha256": "1fda0867839a6cff9c81b5ae7d50117d90c32cd768660584248a8ac17cef0a30"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/de-wijk-wide-1672.avif",
+      "bytes": 307962,
+      "sha256": "7a98c05f88998187a61430b1fcd7d7dff8df16f39eddf53a40ce03cb2049c21f"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/de-wijk-wide-1672.webp",
+      "bytes": 570048,
+      "sha256": "d7198cf38780978b142c15c6cbc33f196afe1d77016582495438daf903c4234e"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/de-wijk-wide-960.avif",
+      "bytes": 124566,
+      "sha256": "05fd305594338d4b67d28e64a1ba7d965ed0e48080ac05c6cf6551c5e3b21577"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/de-wijk-wide-960.webp",
+      "bytes": 221152,
+      "sha256": "255ebb05d06ea8cb7f999bb779e25573847c89c2a0ea80747919bebf9dac72dd"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/houtrust-portrait-480.avif",
+      "bytes": 94810,
+      "sha256": "0b1ea120904c0afc511660dcfc978f4ffe4000bb15a09042879687ae0cb0e939"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/houtrust-portrait-480.webp",
+      "bytes": 167620,
+      "sha256": "3168507b9dfcef2c7fa833d86a9c889670a2c5682ef9a8ea325ed7116f5c3b34"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/houtrust-portrait-800.avif",
+      "bytes": 221064,
+      "sha256": "dbd71ba4829ba9315515ebe725c090f63c23e8f23fdae0f6cdf9a50fc62862be"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/houtrust-portrait-800.webp",
+      "bytes": 404902,
+      "sha256": "fbb540bf2032cee6ba22428485f099ab01ab7a34176c764c697b1f1e14a2e1d2"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/houtrust-portrait-941.avif",
+      "bytes": 285000,
+      "sha256": "1ee66b9370d04be8a493fb9484bf9e3cdf09bbc8a3f27c53c835c4247e80a44a"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/houtrust-portrait-941.webp",
+      "bytes": 524608,
+      "sha256": "e96a079d1a96f3ca75305329431065d2c61b7f3548735f48811bb57d34be4a14"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/houtrust-wide-1280.avif",
+      "bytes": 211521,
+      "sha256": "f9849d745fcb18d59bf794583a5f20dc2d3e63092416ca9304ee26c5453959c0"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/houtrust-wide-1280.webp",
+      "bytes": 389140,
+      "sha256": "db04481d0c48db51978469d165e9a691f8da56418d8cf005a0ae7e1fe51d7072"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/houtrust-wide-1672.avif",
+      "bytes": 317569,
+      "sha256": "30c0891ef6335c8015a21be0207dc0ac0171f8eb34551864db6a4af854bc785d"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/houtrust-wide-1672.webp",
+      "bytes": 596258,
+      "sha256": "4e654df31f432c922a44b1670f6bf8d64af3361d40645f410de0a4d696d46171"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/houtrust-wide-960.avif",
+      "bytes": 130211,
+      "sha256": "d159ac68f8777408c2bb1c3361ffc4f070028676844477ce6c6c5c0faafa6784"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/houtrust-wide-960.webp",
+      "bytes": 231434,
+      "sha256": "24d25027e1b0397477c51b89e6d8522e8d6580631f48bca18e67b838cc279511"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/section-houtrust-1600.avif",
+      "bytes": 291490,
+      "sha256": "632533ac6aa64260e97f1393df594613e54ea971adc54ca075d619e3cc45a022"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/section-houtrust-1600.webp",
+      "bytes": 556410,
+      "sha256": "80685223d885de4530e6eda9e4a6add92a0cae75dbb19922b3a454d62eb906c0"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/section-houtrust-800.avif",
+      "bytes": 90448,
+      "sha256": "97cce6de2ad5dedb39b00cd70122e732ff7686b599c635f0e9a9e3bb7e0e00c6"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/section-houtrust-800.webp",
+      "bytes": 162394,
+      "sha256": "d3304aa6727d9453bbd06a239310cf9ea3e37561dee339ae94228c8a0c8e6116"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/section-wijkpanorama-1600.avif",
+      "bytes": 263702,
+      "sha256": "87ea6bf1e8aa935a42b09db7ea361666e87b4bc754994fbfcefa09196b5e1016"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/section-wijkpanorama-1600.webp",
+      "bytes": 496012,
+      "sha256": "801df222a9b967baa14bf68859d1a1df150c472b4bb06df58beb99f5ad931b0c"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/section-wijkpanorama-800.avif",
+      "bytes": 78707,
+      "sha256": "609cd16b861c81dedb82e2d2904f991ff9b10b21615e9d40bc0f364ef0041e60"
+    },
+    {
+      "path": "public/assets/clubmuur-brush-v25/section-wijkpanorama-800.webp",
+      "bytes": 143282,
+      "sha256": "1f444e60cc0c852d07677faefba2b558df4a895d4a81c49f6e662cf7c8294d95"
+    },
+    {
+      "path": "public/assets/clubmuur-cutout.webp",
+      "bytes": 273972,
+      "sha256": "71ac43d16bdf3b81229879e9e6c356ed02989e2f920dfdcd975f65e08aa4b159"
+    },
+    {
+      "path": "public/assets/clubmuur-lettering.webp",
+      "bytes": 428940,
+      "sha256": "c4bf31d7c6331f76f6e4db9bbac59052a01ad9c6f6ae3abe497925f90e15bf32"
+    },
+    {
+      "path": "public/assets/clubmuur-player.webp",
+      "bytes": 256790,
+      "sha256": "2b5c157ea7fc06e9886b39aa8ce05f7b9156fa207c231f1285c17acd7812aa7e"
+    },
+    {
+      "path": "public/assets/clubmuur-players/duo-1280.webp",
+      "bytes": 230274,
+      "sha256": "845b06ae935942b2c7e0987b5f4713e8ade3b8bdbd5c1042ed86d6c145717db7"
+    },
+    {
+      "path": "public/assets/clubmuur-players/duo-640.webp",
+      "bytes": 78096,
+      "sha256": "82bb89bff8ca2c986a65a889258549384e17f37c8cc6960c40a42f4b8cc3e54d"
+    },
+    {
+      "path": "public/assets/clubmuur-players/trio-1280.webp",
+      "bytes": 244872,
+      "sha256": "543bb88be5c642cac8ed64c3f0f1f8e38608d8640fe5f41623a6477d62b89291"
+    },
+    {
+      "path": "public/assets/clubmuur-players/trio-640.webp",
+      "bytes": 84798,
+      "sha256": "01703fd0942a262335909df8b2a8fe80abf31af2a5e973bd4acdf77504aa3d6f"
+    },
+    {
+      "path": "public/assets/clubmuur-portrait.webp",
+      "bytes": 214638,
+      "sha256": "5fac0342dd72c79bf4a1e79c9894bf9c1bc8ce5010e38a13bfe05ae74b08532c"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/01-trots-1280.webp",
+      "bytes": 198444,
+      "sha256": "d1fec34adb1cf42c2996407b517021704dbaa522a0af1f9b90e04a8ec4f3fcc6"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "bytes": 110290,
+      "sha256": "f9a6793ef5088d65f8b0ff39cd42192f27863e41c515eab7efc8e205494f26ef"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/02-strijd-1280.webp",
+      "bytes": 222760,
+      "sha256": "58a054303e7fa8c5c4a72ccadb59b6989a6f5e1e6ce42b181de35f82cd049873"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/02-strijd-640.webp",
+      "bytes": 119508,
+      "sha256": "8754449941dcd3e7d7e4f6c91897c083b4217a81844d448fd0a38b530113e72b"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/03-vreugde-1280.webp",
+      "bytes": 191704,
+      "sha256": "3b6e096531be1e249aeb20940b5dbae7aca5ad0deffa07235c4bcbd519a62e42"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/03-vreugde-640.webp",
+      "bytes": 106184,
+      "sha256": "d04b1416894553ca757f78efb3de5cf3542f3388731926f75c32b140c7d3c7e6"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/04-samen-1280.webp",
+      "bytes": 280310,
+      "sha256": "4440fc34ca16b91b20d3579f0d158018372a6586b658806a2bd0bb6daa9ace65"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/04-samen-640.webp",
+      "bytes": 125708,
+      "sha256": "ffb3ce7e7c675363304f4773763d6e0f6e572c2625c1410d8a01c4f59731f023"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/05-juichen-1280.webp",
+      "bytes": 252048,
+      "sha256": "a7519a49d43abe4e0bdc786780ad7d377528114085801c5de2592c38140a3dbb"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/05-juichen-1920.webp",
+      "bytes": 312622,
+      "sha256": "35395e0164259975f24ce065e097f0af2571e3bb12e44edccfb7841c65165335"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/05-juichen-640.webp",
+      "bytes": 88452,
+      "sha256": "99cd0cd4100707586a2f5ff9583436d3f579492bcd6d63bf09a9eb3fa8c4bb6a"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/06-keeper-1280.webp",
+      "bytes": 190102,
+      "sha256": "50426bed83117d3949862342f8c5ed784514ac1bfa4007f2b3eea29629d73bbb"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/06-keeper-640.webp",
+      "bytes": 101094,
+      "sha256": "6388d7f8301a2e9a13657321f3d7599036198575dc0255bdcc1fe1fcda5c0ed0"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/07-walking-1280.webp",
+      "bytes": 282362,
+      "sha256": "6e5926d26fbf048d3a5e0ef091de8dc3b895df12ebd11e4e2a42c53a53907bfc"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/07-walking-1920.webp",
+      "bytes": 334206,
+      "sha256": "b6fff304a102d2898c33459e257298f609356566b4202bf21e24560e984293ec"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v14/07-walking-640.webp",
+      "bytes": 99944,
+      "sha256": "ae61f61f9413ff1cf1b0cdea0f6f34ef077949328deecfb76d069d628ac1b1ba"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/08-samen-vooruit-1280.webp",
+      "bytes": 284186,
+      "sha256": "c76dec33b9fc763cef3c1cf01397d16f507e154f5ab980a59de38acbd7d359cf"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/08-samen-vooruit-640.webp",
+      "bytes": 126448,
+      "sha256": "fdbc886d9eb1986a4f3d32a2f8f9ba7a912f85f317ce90f5a0eac8a5ed228627"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/09-high-five-1280.webp",
+      "bytes": 260422,
+      "sha256": "3f476f47f19348ae1cf95b0d78747e15117bc2c235e5a40c96f748799e5870ea"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/09-high-five-640.webp",
+      "bytes": 114282,
+      "sha256": "ac6cecd47c36cf8b7b7b8172085eb9f5e4b76df1b16c1a9ecd042403b0391e7b"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/10-strijd-1280.webp",
+      "bytes": 286764,
+      "sha256": "16a4d2f6e372ec0deccd0f435506c15351fd54033d486b9b28c44b0cd557d433"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/10-strijd-640.webp",
+      "bytes": 129592,
+      "sha256": "4d891a4b1738242613473f569b504c20e1d54cea7e174460953277ecad124528"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/11-overwinning-1280.webp",
+      "bytes": 257196,
+      "sha256": "417aa88c04d19845249a5337762efa14903f1dfe4cbea86aabb588e0a3fdb51a"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/11-overwinning-1920.webp",
+      "bytes": 311602,
+      "sha256": "d4bcca68b979c949c6d7406d92254d119e5feac6ceca06290c9d6a10758bc50b"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/11-overwinning-640.webp",
+      "bytes": 90540,
+      "sha256": "f11bbbdc977d66a63d122cb0f9312297e9341674705fe7c7c63860752099c402"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/12-een-team-1280.webp",
+      "bytes": 229310,
+      "sha256": "7e70527e783af04ee9466955c44388c2e32d8f02b98d30bf79ef1a425b847b00"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/12-een-team-1920.webp",
+      "bytes": 277870,
+      "sha256": "01309f8da113c0a565e5da37023f267f2c90bcecbb5ae91c5714ed04886c5dab"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/12-een-team-640.webp",
+      "bytes": 84338,
+      "sha256": "42ba39f325b751be820fc7f2d9a10771c36a800a327a0e7999cbe0f554b549d9"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/13-clubtrots-1280.webp",
+      "bytes": 261066,
+      "sha256": "72d90c8b39530e2d04d49fc45971a709b4d6af38ec07b9960f5f80ad20e5531a"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/13-clubtrots-1920.webp",
+      "bytes": 316134,
+      "sha256": "7b419bf1537dfa66ce5cd118a3a17c6626bb3ca693ad2ca173836018cf40bf5d"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v17/13-clubtrots-640.webp",
+      "bytes": 90438,
+      "sha256": "68ba5d09844f7777ec3c4541a0e71b0e940e4352d3c5950d14fc15c44f9232bb"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v18/14-natuurlijk-samen-1280.webp",
+      "bytes": 312568,
+      "sha256": "79cbf357a161d55c5e76860f52bfd24710ef5c4bf4265d6c772aff7d2ef70a36"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v18/14-natuurlijk-samen-640.webp",
+      "bytes": 133570,
+      "sha256": "a8db31418110b6d8edf99ea3a001c0e425cf6742b10be30d559e20dea957083b"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v18/15-clubgenoten-1280.webp",
+      "bytes": 288668,
+      "sha256": "9207b484b16d21fc6292f6b6c396089261a445f70cbfbee3fe5c86fdb00aec06"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v18/15-clubgenoten-640.webp",
+      "bytes": 123668,
+      "sha256": "ca62a568e57e73ee4c95d1dca34154010646ad01a4d4d4d7aaeab405421054e9"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v18/16-een-vereniging-1280.webp",
+      "bytes": 194172,
+      "sha256": "86b5e175a305aa150f3e4eabdae0f2cace7e1325691b080f18e51f6cccea9a73"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v18/16-een-vereniging-1920.webp",
+      "bytes": 239548,
+      "sha256": "ff14e108c5107981b140488e06f65fb5ec8cad1fc8ab2543beffc08f2fdf8b7b"
+    },
+    {
+      "path": "public/assets/clubmuur-portraits-v18/16-een-vereniging-640.webp",
+      "bytes": 68380,
+      "sha256": "5edd4e22ab36f0a0bf9fe3a2815eb89edc797b5ea3a72e187f6a275a0d7b620a"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/aan-zee-portrait-480.avif",
+      "bytes": 62415,
+      "sha256": "fe8339a9a6966e0d40429dad2a3387802b8be6f43cd82186e8f90e2a04db4b9f"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/aan-zee-portrait-480.webp",
+      "bytes": 109124,
+      "sha256": "44b58fca7807321ed1e10e368963e1ad7db298c00f99949abcc4b09fba02bf27"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/aan-zee-portrait-800.avif",
+      "bytes": 142131,
+      "sha256": "bde9e3d52c97f7d6e7eec38f9709173dda044c5058ca4e5b1b5f93112b478e33"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/aan-zee-portrait-800.webp",
+      "bytes": 270454,
+      "sha256": "2dd1ea4c732a7ba489d5b0da0e14334e224bbc1ee45a18d371b1869882503562"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/aan-zee-wide-1280.avif",
+      "bytes": 214243,
+      "sha256": "e41824a93c8185e62ebcd0e06eb631beb7ffec1bbbe02f8d010272f635c61c2d"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/aan-zee-wide-1280.webp",
+      "bytes": 389528,
+      "sha256": "83c75a7dbd4312683f3f197a255832f0b6ec5fbba57554d31b4ff673db9c64df"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/aan-zee-wide-1672.avif",
+      "bytes": 319955,
+      "sha256": "c4ad26cd273f7d3609d896025ec159e7b60e63903be1a3196af6d7e50ab4b876"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/aan-zee-wide-1672.webp",
+      "bytes": 608000,
+      "sha256": "659d9c8711c00f8c39a41f8948e7edb15d77390907981119a87f1a7289ae8dd6"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/aan-zee-wide-960.avif",
+      "bytes": 127630,
+      "sha256": "d070ef3a0039d663f826cc0c8a68bce85e027ed4c6a53c7c73498bf9f1d9caed"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/aan-zee-wide-960.webp",
+      "bytes": 225536,
+      "sha256": "6a781dd7fbb7526788885a5e73e6940a3d414226d426f248cc7e4e3a3a26540a"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/de-wijk-portrait-480.avif",
+      "bytes": 69214,
+      "sha256": "252f1af300bad2dc4624e33606146668d4a8f5188ecbd144d9df95ea98b8c21c"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/de-wijk-portrait-480.webp",
+      "bytes": 123346,
+      "sha256": "5e83b82f0ca857529cfe32af519d9d0f3492b710268b1fa16b4d5e3bae1b4645"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/de-wijk-portrait-800.avif",
+      "bytes": 154844,
+      "sha256": "a82d28f82518da822cffb65b0b8435220b532e4422353aa0e2c8bc02a45a75f0"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/de-wijk-portrait-800.webp",
+      "bytes": 302418,
+      "sha256": "b03f4dc267e7ad84cb3ce16ef2f44606fbb71b668c9946c4bab885967cdfa97a"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/de-wijk-wide-1280.avif",
+      "bytes": 210122,
+      "sha256": "daea507a46a8b62220b56d1e0a507798bc346c1821feb960cfdade83f041d065"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/de-wijk-wide-1280.webp",
+      "bytes": 383524,
+      "sha256": "dc63f04695ae2b43f120b4300deb29c0627d725bc5ecbfb0b3eb6342a8492ea9"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/de-wijk-wide-1672.avif",
+      "bytes": 313381,
+      "sha256": "8803aa9c0f0fb7e741141e5c7b51f386928ca2d3df35c83e8f30a608face6160"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/de-wijk-wide-1672.webp",
+      "bytes": 599364,
+      "sha256": "ae5e92ff062953fe95e41ac0c99d87b80490c417b76993c1244058428498ee3f"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/de-wijk-wide-960.avif",
+      "bytes": 125896,
+      "sha256": "4f4ea60fe111fe4948b5c060c38944a58ff75c757da121692031c7694353819b"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/de-wijk-wide-960.webp",
+      "bytes": 223382,
+      "sha256": "f494e3b4b7e532be4ba120e151508b7070450e5052e94452d146ce088e0b3137"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/houtrust-portrait-480.avif",
+      "bytes": 66111,
+      "sha256": "3154c5e6b9a512ed2027a87775831f94244558b76d900e5c98856694afe7af6f"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/houtrust-portrait-480.webp",
+      "bytes": 123236,
+      "sha256": "186b46b5f4c4e8798d7d6614e5624738919baad9dd25973ac6428e8cca3d4098"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/houtrust-portrait-800.avif",
+      "bytes": 149831,
+      "sha256": "b47eec6d1e572517f8cd4aeb78c7ba750bb3f9e36aca85867cdc351b900da3aa"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/houtrust-portrait-800.webp",
+      "bytes": 302038,
+      "sha256": "cc31e657f173f4c1b4ca2e4116f2504ee17d5f3e0882e1e742b4c37f80735354"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/houtrust-wide-1280.avif",
+      "bytes": 210542,
+      "sha256": "192f824f102c81b39adfa4b2cef68250d434ec6e871c4da5aa7b4543b2878ece"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/houtrust-wide-1280.webp",
+      "bytes": 396522,
+      "sha256": "8d8a5842a54725eae2939c59626172f29d75ae32d5b987f6ffc6b1620957a8f9"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/houtrust-wide-1672.avif",
+      "bytes": 316098,
+      "sha256": "4a7fc862cd11534550b1e3f0beb416b0be777963cdf9c4c34cae163991a0f2ce"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/houtrust-wide-1672.webp",
+      "bytes": 626158,
+      "sha256": "c9c7b261217b2f7bd351b68858a127a6caf1452e18630dadd2d58630f48724e6"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/houtrust-wide-960.avif",
+      "bytes": 127764,
+      "sha256": "4e7196df251126b4f57f73cb11bc2355f4fa2a26ceee96a1f37784876b16006f"
+    },
+    {
+      "path": "public/assets/clubmuur-scenes/houtrust-wide-960.webp",
+      "bytes": 231224,
+      "sha256": "022656e1c70c2ccd3ca647db4c559ef9710ea671d80a666d139eb7301eb413d1"
+    },
+    {
+      "path": "public/assets/clubmuur-walking.jpg",
+      "bytes": 191868,
+      "sha256": "9eba6c7faefed59dd730526be773cb86f6d15fde58fd436eaaf1c52d7d5ecc0d"
+    },
+    {
+      "path": "public/assets/clubmuur-wall.webp",
+      "bytes": 642098,
+      "sha256": "fccf75c498bc84ea4c8d3febafa1645e065be047f470ba66671cfb6a51517310"
+    },
+    {
+      "path": "public/assets/crest-close.webp",
+      "bytes": 228872,
+      "sha256": "f245649c8c356bd6d1bb9e0d836e7d39b38237026988c1783c1bfd38e5c5ab06"
+    },
+    {
+      "path": "public/assets/floodlight.webp",
+      "bytes": 243456,
+      "sha256": "c62c1d5c6d48e4182d225e2d902c295aac7cc05c13a54186756da0b1810268bc"
+    },
+    {
+      "path": "public/assets/kit-campaign.png",
+      "bytes": 2170491,
+      "sha256": "a954b03eda8b6ef84078425419cd81b49d73df34e98c47608839e37e64a63ff6"
+    },
+    {
+      "path": "public/assets/kit-locker.webp",
+      "bytes": 161492,
+      "sha256": "c1ef6633315b8317cbb11703025eb4bdbd09e97ff068b7251429252e4ea3053b"
+    },
+    {
+      "path": "public/assets/kit.png",
+      "bytes": 234289,
+      "sha256": "f913f2a94a6cde7cd1dc709d5268799dc8bb07fc0b7098a1da0f59aaf7cedc79"
+    },
+    {
+      "path": "public/assets/logo.png",
+      "bytes": 69175,
+      "sha256": "832c642ea9735b87452a6508ae5525f4f87fe528408efc58ad0f86f1a456a930"
+    },
+    {
+      "path": "public/assets/player-campaign.png",
+      "bytes": 2103447,
+      "sha256": "f6593f7bed05e2928d041197d6c7a7d6e9e05ab37fea7a12b76a37d3e8155432"
+    },
+    {
+      "path": "public/assets/sponsors/bnu.svg",
+      "bytes": 9817,
+      "sha256": "44f2ccd12438bcfb292e1283ecac9ef7f5758d4cb77b14e65835260181285504"
+    },
+    {
+      "path": "public/assets/sponsors/deelman-daktechniek.svg",
+      "bytes": 64066,
+      "sha256": "555ca80ae9e1b9e60cf9179092ac0201e4adaf4032b0d53be979dc6d328e23b1"
+    },
+    {
+      "path": "public/assets/sponsors/dg-webservices.svg",
+      "bytes": 9286,
+      "sha256": "dbe2716900d7137fe74250b2ef0708d668fdc8596161c07474006aed56d1c031"
+    },
+    {
+      "path": "public/assets/sponsors/kwaliteit-kozijnen-holland.svg",
+      "bytes": 46866,
+      "sha256": "9eac38ab31bae0373a516e88724a246841c14a3efa5bfc61ca40b2537b224f68"
+    },
+    {
+      "path": "public/assets/sponsors/proto-tegelzetbedrijf.svg",
+      "bytes": 30279,
+      "sha256": "337a0308cef2a2b7b68d89d0f2afcb789467aaaaf7651803e92e8a4e04321d01"
+    },
+    {
+      "path": "public/assets/sponsors/rw-repair.png",
+      "bytes": 30510,
+      "sha256": "2698a951c6f595bdc3b08cd0ec891575b3122d891cd0b783a8e22515080f866d"
+    },
+    {
+      "path": "public/assets/team.png",
+      "bytes": 286516,
+      "sha256": "18d8317164e7239a986cb1e285a08f961ae9184962f27158abafeee52c8da74f"
+    },
+    {
+      "path": "public/assets/terrace.webp",
+      "bytes": 265652,
+      "sha256": "56f8044387d5eb8271cbd7af444ef31d48d2dda2959c04314039c550ecbc704b"
+    },
+    {
+      "path": "public/assets/type-distress.svg",
+      "bytes": 495,
+      "sha256": "eebad54e89c5bccd0854f9db7c0a39549709454386271acea7263d06386c5107"
+    },
+    {
+      "path": "public/favicon.svg",
+      "bytes": 712,
+      "sha256": "e6d2e59b7b5bbb0342e0fb496dfc262decbfe4426bbb7b047aec8d467d1dc6f7"
+    },
+    {
+      "path": "public/file.svg",
+      "bytes": 392,
+      "sha256": "1e0ae4d1a1ddfa36752988647b731e4abf150c414d069ec83c96fb0aaeff0307"
+    },
+    {
+      "path": "public/fonts/club-font-0.ttf",
+      "bytes": 86636,
+      "sha256": "0d85af813fc3ed87db0c6265515689b2eef5cbaf7aab17922528dfc95a2cd73f"
+    },
+    {
+      "path": "public/fonts/club-font-1.ttf",
+      "bytes": 87120,
+      "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7"
+    },
+    {
+      "path": "public/fonts/club-font-2.ttf",
+      "bytes": 87556,
+      "sha256": "73bc9e17231e9073780d3c81574c7253cecd5645c93544df1a935054b39a364f"
+    },
+    {
+      "path": "public/fonts/club-font-3.ttf",
+      "bytes": 88228,
+      "sha256": "0ec6b3cca2df54f108f8dc239597e0eab386343a230afad8a0f445c7d21c3e77"
+    },
+    {
+      "path": "public/fonts/club-font-4.ttf",
+      "bytes": 94972,
+      "sha256": "a13d9b41b0a471ce58f0e46d377fa3cc76615e4632c3b15eb397caadf7a13f0a"
+    },
+    {
+      "path": "public/fonts/club-font-5.ttf",
+      "bytes": 95060,
+      "sha256": "f433e5d333be1128d8ec8a28b8aadd0314d10e14e4105406076666bc830fc15d"
+    },
+    {
+      "path": "public/fonts/club-font-6.ttf",
+      "bytes": 95096,
+      "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce"
+    },
+    {
+      "path": "public/fonts/club-font-7.ttf",
+      "bytes": 94928,
+      "sha256": "b9584e099e0e7f1e1e914c3037aabb9010c50346a3ce8df5eeeeecc0563044d8"
+    },
+    {
+      "path": "public/fonts/club-font-8.ttf",
+      "bytes": 95688,
+      "sha256": "b8f802f05b322a7345805f5b89f8bb976604cc719a91530918d5ce3c47160950"
+    },
+    {
+      "path": "public/fonts/club-font-9.ttf",
+      "bytes": 73276,
+      "sha256": "a73712ce4f3b32d3c7a1a657d56c6aaf50c719b7fa7fe0541905fe77f5a9906c"
+    },
+    {
+      "path": "public/globe.svg",
+      "bytes": 1036,
+      "sha256": "d051a8c47936990a9085693d307bb7cea1bc1b6d7ed956bcbaacf674f4ec96b9"
+    },
+    {
+      "path": "public/window.svg",
+      "bytes": 386,
+      "sha256": "decf1cf7bb22b5c99c4857cfcd5718ce5465c4454166317589c83fc73df74b66"
+    },
+    {
+      "path": "scripts/audit-clubmuur-links.ts",
+      "bytes": 3070,
+      "sha256": "9e80fcd228e62f7ca5e1bfbe508780a4d84b715735122f8d708d2638bf2da9d8"
+    },
+    {
+      "path": "scripts/build-verified.sh",
+      "bytes": 661,
+      "sha256": "2ae5329ac860076070c9217a43106a15cb5ecf907a0f7baeb9ef903f76b53c68"
+    },
+    {
+      "path": "scripts/connector-preview/connector-preview-session.mjs",
+      "bytes": 6842,
+      "sha256": "45d5d0511a5b9689278b59570223017cdd3c4129431c6745e710c26323cac45c"
+    },
+    {
+      "path": "scripts/connector-preview/host-binding.mjs",
+      "bytes": 7793,
+      "sha256": "9e44ab6864133a5c82f834a5904ebb7d6104cb783c24efba3c0fe1a161182cea"
+    },
+    {
+      "path": "scripts/connector-preview/protocol.mjs",
+      "bytes": 1781,
+      "sha256": "111e062ebf08d3f180130f5bc3dcb3c1414c1d7be3c032c9d675a61c0c7513a8"
+    },
+    {
+      "path": "scripts/execution-profile.mjs",
+      "bytes": 624,
+      "sha256": "2e71116f4d2b70cff8bb70436f8dd5c709ec7ff62893424530f404e0193d3630"
+    },
+    {
+      "path": "scripts/install-ci.mjs",
+      "bytes": 1685,
+      "sha256": "4a5a92d60a08d0ba54effd8373da2da06284312c55b767287c68a0bec7200da7"
+    },
+    {
+      "path": "scripts/install-ci.sh",
+      "bytes": 6783,
+      "sha256": "10d8764a61be50351dc3496e13588270de7956f0aa5f1189c49cabb2d89fe5c0"
+    },
+    {
+      "path": "scripts/install-pnpm.sh",
+      "bytes": 9015,
+      "sha256": "a684c02c2b493dfbf262a66252a5cd36f81ca995a4024761728662ae63aa40c0"
+    },
+    {
+      "path": "scripts/npm-install.mjs",
+      "bytes": 7025,
+      "sha256": "9715c6a32d1d4a0289ef6376a0e819c3b6a6416b8a9877733d9fb4339ce626b6"
+    },
+    {
+      "path": "scripts/pnpm-install.mjs",
+      "bytes": 10633,
+      "sha256": "a83164e344c1947053def83b546be8115deaa827314bbaead7afe6b6451c5cdf"
+    },
+    {
+      "path": "scripts/run-framework.mjs",
+      "bytes": 993,
+      "sha256": "9bf9f41a29314cabe0238b8e9c540ec3f7b5a6adafc7c8fb6c3940722d061dca"
+    },
+    {
+      "path": "scripts/sites-env.mjs",
+      "bytes": 906,
+      "sha256": "5de99d6806b01f0ee0b941af3684d75dcf1afbbcff22cb95bfa2e584c5dafa88"
+    },
+    {
+      "path": "scripts/sites-env.sh",
+      "bytes": 1530,
+      "sha256": "df86ebfc27d2f00860036658e933ac0ddd7b5f6879aa5d51218f0863c7e1fb60"
+    },
+    {
+      "path": "scripts/test-clubmuur-destinations.ts",
+      "bytes": 5256,
+      "sha256": "29c8a868f557ba1437318526f783db98e8a6b5722bc93e64ad391ac5bc08d865"
+    },
+    {
+      "path": "scripts/test-clubmuur-routes.ts",
+      "bytes": 3533,
+      "sha256": "c533537fb7283a86fb53dc95cb37c630f587b8123c965eaa56871b5488303c6a"
+    },
+    {
+      "path": "scripts/test-cms-import.ts",
+      "bytes": 6192,
+      "sha256": "729458722acc65f1fa3deb1eea4e1eda4dbfbe8e4a659e0c11f1a12397666a18"
+    },
+    {
+      "path": "scripts/test-cms-model.ts",
+      "bytes": 22061,
+      "sha256": "ef4e281749cb94ce0cbb590f7ddb299f6e4edf55137c46d31792afd21e393fb2"
+    },
+    {
+      "path": "scripts/test-cms-separation.ts",
+      "bytes": 3780,
+      "sha256": "f41b1f33d0b439054996ccd225a265d3970fdcec3c93fe5f60b244994d527423"
+    },
+    {
+      "path": "scripts/test-sportlink-match-filters.ts",
+      "bytes": 8798,
+      "sha256": "fce87fbbb5ff4927799030eab724b6e6c6a12ec6e67a5b368772c4fbdacfa5ce"
+    },
+    {
+      "path": "scripts/test-sportlink-team.ts",
+      "bytes": 7984,
+      "sha256": "4d40880dfcd2ce3eeeaa66ba1004fbce204aa8a3038272ff43c4d033d8020a0f"
+    },
+    {
+      "path": "scripts/test-sportlink.ts",
+      "bytes": 9368,
+      "sha256": "f5767ac0fefa8368ab9af42e461fd4bb283f987d99bc3c605aade763cb333c30"
+    },
+    {
+      "path": "tsconfig.json",
+      "bytes": 800,
+      "sha256": "7199c6e4e400921e8049729840165a39f1476fa97901bed00239e7697bfe8da4"
+    },
+    {
+      "path": "tsconfig.tsbuildinfo",
+      "bytes": 621479,
+      "sha256": "9b2e28dd771d6372491122e73eaf0da2d660827b4aa8e8700baced5c9fc957f3"
+    },
+    {
+      "path": "vendor/shadcn-tailwind-4.13.0.LICENSE.md",
+      "bytes": 1063,
+      "sha256": "1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f"
+    },
+    {
+      "path": "vendor/shadcn-tailwind-4.13.0.css",
+      "bytes": 16041,
+      "sha256": "bc7d83425702955b4cb67cb14ede9d603f9d912376d57a2d81d661094d2a782a"
+    },
+    {
+      "path": "vite.config.ts",
+      "bytes": 3115,
+      "sha256": "6f6d890794fbe23f3e35cceb327f49d5977432a5aaf715e040a6408932da395b"
+    }
+  ]
+}

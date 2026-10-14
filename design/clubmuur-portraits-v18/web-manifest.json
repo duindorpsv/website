@@ -1,0 +1,89 @@
+[
+  {
+    "id": "14-natuurlijk-samen",
+    "width": 1122,
+    "height": 1402,
+    "alphaMin": 0,
+    "alphaMax": 255,
+    "cornerAlphaMax": [
+      0,
+      0,
+      1,
+      0
+    ],
+    "variants": [
+      {
+        "filename": "14-natuurlijk-samen-640.webp",
+        "width": 640,
+        "height": 800,
+        "bytes": 133570
+      },
+      {
+        "filename": "14-natuurlijk-samen-1280.webp",
+        "width": 1122,
+        "height": 1402,
+        "bytes": 312568
+      }
+    ]
+  },
+  {
+    "id": "15-clubgenoten",
+    "width": 1122,
+    "height": 1402,
+    "alphaMin": 0,
+    "alphaMax": 255,
+    "cornerAlphaMax": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "variants": [
+      {
+        "filename": "15-clubgenoten-640.webp",
+        "width": 640,
+        "height": 800,
+        "bytes": 123668
+      },
+      {
+        "filename": "15-clubgenoten-1280.webp",
+        "width": 1122,
+        "height": 1402,
+        "bytes": 288668
+      }
+    ]
+  },
+  {
+    "id": "16-een-vereniging",
+    "width": 1536,
+    "height": 1024,
+    "alphaMin": 0,
+    "alphaMax": 254,
+    "cornerAlphaMax": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "variants": [
+      {
+        "filename": "16-een-vereniging-640.webp",
+        "width": 640,
+        "height": 427,
+        "bytes": 68380
+      },
+      {
+        "filename": "16-een-vereniging-1280.webp",
+        "width": 1280,
+        "height": 853,
+        "bytes": 194172
+      },
+      {
+        "filename": "16-een-vereniging-1920.webp",
+        "width": 1536,
+        "height": 1024,
+        "bytes": 239548
+      }
+    ]
+  }
+]

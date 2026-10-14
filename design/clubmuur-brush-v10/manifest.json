@@ -1,0 +1,308 @@
+[
+  {
+    "file": "01-hero-houtrust.png",
+    "id": "houtrust",
+    "type": "hero",
+    "left": 300,
+    "native": {
+      "width": 1672,
+      "height": 940
+    },
+    "files": [
+      {
+        "name": "houtrust-wide-960.avif",
+        "width": 960,
+        "height": 540,
+        "bytes": 126751
+      },
+      {
+        "name": "houtrust-wide-960.webp",
+        "width": 960,
+        "height": 540,
+        "bytes": 223440
+      },
+      {
+        "name": "houtrust-wide-1280.avif",
+        "width": 1280,
+        "height": 720,
+        "bytes": 208603
+      },
+      {
+        "name": "houtrust-wide-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 379326
+      },
+      {
+        "name": "houtrust-wide-1672.avif",
+        "width": 1672,
+        "height": 940,
+        "bytes": 312321
+      },
+      {
+        "name": "houtrust-wide-1672.webp",
+        "width": 1672,
+        "height": 940,
+        "bytes": 593912
+      },
+      {
+        "name": "houtrust-portrait-480.avif",
+        "width": 480,
+        "height": 451,
+        "bytes": 49497
+      },
+      {
+        "name": "houtrust-portrait-480.webp",
+        "width": 480,
+        "height": 451,
+        "bytes": 87140
+      },
+      {
+        "name": "houtrust-portrait-800.avif",
+        "width": 800,
+        "height": 752,
+        "bytes": 123368
+      },
+      {
+        "name": "houtrust-portrait-800.webp",
+        "width": 800,
+        "height": 752,
+        "bytes": 226628
+      }
+    ]
+  },
+  {
+    "file": "02-hero-meeuwenhof.png",
+    "id": "de-wijk",
+    "type": "hero",
+    "left": 140,
+    "native": {
+      "width": 1672,
+      "height": 941
+    },
+    "files": [
+      {
+        "name": "de-wijk-wide-960.avif",
+        "width": 960,
+        "height": 540,
+        "bytes": 127959
+      },
+      {
+        "name": "de-wijk-wide-960.webp",
+        "width": 960,
+        "height": 540,
+        "bytes": 225312
+      },
+      {
+        "name": "de-wijk-wide-1280.avif",
+        "width": 1280,
+        "height": 720,
+        "bytes": 212968
+      },
+      {
+        "name": "de-wijk-wide-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 384392
+      },
+      {
+        "name": "de-wijk-wide-1672.avif",
+        "width": 1672,
+        "height": 941,
+        "bytes": 317194
+      },
+      {
+        "name": "de-wijk-wide-1672.webp",
+        "width": 1672,
+        "height": 941,
+        "bytes": 598004
+      },
+      {
+        "name": "de-wijk-portrait-480.avif",
+        "width": 480,
+        "height": 452,
+        "bytes": 54035
+      },
+      {
+        "name": "de-wijk-portrait-480.webp",
+        "width": 480,
+        "height": 452,
+        "bytes": 94790
+      },
+      {
+        "name": "de-wijk-portrait-800.avif",
+        "width": 800,
+        "height": 753,
+        "bytes": 136323
+      },
+      {
+        "name": "de-wijk-portrait-800.webp",
+        "width": 800,
+        "height": 753,
+        "bytes": 248344
+      }
+    ]
+  },
+  {
+    "file": "03-hero-havenhoofd.png",
+    "id": "aan-zee",
+    "type": "hero",
+    "left": 0,
+    "native": {
+      "width": 1672,
+      "height": 941
+    },
+    "files": [
+      {
+        "name": "aan-zee-wide-960.avif",
+        "width": 960,
+        "height": 540,
+        "bytes": 114250
+      },
+      {
+        "name": "aan-zee-wide-960.webp",
+        "width": 960,
+        "height": 540,
+        "bytes": 202144
+      },
+      {
+        "name": "aan-zee-wide-1280.avif",
+        "width": 1280,
+        "height": 720,
+        "bytes": 190408
+      },
+      {
+        "name": "aan-zee-wide-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 347258
+      },
+      {
+        "name": "aan-zee-wide-1672.avif",
+        "width": 1672,
+        "height": 941,
+        "bytes": 289512
+      },
+      {
+        "name": "aan-zee-wide-1672.webp",
+        "width": 1672,
+        "height": 941,
+        "bytes": 549306
+      },
+      {
+        "name": "aan-zee-portrait-480.avif",
+        "width": 480,
+        "height": 452,
+        "bytes": 50910
+      },
+      {
+        "name": "aan-zee-portrait-480.webp",
+        "width": 480,
+        "height": 452,
+        "bytes": 90114
+      },
+      {
+        "name": "aan-zee-portrait-800.avif",
+        "width": 800,
+        "height": 753,
+        "bytes": 129034
+      },
+      {
+        "name": "aan-zee-portrait-800.webp",
+        "width": 800,
+        "height": 753,
+        "bytes": 236088
+      }
+    ]
+  },
+  {
+    "file": "04-section-wijkpanorama.png",
+    "id": "section-wijkpanorama",
+    "type": "section",
+    "native": {
+      "width": 1672,
+      "height": 941
+    },
+    "files": [
+      {
+        "name": "section-wijkpanorama-800.avif",
+        "width": 800,
+        "height": 450,
+        "bytes": 86558
+      },
+      {
+        "name": "section-wijkpanorama-800.webp",
+        "width": 800,
+        "height": 450,
+        "bytes": 154436
+      },
+      {
+        "name": "section-wijkpanorama-1600.avif",
+        "width": 1600,
+        "height": 900,
+        "bytes": 276900
+      },
+      {
+        "name": "section-wijkpanorama-1600.webp",
+        "width": 1600,
+        "height": 900,
+        "bytes": 531990
+      }
+    ]
+  },
+  {
+    "file": "05-section-houtrust.png",
+    "id": "section-houtrust",
+    "type": "section",
+    "native": {
+      "width": 1672,
+      "height": 941
+    },
+    "files": [
+      {
+        "name": "section-houtrust-800.avif",
+        "width": 800,
+        "height": 450,
+        "bytes": 89991
+      },
+      {
+        "name": "section-houtrust-800.webp",
+        "width": 800,
+        "height": 450,
+        "bytes": 156684
+      },
+      {
+        "name": "section-houtrust-1600.avif",
+        "width": 1600,
+        "height": 900,
+        "bytes": 284984
+      },
+      {
+        "name": "section-houtrust-1600.webp",
+        "width": 1600,
+        "height": 900,
+        "bytes": 540344
+      }
+    ]
+  },
+  {
+    "file": "06-reserve-kerk.png",
+    "id": "reserve-kerk",
+    "type": "reserve",
+    "native": {
+      "width": 1086,
+      "height": 1448
+    },
+    "files": []
+  },
+  {
+    "file": "07-reserve-meeuwenhof.png",
+    "id": "reserve-meeuwenhof",
+    "type": "reserve",
+    "native": {
+      "width": 1672,
+      "height": 941
+    },
+    "files": []
+  }
+]

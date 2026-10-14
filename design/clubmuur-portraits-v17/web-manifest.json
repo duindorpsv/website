@@ -1,0 +1,137 @@
+[
+  {
+    "id": "08-samen-vooruit",
+    "selectedSource": "08-samen-vooruit-clubblauw.png",
+    "width": 1122,
+    "height": 1402,
+    "alphaMin": 0,
+    "alphaMax": 255,
+    "variants": [
+      {
+        "width": 640,
+        "height": 800,
+        "bytes": 126448
+      },
+      {
+        "width": 1122,
+        "height": 1402,
+        "bytes": 284186
+      }
+    ]
+  },
+  {
+    "id": "09-high-five",
+    "selectedSource": "09-high-five-clubblauw.png",
+    "width": 1122,
+    "height": 1402,
+    "alphaMin": 0,
+    "alphaMax": 255,
+    "variants": [
+      {
+        "width": 640,
+        "height": 800,
+        "bytes": 114282
+      },
+      {
+        "width": 1122,
+        "height": 1402,
+        "bytes": 260422
+      }
+    ]
+  },
+  {
+    "id": "10-strijd",
+    "selectedSource": "10-strijd-clubblauw.png",
+    "width": 1122,
+    "height": 1402,
+    "alphaMin": 0,
+    "alphaMax": 255,
+    "variants": [
+      {
+        "width": 640,
+        "height": 800,
+        "bytes": 129592
+      },
+      {
+        "width": 1122,
+        "height": 1402,
+        "bytes": 286764
+      }
+    ]
+  },
+  {
+    "id": "11-overwinning",
+    "selectedSource": "11-overwinning-clubblauw.png",
+    "width": 1536,
+    "height": 1024,
+    "alphaMin": 0,
+    "alphaMax": 254,
+    "variants": [
+      {
+        "width": 640,
+        "height": 427,
+        "bytes": 90540
+      },
+      {
+        "width": 1280,
+        "height": 853,
+        "bytes": 257196
+      },
+      {
+        "width": 1536,
+        "height": 1024,
+        "bytes": 311602
+      }
+    ]
+  },
+  {
+    "id": "12-een-team",
+    "selectedSource": "12-een-team-clubblauw-alpha-clean.png",
+    "width": 1536,
+    "height": 1024,
+    "alphaMin": 0,
+    "alphaMax": 254,
+    "variants": [
+      {
+        "width": 640,
+        "height": 427,
+        "bytes": 84338
+      },
+      {
+        "width": 1280,
+        "height": 853,
+        "bytes": 229310
+      },
+      {
+        "width": 1536,
+        "height": 1024,
+        "bytes": 277870
+      }
+    ]
+  },
+  {
+    "id": "13-clubtrots",
+    "selectedSource": "13-clubtrots-clubblauw-alpha-clean.png",
+    "width": 1536,
+    "height": 1024,
+    "alphaMin": 0,
+    "alphaMax": 254,
+    "variants": [
+      {
+        "width": 640,
+        "height": 427,
+        "bytes": 90438
+      },
+      {
+        "width": 1280,
+        "height": 853,
+        "bytes": 261066
+      },
+      {
+        "width": 1536,
+        "height": 1024,
+        "bytes": 316134
+      }
+    ]
+  }
+]

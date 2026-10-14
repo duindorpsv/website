@@ -1,0 +1,94 @@
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/fonts/club-font-0.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/club-font-1.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url(/fonts/club-font-2.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url(/fonts/club-font-3.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/club-font-4.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/club-font-5.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/fonts/club-font-6.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/club-font-7.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url(/fonts/club-font-8.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Permanent Marker';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/club-font-9.ttf) format('truetype');
+}
+
+/* Clubband lockup: line boxes follow the actual outlines in these exact strings.
+   Ratios come from the bundled fonts' glyph bounds, including round overshoot.
+   This aligns visible ink across typefaces at every responsive font size. */
+@font-face {
+  font-family:'Clubband Name';font-style:normal;font-weight:800;font-display:swap;
+  src:url(/fonts/club-font-2.ttf) format('truetype');
+  ascent-override:70.8%;descent-override:.8%;line-gap-override:0%;
+}
+@font-face {
+  font-family:'Clubband Slogan';font-style:normal;font-weight:800;font-display:swap;
+  src:url(/fonts/club-font-8.ttf) format('truetype');
+  ascent-override:73.5%;descent-override:1.5%;line-gap-override:0%;
+}
+@font-face {
+  font-family:'Clubband Est';font-style:normal;font-weight:400;font-display:swap;
+  src:url(/fonts/club-font-4.ttf) format('truetype');
+  ascent-override:73.4510204%;descent-override:1.5%;line-gap-override:0%;
+}
+@font-face {
+  font-family:'Clubband Year';font-style:normal;font-weight:700;font-display:swap;
+  src:url(/fonts/club-font-1.ttf) format('truetype');
+  ascent-override:71.1%;descent-override:1.1%;line-gap-override:0%;
+}

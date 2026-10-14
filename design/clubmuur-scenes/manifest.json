@@ -1,0 +1,227 @@
+[
+  {
+    "id": "houtrust",
+    "master": {
+      "width": 1672,
+      "height": 941
+    },
+    "mobileCrop": {
+      "left": 0,
+      "top": 0,
+      "width": 836,
+      "height": 941
+    },
+    "files": [
+      {
+        "file": "houtrust-wide-960.avif",
+        "width": 960,
+        "height": 540,
+        "bytes": 127764
+      },
+      {
+        "file": "houtrust-wide-960.webp",
+        "width": 960,
+        "height": 540,
+        "bytes": 231224
+      },
+      {
+        "file": "houtrust-wide-1280.avif",
+        "width": 1280,
+        "height": 720,
+        "bytes": 210542
+      },
+      {
+        "file": "houtrust-wide-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 396522
+      },
+      {
+        "file": "houtrust-wide-1672.avif",
+        "width": 1672,
+        "height": 941,
+        "bytes": 316098
+      },
+      {
+        "file": "houtrust-wide-1672.webp",
+        "width": 1672,
+        "height": 941,
+        "bytes": 626158
+      },
+      {
+        "file": "houtrust-portrait-480.avif",
+        "width": 480,
+        "height": 540,
+        "bytes": 66111
+      },
+      {
+        "file": "houtrust-portrait-480.webp",
+        "width": 480,
+        "height": 540,
+        "bytes": 123236
+      },
+      {
+        "file": "houtrust-portrait-800.avif",
+        "width": 800,
+        "height": 900,
+        "bytes": 149831
+      },
+      {
+        "file": "houtrust-portrait-800.webp",
+        "width": 800,
+        "height": 900,
+        "bytes": 302038
+      }
+    ]
+  },
+  {
+    "id": "de-wijk",
+    "master": {
+      "width": 1672,
+      "height": 941
+    },
+    "mobileCrop": {
+      "left": 0,
+      "top": 0,
+      "width": 836,
+      "height": 941
+    },
+    "files": [
+      {
+        "file": "de-wijk-wide-960.avif",
+        "width": 960,
+        "height": 540,
+        "bytes": 125896
+      },
+      {
+        "file": "de-wijk-wide-960.webp",
+        "width": 960,
+        "height": 540,
+        "bytes": 223382
+      },
+      {
+        "file": "de-wijk-wide-1280.avif",
+        "width": 1280,
+        "height": 720,
+        "bytes": 210122
+      },
+      {
+        "file": "de-wijk-wide-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 383524
+      },
+      {
+        "file": "de-wijk-wide-1672.avif",
+        "width": 1672,
+        "height": 941,
+        "bytes": 313381
+      },
+      {
+        "file": "de-wijk-wide-1672.webp",
+        "width": 1672,
+        "height": 941,
+        "bytes": 599364
+      },
+      {
+        "file": "de-wijk-portrait-480.avif",
+        "width": 480,
+        "height": 540,
+        "bytes": 69214
+      },
+      {
+        "file": "de-wijk-portrait-480.webp",
+        "width": 480,
+        "height": 540,
+        "bytes": 123346
+      },
+      {
+        "file": "de-wijk-portrait-800.avif",
+        "width": 800,
+        "height": 900,
+        "bytes": 154844
+      },
+      {
+        "file": "de-wijk-portrait-800.webp",
+        "width": 800,
+        "height": 900,
+        "bytes": 302418
+      }
+    ]
+  },
+  {
+    "id": "aan-zee",
+    "master": {
+      "width": 1672,
+      "height": 941
+    },
+    "mobileCrop": {
+      "left": 0,
+      "top": 0,
+      "width": 836,
+      "height": 941
+    },
+    "files": [
+      {
+        "file": "aan-zee-wide-960.avif",
+        "width": 960,
+        "height": 540,
+        "bytes": 127630
+      },
+      {
+        "file": "aan-zee-wide-960.webp",
+        "width": 960,
+        "height": 540,
+        "bytes": 225536
+      },
+      {
+        "file": "aan-zee-wide-1280.avif",
+        "width": 1280,
+        "height": 720,
+        "bytes": 214243
+      },
+      {
+        "file": "aan-zee-wide-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 389528
+      },
+      {
+        "file": "aan-zee-wide-1672.avif",
+        "width": 1672,
+        "height": 941,
+        "bytes": 319955
+      },
+      {
+        "file": "aan-zee-wide-1672.webp",
+        "width": 1672,
+        "height": 941,
+        "bytes": 608000
+      },
+      {
+        "file": "aan-zee-portrait-480.avif",
+        "width": 480,
+        "height": 540,
+        "bytes": 62415
+      },
+      {
+        "file": "aan-zee-portrait-480.webp",
+        "width": 480,
+        "height": 540,
+        "bytes": 109124
+      },
+      {
+        "file": "aan-zee-portrait-800.avif",
+        "width": 800,
+        "height": 900,
+        "bytes": 142131
+      },
+      {
+        "file": "aan-zee-portrait-800.webp",
+        "width": 800,
+        "height": 900,
+        "bytes": 270454
+      }
+    ]
+  }
+]

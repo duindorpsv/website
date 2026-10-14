@@ -1,0 +1,97 @@
+/* Seven single-surface headers. The club lockup and founding year share a baseline. */
+.cm-header{--header-bg:var(--cm-paper);--header-ink:var(--cm-text);height:var(--cm-header-h);background:var(--header-bg);color:var(--header-ink);backdrop-filter:none;border-bottom:1px solid var(--cm-border)}
+.cm-header:before{display:none}
+.cm-header-inner{display:flex;justify-content:space-between;gap:32px;max-width:2000px;padding:0 var(--cm-edge);height:100%}
+.cm-brand{position:relative;gap:12px;flex-shrink:0}
+.cm-brand>img{width:37px;height:44px;object-fit:contain;flex-shrink:0}
+.cm-brand .cm-brand-lockup{display:grid;grid-template-columns:auto auto;column-gap:18px;align-items:stretch}
+.cm-brand-copy{display:flex;flex-direction:column;justify-content:space-between;height:38px}
+.cm-brand strong{font-size:25px;line-height:25px;letter-spacing:.015em}
+.cm-brand small{font-size:8px;line-height:9px;letter-spacing:.105em;margin:0;font-weight:800}
+.cm-brand .cm-brand-year{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;margin:0;padding:0 0 0 17px;border-left:1px solid currentColor;border-color:color-mix(in srgb,currentColor 23%,transparent);height:38px;line-height:1;opacity:.75}
+.cm-brand-year>span{font-size:8px;line-height:10px;letter-spacing:.15em;padding-top:1px}
+.cm-brand-year b{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;line-height:18px;letter-spacing:.025em}
+.cm-main-nav{padding:0;border:0;background:none;box-shadow:none;border-radius:0;gap:27px;margin-left:auto;height:100%;align-items:center}
+.cm-main-nav a{display:flex;align-items:center;height:100%;font-size:13px;font-weight:700;padding:0;border-radius:0;white-space:nowrap;letter-spacing:0}
+.cm-main-nav a:hover,.cm-main-nav a[aria-current]{background:none;box-shadow:none;color:var(--header-ink)}
+.cm-main-nav a:after,.cm-main-nav a[aria-current]:after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;width:auto;border-radius:0;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s}
+.cm-main-nav a:hover:after,.cm-main-nav a[aria-current]:after{transform:scaleX(1)}
+.cm-header-controls{gap:14px;flex-shrink:0}
+.cm-theme{border:0;border-radius:0;width:36px;background:none}
+.cm-theme:hover{background:none;transform:none;opacity:.65}
+.cm-join{height:42px;padding:0 18px!important;gap:14px!important;border:0!important;border-radius:3px!important;background:#074b9b!important;color:#fff!important;font-size:12px!important;box-shadow:none;white-space:nowrap}
+.cm-join:hover{box-shadow:none}
+.cm-menu{border:0;border-radius:0}
+.cm-header--clubblauw{--header-bg:#073567;--header-ink:#fff;border-bottom:3px solid #ffffff55}
+.cm-header--clubblauw .cm-join{background:#fff!important;color:#073567!important}
+.cm-header--clubblauw .cm-main-nav{gap:32px}
+.cm-header--tribune .cm-main-nav{gap:30px}
+.cm-header--tribune .cm-main-nav a{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-size:25px;font-weight:700;letter-spacing:.012em}
+.cm-header--tribune .cm-brand strong{font-size:29px}
+.cm-header--tribune .cm-brand small{font-size:7px}
+.cm-header--tribune .cm-join{height:42px;background:transparent!important;color:var(--header-ink)!important;border:1px solid currentColor!important}
+.cm-header--tribune{border-bottom:3px solid var(--header-ink)}
+.cm-header--vaandel .cm-brand{height:100%;background:#074b9b;color:white;padding-right:44px;padding-left:var(--cm-edge);margin-left:calc(-1 * var(--cm-edge));clip-path:polygon(0 0,100% 0,calc(100% - 23px) 100%,0 100%)}
+.cm-header--vaandel .cm-main-nav{margin-left:0;gap:26px}
+.cm-header--vaandel .cm-join{border-radius:40px!important}
+.cm-header--middenstip .cm-header-inner{display:grid;grid-template-columns:1fr auto 1fr;gap:26px}
+.cm-header--middenstip .cm-brand{grid-column:2;grid-row:1}
+.cm-header--middenstip .cm-main-nav{grid-column:1;grid-row:1;margin-left:0;gap:22px}
+.cm-header--middenstip .cm-main-nav a{font-size:12px}
+.cm-header--middenstip .cm-header-controls{grid-column:3;grid-row:1}
+.cm-header--middenstip .cm-join{background:none!important;color:var(--header-ink)!important;padding-right:0!important;border-bottom:1px solid currentColor!important;border-radius:0!important}
+.cm-header--kustlijn{border-bottom:4px solid #0753ad}
+.cm-header--kustlijn .cm-header-inner{gap:26px}
+.cm-header--kustlijn .cm-brand strong{letter-spacing:.12em;font-size:23px}
+.cm-header--kustlijn .cm-brand small{font-size:7px;letter-spacing:.11em}
+.cm-header--kustlijn .cm-brand-year{color:var(--cm-blue);opacity:1}
+.cm-header--kustlijn .cm-main-nav{gap:22px}
+.cm-header--kustlijn .cm-main-nav a{font-size:12px;text-transform:uppercase;letter-spacing:.09em}
+.cm-header--kustlijn .cm-theme{border-left:1px solid var(--cm-border);padding-left:15px;width:45px}
+.cm-header--kustlijn .cm-join{background:#0753ad!important;border-radius:0!important;padding:0 19px!important}
+/* The same textured blue club band frames the top and bottom of the hero. */
+.cm-header--clubband{--header-ink:#fff;background:var(--cm-club-blue) url('/assets/clubmuur-wall.webp') center 80%/cover;background-blend-mode:multiply;border-block:3px solid #a6c7e0;isolation:isolate}
+.cm-header--clubband:before{display:block;inset:0;height:auto;background:var(--cm-band-shade);pointer-events:none;z-index:-1}
+.cm-header--clubband .cm-header-inner{gap:clamp(24px,2.6vw,44px)}
+.cm-header--clubband .cm-brand{gap:14px}
+.cm-header--clubband .cm-brand>img{width:41px;height:48px}
+.cm-header--clubband .cm-brand-copy{display:grid;grid-template-columns:max-content;grid-template-rows:max-content max-content;align-content:space-between;row-gap:0;height:36px}
+.cm-header--clubband .cm-brand strong{font-family:'Clubband Name','Barlow Condensed',sans-serif;font-size:34px;line-height:.716;letter-spacing:.06em;white-space:nowrap}
+.cm-header--clubband .cm-brand small{display:flex;justify-content:space-between;width:0;min-width:100%;font-family:'Clubband Slogan','Manrope',sans-serif;font-size:7.3px;line-height:.75;letter-spacing:0}
+.cm-header--clubband .cm-brand-year{height:36px;opacity:1;border-left:2px solid #ffffff50;padding-left:18px}
+.cm-header--clubband .cm-brand-year>span{font-family:'Clubband Est','Manrope',sans-serif;font-size:9px;font-weight:400;line-height:.749510204;letter-spacing:.17em;padding-top:0}
+.cm-header--clubband .cm-brand-year b{font-family:'Clubband Year','Barlow Condensed',sans-serif;font-size:24px;line-height:.722;letter-spacing:.035em}
+.cm-header--clubband .cm-main-nav{gap:clamp(20px,2vw,34px)}
+.cm-header--clubband .cm-main-nav a{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-size:25px;font-weight:700;letter-spacing:.012em}
+.cm-header--clubband .cm-main-nav a:after{bottom:15px;height:3px}
+.cm-header--clubband .cm-join{height:43px;background:#fff!important;color:var(--cm-club-blue)!important;border:1px solid #fff!important;box-shadow:0 3px 12px #00173530;border-radius:2px!important}
+.cm-header--clubband .cm-join:hover{background:#eaf2ff!important;box-shadow:0 6px 18px #00173540}
+.cm-header--clubband .cm-menu{color:white}
+@media(min-width:1000px) and (max-width:1150px){
+ .cm-header-inner{gap:19px}.cm-main-nav{gap:18px}.cm-main-nav a{font-size:12px}
+ .cm-brand .cm-brand-year{display:flex}.cm-brand .cm-brand-lockup{column-gap:12px}.cm-brand .cm-brand-year{padding-left:11px}
+ .cm-header-controls{gap:8px}.cm-join{padding:0 12px!important}.cm-header--tribune .cm-main-nav{gap:18px}.cm-header--tribune .cm-main-nav a{font-size:22px}
+ .cm-header--vaandel .cm-brand{padding-right:30px}.cm-header--vaandel .cm-main-nav{gap:16px}
+ .cm-header--middenstip .cm-header-inner{gap:16px}.cm-header--middenstip .cm-main-nav{gap:15px}.cm-header--middenstip .cm-main-nav a{font-size:11px}
+ .cm-header--kustlijn .cm-main-nav{gap:14px}.cm-header--kustlijn .cm-main-nav a{font-size:11px}
+ .cm-header--clubband .cm-header-inner{gap:20px}.cm-header--clubband .cm-main-nav{gap:18px}.cm-header--clubband .cm-main-nav a{font-size:21px}
+ .cm-header--clubband .cm-brand strong{font-size:29px}.cm-header--clubband .cm-brand small{font-size:6.4px}.cm-header--clubband .cm-brand{gap:10px}
+}
+@media(max-width:999px){
+ .cm-header-inner{display:flex!important;gap:10px!important}.cm-main-nav{display:none!important}
+ .cm-brand{gap:8px}.cm-brand>img{width:29px;height:36px}.cm-brand-copy{height:32px}
+ .cm-brand strong{font-size:21px!important;line-height:21px;letter-spacing:.01em!important}.cm-brand small{font-size:6px!important;line-height:7px;letter-spacing:.05em!important}
+ .cm-brand .cm-brand-lockup{column-gap:12px}.cm-brand .cm-brand-year{display:flex;height:32px;padding-left:12px}
+ .cm-brand-year>span{font-size:7px;line-height:9px}.cm-brand-year b{font-size:19px;line-height:15px}
+ .cm-header-controls{gap:5px}.cm-theme{width:30px;height:36px}.cm-menu{width:30px;height:36px}
+ .cm-header--vaandel .cm-brand{padding-right:30px}.cm-header--kustlijn .cm-theme{border:0;padding:0;width:30px}
+ .cm-header--middenstip .cm-brand,.cm-header--middenstip .cm-header-controls{grid-column:auto}
+ .cm-header--clubband .cm-brand{gap:9px}.cm-header--clubband .cm-brand>img{width:30px;height:38px}
+ .cm-header--clubband .cm-brand-copy{height:27px}
+ .cm-header--clubband .cm-brand strong{font-size:25px!important;letter-spacing:.045em!important}
+ .cm-header--clubband .cm-brand small{font-size:5.35px!important;letter-spacing:0!important}
+ .cm-header--clubband .cm-brand-year{height:27px;padding-left:12px}
+ .cm-header--clubband .cm-brand-year>span{font-size:7px}.cm-header--clubband .cm-brand-year b{font-size:20px}
+}
+@media(max-width:540px){.cm-join{display:none!important}}
+@media(max-width:370px){.cm-brand .cm-brand-lockup{column-gap:8px}.cm-brand .cm-brand-year{padding-left:8px}.cm-brand strong{font-size:19px!important}.cm-brand small{font-size:5.5px!important}.cm-header--vaandel .cm-brand{padding-right:25px}.cm-header--vaandel .cm-header-inner{padding-right:12px}.cm-header-controls{gap:2px}}

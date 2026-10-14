@@ -1,0 +1,95 @@
+/* Match spotlight + an editorial column spanning both supporting cards. */
+.cm-hero-fixture{position:relative;z-index:4;min-width:0;min-height:0;container:cm-hero-match / size;animation:cm-enter .8s .12s both}
+.cm-hero-fixture>*{width:100%;height:100%;min-height:0;border-radius:13px;box-shadow:var(--cm-shadow)}
+.cm-featured-match{position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:18px 18px 14px;overflow:hidden;border:1px solid #fff;border-top:4px solid #03438a;background:linear-gradient(145deg,#fff 40%,#f0f5fbea);color:#03438a;text-align:center;backdrop-filter:blur(14px)}
+.cm-featured-match:before{content:'';position:absolute;inset:0;z-index:-1;background:url('/assets/clubmuur-brush-v25/section-houtrust-1600.webp') center/cover;opacity:.045;pointer-events:none}
+.cm-featured-match-head{text-align:left;flex:none}.cm-featured-match-kicker{display:flex;align-items:center;gap:8px;font-size:8px;font-weight:800;letter-spacing:.14em;line-height:1.4;color:#597f9f}.cm-featured-match-kicker>span{height:3px;width:3px;border-radius:50%;background:#87a9c9;flex:none}
+.cm-featured-match h2{font-family:'Barlow Condensed',sans-serif;font-size:clamp(25px,10cqw,35px);font-weight:800;line-height:.98;letter-spacing:-.02em;margin:9px 0 0;color:#03438a;text-wrap:balance}.cm-featured-match h2>span{color:#829fba}
+.cm-featured-match-teams{display:grid;grid-template-columns:minmax(0,1fr) 25px minmax(0,1fr);align-items:center;gap:7px;flex:1;min-height:0}.cm-featured-match-teams>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-width:0}.cm-featured-match-teams .cm-club-logo{width:clamp(40px,20cqw,62px);height:clamp(47px,23cqw,72px);flex:none}.cm-featured-match-teams .cm-club-logo>img{width:100%;height:100%;object-fit:contain}.cm-featured-match-teams strong{font-family:'Barlow Condensed',sans-serif;font-size:clamp(15px,6.6cqw,20px);font-weight:700;line-height:1.08;color:#03438a;text-wrap:balance;overflow-wrap:break-word}.cm-featured-match-vs{font-size:9px;letter-spacing:.1em;font-weight:800;color:#92a9be;align-self:center;margin-top:-27px}
+.cm-featured-match-kickoff{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:9px;border-block:1px solid #c8d9e980;flex:none;text-align:left}.cm-featured-match-kickoff>span{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:700;line-height:1.5}.cm-featured-match-kickoff>span>svg{flex:none;color:#698caf}.cm-featured-match-kickoff>strong{font-family:'Barlow Condensed',sans-serif;font-size:clamp(33px,14cqw,45px);line-height:.9;font-weight:800;letter-spacing:-.02em;text-align:right;white-space:nowrap}.cm-featured-match-kickoff small{display:block;font-family:'Manrope',sans-serif;font-size:7px;font-weight:650;letter-spacing:.13em;color:#7291ad;line-height:1;margin-top:7px}
+.cm-featured-match-location{display:flex;justify-content:center;align-items:center;gap:5px;font-size:9px;line-height:1.5;color:#6785a0;margin:0;flex:none}.cm-featured-match-location>svg{flex:none}.cm-featured-match-location>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cm-featured-match-cta{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:41px;padding:10px 12px;border:1px solid #ffffff4d;background:#03438a;color:white;border-radius:7px;font-size:10px;font-weight:750;line-height:1.35;flex:none;box-shadow:0 4px 9px #03438a15;transition:box-shadow .25s,background .25s}.cm-featured-match-cta>svg{flex:none;transition:transform .25s}.cm-featured-match-cta:hover{background:#063c7a;box-shadow:0 6px 14px #03438a30}.cm-featured-match-cta:hover>svg{transform:translate(2px,-2px)}.cm-featured-match-stale{font-size:8px;color:#748ca1;line-height:1;margin-top:-7px}.cm-featured-match :is(button,a):focus-visible{outline:2px solid #236fb5;outline-offset:3px}
+.cm-featured-match-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;flex:1;color:#6a89a6}.cm-featured-match-empty p{font-size:12px;line-height:1.65;max-width:230px;margin:0}.cm-featured-match-empty :is(a,button){display:flex;align-items:center;justify-content:center;gap:9px;background:none;border:0;border-bottom:1px solid #acc1d5;color:#03438a;font-size:11px;font-weight:750;padding:10px 0;min-height:40px}
+
+@media(min-width:1000px){
+ .cm-opening[data-hero-layout] .cm-first-screen{height:max(560px,calc(100svh - var(--cm-header-h)));grid-template-rows:minmax(0,1fr) var(--cm-band-h)}
+ .cm-opening[data-hero-layout] .cm-composition{--cm-hero-grid-height:clamp(400px,54svh,500px);min-height:0;row-gap:14px;padding-top:16px;padding-bottom:24px}
+ /* Keep the cards at poster scale even on tall monitors. The wall and players
+    can fill the viewport; the news column spans two compact card rows. */
+ .cm-opening[data-hero-layout] .cm-tile-grid{height:min(100%,var(--cm-hero-grid-height));min-height:0;align-self:end;grid-template-rows:repeat(2,minmax(0,1fr))}
+ .cm-opening[data-hero-layout] .cm-tile-grid>[data-slot-id="top-left"]{grid-area:1/1/3/2}
+ .cm-opening[data-hero-layout] .cm-tile-grid>[data-slot-id="bottom-left"]{grid-area:1/2/2/3}
+ .cm-opening[data-hero-layout] .cm-tile-grid>[data-slot-id="bottom-right"]{grid-area:2/2/3/3}
+ .cm-opening[data-hero-layout] .cm-tile-grid>*{pointer-events:auto}
+ .cm-opening[data-hero-layout] .cm-headline{width:100%;height:100%;margin:0;align-self:stretch}
+ .cm-opening[data-hero-layout] .cm-headline h1{height:100%}
+ .cm-opening[data-hero-layout] .cm-tile-grid .cm-story h3{font-size:clamp(27px,min(2.8vw,4.5svh),43px)}
+
+ /* The original poster: player, match ticket, tall news, two stories. */
+ .cm-opening[data-hero-layout="01"] .cm-composition{grid-template-columns:27fr 23fr 26fr 24fr;grid-template-rows:20% minmax(0,1fr)}
+ .cm-opening[data-hero-layout="01"] .cm-hero-fixture{grid-area:2/2/3/3;height:min(100%,var(--cm-hero-grid-height));align-self:end}
+ .cm-opening[data-hero-layout="01"] .cm-tile-grid{grid-area:2/3/3/5;grid-template-columns:repeat(2,minmax(0,1fr))}
+
+ /* A pair or a single player in the middle, between a news column and two cards. */
+ .cm-opening[data-hero-layout="02"] .cm-composition,.cm-opening[data-hero-layout="05"] .cm-composition{--cm-wings:31fr 39fr 30fr;grid-template-columns:var(--cm-wings);grid-template-rows:18% minmax(0,1fr) 200px}
+ .cm-opening[data-hero-layout="02"] .cm-headline,.cm-opening[data-hero-layout="05"] .cm-headline{grid-area:1/2/2/3;z-index:3}
+ .cm-opening[data-hero-layout="02"] .cm-player,.cm-opening[data-hero-layout="05"] .cm-player{grid-area:2/2/4/3;width:100%;height:100%;margin:0;align-self:stretch;justify-self:center}
+ .cm-opening[data-hero-layout="02"] .cm-hero-fixture,.cm-opening[data-hero-layout="05"] .cm-hero-fixture{grid-area:3/2/4/3;align-self:stretch;height:100%}
+ .cm-opening[data-hero-layout="02"] .cm-tile-grid,.cm-opening[data-hero-layout="05"] .cm-tile-grid{grid-area:1/1/4/4;grid-template-columns:var(--cm-wings);pointer-events:none}
+ .cm-opening[data-hero-layout="02"] .cm-tile-grid>[data-slot-id="bottom-left"],.cm-opening[data-hero-layout="05"] .cm-tile-grid>[data-slot-id="bottom-left"]{grid-area:1/3/2/4}
+ .cm-opening[data-hero-layout="02"] .cm-tile-grid>[data-slot-id="bottom-right"],.cm-opening[data-hero-layout="05"] .cm-tile-grid>[data-slot-id="bottom-right"]{grid-area:2/3/3/4}
+ .cm-opening[data-hero-photo][data-hero-layout="05"] .cm-player>img{height:100%;object-fit:contain;object-position:center bottom}
+
+ /* Wider groups keep a dedicated stage, with their match at its lower edge. */
+ .cm-opening[data-hero-layout="04"] .cm-composition{grid-template-columns:39fr 32fr 29fr;grid-template-rows:20% minmax(0,1fr) 200px}
+ .cm-opening[data-hero-layout="04"] .cm-player{grid-area:2/1/4/2;width:100%;height:100%;margin:0;justify-self:center}
+ .cm-opening[data-hero-layout="04"] .cm-headline{grid-area:1/1/2/2}
+ .cm-opening[data-hero-layout="04"] .cm-hero-fixture{grid-area:3/1/4/2;height:100%}
+ .cm-opening[data-hero-layout="04"] .cm-tile-grid{grid-area:1/2/4/4;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .cm-opening[data-hero-players="walking"][data-hero-layout="04"] .cm-player{width:100%;height:100%}
+ .cm-opening[data-hero-players="walking"][data-hero-layout="04"] .cm-player>img{height:100%;object-fit:contain}
+
+ /* Mirrored stage, with the same full-height news and stacked supporting cards. */
+ .cm-opening[data-hero-layout="08"] .cm-composition{grid-template-columns:28fr 28fr 44fr;grid-template-rows:20% minmax(0,1fr) 200px}
+ .cm-opening[data-hero-layout="08"] .cm-headline{grid-area:1/3/2/4}
+ .cm-opening[data-hero-layout="08"] .cm-player{grid-area:2/3/4/4;margin:0;width:100%;height:100%}
+ .cm-opening[data-hero-layout="08"] .cm-hero-fixture{grid-area:3/3/4/4;height:100%}
+ .cm-opening[data-hero-layout="08"] .cm-tile-grid{grid-area:1/1/4/3;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .cm-opening[data-hero-layout="08"][data-hero-players="duo"] .cm-player>img{height:100%;object-fit:contain;object-position:center bottom}
+}
+
+/* The compact match ticket belongs under the portrait in the central compositions. */
+@container cm-hero-match (max-height:390px){
+ .cm-featured-match{display:grid;grid-template-columns:minmax(0,1fr) 85px;grid-template-rows:auto minmax(0,1fr) auto auto;gap:7px 12px;padding:13px 15px 12px;border-top-width:3px}
+ .cm-featured-match-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:10px}
+ .cm-featured-match-kicker{font-size:7px;gap:6px;letter-spacing:.08em}.cm-featured-match h2{font-size:21px;margin:0;line-height:1;white-space:nowrap}
+ .cm-featured-match-teams{grid-area:2/1/3/2;gap:7px;grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr)}
+ .cm-featured-match-teams>div{gap:5px}.cm-featured-match-teams .cm-club-logo{width:34px;height:39px}.cm-featured-match-teams strong{font-size:15px;line-height:1.05}.cm-featured-match-vs{font-size:8px;margin-top:-17px}
+ .cm-featured-match-kickoff{grid-area:2/2/3/3;flex-direction:column;justify-content:center;border:0;border-left:1px solid #cadceb;padding:0 0 0 10px;gap:9px;text-align:center;align-self:stretch}.cm-featured-match-kickoff>span{font-size:9px;line-height:1.3;justify-content:center}.cm-featured-match-kickoff>span>svg{display:none}.cm-featured-match-kickoff>strong{font-size:35px;text-align:center}.cm-featured-match-kickoff small{font-size:6px;margin-top:6px}
+ .cm-featured-match-location{grid-column:1/-1;font-size:8px;line-height:1.2;gap:4px}.cm-featured-match-location>svg{width:10px;height:10px}
+ .cm-featured-match-cta{grid-column:1/-1;min-height:33px;padding:7px 10px;font-size:10px}.cm-featured-match-cta>svg{width:15px;height:15px}
+ .cm-featured-match-stale{display:none}.cm-featured-match-empty{grid-area:2/1/5/3;gap:8px}.cm-featured-match-empty p{font-size:11px}.cm-featured-match-empty>svg{width:23px;height:23px}
+}
+@container cm-hero-match (max-width:270px) and (min-height:391px){
+ .cm-featured-match{padding:17px 14px 14px;gap:11px}.cm-featured-match h2{font-size:28px}.cm-featured-match-kickoff{gap:8px;padding-block:10px}.cm-featured-match-kickoff>span{font-size:9px}.cm-featured-match-kickoff>span>svg{display:none}.cm-featured-match-kickoff>strong{font-size:37px}.cm-featured-match-cta{font-size:9px;padding-inline:10px}
+}
+
+/* One mobile flow: portrait + match, club band, sponsors, news, competition, cards. */
+@media(max-width:999px){
+ .cm-opening[data-hero-layout]{grid-template-rows:var(--cm-mobile-head) minmax(390px,calc(100svh - var(--cm-header-h) - var(--cm-mobile-head) - var(--cm-band-h) - var(--cm-dock-h) - env(safe-area-inset-bottom,0px))) var(--cm-band-h) 150px repeat(5,auto)}
+ .cm-opening[data-hero-layout] .cm-hero-fixture{grid-area:2/1/3/2;align-self:end;justify-self:center;width:min(650px,calc(100% - 36px));height:208px;margin-bottom:40px;z-index:4;animation:none}
+ .cm-opening[data-hero-photo][data-hero-layout] .cm-player{grid-area:2/1/3/2;align-self:start;justify-self:center;width:min(90%,620px);height:calc(100% - 192px);margin:0;overflow:visible}
+ .cm-opening[data-hero-photo][data-hero-layout] .cm-player>img{inset:0;width:100%;height:100%;max-width:100%;object-fit:contain;object-position:center bottom;transform:none}
+ .cm-opening[data-hero-photo][data-hero-layout][data-hero-players="solo"] .cm-player{width:min(70%,430px)}
+ .cm-opening[data-hero-layout] .cm-tile-grid{display:contents}
+ .cm-opening[data-hero-layout] .cm-tile-grid>[data-slot-id="top-left"]{grid-area:5/1/6/2;height:clamp(490px,70svh,570px);margin:20px 0 26px}
+ .cm-opening[data-hero-layout] .cm-competition{grid-area:6/1/7/2}
+ .cm-opening[data-hero-layout] .cm-tile-grid>[data-slot-id="bottom-left"]{grid-area:7/1/8/2;margin:24px 0 0}
+ .cm-opening[data-hero-layout] .cm-tile-grid>[data-slot-id="bottom-right"]{grid-area:8/1/9/2;margin:18px 0 24px}
+ .cm-opening[data-hero-layout] .cm-newsline{grid-area:9/1/10/2}
+ .cm-featured-match-cta{min-height:39px}.cm-featured-match-empty :is(a,button){min-height:44px}
+}
+@media(max-width:380px){.cm-opening[data-hero-layout] .cm-hero-fixture{width:calc(100% - 28px)}.cm-featured-match h2{font-size:19px}.cm-featured-match-kicker{font-size:6px;gap:4px}}
+@media(prefers-reduced-motion:reduce){.cm-hero-fixture{animation:none}.cm-featured-match-cta,.cm-featured-match-cta>svg{transition:none}.cm-featured-match-cta:hover>svg{transform:none}}
+
+@container cm-hero-match (max-width:300px) and (max-height:390px){.cm-featured-match-head{flex-direction:column;align-items:flex-start;gap:5px}.cm-featured-match h2{font-size:23px}.cm-featured-match{grid-template-columns:minmax(0,1fr) 66px;gap:8px}.cm-featured-match-kickoff>strong{font-size:29px}.cm-featured-match-teams strong{font-size:14px}.cm-featured-match-teams .cm-club-logo{width:30px;height:35px}}

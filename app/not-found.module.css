@@ -1,0 +1,21 @@
+.page{min-height:100svh;padding:clamp(24px,5vw,72px);background:#03438a;color:#fff;display:flex;align-items:center;flex-direction:column;justify-content:center;gap:clamp(28px,5vw,48px);position:relative;isolation:isolate}
+.page:before{content:'';position:absolute;inset:0;z-index:-1;background:url('/assets/clubmuur-brush-v25/de-wijk-wide-1280.webp') center/cover;opacity:.12;mix-blend-mode:screen;pointer-events:none}
+.brand{display:flex;align-items:center;gap:14px;max-width:100%;text-decoration:none;color:#fff}
+.brand img{flex-shrink:0;object-fit:contain}
+.brand span{display:grid;gap:7px}
+.brand strong{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(24px,4vw,34px);line-height:1;letter-spacing:.025em}
+.brand small{font-size:clamp(7px,1.25vw,9px);font-weight:700;letter-spacing:.08em}
+.card{background:#fff;color:#03438a;border-radius:20px;box-shadow:0 20px 80px #001b4240;width:min(100%,720px);padding:clamp(25px,5vw,64px);border:1px solid #ffffff7a}
+.kicker{font-size:10px;letter-spacing:.16em;font-weight:800;color:#637585}
+.card h1{font-family:'Barlow Condensed',sans-serif;font-size:clamp(43px,7vw,76px);font-weight:800;line-height:.98;letter-spacing:-.02em;margin:22px 0}
+.card p{max-width:470px;line-height:1.65;font-size:15px;color:#5c6d7a;margin-bottom:26px}
+.primary{display:flex;align-items:center;justify-content:center;gap:12px;min-height:50px;padding:14px 19px;background:#03438a;color:#fff;border-radius:8px;width:fit-content;font-size:13px;font-weight:750;transition:background .2s,transform .2s}
+.primary:hover{background:#07366e;transform:translateY(-2px)}
+.links{display:grid;gap:0;margin-top:30px;border-top:1px solid #dce5ec}
+.links a{display:flex;align-items:center;gap:14px;padding:17px 0;border-bottom:1px solid #dce5ec;font-weight:650;font-size:13px;color:#03438a}
+.links a span{flex:1}.links a:hover span{text-decoration:underline;text-underline-offset:4px}
+.page a:focus-visible{outline:3px solid #83beed;outline-offset:5px}
+.since{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.06em;font-size:18px;display:flex;justify-content:space-between;align-items:center;gap:25px;width:min(100%,720px)}
+.since b{font-family:inherit;font-size:11px;letter-spacing:.1em}
+@media(max-width:400px){.primary{width:100%;gap:8px;padding-inline:12px;font-size:12px}.since{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.primary{transition:none}.primary:hover{transform:none}}

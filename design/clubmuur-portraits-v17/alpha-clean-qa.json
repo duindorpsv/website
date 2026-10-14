@@ -1,0 +1,122 @@
+[
+  {
+    "file": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/12-een-team-clubblauw-alpha-clean.png",
+    "width": 1536,
+    "height": 1024,
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "top_samples": [
+      [
+        0,
+        0
+      ],
+      [
+        50,
+        0
+      ],
+      [
+        100,
+        0
+      ],
+      [
+        768,
+        0
+      ],
+      [
+        1435,
+        0
+      ],
+      [
+        1485,
+        0
+      ],
+      [
+        1535,
+        0
+      ]
+    ],
+    "top_left_50": [
+      0,
+      0
+    ],
+    "top_right_50": [
+      0,
+      0
+    ],
+    "top_strip_25": [
+      0,
+      1
+    ],
+    "bottom_left_20": [
+      0,
+      0
+    ],
+    "bottom_right_20": [
+      0,
+      0
+    ]
+  },
+  {
+    "file": "/workspace/scratch/75a86e84a210/clubmuur-players-v17/13-clubtrots-clubblauw-alpha-clean.png",
+    "width": 1536,
+    "height": 1024,
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "top_samples": [
+      [
+        0,
+        0
+      ],
+      [
+        50,
+        0
+      ],
+      [
+        100,
+        0
+      ],
+      [
+        768,
+        0
+      ],
+      [
+        1435,
+        0
+      ],
+      [
+        1485,
+        0
+      ],
+      [
+        1535,
+        0
+      ]
+    ],
+    "top_left_50": [
+      0,
+      0
+    ],
+    "top_right_50": [
+      0,
+      0
+    ],
+    "top_strip_25": [
+      0,
+      1
+    ],
+    "bottom_left_20": [
+      0,
+      0
+    ],
+    "bottom_right_20": [
+      0,
+      0
+    ]
+  }
+]

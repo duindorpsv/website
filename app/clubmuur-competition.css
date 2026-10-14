@@ -1,0 +1,149 @@
+/* The first team's match centre: a quiet, readable scorecard on the club wall. */
+.cm-competition{--competition-blue:#03438a;position:relative;isolation:isolate;min-width:0;overflow:clip;background:var(--competition-blue);color:#fff;padding:55px var(--cm-edge) 24px;scroll-margin-top:var(--cm-header-h)}
+.cm-competition:before{content:"";position:absolute;z-index:-2;inset:0;background:linear-gradient(120deg,#00172d72,transparent 52%,#00172d35),url('/assets/clubmuur-wall.webp') center 66%/cover;background-blend-mode:multiply;opacity:.18;pointer-events:none}
+.cm-competition:after{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(0deg,#00182a20,transparent 60%);pointer-events:none}
+.cm-competition-inner{width:100%;max-width:1888px;margin:auto}
+.cm-competition-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:29px}
+.cm-competition-eyebrow{display:flex;align-items:center;gap:8px;font-size:9px;line-height:1.2;font-weight:800;letter-spacing:.16em;color:#d0e2f7;margin-bottom:13px}
+.cm-competition-eyebrow i{display:block;width:18px;height:2px;background:#fff}
+.cm-competition-heading h2{font-size:clamp(40px,3.25vw,61px);line-height:.95;letter-spacing:-.02em;color:white}
+.cm-competition-heading h2>span{color:#fff9}
+.cm-competition-heading-side{display:flex;flex-direction:column;align-items:flex-end;gap:12px;padding-bottom:2px}
+.cm-competition-label{font-size:9px;letter-spacing:.07em;color:#d0e2f7;font-weight:700}
+.cm-competition-heading-side>a{display:flex;align-items:center;gap:15px;font-size:11px;line-height:1.4;font-weight:800;color:white;transition:gap .2s}
+.cm-competition-heading-side>a:hover{gap:21px}
+.cm-competition-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(480px,1.55fr) minmax(0,1fr);gap:18px;align-items:stretch}
+.cm-competition-card{display:flex;flex-direction:column;min-width:0;position:relative;border:1px solid #ffffffbf;border-radius:13px;background:#fff;color:#19334e;box-shadow:0 4px 6px #00182b09,0 18px 34px -20px #00152bc9;overflow:hidden}
+.cm-competition-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:89px;padding:21px 21px 16px}
+.cm-card-eyebrow{display:block;font-size:8px;line-height:1.35;font-weight:800;letter-spacing:.13em;color:#66778a;margin-bottom:8px;text-transform:uppercase}
+.cm-competition-card-head h3{color:var(--competition-blue);font-size:31px;line-height:1;font-weight:800;letter-spacing:-.025em}
+.cm-competition-card-icon{display:grid;place-items:center;width:34px;height:34px;flex:none;border:1px solid #e5ebf2;border-radius:50%;color:var(--competition-blue);background:linear-gradient(135deg,#f8fafd,#edf3f9)}
+.cm-round-caption,.cm-standing-context{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:36px;padding:8px 21px;background:#f4f7fb;border-block:1px solid #eaf0f6;color:#6a7b8d;font-size:9px;font-weight:600;line-height:1.5}
+.cm-round-caption>span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cm-round-caption>span:last-child{flex:none;font-size:8px;color:#7b8797}
+.cm-fixtures{display:flex;flex-direction:column;list-style:none;padding:0 20px;margin:0;min-height:362px}
+.cm-fixture{position:relative;margin:0;padding:13px 0 12px;border-bottom:1px solid #e9eef4;animation:cm-fixture-arrive .55s calc(var(--fixture-index,0)*65ms) both cubic-bezier(.2,.7,.2,1);min-height:90px}
+.cm-fixture:last-child{border-bottom:0}
+.cm-fixture-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;line-height:1.15;font-size:8px;color:#8190a0}
+.cm-fixture-meta>span{display:inline-flex;align-items:center;gap:4px}
+.cm-fixture-meta>span:first-child{text-transform:uppercase;letter-spacing:.045em}
+.cm-fixture-meta .cm-fixture-ours{color:var(--competition-blue);font-size:7px;text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+.cm-fixture-teams{position:relative;display:flex;flex-direction:column;gap:5px}
+.cm-fixture-team{display:flex;align-items:center;gap:8px;min-width:0;min-height:23px;font-size:11px;font-weight:600;line-height:1.2;color:#536478}
+.cm-fixture-team>span:not(.cm-club-logo){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cm-fixture-team[data-winner=true]{color:#1b324b;font-weight:800}
+.cm-fixture-team>b{margin-left:auto;min-width:17px;text-align:right;font-size:15px;font-variant-numeric:tabular-nums;color:#536478}
+.cm-fixture-team[data-winner=true]>b{color:var(--competition-blue)}
+.cm-fixture[data-own=true]:before{content:"";position:absolute;left:-20px;top:11px;bottom:11px;width:3px;background:var(--competition-blue);border-radius:0 2px 2px 0}
+.cm-club-logo{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-width:28px;flex:none;vertical-align:middle}
+.cm-club-logo>img{display:block;width:100%;height:100%;max-width:100%;object-fit:contain}
+.cm-club-logo-fallback{display:grid;place-items:center;width:85%;height:85%;border-radius:50%;border:1px solid #b8cadd66;background:#edf3fa;color:#497091;font-size:8px;font-weight:800;letter-spacing:-.03em}
+.cm-clubs .cm-club-logo{width:clamp(42px,5.4svh,62px);height:clamp(49px,6.3svh,73px);min-width:0}
+.cm-clubs .cm-club-logo>img{width:100%;height:100%;object-fit:contain}
+.cm-clubs .cm-club-logo-fallback{font-size:16px}
+.cm-match-state{align-items:center;justify-content:center;gap:12px}
+.cm-match-state>svg{opacity:.5}
+.cm-match-state>p{max-width:220px;font-size:13px;line-height:1.5;font-weight:600}
+.cm-match-state>.btn{margin-top:3px}
+.cm-fixture .cm-club-logo{width:22px;height:22px;min-width:22px}
+.cm-round-program .cm-fixture-team{padding-right:55px}
+.cm-fixture-time{position:absolute;right:0;top:50%;transform:translateY(-50%);display:flex;align-items:center;flex-direction:column;gap:4px;min-width:41px}
+.cm-fixture-time>b{font-size:18px;font-family:'Barlow Condensed',sans-serif;font-weight:700;line-height:1;color:var(--competition-blue);font-variant-numeric:tabular-nums}
+.cm-fixture-time>small{font-size:6px;letter-spacing:.13em;color:#8997a6;font-weight:700}
+.cm-fixture[data-status=true] .cm-fixture-team{padding-right:75px}
+.cm-fixture-status{position:absolute;right:0;top:50%;transform:translateY(-50%);max-width:71px;padding:5px 6px;background:#f7f0e7;color:#8d7150;border:1px solid #ebe0d1;border-radius:4px;font-size:7px;font-weight:700;line-height:1.4;text-align:center}
+.cm-round-footer{margin-top:auto;min-height:53px;display:flex;justify-content:space-between;align-items:center;gap:15px;padding:10px 20px;border-top:1px solid #e9eef4;font-size:9px;color:#8a97a6}
+.cm-round-footer>span:first-child{display:flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums}
+.cm-round-footer b{font-size:12px;color:var(--competition-blue)}
+.cm-page-divider{color:#c8d1dc;margin-inline:1px}
+.cm-round-controls{display:flex;gap:5px}
+.cm-round-controls>button{display:grid;place-items:center;width:29px;height:29px;border-radius:50%;border:1px solid #dde5ef;background:#fff;color:var(--competition-blue);transition:background .2s,border-color .2s,transform .2s}
+.cm-round-controls>button:hover{background:#f0f5fc;border-color:#96b5d8;transform:translateY(-1px)}
+.cm-round-small-dot{width:4px;height:4px;border-radius:50%;background:#91a8c2}
+.cm-round-footer-label{font-size:6.5px;font-weight:800;letter-spacing:.1em;color:#8998a8}
+.cm-round-progress{position:absolute;bottom:0;left:0;right:0;height:2px;background:#2b67a6;transform-origin:left;animation:cm-round-time 10s linear infinite}
+.cm-round-card[data-paused=true] .cm-round-progress{animation-play-state:paused}
+.cm-standing-context>span:first-child{display:flex;align-items:center;gap:8px;color:var(--competition-blue);font-size:10px;font-weight:700}
+.cm-standing-context b{line-height:1;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700}
+.cm-standing-context>span:last-child{font-size:8px}
+.cm-standings-scroll{--standings-head:42px;overflow:auto;min-height:362px;max-height:362px;scrollbar-width:none;outline-offset:-3px;overflow-anchor:none;scroll-behavior:auto}
+.cm-standings-scroll::-webkit-scrollbar{display:none}
+.cm-standings-table{width:100%;min-width:460px;border-collapse:separate;border-spacing:0;table-layout:auto;color:#78879a;font-size:10px;line-height:1.4;text-align:center;font-variant-numeric:tabular-nums}
+.cm-standings-table thead{position:sticky;top:0;z-index:3;background:white}
+.cm-standings-table thead th{height:42px;padding:8px 4px;background:white;box-shadow:0 1px 0 #eaf0f5;font-size:8px;letter-spacing:.025em;font-weight:700;color:#8b99a9}
+.cm-standings-table abbr{text-decoration:none;cursor:help}
+.cm-standings-table th.cm-standing-team-head{text-align:left;padding-left:5px}
+.cm-standings-table td,.cm-standings-table tbody th{height:64px;padding:8px 4px;border-bottom:1px solid #edf1f5}
+.cm-standings-table tbody th{text-align:left;font-weight:700;color:#30445e;max-width:156px;font-size:11px;line-height:1.2;padding-left:5px}
+.cm-standings-table .cm-standing-name{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.cm-standings-table th:first-child,.cm-standings-table td:first-child{padding-left:18px}
+.cm-standings-table th:last-child,.cm-standings-table td:last-child{padding-right:18px}
+.cm-standings-table .cm-standing-rank{color:#8b9aad;font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;min-width:37px}
+.cm-standing-logo{width:36px;padding-inline:2px!important}
+.cm-standings-table .cm-standing-points{font-weight:800;color:var(--competition-blue);font-size:12px;min-width:25px}
+.cm-standings-table .cm-standing-goals{min-width:31px;color:#607389}
+.cm-standings-table tr[data-own=true]>td,.cm-standings-table tr[data-own=true]>th{position:sticky;top:var(--standings-head);bottom:0;z-index:2;background:var(--competition-blue);color:white;border-color:var(--competition-blue);box-shadow:0 -1px 0 var(--competition-blue),0 1px 0 var(--competition-blue)}
+.cm-standings-table tr[data-own=true] .cm-club-logo{padding:3px;background:#fff;border-radius:5px;width:31px;height:34px;min-width:31px}
+.cm-standings-table tr[data-own=true] .cm-standing-name{font-weight:800}
+.cm-team-form{display:inline-flex;gap:3px;white-space:nowrap;align-items:center}
+.cm-team-form>span{display:inline-grid;place-items:center;flex:none;width:14px;height:17px;border-radius:3px;font-size:6px;font-weight:800;color:#19825e;background:#e4f2ec}
+.cm-team-form>span[data-result=GL]{color:#7d8a9a;background:#edf0f4}
+.cm-team-form>span[data-result=V]{color:#b2616c;background:#f8eaed}
+.cm-standings-table tr[data-own=true] .cm-team-form>span{background:#fff;color:#207758}
+.cm-standings-table tr[data-own=true] .cm-team-form>span[data-result=GL]{color:#8b98a7;background:#ffffffda}
+.cm-standings-table tr[data-own=true] .cm-team-form>span[data-result=V]{color:#b95d71;background:#ffedf1}
+.cm-form-unavailable{display:inline-block;width:80px;color:inherit;opacity:.5;text-align:center}
+.cm-standings-swipe{display:none}
+.cm-standings-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 20px;min-height:53px;margin-top:auto;border-top:1px solid #e9eef4}
+.cm-form-legend{display:flex;align-items:center;gap:5px;font-size:7px;color:#8797a9;white-space:nowrap}
+.cm-form-legend>i{width:4px;height:4px;background:#479e7b;border-radius:50%;margin-left:4px}
+.cm-form-legend>i:first-child{margin-left:0}
+.cm-form-legend>i[data-result=GL]{background:#a6b2c2}.cm-form-legend>i[data-result=V]{background:#c78f99}
+.cm-standings-controls{display:flex;align-items:center;gap:9px}
+.cm-standings-controls>button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:30px;min-height:32px;font-size:9px;font-weight:800;color:var(--competition-blue);border:0;border-radius:5px;background:transparent;padding:6px}
+.cm-standings-controls>button:hover{background:#f0f5fc}
+.cm-standings-controls>button[aria-pressed=true]{background:#e9f0f9}
+.cm-competition-source{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:43px;color:#fff9;font-size:8px;line-height:1.5;padding-top:15px}
+.cm-source-separator{margin:0 7px;opacity:.6}
+.cm-competition-source button{display:inline-flex;align-items:center;gap:5px;padding:5px 0;border:0;background:none;color:#fff9;font-size:8px}
+.cm-competition-source button:hover{color:#fff}
+.cm-competition-source button:focus-visible{outline-color:white}
+.cm-competition-notice{display:flex;align-items:center;gap:8px;margin:-5px 0 17px;font-size:10px;line-height:1.5;color:#dce9f7}
+.cm-competition-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:362px;gap:12px;padding:40px 28px;text-align:center;color:#758aa3}
+.cm-competition-empty>strong{font-size:13px;color:#486582}
+.cm-competition-empty>p{font-size:11px;line-height:1.7;max-width:230px}
+.cm-competition-loading{display:grid;grid-template-columns:1fr 1.55fr 1fr;gap:18px}
+.cm-competition-loading>div{height:490px;background:#fff;border-radius:13px;padding:28px;display:flex;flex-direction:column;gap:25px}
+.cm-competition-loading>div>span{height:61px;border-radius:6px;background:linear-gradient(90deg,#edf2f8,#f7f9fc,#edf2f8);background-size:200% 100%;animation:cm-competition-load 2s linear infinite}
+.cm-competition-loading>div>span:first-child{height:36px;width:70%;margin-bottom:22px}
+.cm-competition-unavailable{display:flex;flex-direction:column;align-items:center;gap:15px;text-align:center;min-height:270px;padding:38px 25px;background:#ffffff0a;border:1px solid #ffffff30;border-radius:13px}
+.cm-competition-unavailable>h3{font-size:32px;color:white}
+.cm-competition-unavailable>p{max-width:550px;font-size:12px;color:#d4e3f4}
+.cm-competition-unavailable>button{display:flex;align-items:center;gap:9px;border:1px solid #ffffff66;background:#fff;color:var(--competition-blue);border-radius:5px;padding:9px 15px;font-size:11px;font-weight:800}
+@keyframes cm-fixture-arrive{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cm-round-time{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes cm-competition-load{from{background-position:200% 0}to{background-position:0 0}}
+@media(min-width:1450px){.cm-competition-grid{gap:23px}.cm-competition-card-head{padding-inline:25px}.cm-fixtures{padding-inline:25px}.cm-fixture[data-own=true]:before{left:-25px}.cm-fixture-team{font-size:12px}.cm-standings-table tbody th{font-size:12px}.cm-standings-table .cm-standing-name{max-width:190px}.cm-team-form>span{width:17px;height:20px;font-size:7px}.cm-standings-table{font-size:11px}}
+@media(min-width:1000px) and (max-width:1199px){.cm-competition-grid{grid-template-columns:1fr 1fr}.cm-standings-card{grid-column:1/-1;grid-row:1}.cm-round-results{grid-column:1;grid-row:2}.cm-round-program{grid-column:2;grid-row:2}.cm-standings-table .cm-standing-name{max-width:none}.cm-competition-card-head h3{font-size:33px}}
+@media(max-width:999px){
+ .cm-opening{grid-template-rows:var(--cm-mobile-head) minmax(330px,calc(100svh - var(--cm-header-h) - var(--cm-mobile-head) - var(--cm-band-h) - var(--cm-dock-h) - env(safe-area-inset-bottom,0px))) var(--cm-band-h) 150px auto auto auto}
+ .cm-competition{grid-area:5/1/6/2;padding-top:39px;padding-bottom:19px}
+ .cm-tile-grid{grid-area:6/1/7/2}.cm-newsline{grid-area:7/1/8/2}
+ .cm-competition-grid{grid-template-columns:1fr 1fr;gap:17px}.cm-standings-card{grid-column:1/-1;grid-row:1}.cm-round-results{grid-column:1;grid-row:2}.cm-round-program{grid-column:2;grid-row:2}
+ .cm-competition-heading h2{font-size:45px}.cm-competition-heading-side{gap:8px}.cm-competition-label{max-width:180px;text-align:right;font-size:8px}
+ .cm-standings-table .cm-standing-name{max-width:none}.cm-standings-table tbody th{font-size:12px}.cm-team-form>span{width:18px;height:21px;font-size:7px}.cm-competition-loading{grid-template-columns:1fr 1fr}.cm-competition-loading>div:nth-child(2){grid-column:1/-1;grid-row:1}.cm-competition-loading>div{height:370px}
+}
+@media(max-width:699px){
+ .cm-competition{padding:32px 17px 18px}.cm-competition-heading{align-items:flex-start;margin-bottom:23px;gap:15px}.cm-competition-heading h2{font-size:38px;line-height:.99}.cm-competition-heading h2>span{display:block;margin:4px 0 0}.cm-competition-eyebrow{font-size:8px;margin-bottom:11px}
+ .cm-competition-heading-side{padding-top:3px;max-width:139px;gap:13px}.cm-competition-label{font-size:8px;line-height:1.6;max-width:137px}.cm-competition-heading-side>a{font-size:9px;gap:5px}
+ .cm-competition-grid{grid-template-columns:minmax(0,1fr);gap:15px}.cm-standings-card,.cm-round-results,.cm-round-program{grid-column:1;grid-row:auto}.cm-standings-card{grid-row:1}
+ .cm-competition-card{border-radius:11px}.cm-competition-card-head{padding:18px 18px 15px;min-height:81px}.cm-competition-card-head h3{font-size:30px}.cm-card-eyebrow{font-size:7px;letter-spacing:.1em}
+ .cm-round-caption,.cm-standing-context{padding-inline:18px}.cm-standings-scroll{max-height:343px;min-height:343px}.cm-standings-table{min-width:455px}.cm-standings-table td,.cm-standings-table tbody th{height:60px}.cm-standings-table .cm-standing-name{max-width:119px}.cm-standings-table tbody th{font-size:10px}.cm-team-form>span{width:14px;height:17px;font-size:6px}.cm-standings-table th:first-child,.cm-standings-table td:first-child{padding-left:12px}.cm-standings-table th:last-child,.cm-standings-table td:last-child{padding-right:12px}
+ .cm-standings-footer{padding-inline:17px}.cm-standings-footer>button{font-size:8px;gap:6px}.cm-form-legend{font-size:6px;gap:4px}.cm-form-legend>i{margin-left:2px}
+ .cm-standings-swipe{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-height:24px;padding:3px 16px;color:#7f93ab;font-size:7px;background:#f8fafd}
+ .cm-fixtures{min-height:362px;padding-inline:20px}.cm-fixture-team{font-size:12px}.cm-fixture-meta{font-size:8px}.cm-fixture-time>b{font-size:21px}
+ .cm-competition-notice{font-size:9px;align-items:flex-start;margin-bottom:16px}.cm-competition-notice>svg{margin-top:1px}
+ .cm-competition-source{font-size:7px;gap:10px;align-items:flex-start;min-height:38px}.cm-competition-source>span{padding-top:5px}.cm-competition-source button{font-size:7px}.cm-source-separator{margin-inline:4px}
+ .cm-competition-loading{grid-template-columns:1fr}.cm-competition-loading>div:nth-child(2){grid-column:1}.cm-competition-loading>div{height:340px}.cm-competition-loading>div:not(:nth-child(2)){display:none}
+}
+@media(prefers-reduced-motion:reduce){.cm-fixture,.cm-round-progress,.cm-competition-loading>div>span{animation:none!important}.cm-round-progress{display:none}.cm-round-controls>button,.cm-competition-heading-side>a,.cm-standings-footer>button svg{transition:none!important}.cm-round-controls>button:hover{transform:none}}

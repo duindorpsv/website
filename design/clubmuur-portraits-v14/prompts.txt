@@ -1,0 +1,132 @@
+01-trots.png
+Sources:
+/workspace/scratch/75a86e84a210/upload/NIPR8401.JPG
+/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_41.png
+/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png
+
+PROMPT:
+Use case: identity-preserve.
+Asset type: premium photorealistic football club editorial FOREGROUND PNG cutout for a club website.
+Scene/backdrop: genuinely transparent alpha background, absolutely no opaque background, no painted backdrop, no ground, no shadow outside the subject, no green spill or fringe, no checkerboard pixels.
+Style: natural high-end sports editorial photograph, crisp realistic skin pores and hair, neutral white balance, realistic fabric weave and folds, gentle premium natural lighting; no illustration, no plastic retouching, no facial beautification.
+Identity invariants: meticulously match each actual person in the supplied source portraits. Preserve exact age, facial anatomy, proportions, eye shape and spacing, nose, lips, jaw, ears, hairline/hairstyle, beard/stubble, natural asymmetry and all visible tattoos/piercings. These are specific real club players, never substitute generic professional footballers. Keep faces almost frontal and emotions modest to maximize likeness.
+Field kit invariants: reproduce the supplied exact white STANNO field shirt and exact supplied Duindorp S.V. shield. Preserve black "ZARAUTZ" / "DINER CAFE" sponsor artwork, plate/fork decorative marks, STANNO chest and shoulder marks, sleeve marking, blue collar and sleeve hems, and the precise fine vertical blue pinstripes forming the downward-pointing chevron in the lower torso. Do not redesign or simplify the chevron, sponsor or crest. Recolor ONLY original blue kit elements to deep club blue #03438A while retaining realistic lighting, white fabric remains neutral white, black sponsor remains black. Matching plain club-blue football shorts if the upper thighs are visible.
+Output/framing: request maximum available native resolution and crisp detail. Complete heads, hair, shoulders, elbows and hands entirely inside frame. End framing around upper/mid thigh. Closely fitted subject composition with approximately 3 percent transparent margin around top and sides, no distant tiny people. No added captions, words, badge overlays, borders, props, invented people or staff.
+Input images in order: Image 1 is the identity source/edit target, NIPR8401, young clean-shaven man with swept-back brown hair and tattoo on HIS LEFT arm. Image 2 is exact supporting shirt reference; image 3 is exact supporting crest reference.
+Primary request: show ONLY the exact man from image 1 standing upright with quiet pride, looking straight to camera, the same restrained closed-lip slight smile as his photograph. Keep his exact facial features and hairstyle unchanged. Relax both arms naturally low alongside body (his left-arm tattoo remains correct). Portrait 2:3 composition, upper/mid-thigh crop.
+
+========================================================================
+
+02-strijd.png
+Sources:
+/workspace/scratch/75a86e84a210/upload/NIPR8245.JPG
+/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_41.png
+/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png
+
+PROMPT:
+Use case: identity-preserve.
+Asset type: premium photorealistic football club editorial FOREGROUND PNG cutout for a club website.
+Scene/backdrop: genuinely transparent alpha background, absolutely no opaque background, no painted backdrop, no ground, no shadow outside the subject, no green spill or fringe, no checkerboard pixels.
+Style: natural high-end sports editorial photograph, crisp realistic skin pores and hair, neutral white balance, realistic fabric weave and folds, gentle premium natural lighting; no illustration, no plastic retouching, no facial beautification.
+Identity invariants: meticulously match each actual person in the supplied source portraits. Preserve exact age, facial anatomy, proportions, eye shape and spacing, nose, lips, jaw, ears, hairline/hairstyle, beard/stubble, natural asymmetry and all visible tattoos/piercings. These are specific real club players, never substitute generic professional footballers. Keep faces almost frontal and emotions modest to maximize likeness.
+Field kit invariants: reproduce the supplied exact white STANNO field shirt and exact supplied Duindorp S.V. shield. Preserve black "ZARAUTZ" / "DINER CAFE" sponsor artwork, plate/fork decorative marks, STANNO chest and shoulder marks, sleeve marking, blue collar and sleeve hems, and the precise fine vertical blue pinstripes forming the downward-pointing chevron in the lower torso. Do not redesign or simplify the chevron, sponsor or crest. Recolor ONLY original blue kit elements to deep club blue #03438A while retaining realistic lighting, white fabric remains neutral white, black sponsor remains black. Matching plain club-blue football shorts if the upper thighs are visible.
+Output/framing: request maximum available native resolution and crisp detail. Complete heads, hair, shoulders, elbows and hands entirely inside frame. End framing around upper/mid thigh. Closely fitted subject composition with approximately 3 percent transparent margin around top and sides, no distant tiny people. No added captions, words, badge overlays, borders, props, invented people or staff.
+Input images in order: Image 1 is the identity source/edit target, NIPR8245, brown-haired full-bearded man with eyebrow piercing and tattoos on BOTH arms. Image 2 is exact supporting shirt reference; image 3 is exact supporting crest reference.
+Primary request: show ONLY the exact man from image 1 in an upright chest-open focused resolute portrait. Face almost frontal and same facial anatomy, mild determined closed-mouth expression, no dramatic yelling or grimacing. One hand forms a relaxed low clenched fist near his hip, other arm relaxed; preserve piercing and distinct tattoos of each original arm. Portrait 2:3 composition, upper/mid-thigh crop.
+
+========================================================================
+
+03-vreugde.png
+Sources:
+/workspace/scratch/75a86e84a210/upload/NIPR8229.JPG
+/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_41.png
+/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png
+
+PROMPT:
+Use case: identity-preserve.
+Asset type: premium photorealistic football club editorial FOREGROUND PNG cutout for a club website.
+Scene/backdrop: genuinely transparent alpha background, absolutely no opaque background, no painted backdrop, no ground, no shadow outside the subject, no green spill or fringe, no checkerboard pixels.
+Style: natural high-end sports editorial photograph, crisp realistic skin pores and hair, neutral white balance, realistic fabric weave and folds, gentle premium natural lighting; no illustration, no plastic retouching, no facial beautification.
+Identity invariants: meticulously match each actual person in the supplied source portraits. Preserve exact age, facial anatomy, proportions, eye shape and spacing, nose, lips, jaw, ears, hairline/hairstyle, beard/stubble, natural asymmetry and all visible tattoos/piercings. These are specific real club players, never substitute generic professional footballers. Keep faces almost frontal and emotions modest to maximize likeness.
+Field kit invariants: reproduce the supplied exact white STANNO field shirt and exact supplied Duindorp S.V. shield. Preserve black "ZARAUTZ" / "DINER CAFE" sponsor artwork, plate/fork decorative marks, STANNO chest and shoulder marks, sleeve marking, blue collar and sleeve hems, and the precise fine vertical blue pinstripes forming the downward-pointing chevron in the lower torso. Do not redesign or simplify the chevron, sponsor or crest. Recolor ONLY original blue kit elements to deep club blue #03438A while retaining realistic lighting, white fabric remains neutral white, black sponsor remains black. Matching plain club-blue football shorts if the upper thighs are visible.
+Output/framing: request maximum available native resolution and crisp detail. Complete heads, hair, shoulders, elbows and hands entirely inside frame. End framing around upper/mid thigh. Closely fitted subject composition with approximately 3 percent transparent margin around top and sides, no distant tiny people. No added captions, words, badge overlays, borders, props, invented people or staff.
+Input images in order: Image 1 is the identity source/edit target, NIPR8229, lean man with short close-cut brown hair and light stubble, distinctive long narrow face and blue-grey eyes. Image 2 is exact supporting shirt reference; image 3 is exact supporting crest reference.
+Primary request: show ONLY the exact man from image 1 in an upright softly celebratory portrait with the same natural warm tooth-showing smile as his source photograph, face nearly frontal. One hand in a gentle small celebratory fist held low near his waist, other arm relaxed. Keep smile modest, eyes and face proportions unchanged. Portrait 2:3 composition, upper/mid-thigh crop.
+
+========================================================================
+
+04-samen.png
+Sources:
+/workspace/scratch/75a86e84a210/upload/NIPR8228.JPG
+/workspace/scratch/75a86e84a210/upload/NIPR8401.JPG
+/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_41.png
+/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png
+
+PROMPT:
+Use case: identity-preserve.
+Asset type: premium photorealistic football club editorial FOREGROUND PNG cutout for a club website.
+Scene/backdrop: genuinely transparent alpha background, absolutely no opaque background, no painted backdrop, no ground, no shadow outside the subject, no green spill or fringe, no checkerboard pixels.
+Style: natural high-end sports editorial photograph, crisp realistic skin pores and hair, neutral white balance, realistic fabric weave and folds, gentle premium natural lighting; no illustration, no plastic retouching, no facial beautification.
+Identity invariants: meticulously match each actual person in the supplied source portraits. Preserve exact age, facial anatomy, proportions, eye shape and spacing, nose, lips, jaw, ears, hairline/hairstyle, beard/stubble, natural asymmetry and all visible tattoos/piercings. These are specific real club players, never substitute generic professional footballers. Keep faces almost frontal and emotions modest to maximize likeness.
+Field kit invariants: reproduce the supplied exact white STANNO field shirt and exact supplied Duindorp S.V. shield. Preserve black "ZARAUTZ" / "DINER CAFE" sponsor artwork, plate/fork decorative marks, STANNO chest and shoulder marks, sleeve marking, blue collar and sleeve hems, and the precise fine vertical blue pinstripes forming the downward-pointing chevron in the lower torso. Do not redesign or simplify the chevron, sponsor or crest. Recolor ONLY original blue kit elements to deep club blue #03438A while retaining realistic lighting, white fabric remains neutral white, black sponsor remains black. Matching plain club-blue football shorts if the upper thighs are visible.
+Output/framing: request maximum available native resolution and crisp detail. Complete heads, hair, shoulders, elbows and hands entirely inside frame. End framing around upper/mid thigh. Closely fitted subject composition with approximately 3 percent transparent margin around top and sides, no distant tiny people. No added captions, words, badge overlays, borders, props, invented people or staff.
+Input images in order: Image 1 identity source NIPR8228, man with spiky brown hair, stubble and long expressive face; image 2 identity source NIPR8401, younger clean-shaven man with swept-back brown hair and HIS LEFT-arm tattoo; image 3 exact supporting shirt reference; image 4 exact supporting crest reference.
+Primary request: compact two-person portrait containing exactly those two men, NIPR8228 on the LEFT and NIPR8401 on the RIGHT, standing shoulder-to-shoulder with one natural arm across teammate's shoulders. Both look almost straight toward camera with sincere modest smiles closely matching their original smiles. Preserve each distinct identity separately, never average their faces. Complete relaxed outer arms/hands, no duplicated hands. Portrait 4:5 composition (square acceptable if needed), both upper/mid thighs visible, tight compact duo.
+
+========================================================================
+
+05-juichen.png
+Sources:
+/workspace/scratch/75a86e84a210/upload/NIPR8245.JPG
+/workspace/scratch/75a86e84a210/upload/NIPR8229.JPG
+/workspace/scratch/75a86e84a210/upload/NIPR8228.JPG
+/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_41.png
+/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png
+
+PROMPT:
+Use case: identity-preserve.
+Asset type: premium photorealistic football club editorial FOREGROUND PNG cutout for a club website.
+Scene/backdrop: genuinely transparent alpha background, absolutely no opaque background, no painted backdrop, no ground, no shadow outside the subject, no green spill or fringe, no checkerboard pixels.
+Style: natural high-end sports editorial photograph, crisp realistic skin pores and hair, neutral white balance, realistic fabric weave and folds, gentle premium natural lighting; no illustration, no plastic retouching, no facial beautification.
+Identity invariants: meticulously match each actual person in the supplied source portraits. Preserve exact age, facial anatomy, proportions, eye shape and spacing, nose, lips, jaw, ears, hairline/hairstyle, beard/stubble, natural asymmetry and all visible tattoos/piercings. These are specific real club players, never substitute generic professional footballers. Keep faces almost frontal and emotions modest to maximize likeness.
+Field kit invariants: reproduce the supplied exact white STANNO field shirt and exact supplied Duindorp S.V. shield. Preserve black "ZARAUTZ" / "DINER CAFE" sponsor artwork, plate/fork decorative marks, STANNO chest and shoulder marks, sleeve marking, blue collar and sleeve hems, and the precise fine vertical blue pinstripes forming the downward-pointing chevron in the lower torso. Do not redesign or simplify the chevron, sponsor or crest. Recolor ONLY original blue kit elements to deep club blue #03438A while retaining realistic lighting, white fabric remains neutral white, black sponsor remains black. Matching plain club-blue football shorts if the upper thighs are visible.
+Output/framing: request maximum available native resolution and crisp detail. Complete heads, hair, shoulders, elbows and hands entirely inside frame. End framing around upper/mid thigh. Closely fitted subject composition with approximately 3 percent transparent margin around top and sides, no distant tiny people. No added captions, words, badge overlays, borders, props, invented people or staff.
+Input images in order: Image 1 identity source NIPR8245, full beard, eyebrow piercing and tattoos on both arms; image 2 identity source NIPR8229, lean man with short brown hair and light stubble; image 3 identity source NIPR8228, spiky brown-haired man with stubble and long expressive face; image 4 exact supporting shirt reference; image 5 exact supporting crest reference.
+Primary request: compact three-person waist-to-upper-thigh portrait embracing shoulder-to-shoulder after a goal, exactly NIPR8245 on LEFT, NIPR8229 in MIDDLE, NIPR8228 on RIGHT. Natural arms around shoulders, warm joyful relaxed smiles, all faces almost frontal to retain exact likeness, no exaggerated mouths or distorted faces. Preserve each distinct identity separately and exact tattoos/piercing, never average faces. Exactly three men and anatomically coherent complete arms/hands. Landscape 3:2 composition with closely packed group filling canvas, all heads and elbows inside frame.
+
+========================================================================
+
+06-keeper.png
+Sources:
+/workspace/scratch/75a86e84a210/upload/NIPR8217.JPG
+/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png
+
+PROMPT:
+Use case: identity-preserve.
+Asset type: premium photorealistic football club editorial FOREGROUND PNG cutout.
+Input images: image 1 is the exact identity AND kit source/edit target NIPR8217; image 2 is supporting Duindorp S.V. crest geometry reference.
+Primary request: remove the green screen and create an upright quietly focused, proud portrait of ONLY this same goalkeeper, almost frontal face, restrained natural slight smile, relaxed hands low beside body, no gloves. Exact actual young man's face from source: dark parted slicked-back hair, full trimmed beard, exact anatomy, eye shape and spacing, nose, lips, jaw, ears, age and natural asymmetry; do not change his identity or make a generic footballer. Keep expression close to source.
+CRITICAL KIT INVARIANTS: preserve his ORIGINAL CYAN LIGHT-TURQUOISE long-sleeved goalkeeper shirt, with its exact large tonal geometric facets, narrow ORANGE neck trim and side trims, orange STANNO chest/shoulder markings, white Duindorp S.V. crest, and WHITE "ZARAUTZ" / "DINER CAFE" sponsor with its plate/fork artwork. Do NOT convert cyan to club blue. Do NOT use the white field-player kit. The supporting crest is for exact SHAPE and LETTERING only; keep its original white monochrome treatment on this goalkeeper shirt. Retain realistic fabric lighting and folds. Any visible shorts coordinate with original keeper cyan kit.
+Scene/backdrop: genuinely transparent alpha background, no opaque background, no green fringe/spill, no checkerboard pixels, no floor or cast shadow, no brush backdrop.
+Style: premium natural editorial photo, crisp realistic pores, beard and hair, neutral lighting, no plastic skin or illustration. Maximum available native resolution and crisp detail.
+Composition: portrait 2:3, closely framed from complete head to upper/mid thigh with narrow approximately 3 percent transparent top/side margins. Complete head, shoulders, elbows and hands within bounds. No added captions, text, props, people or gloves.
+
+========================================================================
+
+07-walking.png
+Sources:
+/workspace/scratch/75a86e84a210/upload/ChatGPT Image Sep 25, 2026, 02_15_18 PM.png
+/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_45.png
+/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX.png
+
+PROMPT:
+Use case: background-extraction.
+Asset type: premium photorealistic walking-football team FOREGROUND PNG cutout.
+Input images: IMAGE 1 is the exact edit target with EIGHT older men, four standing in back and four kneeling in front. IMAGE 2 is their exact supporting "ONZE TROTS" walking-football kit reference. IMAGE 3 is the exact supporting Duindorp S.V. crest reference.
+Primary request: extract ALL EIGHT of the SAME people from image 1 into a high-quality transparent cutout; remove only the grey studio backdrop and floor, mildly refine clarity and neutral natural lighting, and match kit blue to deep club blue #03438A with realistic fabric highlights/shadows.
+ABSOLUTE FACE/POSE LOCK: do not reimagine, repose, redraw into different faces, beautify, rejuvenate or replace any person. Keep exactly the same eight facial identities, expressions, ages, hairlines, hair/beards, eye shapes, noses, lips, skin features, body builds, poses, relative positions and size. Exactly the original four standing and four kneeling, in exactly the original order. Preserve the front-left necklace and bracelets, second front man's black wrist brace, fourth front man's black knee support, all shoes and hands as photographed. Keep every person complete as in source; no people added, removed or merged.
+KIT LOCK: keep all eight in their own original white and blue STANNO "ONZE TROTS" shirt, precise Duindorp S.V. crest, blue V collar, blue sleeve hems and fine vertical blue pinstripe lower torso chevron, original shorts/socks/shoes. "ONZE TROTS" remains the exact brush-script artwork of the supplied kit, not ZARAUTZ. Recolor ONLY blue kit elements to deep club blue #03438A with natural shading, neutral whites stay white; preserve numbers and all original marks.
+Background: genuinely transparent alpha with crisp natural hair edges, absolutely no baked grey, green, black, white or checkerboard backdrop and no floor/cast shadow outside people. No green spill, no painted brush silhouette, no extra text, captions, graphics or props.
+Composition: landscape 4:3 canvas, retain complete original group including their original kneeling legs/shoes, approximately 3 percent transparent margin around outer group. Preserve source photographic details with maximum available native resolution and crisp natural skin, not plastic or stylized. This is a faithful extraction/restoration of image 1, not a newly invented group portrait.
+
+========================================================================

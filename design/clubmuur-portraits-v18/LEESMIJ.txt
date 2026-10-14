@@ -1,0 +1,31 @@
+DUINDORP SV — NATUURLIJKE SPELERSSERIE
+9 oktober 2026
+
+De drie nieuwe composities vervangen 09-high-five, 10-strijd en
+11-overwinning in de actieve hero-selectie. De overige beelden blijven.
+Verwijderde keuzes in bestaande cookies en preview-URL's worden niet meer
+geaccepteerd; de bezoeker krijgt automatisch een passende actieve foto.
+
+14-natuurlijk-samen: NIPR8394 en NIPR8278(1), duo.
+15-clubgenoten: NIPR8193 en NIPR8170, duo.
+16-een-vereniging: NIPR8287, staf NIPR8332, NIPR8123, trio.
+
+De nieuwste tenuefoto is leidend: het oorspronkelijke blauw, witte V,
+fijne pinstripes, kraag, mouwboorden, Stanno, clubembleem en Zarautz.
+NIPR8332 behoudt de eigen donkerblauwe stafkleding met PD en RW Repair.
+De houdingen blijven dicht bij de bronfoto's: ontspannen naast elkaar,
+geen hoge handgebaren en geen handen voor sponsor of clublogo.
+
+Gemaakt met de ingebouwde beeldgenerator, met identiteit en kleding als
+harde referenties. De exacte prompts en broncombinaties zijn meegeleverd.
+Kleine generatieve afwijkingen in gezichten, tattoos en drukwerk blijven
+mogelijk; pixel-identieke reproductie wordt niet gegarandeerd.
+
+MASTERS EN WEBSITE
+Masters zijn originele transparante PNG's op de native generatieresolutie,
+zonder kunstmatige vergroting. De afmetingen en webbestandsgroottes staan
+in web-manifest.json. WebP-versies worden responsief geselecteerd; alleen
+de gekozen foto wordt geladen. De duo's passen in 02 en 08; het trio in
+02, 04 en 08. De bestaande CSS-fade verzorgt de zachte onderrand.
+De vijf indelingen blijven willekeurig per bezoek; de drievoudige
+achtergrondslider werkt daarvan onafhankelijk.

@@ -1,0 +1,41 @@
+DUINDORP SV — TWEEDE SPELERSSERIE
+9 oktober 2026
+
+Zes nieuwe transparante beelden, gemaakt met de ingebouwde beeldgenerator.
+De tien aangeleverde portretten komen allemaal in deze serie terug.
+De ongewijzigde referentiefoto's, het clublogo en het veldshirt zijn bewaard
+onder references. Prompts en de exacte broncombinaties zijn meegeleverd.
+
+BEELDEN EN TOEPASSING
+08-samen-vooruit — 8447 en 8359: wijzen naar het embleem en samen vieren.
+09-high-five — 8269 en 8151: een gezamenlijke high-five.
+10-strijd — 8344 en 8244: shirtgrip, clubtrots en strijdbare houding.
+11-overwinning — 8379, 8278 en 8262: juichen met armen om de schouders.
+12-een-team — keeper 8305, 8151 en 8447: samen een overwinning vieren.
+13-clubtrots — 8359, 8244 en 8269: embleem, shirtgrip en saamhorigheid.
+
+De duo's passen in indelingen 02 en 08. De trio's passen in 02, 04 en 08.
+Deze foto's zijn toegevoegd aan de bestaande selectie; de eerste serie blijft
+beschikbaar. De vijf hero-indelingen en de achtergrondslider blijven behouden.
+In de ontwerp-preview zijn de indeling en de passende foto afzonderlijk te kiezen.
+
+KLEUREN, HERKENBAARHEID EN KWALITEIT
+Het diepblauw van de veldshirts sluit aan op websitekleur #03438A. Witte stof,
+V-vorm, fijne pinstripes, Stanno, het Duindorp-embleem en Zarautz zijn op de
+originele referenties gebaseerd. De keeper behoudt zijn eigen cyaan/oranje
+tenue met witte opdrukken. Er zijn geen nieuwe club- of sponsorlogo's bedacht.
+
+Dit zijn AI-bewerkte portretten in nieuwe houdingen. Kleine verschillen in
+gezichtsdetails, haar, tattoos, logo's en drukwerk kunnen voorkomen; volledige
+pixel-identieke gelijkenis kan bij gegenereerde poses niet worden gegarandeerd.
+De PNG-masters bewaren de oorspronkelijke generatieresolutie en transparantie.
+De daadwerkelijke afmetingen staan in manifest.json en web-manifest.json.
+Er is geen kunstmatige 4K/8K-vergroting toegepast.
+
+WEBSITEVERSIES
+De web-map bevat compacte WebP-versies voor verschillende schermbreedtes.
+Alleen de geselecteerde voorgrondfoto wordt geladen. De combinatie van foto
+en indeling blijft binnen hetzelfde bezoek behouden.
+De zachte onderrand wordt met CSS in de website aangebracht; de masters
+blijven bruikbaar voor andere composities en toekomstig drukwerk na controle.
+De bestaande CMS-kaarten blijven afzonderlijke elementen.

@@ -1,0 +1,128 @@
+{
+  "version": 18,
+  "created_at": "2026-10-09",
+  "method": "built-in image_gen.imagegen; transparent_background=true",
+  "upscaled": false,
+  "corrections_executed": 0,
+  "authoritative_kit_reference": "/workspace/scratch/75a86e84a210/upload/ChatGPT-afbeelding 8 okt 2026, 15_15_41(1).png",
+  "crest_reference": "/workspace/scratch/75a86e84a210/upload/duindorp-sv-seeklogo_Jlg7eOX(1).png",
+  "background_acceptance": "Root accepted max alpha 2 for near-transparent residual pixels; observed top empty strip max1.",
+  "assets": [
+    {
+      "filename": "14-natuurlijk-samen.png",
+      "path": "/workspace/scratch/75a86e84a210/clubmuur-players-v18/14-natuurlijk-samen.png",
+      "sources": [
+        "NIPR8394.JPG",
+        "NIPR8278(1).JPG"
+      ],
+      "source_roles": [
+        "left: NIPR8394.JPG",
+        "right: NIPR8278(1).JPG"
+      ],
+      "native_dimensions": [
+        1122,
+        1402
+      ],
+      "selected_generated_path": "/workspace/scratch/75a86e84a210/generated_images/exec-5f7f5d86-1e5e-406f-9002-332ddf2da9a6.png",
+      "selected_generation": "initial",
+      "selection_reason": "Source-like identities and body builds, relaxed original stance, visible kit and sponsor; covers all seven supplied people exactly once across set.",
+      "review": {
+        "identities": "Visually compared against all source images; same individuals appear preserved.",
+        "kit": "Source blue, white deep V, fine lower pinstripes, Stanno, Zarautz DINER CAFE, and correct Duindorp crest visually matched. Small rendered text is not guaranteed pixel-exact.",
+        "poses": "Natural upright group stance with hands behind body as source photos; no celebration/high-five/fists.",
+        "tattoos": "No newly introduced tattoos observed.",
+        "alpha_corners": [
+          0,
+          0,
+          1,
+          0
+        ],
+        "alpha_top_50_max": 1,
+        "opaque_pixels_touching_side_edges": false,
+        "review_caveats": [
+          "Side margins are narrow, but no alpha>128 pixels touch either side edge; elbows remain within canvas.",
+          "Occasional alpha1 background residuals accepted by root; hair edge anti-aliasing includes some coloured low-alpha pixels."
+        ]
+      },
+      "sha256": "5a9bb6946eafc03983b85e3e9e4feece5ef425f7ec2d6da993f7f49435840052"
+    },
+    {
+      "filename": "15-clubgenoten.png",
+      "path": "/workspace/scratch/75a86e84a210/clubmuur-players-v18/15-clubgenoten.png",
+      "sources": [
+        "NIPR8193.JPG",
+        "NIPR8170.JPG"
+      ],
+      "source_roles": [
+        "left: NIPR8193.JPG",
+        "right: NIPR8170.JPG"
+      ],
+      "native_dimensions": [
+        1122,
+        1402
+      ],
+      "selected_generated_path": "/workspace/scratch/75a86e84a210/generated_images/exec-51e314a2-e61b-48d6-9c03-b01eb4678ae5.png",
+      "selected_generation": "initial",
+      "selection_reason": "Source-like identities and body builds, relaxed original stance, visible kit and sponsor; covers all seven supplied people exactly once across set.",
+      "review": {
+        "identities": "Visually compared against all source images; same individuals appear preserved.",
+        "kit": "Source blue, white deep V, fine lower pinstripes, Stanno, Zarautz DINER CAFE, and correct Duindorp crest visually matched. Small rendered text is not guaranteed pixel-exact.",
+        "poses": "Natural upright group stance with hands behind body as source photos; no celebration/high-five/fists.",
+        "tattoos": "Original visible arm tattoo placements retained; exact microdetail remains generative.",
+        "alpha_corners": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "alpha_top_50_max": 1,
+        "opaque_pixels_touching_side_edges": false,
+        "review_caveats": [
+          "Side margins are narrow, but no alpha>128 pixels touch either side edge; elbows remain within canvas.",
+          "Occasional alpha1 background residuals accepted by root; hair edge anti-aliasing includes some coloured low-alpha pixels."
+        ]
+      },
+      "sha256": "e0a0344eda51bb4764b03d08a2de56eb73956e39f5e36e1e255a36b418ab742c"
+    },
+    {
+      "filename": "16-een-vereniging.png",
+      "path": "/workspace/scratch/75a86e84a210/clubmuur-players-v18/16-een-vereniging.png",
+      "sources": [
+        "NIPR8287.JPG",
+        "NIPR8332.JPG",
+        "NIPR8123.JPG"
+      ],
+      "source_roles": [
+        "left: NIPR8287",
+        "centre: NIPR8332, original navy staff kit PD/RW REPAIR",
+        "right: NIPR8123"
+      ],
+      "native_dimensions": [
+        1536,
+        1024
+      ],
+      "selected_generated_path": "/workspace/scratch/75a86e84a210/generated_images/exec-edc0dc51-14a0-4876-a3c9-de36c28ff4bf.png",
+      "selected_generation": "initial",
+      "selection_reason": "Source-like identities and body builds, relaxed original stance, visible kit and sponsor; covers all seven supplied people exactly once across set.",
+      "review": {
+        "identities": "Visually compared against all source images; same individuals appear preserved.",
+        "kit": "Source blue, white deep V, fine lower pinstripes, Stanno, Zarautz DINER CAFE, and correct Duindorp crest visually matched. Small rendered text is not guaranteed pixel-exact.",
+        "poses": "Natural upright group stance with hands behind body as source photos; no celebration/high-five/fists.",
+        "tattoos": "No newly introduced tattoos observed.",
+        "alpha_corners": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "alpha_top_50_max": 1,
+        "opaque_pixels_touching_side_edges": false,
+        "review_caveats": [
+          "Landscape composition reaches waist/upper thighs, rather than full mid-thigh.",
+          "Tool image preview displays RGB blur from transparent pixels; sampled empty background alpha is 0, with occasional alpha1 residuals."
+        ]
+      },
+      "sha256": "9a4860300dd9f4bed70e39133a3f795904674677c230093da25853c2708d96fb"
+    }
+  ]
+}

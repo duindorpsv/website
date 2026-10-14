@@ -1,0 +1,36 @@
+DUINDORP SV — EERSTE PORTRETSERIE
+9 oktober 2026
+
+Zeven transparante PNG-masterbestanden, gemaakt met de ingebouwde beeldgenerator.
+De originele aangeleverde foto's zijn ongewijzigd bewaard onder references.
+De exacte prompts en bronbestanden staan in prompts.txt en de correctieprompts.
+
+BEELDEN EN TOEPASSING
+01-trots — NIPR8401; solo, indelingen 01 en 05; 1024 x 1536 px.
+02-strijd — NIPR8245; solo met lage vuist, indelingen 01 en 05; 1024 x 1536 px.
+03-vreugde — NIPR8229; glimlach en vuist, indelingen 01 en 05; 1024 x 1536 px.
+04-samen — NIPR8228 en NIPR8401; duo, indelingen 02 en 08; 1122 x 1402 px.
+05-juichen — NIPR8245, NIPR8229, NIPR8228; trio, indelingen 02, 04 en 08; 1536 x 1024 px.
+06-keeper — NIPR8217; solo, indelingen 01 en 05; 1024 x 1536 px.
+07-walking — de acht mannen uit de aangeleverde groepsfoto; indeling 04; 1448 x 1086 px.
+
+KLEUR EN GELIJKENIS
+Het blauw van de veldtenues is gericht afgestemd op websitekleur #03438A,
+met behoud van natuurlijke licht- en schaduwnuances. De keeper houdt zijn
+cyaan-oranje tenue. Walking Football behoudt het eigen Onze Trots-shirt.
+Er was geen afzonderlijk stafportret bij de ontvangen foto's.
+
+Dit zijn AI-bewerkte proefgeneraties. Gezichten, kleding en logo's zijn visueel
+vergeleken met de bronnen. Kleine verschillen in gezichtsstructuur, huid,
+haar, tattoos en sponsor-/logodetails blijven mogelijk. Pixel-identieke
+identiteit of drukwerkgetrouwe merktekens kunnen niet worden gegarandeerd.
+De PNG's hebben hun native resolutie; er is geen kunstmatige 4K/8K-vergroting.
+De RGB-data buiten de transparantie zijn niet zichtbaar bij correcte PNG-weergave.
+
+WEBSITE
+Per bezoek wordt een toegestane combinatie van indeling en foto gekozen.
+Deze blijft gedurende het bezoek vaststaan; de achtergrondslider is onafhankelijk.
+Een bezoek verloopt na circa 30 minuten inactiviteit.
+In Ontwerp-preview zijn Hero en Foto afzonderlijk te kiezen, met alleen passende combinaties.
+WebP-versies laden responsief; slechts het gekozen voorgrondbeeld wordt opgevraagd.
+De vier bestaande CMS-vakken en hun inhoud blijven afzonderlijk configureerbaar.

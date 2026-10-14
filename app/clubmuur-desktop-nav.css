@@ -1,0 +1,51 @@
+/* The desktop header and mobile menu read the same navigation tree. */
+.cm-main-nav.cm-desktop-nav{position:relative;display:flex;gap:0;flex-shrink:0;isolation:isolate}
+.cm-desktop-nav>div{height:100%}
+.cm-desktop-nav .cm-desktop-list{display:flex;align-items:stretch;gap:clamp(13px,1.35vw,24px);height:100%;margin:0;padding:0;list-style:none}
+.cm-desktop-nav .cm-desktop-item{position:relative;display:flex;align-items:stretch;height:100%;margin:0;padding:0;list-style:none}
+.cm-main-nav.cm-desktop-nav .cm-desktop-top-link{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;height:100%;padding:0;border:0;border-radius:0;background:none;color:var(--header-ink);font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;line-height:1;letter-spacing:0;white-space:nowrap;text-decoration:none;cursor:pointer;box-shadow:none;outline-offset:4px}
+.cm-main-nav.cm-desktop-nav .cm-desktop-top-link:after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;width:auto;border-radius:0;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .22s ease}
+.cm-main-nav.cm-desktop-nav .cm-desktop-top-link:is(:hover,:focus-visible,[aria-current],[data-current=true],[data-state=open]):after{transform:scaleX(1)}
+.cm-desktop-top-link>svg{flex-shrink:0;opacity:.72;transition:transform .22s ease,opacity .22s ease}
+.cm-desktop-top-link[data-state=open]>svg{transform:rotate(180deg);opacity:1}
+.cm-main-nav.cm-desktop-nav .cm-desktop-top-link:focus-visible{outline:2px solid currentColor;outline-offset:-7px}
+.cm-header--clubband .cm-main-nav.cm-desktop-nav .cm-desktop-top-link,.cm-header--tribune .cm-main-nav.cm-desktop-nav .cm-desktop-top-link{font-family:'Barlow Condensed',sans-serif;font-size:25px;font-weight:700;letter-spacing:.012em}
+.cm-header--clubband .cm-main-nav.cm-desktop-nav .cm-desktop-top-link:after{bottom:15px}
+.cm-header--kustlijn .cm-main-nav.cm-desktop-nav .cm-desktop-top-link{font-size:12px;letter-spacing:.07em}
+.cm-header--middenstip .cm-main-nav.cm-desktop-nav .cm-desktop-top-link{font-size:12px}
+
+.cm-desktop-nav .cm-desktop-panel{--flyout-blue:var(--cm-club-blue,#03438a);position:absolute;top:calc(100% + 9px);right:0;z-index:60;display:flex;flex-direction:column;width:330px;max-width:calc(100vw - 40px);max-height:calc(100dvh - var(--cm-header-h,88px) - 30px);overflow:hidden;border:1px solid #cbd8e8;border-top:3px solid var(--flyout-blue);border-radius:4px 4px 18px 18px;background:#fff;color:var(--flyout-blue);box-shadow:0 18px 45px #001f4933,0 3px 8px #001f4912;transform-origin:top right}
+.cm-desktop-nav .cm-desktop-panel[data-state=open]{animation:cm-desktop-panel-in .22s cubic-bezier(.22,.8,.25,1)}
+.cm-desktop-nav .cm-desktop-panel[data-state=closed]{animation:cm-desktop-panel-out .14s ease-in;pointer-events:none}
+.cm-desktop-panel-heading{position:relative;flex-shrink:0;isolation:isolate;overflow:hidden;padding:20px 22px 17px;background:#f5f8fc;border-bottom:1px solid #e3eaf2}
+.cm-desktop-panel-heading:before{content:'';position:absolute;inset:0;z-index:-1;background:url('/assets/clubmuur-wall.webp') center 58%/cover;opacity:.075;pointer-events:none}
+.cm-desktop-panel-kicker{display:flex;justify-content:space-between;gap:15px;font-family:'Manrope',sans-serif;font-size:8px;font-weight:800;line-height:1.4;letter-spacing:.13em}
+.cm-desktop-panel-kicker>span{opacity:.6;font-weight:600}
+.cm-desktop-panel-heading>strong{display:block;margin-top:11px;font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;line-height:1;letter-spacing:.01em}
+.cm-desktop-panel-heading>p{margin:7px 0 0;font-family:'Manrope',sans-serif;font-size:11px;font-weight:500;line-height:1.6;color:#5e7289}
+.cm-desktop-nav .cm-desktop-sublist{min-height:0;margin:0;padding:7px 10px;overflow-y:auto;overscroll-behavior:contain;list-style:none;scrollbar-width:thin;scrollbar-color:#b4c8df #fff}
+.cm-desktop-sublist>li{margin:0;padding:0;list-style:none}
+.cm-main-nav.cm-desktop-nav .cm-desktop-sub-link{display:flex;align-items:center;justify-content:flex-start;gap:12px;width:100%;height:auto;min-height:52px;padding:10px 12px;border:0;border-radius:8px;background:transparent;color:var(--flyout-blue);box-shadow:none;font-family:'Manrope',sans-serif;font-size:12px;font-weight:700;line-height:1.4;letter-spacing:0;text-transform:none;text-decoration:none;white-space:normal;transition:background .18s ease,color .18s ease;outline-offset:-2px}
+.cm-main-nav.cm-desktop-nav .cm-desktop-sub-link:after{content:none;display:none}
+.cm-main-nav.cm-desktop-nav .cm-desktop-sub-link:is(:hover,:focus-visible,[aria-current]){background:#ecf3fb;color:var(--flyout-blue);box-shadow:none}
+.cm-main-nav.cm-desktop-nav .cm-desktop-sub-link:focus-visible{outline:2px solid var(--flyout-blue)}
+.cm-desktop-sub-number{flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;line-height:1;color:#8198b3;transition:color .18s ease}
+.cm-desktop-sub-label{flex:1;min-width:0;overflow-wrap:anywhere}
+.cm-desktop-sub-link>svg{flex-shrink:0;opacity:.65;transition:transform .18s ease,opacity .18s ease}
+.cm-desktop-sub-link:is(:hover,:focus-visible)>svg{transform:translate(2px,-2px);opacity:1}
+.cm-desktop-sub-link[aria-current] .cm-desktop-sub-number{color:var(--flyout-blue)}
+.cm-desktop-panel-motto{flex-shrink:0;margin:0;padding:13px 22px;border-top:1px solid #e7edf4;font-family:'Manrope',sans-serif;font-size:8px;font-weight:800;line-height:1.5;letter-spacing:.1em;color:#6f849c}
+.cm-desktop-nav .cm-desktop-panel-wide{width:570px;right:auto;left:-175px;transform-origin:top center}
+.cm-desktop-panel-wide .cm-desktop-sublist{display:grid;grid-template-columns:1fr 1fr;gap:0 7px}
+
+@keyframes cm-desktop-panel-in{from{opacity:0;transform:translateY(-7px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes cm-desktop-panel-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-4px)}}
+@media(min-width:1000px) and (max-width:1150px){
+ .cm-desktop-nav .cm-desktop-list{gap:11px}
+ .cm-main-nav.cm-desktop-nav .cm-desktop-top-link{gap:4px;font-size:11px}
+ .cm-header--clubband .cm-main-nav.cm-desktop-nav .cm-desktop-top-link,.cm-header--tribune .cm-main-nav.cm-desktop-nav .cm-desktop-top-link{font-size:20px}
+ .cm-desktop-top-link>svg{width:11px;height:11px}
+ .cm-header--kustlijn .cm-main-nav.cm-desktop-nav .cm-desktop-top-link,.cm-header--middenstip .cm-main-nav.cm-desktop-nav .cm-desktop-top-link{font-size:10px}
+}
+@media(max-width:999px){.cm-main-nav.cm-desktop-nav{display:none!important}}
+@media(prefers-reduced-motion:reduce){.cm-desktop-nav *,.cm-desktop-nav *:after{animation:none!important;transition:none!important}}
