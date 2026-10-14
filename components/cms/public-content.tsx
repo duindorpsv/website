@@ -3,6 +3,7 @@
 import {useEffect,useMemo,useRef,useState,type CSSProperties,type ReactNode} from 'react';
 import {Dialog} from 'radix-ui';
 import {ArrowLeft,ArrowRight,ArrowUpRight,CalendarDays,Camera,ChevronRight,Clock,Download,Expand,Mail,Phone,Search,UserRound,X} from 'lucide-react';
+import {PublicForm} from './public-form';
 import {useCMS} from '@/components/cms/provider';
 import {useSportlink} from '@/hooks/use-sportlink';
 import {heroTeamHref} from '@/lib/clubmuur-destinations';
@@ -37,6 +38,10 @@ function RichNode({node}:{node:CmsDoc}):ReactNode{
  }
  switch(node.type){
   case 'doc':return <>{children}</>;
+  case 'cmsRow':return <section className={`cmsp-layout-row layout-${attrs.layout} gap-${attrs.gap} padding-${attrs.padding} tone-${attrs.tone} align-${attrs.verticalAlign}`}>{children}</section>;
+  case 'cmsColumn':return <div className="cmsp-layout-column">{children}</div>;
+  case 'cmsRichText':return <div className="cmsp-layout-rich">{children}</div>;
+  case 'cmsLegacyRichText':return <CmsRichText doc={attrs.sourceDoc}/>;
   case 'paragraph':return <p style={alignment}>{children?.length?children:<br/>}</p>;
   case 'heading':{const Tag=(`h${Math.min(6,Math.max(2,Number(attrs.level)||2))}`) as 'h2'|'h3'|'h4'|'h5'|'h6';return <Tag style={alignment}>{children}</Tag>;}
   case 'bulletList':return <ul>{children}</ul>;
@@ -54,7 +59,7 @@ function RichNode({node}:{node:CmsDoc}):ReactNode{
   case 'tableHeader':return <th colSpan={Number(attrs.colspan)||1} rowSpan={Number(attrs.rowspan)||1}>{children}</th>;
   case 'tableCell':return <td colSpan={Number(attrs.colspan)||1} rowSpan={Number(attrs.rowspan)||1}>{children}</td>;
   case 'cmsWidget':return <Widget kind={attrs.kind as WidgetKind} data={(attrs.data||{}) as WidgetData}/>;
-  default:return <>{children}</>;
+  default:return <p className="cmsp-unavailable">Deze inhoud is tijdelijk niet beschikbaar.</p>;
  }
 }
 
@@ -66,23 +71,25 @@ export function CmsPeople({ids,group}:{ids?:string[];group?:string}){const {stat
 function Widget({kind,data}:{kind:WidgetKind;data:WidgetData}){
  const {state}=useCMS();const sportlink=useSportlink();const media=publicMedia(state,data.refId||'');
  const heading=data.title?<h2>{data.title}</h2>:null;
- if(kind==='person'){const person=state.people.find(p=>p.id===data.refId&&p.published&&!p.deletedAt);return person?<section className="cmsp-widget">{heading}<PersonCard person={person}/></section>:null;}
+ if(kind==='person'){const person=state.people.find(p=>p.id===data.refId&&p.published&&!p.deletedAt);return person?<section className="cmsp-widget">{heading}<PersonCard person={person}/></section>:<p className="cmsp-unavailable">Deze persoon is tijdelijk niet beschikbaar.</p>;}
  if(kind==='people')return <section className="cmsp-widget">{heading}<CmsPeople ids={data.ids} group={data.layout||undefined}/></section>;
- if(kind==='image')return media?<figure className="cmsp-widget cmsp-inline-image"><MediaImage media={media}/>{(media.caption||media.credit)&&<figcaption>{media.caption}{media.credit&&<small>Foto: {media.credit}</small>}</figcaption>}</figure>:null;
+ if(kind==='image')return media?<figure className="cmsp-widget cmsp-inline-image"><MediaImage media={media}/>{(media.caption||media.credit)&&<figcaption>{media.caption}{media.credit&&<small>Foto: {media.credit}</small>}</figcaption>}</figure>:<p className="cmsp-unavailable">Deze afbeelding is tijdelijk niet beschikbaar.</p>;
  if(kind==='textImage')return <section className={`cmsp-widget cmsp-text-image ${data.layout==='right'?'cmsp-text-image-reverse':''}`}><div>{heading}{data.text&&<p>{data.text}</p>}{data.url&&<SafeLink href={data.url} className="cmsp-text-link">{data.label||'Lees meer'} <ArrowUpRight size={16}/></SafeLink>}</div>{media&&<figure><MediaImage media={media}/>{media.credit&&<figcaption>Foto: {media.credit}</figcaption>}</figure>}</section>;
  if(kind==='columns')return <section className="cmsp-widget">{heading}<div className="cmsp-columns">{(data.items||[]).map((item,i)=><article key={i}><h3>{item.title}</h3><p>{item.text}</p>{item.url&&<SafeLink href={item.url} className="cmsp-text-link">Lees meer <ArrowUpRight size={15}/></SafeLink>}</article>)}</div></section>;
  if(kind==='faq')return <section className="cmsp-widget cmsp-faq">{heading}{(data.items||[]).map((item,i)=><details key={i}><summary>{item.title}<span>+</span></summary><p>{item.text}</p>{item.url&&<SafeLink href={item.url}>Lees meer</SafeLink>}</details>)}</section>;
  if(kind==='timeline')return <section className="cmsp-widget">{heading}<ol className="cmsp-timeline">{(data.items||[]).map((item,i)=><li key={i}><h3>{item.title}</h3><p>{item.text}</p>{item.url&&<SafeLink href={item.url}>Lees meer</SafeLink>}</li>)}</ol></section>;
  if(kind==='cta')return <section className="cmsp-widget cmsp-cta"><div>{heading}{data.text&&<p>{data.text}</p>}</div><SafeLink href={data.url} className="cmsp-button">{data.label||'Ontdek meer'}<ArrowUpRight size={17}/></SafeLink></section>;
  if(kind==='album'){const album=state.albums.find(a=>a.id===data.refId&&a.published&&!a.deletedAt);return album?<section className="cmsp-widget">{heading}<AlbumCard album={album}/></section>:null;}
- if(kind==='news'){const stories=data.contentType==='story';const articles=publishedArticles(state,stories?'story':'news').filter(a=>!data.layout||a.category===data.layout).slice(0,3);return articles.length?<section className="cmsp-widget">{heading||<h2>{stories?'Verhalen & columns':'Clubnieuws'}</h2>}<div className={stories?'cmsp-editorial-grid':'cmsp-news-grid'}>{articles.map(a=>stories?<StoryCard article={a} key={a.id}/>:<ArticleCard article={a} key={a.id}/>)}</div></section>:null;}
+ if(kind==='news'||kind==='story'){const stories=kind==='story'||data.contentType==='story';const articles=publishedArticles(state,stories?'story':'news').filter(a=>(!data.layout||a.category===data.layout)&&(!data.teamId||a.teamId===data.teamId)&&(!data.storyFormat||a.storyFormat===data.storyFormat)).slice(0,Math.min(data.limit||3,30));return articles.length?<section className="cmsp-widget">{heading||<h2>{stories?'Verhalen & columns':'Clubnieuws'}</h2>}<div className={stories?'cmsp-editorial-grid':'cmsp-news-grid'}>{articles.map(a=>stories?<StoryCard article={a} key={a.id}/>:<ArticleCard article={a} key={a.id}/>)}</div></section>:null;}
  if(kind==='documents'){const documents=state.documents.filter(d=>d.published&&(!data.ids?.length||data.ids.includes(d.id)));return documents.length?<section className="cmsp-widget">{heading}<div className="cmsp-documents">{documents.map(d=><SafeLink key={d.id} href={d.url}><span><small>{d.category}</small><strong>{d.title}</strong></span><Download size={18}/></SafeLink>)}</div></section>:null;}
  if(kind==='team'){const team=state.settings.teams.find(t=>t.id===data.refId);return team?<section className="cmsp-widget cmsp-team"><span className="cmsp-eyebrow">Blauw-wit. Samen één team.</span><h2>{data.title||team.name}</h2>{data.text&&<p>{data.text}</p>}<a className="cmsp-text-link" href={heroTeamHref(team.id,sportlink.data?.teams||[],sportlink.data?.firstTeam)}>{data.label||'Bekijk het team'}<ArrowUpRight size={17}/></a></section>:null;}
+ if(kind==='form')return <PublicForm formId={data.refId||''}/>;
  if(kind==='contact'){const department=state.departments.find(d=>d.id===data.refId&&d.active);return department?<section className="cmsp-widget cmsp-contact">{heading||<h2>{department.name}</h2>}<p>{data.text||department.description}</p><a href={`/clubmuur/club/contact?afdeling=${encodeURIComponent(department.id)}`}><Mail size={17}/>{data.label||`Contact met ${department.name.toLowerCase()}`}</a></section>:null;}
  return null;
 }
 
-export function CmsPageView({page}:{page:PageContent}){return <ClubPageFrame title={page.title} kicker="Duindorp SV · Onze vereniging" intro={page.intro} group={page.menuGroup==='teams'?'teams':page.menuGroup==='wedstrijden'?'wedstrijden':page.menuGroup==='nieuws'?'nieuws':'club'}><div className="cmsp-page-body"><CmsRichText doc={page.body}/></div></ClubPageFrame>;}
+export function PageLayoutRenderer({doc}:{doc:CmsDoc}){return <CmsRichText doc={doc}/>;}
+export function CmsPageView({page}:{page:PageContent}){return <ClubPageFrame title={page.title} kicker="Duindorp SV · Onze vereniging" intro={page.intro} group={page.menuGroup==='teams'?'teams':page.menuGroup==='wedstrijden'?'wedstrijden':page.menuGroup==='nieuws'?'nieuws':'club'}><div className="cmsp-page-body"><PageLayoutRenderer doc={page.body}/></div></ClubPageFrame>;}
 
 function ArticleCard({article,featured=false}:{article:PublicArticle;featured?:boolean}){
  const {state}=useCMS();const media=publicMedia(state,article.coverId);const href=contentHref(article);
