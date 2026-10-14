@@ -45,3 +45,12 @@ next-env.d.ts
 /.codex/
 /outputs/
 /work/
+
+!.env.example
+.runtime/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+__pycache__/
+*.pyc

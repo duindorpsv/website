@@ -1,0 +1,12 @@
+.git
+node_modules
+.next
+.runtime
+.env*
+!.env.example
+reference
+attachments
+.sites-runtime
+test-results
+playwright-report
+*.tsbuildinfo
