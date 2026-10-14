@@ -15,6 +15,7 @@ export function env(){
   const parsed=config.safeParse(process.env);
   if(!parsed.success)throw new Error(`Omgevingsconfiguratie ongeldig: ${parsed.error.issues.map(i=>i.path.join('.')).join(', ')}`);
   const value=parsed.data;
+  if(['staging','production'].includes(value.APP_ENV)&&new URL(value.APP_BASE_URL).protocol!=='https:')throw new Error('Staging en production vereisen een HTTPS-siteadres.');
   if(['staging','production'].includes(value.APP_ENV)&&value.MEDIA_DRIVER!=='s3')throw new Error('Staging en production vereisen duurzame S3-opslag.');
   if(value.APP_ENV==='staging'&&!value.TEST_MAIL_TO)throw new Error('Staging vereist TEST_MAIL_TO.');
   if(value.MEDIA_DRIVER==='s3'&&(!value.S3_BUCKET||!value.S3_ACCESS_KEY_ID||!value.S3_SECRET_ACCESS_KEY))throw new Error('S3-configuratie ontbreekt.');

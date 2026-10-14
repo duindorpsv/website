@@ -9,6 +9,8 @@ const sql=postgres(process.env.MIGRATION_DATABASE_URL||'',{max:1});try{
  await sql`grant usage on schema public,drizzle to duindorp_app`;
  await sql`grant select,insert,update,delete on all tables in schema public to duindorp_app`;
  await sql`grant usage,select on all sequences in schema public to duindorp_app`;
+ await sql`alter default privileges in schema public grant select,insert,update,delete on tables to duindorp_app`;
+ await sql`alter default privileges in schema public grant usage,select on sequences to duindorp_app`;
  await sql`grant select on all tables in schema drizzle to duindorp_app`;
  await sql`revoke update,delete on cms_audit,cms_revisions,cms_publications from duindorp_app`;
  console.log('Beperkt runtime-account ingericht. Migratie-account blijft gescheiden.');
