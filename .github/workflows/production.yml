@@ -25,7 +25,7 @@ jobs:
           retention-days: 90
   deploy:
     needs: verify
-    runs-on: [self-hosted, linux, x64, duindorp-production-deploy]
+    runs-on: [self-hosted, linux, x64, duindorpsv-production]
     environment: production
     permissions:
       contents: read
@@ -38,7 +38,7 @@ jobs:
       - env:
           DEPLOY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python3 - <<'PY' | sudo -n -u duindorp-production /usr/local/libexec/duindorp/duindorp-deploy-production
+          python3 - <<'PY' | sudo -n -u duindorpsv-production /usr/local/libexec/duindorp/duindorp-deploy-production
           import json,os
           print(json.dumps({'release':json.load(open('release.json')),'token':os.environ['DEPLOY_TOKEN']}))
           PY

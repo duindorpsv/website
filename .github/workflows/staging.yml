@@ -47,7 +47,7 @@ jobs:
           retention-days: 90
   deploy:
     needs: build
-    runs-on: [self-hosted, linux, x64, duindorp-staging-deploy]
+    runs-on: [self-hosted, linux, x64, duindorpsv-staging]
     environment: staging
     permissions:
       actions: read
@@ -61,7 +61,7 @@ jobs:
         env:
           DEPLOY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python3 - <<'PY' | sudo -n -u duindorp-staging /usr/local/libexec/duindorp/duindorp-deploy-staging
+          python3 - <<'PY' | sudo -n -u duindorpsv-staging /usr/local/libexec/duindorp/duindorp-deploy-staging
           import json,os
           print(json.dumps({'release':json.load(open('release.json')),'token':os.environ['DEPLOY_TOKEN']}))
           PY

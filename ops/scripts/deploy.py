@@ -25,7 +25,7 @@ def verify(release,token,target):
  return run
 
 def deploy(target,request):
- if target not in ['staging','production'] or pwd.getpwuid(os.getuid()).pw_name!='duindorp-'+target:raise PermissionError('Deployment identity rejected')
+ if target not in ['staging','production'] or pwd.getpwuid(os.getuid()).pw_name!='duindorpsv-'+target:raise PermissionError('Deployment identity rejected')
  if set(request)!=set(['release','token']):raise ValueError('Invalid request')
  release=validate(request['release']);token=request['token']
  if not isinstance(token,str) or not 1<len(token)<4096:raise ValueError('Invalid token')

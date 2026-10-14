@@ -37,3 +37,11 @@ Nog geen staging/productiondeployment, browserdatamigratie of externe verzending
 - Broncommit `3cb0248baf194a6cbce1642736986d80f1dce6e4`: [GitHub-run 38566921981](https://github.com/duindorpsv/website/actions/runs/38566921981) volledig geslaagd. 97 unit/regressietests + 1 skip; 18 echte DB-integraties; typecheck/build/bundles; concrete imagebuild; beperkt databaseaccount; readonly web/worker; 8 browserproeven; readiness na webrestart.
 - Het uiteindelijke image is op de GitHub-hosted buildrunner bewezen, zoals de afgesproken scheiding van build- en serving-host vereist. De lokale volle schijf wordt niet omzeild door andere projecten te verwijderen.
 - Developmentbestandwatchers liepen daarna tegen de per-user watchercapaciteit op deze gedeelde VPS aan. Voor lokale preview wordt process-local Watchpack-polling gebruikt; systeemlimieten en andere diensten zijn niet gewijzigd.
+
+## Aansluiting op de bestaande hostingaccounts
+
+- Aansluitpakket van 14 oktober 2026 gecontroleerd: alle 15 checksums kloppen; de patch past zonder conflict op basiscommit `8d5263da8ae47d47e37df923694393992bdb3c9b`. De volledige main-CI van die basis is geslaagd: [run 38568026560](https://github.com/duindorpsv/website/actions/runs/38568026560).
+- De negen patchbestanden zijn toegepast en vergeleken met de meegeleverde broncode. De installer hergebruikt de bestaande `duindorpsv-*`-accounts en voert eerst een controle zonder wijzigingen uit. Workflowlabels en deploy-identiteit sluiten daarbij aan.
+- Alle acht gerichte Python-tests en `git diff --check` slagen. De normale main-CI controleert deze tests voortaan ook.
+- GitHub API bevestigt beide Duindorp-runners als online en idle, met hun bijbehorende nieuwe labels. Er zijn nog geen GitHub Environments ingesteld.
+- Het pakket bevat geen SSH-beheerlogin, bevestigde domeinen/poorten of private runtime-, mail-, opslag- en backupconfiguratie. Deze aansluiting is nog geen applicatierelease. Hostinstallatie, stagingacceptatie en extern productieherstel blijven afzonderlijk te bewijzen.
