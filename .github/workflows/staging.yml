@@ -1,0 +1,72 @@
+name: Build and deploy staging
+on:
+  push:
+    branches: [staging]
+permissions:
+  contents: read
+concurrency:
+  group: duindorp-staging
+  cancel-in-progress: false
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+  build:
+    needs: checks
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - id: source
+        run: echo "tree=$(git rev-parse 'HEAD^{tree}')" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/duindorpsv/website:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            nl.duindorpsv.source-tree=${{ steps.source.outputs.tree }}
+          provenance: mode=max
+      - env:
+          IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+          BUILD_RUN_ID: ${{ github.run_id }}
+        run: python3 ops/scripts/release.py create release.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release
+          path: release.json
+          retention-days: 90
+  deploy:
+    needs: build
+    runs-on: [self-hosted, linux, x64, duindorp-staging-deploy]
+    environment: staging
+    permissions:
+      actions: read
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release
+      - name: Deploy approved artifact only
+        env:
+          DEPLOY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PY' | sudo -n -u duindorp-staging /usr/local/libexec/duindorp/duindorp-deploy-staging
+          import json,os
+          print(json.dumps({'release':json.load(open('release.json')),'token':os.environ['DEPLOY_TOKEN']}))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: staging-approved
+          path: release.json
+          retention-days: 90

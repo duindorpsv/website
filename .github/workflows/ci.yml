@@ -1,0 +1,66 @@
+name: Development checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main, staging, production]
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      database:
+        image: postgres:17-bookworm
+        env:
+          POSTGRES_USER: duindorp
+          POSTGRES_DB: duindorp_test
+          POSTGRES_PASSWORD: ${{ github.run_id }}
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd 'pg_isready -U duindorp -d duindorp_test'
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      APP_ENV: test
+      APP_BASE_URL: http://127.0.0.1:3000
+      DATABASE_URL: postgres://duindorp:${{ github.run_id }}@127.0.0.1:5432/duindorp_test
+      MEDIA_DRIVER: filesystem
+      MEDIA_ROOT: ${{ github.workspace }}/.runtime/media
+      TEST_MAIL_TO: test@example.invalid
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: .node-version
+      - run: |
+          corepack enable
+          corepack prepare pnpm@11.25.0 --activate
+          pnpm install --frozen-lockfile
+          mkdir -p .runtime
+          printf 'AUTH_SESSION_SECRET=%s\n' "$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+      - run: pnpm test && pnpm typecheck
+      - run: pnpm db:migrate && pnpm db:seed && pnpm test:integration
+      - run: pnpm build && pnpm build:runtime
+      - run: |
+          pnpm exec tsx scripts/development-test-account.ts
+          cp -r public .next/standalone/public
+          cp -r .next/static .next/standalone/.next/static
+          node .next/standalone/server.js > .runtime/web.log 2>&1 &
+          pnpm worker > .runtime/worker.log 2>&1 &
+          pnpm exec playwright install --with-deps chromium --only-shell
+          for attempt in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:3000/health/ready >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:3000/health/ready >/dev/null
+          pnpm test:e2e
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: verification
+          path: |
+            .runtime/e2e-report.json
+            .runtime/screenshots
+          retention-days: 14

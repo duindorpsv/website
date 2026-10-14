@@ -24,4 +24,3 @@ export function WidgetInspector({kind,data,onChange,onClose}:{kind:WidgetKind;da
     {kind==='contact'&&<p className="cms-meta">Afdelingen worden beheerd bij Formulieren. De e-mailafhandeling wordt op de VPS aangesloten.</p>}
   </aside>;
 }
-
