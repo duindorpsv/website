@@ -61,6 +61,16 @@ services:
     cap_drop: [ALL]
     security_opt: ['no-new-privileges:true']
     depends_on: {database: {condition: service_healthy}}
+  provision:
+    image: ${APP_IMAGE:?Use an immutable approved digest}
+    command: [provision]
+    profiles: [bootstrap]
+    env_file: ['${PROVISION_ENV_FILE:?Separate private provisioning configuration}']
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    depends_on: {database: {condition: service_healthy}}
 secrets:
   database_password:
     file: ${DATABASE_PASSWORD_FILE:?Protected password file}

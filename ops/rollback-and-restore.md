@@ -1,10 +1,10 @@
 # Rollback en herstel
 
-App-rollback en databaseherstel zijn afzonderlijke handelingen. Releases zijn immutable digests. `ops/scripts/rollback.py <staging|production>` is operator-only en gebruikt de geregistreerde previous.json, een serverlock en de bestaande compatibele database. Het wist geen volumes en herstelt geen oude DB automatisch. Controleer readiness/release-identiteit en login na rollback.
+App-rollback en databaseherstel zijn afzonderlijke handelingen. Releases zijn immutable digests. De root-owned `rollback.py <staging|production>` is operator-only en draait als de bijbehorende `duindorpsv-*`-applicatiegebruiker. Hij gebruikt de geregistreerde `previous.json` met **image plus configuratiegeneratie**, een serverlock en de bestaande compatibele database. Na readiness/releasecontrole wordt `current.json` atomair bijgewerkt. `latest-run-id` blijft staan, zodat rollback geen oude wachtrijdeployment toelaat. Het script wist geen volumes en herstelt geen oude DB automatisch. Controleer login na rollback.
 
 De reguliere deployer weigert oudere wachtrijjobs, valideert GitHub-build/artifactbinding, registry/digest/bron/tree, migreert onder een aparte DB-identiteit en schakelt pas na healthchecks over. Bij appfalen herstelt hij de vorige app waar het schema compatibel is. Migraties zijn uitbreidend; destructieve contractmigraties pas buiten de rollbacktermijn.
 
-Operationele backup: database-dump, alle private originelen/afgeleiden en noodzakelijke configuratie. Restic versleutelt externe backups; minimaal 14 dagelijkse herstelpunten is het startbeleid dat de eigenaar nog moet bevestigen. Geen globale Docker-prune, compose down -v, schemareset of volume-verwijdering.
+Operationele backup: database-dump, alle private originelen/afgeleiden en de bijbehorende runtime-/migratieconfiguratie. Instellingen komen uit de eigen GitHub Environment; zie [github-environments.md](github-environments.md). Restic versleutelt externe S3-backups; minimaal 14 dagelijkse herstelpunten is het startbeleid dat de eigenaar nog moet bevestigen. Retentie groepeert op de vaste omgevingshost/tag, zodat tijdelijke dumpmappen niet elk een onbeperkte eigen retentiegroep krijgen. Geen globale Docker-prune, compose down -v, schemareset of volume-verwijdering.
 
 Restore:
 
