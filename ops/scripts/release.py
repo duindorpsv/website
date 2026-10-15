@@ -18,7 +18,7 @@ def api(path,token=None,binary=False):
  with urllib.request.build_opener(urllib.request.ProxyHandler({}),SafeRedirect()).open(req,timeout=20) as r:return r.read() if binary else json.load(r)
 def validate(m):
  if set(m)!=set(['schemaVersion','repository','workflow','runId','sourceSha','treeSha','digest','migrationHash','configVersion']):raise ValueError('Invalid release fields')
- if m['schemaVersion']!=1 or m['repository']!=REPOSITORY or m['workflow']!='.github/workflows/staging.yml' or m['configVersion']!=1:raise ValueError('Unsupported release')
+ if m['schemaVersion']!=1 or m['repository']!=REPOSITORY or m['workflow']!='.github/workflows/staging.yml' or m['configVersion']!=2:raise ValueError('Unsupported release')
  if not re.fullmatch(r'sha256:[0-9a-f]{64}',m['digest']):raise ValueError('Invalid digest')
  for k in ['sourceSha','treeSha']:
   if not re.fullmatch(r'[0-9a-f]{40}',m[k]):raise ValueError('Invalid source binding')
@@ -30,7 +30,7 @@ if __name__=='__main__':
   h=hashlib.sha256()
   from pathlib import Path
   for p in sorted(Path('db/migrations').glob('*.sql')):h.update(p.name.encode());h.update(p.read_bytes())
-  m=validate(dict(schemaVersion=1,repository=REPOSITORY,workflow='.github/workflows/staging.yml',runId=int(os.environ['BUILD_RUN_ID']),sourceSha=git('rev-parse','HEAD'),treeSha=git('rev-parse','HEAD^{tree}'),digest=os.environ['IMAGE_DIGEST'],migrationHash=h.hexdigest(),configVersion=1))
+  m=validate(dict(schemaVersion=1,repository=REPOSITORY,workflow='.github/workflows/staging.yml',runId=int(os.environ['BUILD_RUN_ID']),sourceSha=git('rev-parse','HEAD'),treeSha=git('rev-parse','HEAD^{tree}'),digest=os.environ['IMAGE_DIGEST'],migrationHash=h.hexdigest(),configVersion=2))
  elif action=='promote':
   tree=git('rev-parse','HEAD^{tree}');m=None
   runs=api('actions/workflows/staging.yml/runs?branch=staging&status=success&per_page=30')['workflow_runs']

@@ -24,6 +24,6 @@ Beide Docker-daemons antwoorden met `name=rootless`, `CgroupDriver=systemd`, `Cg
 
 ## Nog niet aangesloten of bewezen
 
-De gewijzigde hostinstaller en deploywrappers moeten nog op de VPS worden uitgevoerd. Nieuwe webpoorten en domeinen zijn niet gereserveerd. Caddy-routing, DNS, HTTPS voor de nieuwe applicatie, private S3-buckets, SMTP/testmail, externe backups, databasebootstrap en eerste eigenaaractivatie ontbreken nog. De bestaande backup-, stagingacceptatie- en productierestore-eisen blijven van kracht. Een app-release en daadwerkelijke backup/restore zijn nog niet op deze VPS getest.
+De gewijzigde hostinstaller en deploywrappers moeten nog op de VPS worden uitgevoerd. Nieuwe webpoorten en domeinen zijn niet gereserveerd. Caddy-routing, DNS, HTTPS voor de nieuwe applicatie, private S3-buckets, SMTP/testmail, externe backups, databasebootstrap en eerste eigenaaractivatie ontbreken nog. Op verzoek van de eigenaar worden applicatie- en integratie-instellingen vanaf configuratieversie 2 via GitHub Environment secrets/variables beheerd; zie `github-environments.md`. De bestaande backup-, stagingacceptatie- en productierestore-eisen blijven van kracht. Een app-release en daadwerkelijke backup/restore zijn nog niet op deze VPS getest.
 
 Niet aangeleverd: browserbackup met persoonlijke uploads, narrowcastingexport, D1-historie, Sportlink-leesconfiguratie, geautoriseerd ledenaanmeldcontract, SMTP, nieuwsbriefprovider en bewaarbeleid. Seeds worden niet voorgesteld als volledige gebruikersmigratie; demoprofielen worden geen accounts.

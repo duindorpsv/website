@@ -45,3 +45,10 @@ Nog geen staging/productiondeployment, browserdatamigratie of externe verzending
 - Alle acht gerichte Python-tests en `git diff --check` slagen. De normale main-CI controleert deze tests voortaan ook.
 - GitHub API bevestigt beide Duindorp-runners als online en idle, met hun bijbehorende nieuwe labels. Er zijn nog geen GitHub Environments ingesteld.
 - Het pakket bevat geen SSH-beheerlogin, bevestigde domeinen/poorten of private runtime-, mail-, opslag- en backupconfiguratie. Deze aansluiting is nog geen applicatierelease. Hostinstallatie, stagingacceptatie en extern productieherstel blijven afzonderlijk te bewijzen.
+
+## GitHub Environment-configuratie — 16 oktober 2026
+
+- Op verzoek van de eigenaar zijn staging- en productionworkflows aangepast om individuele Environment secrets/variables naar de vaste wrapper te sturen. Configuratieversie 2 valideert een vaste lijst waarden, scheidt runtime-/migratie-/backupcredentials en schrijft private configuratiegeneraties bij de applicatiegebruiker. GitHub blijft de beheerplek voor de waarden.
+- Image en configuratie worden samen geactiveerd en teruggezet na appfalen. De eerste deployment maakt een extern herstelpunt vóór migratie en seed; retentie blijft beperkt tot de eigen omgevingshost/tag. Database-/authsleutels en medialocatie worden niet blind geroteerd.
+- Gerichte lokale controles omvatten input-/identiteitsgrenzen, workflow→JSON-overdracht, permissies, echte Compose-/containerdoorgifte met synthetische waarden, deploymentvolgorde, configuratiewijziging op hetzelfde image, falende backup en herstel van de vorige image/configuratie. Externe S3/SMTP/Restic en de hosting-VPS worden hiermee niet als getest beschouwd.
+- De exacte GitHub-namen, defaults, voorwaardelijke integratiekeys en eenmalige hoststappen staan in `github-environments.md`. Er zijn geen echte credentials verzonnen, uitgelezen of in Git vastgelegd. De bestaande reviewers en eis van externe restore vóór production blijven gelden.

@@ -37,8 +37,35 @@ jobs:
           name: production-release
       - env:
           DEPLOY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CFG_APP_BASE_URL: ${{ vars.APP_BASE_URL }}
+          CFG_S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+          CFG_S3_REGION: ${{ vars.S3_REGION }}
+          CFG_S3_BUCKET: ${{ vars.S3_BUCKET }}
+          CFG_SMTP_HOST: ${{ vars.SMTP_HOST }}
+          CFG_SMTP_PORT: ${{ vars.SMTP_PORT }}
+          CFG_SMTP_SECURE: ${{ vars.SMTP_SECURE }}
+          CFG_MAIL_FROM: ${{ vars.MAIL_FROM }}
+          CFG_TEST_MAIL_TO: ${{ vars.TEST_MAIL_TO }}
+          CFG_TRUST_PROXY_IP: ${{ vars.TRUST_PROXY_IP }}
+          CFG_NEWSLETTER_PROVIDER: ${{ vars.NEWSLETTER_PROVIDER }}
+          CFG_NEWSLETTER_LIST_ID: ${{ vars.NEWSLETTER_LIST_ID }}
+          CFG_RESTIC_REPOSITORY: ${{ vars.RESTIC_REPOSITORY }}
+          CFG_BACKUP_S3_REGION: ${{ vars.BACKUP_S3_REGION }}
+          CFG_DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          CFG_APP_DATABASE_PASSWORD: ${{ secrets.APP_DATABASE_PASSWORD }}
+          CFG_AUTH_SESSION_SECRET: ${{ secrets.AUTH_SESSION_SECRET }}
+          CFG_S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          CFG_S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          CFG_SMTP_USER: ${{ secrets.SMTP_USER }}
+          CFG_SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          CFG_RESTIC_PASSWORD: ${{ secrets.RESTIC_PASSWORD }}
+          CFG_BACKUP_S3_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
+          CFG_BACKUP_S3_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
+          CFG_SPORTLINK_CLIENT_ID: ${{ secrets.SPORTLINK_CLIENT_ID }}
+          CFG_NEWSLETTER_API_KEY: ${{ secrets.NEWSLETTER_API_KEY }}
         run: |
           python3 - <<'PY' | sudo -n -u duindorpsv-production /usr/local/libexec/duindorp/duindorp-deploy-production
           import json,os
-          print(json.dumps({'release':json.load(open('release.json')),'token':os.environ['DEPLOY_TOKEN']}))
+          configuration={key[4:]:value for key,value in os.environ.items() if key.startswith('CFG_')}
+          print(json.dumps({'release':json.load(open('release.json')),'token':os.environ['DEPLOY_TOKEN'],'configuration':configuration}))
           PY

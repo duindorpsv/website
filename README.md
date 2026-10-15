@@ -46,6 +46,7 @@ Integratietests weigeren de gewone development-/productiedatabase. Het [acceptat
 
 - [Inventaris](ops/inventory.md), [uitvoerlog](ops/execution-log.md) en [acceptatie](ops/acceptance-report.md).
 - [Eerste serverinrichting en deploy](ops/first-deploy.md), inclusief `ops/scripts/install-host.sh` na hostinventarisatie.
+- [GitHub Environment secrets en variables](ops/github-environments.md): exacte namen voor staging en productie; overdracht en rollback van private runtimeconfiguratie.
 - [Rollback, externe backup en herstel](ops/rollback-and-restore.md).
 - [CMS-handleiding](ops/cms-guide.md) en [servercontracten](ops/api-contract.md).
 

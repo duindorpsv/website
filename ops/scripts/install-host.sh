@@ -41,17 +41,19 @@ for path in /etc/duindorp /var/lib/duindorp /usr/local/libexec/duindorp; do
     (( (8#$mode & 0022) == 0 ))
   fi
 done
-shared_release=/usr/local/libexec/duindorp/release.py
-if [[ -e $shared_release || -L $shared_release ]]; then
-  [[ -f $shared_release && ! -L $shared_release && $(stat -c %u "$shared_release") == 0 ]]
-  mode=$(stat -c %a "$shared_release")
-  (( (8#$mode & 0022) == 0 ))
-  cmp -s "$script_dir/release.py" "$shared_release" || {
-    printf 'Shared release.py differs; review an upgrade for both environments first\n' >&2
-    exit 65
-  }
-fi
-for source in deploy.py release.py backup.sh ../compose.yml; do test -f "$script_dir/$source"; done
+for source in release.py deploy_config.py backup.py rollback.py; do
+  shared_path="/usr/local/libexec/duindorp/$source"
+  if [[ -e $shared_path || -L $shared_path ]]; then
+    [[ -f $shared_path && ! -L $shared_path && $(stat -c %u "$shared_path") == 0 ]]
+    mode=$(stat -c %a "$shared_path")
+    (( (8#$mode & 0022) == 0 ))
+    cmp -s "$script_dir/$source" "$shared_path" || {
+      printf 'Shared %s differs; review an upgrade for both environments first\n' "$source" >&2
+      exit 65
+    }
+  fi
+done
+for source in deploy.py release.py deploy_config.py backup.py rollback.py backup.sh ../compose.yml; do test -f "$script_dir/$source"; done
 if [[ ${4:-} == '--check' ]]; then
   printf 'Preflight passed. No files or services changed. Port %s is currently free; confirm its reservation and the URL %s before installation.\n' "$web_port" "$base_url"
   exit 0
@@ -64,9 +66,11 @@ printf '%s ALL=(%s) NOPASSWD: /usr/local/libexec/duindorp/duindorp-deploy-%s ""\
 visudo -cf "$sudoers_file" >/dev/null
 install -d -o root -g root -m 0755 /usr/local/libexec/duindorp /etc/duindorp /var/lib/duindorp
 install -o root -g root -m 0755 "$script_dir/deploy.py" "$wrapper"
-if [[ ! -e $shared_release ]]; then
-  install -o root -g root -m 0644 "$script_dir/release.py" "$shared_release"
-fi
+for source in release.py deploy_config.py backup.py rollback.py; do
+  if [[ ! -e /usr/local/libexec/duindorp/$source ]]; then
+    install -o root -g root -m 0644 "$script_dir/$source" "/usr/local/libexec/duindorp/$source"
+  fi
+done
 install -d -o root -g "$app_group" -m 0750 "$config_dir"
 install -o root -g "$app_group" -m 0640 "$script_dir/../compose.yml" "$config_dir/compose.yml"
 install -o root -g "$app_group" -m 0750 "$script_dir/backup.sh" "$config_dir/backup.sh"
@@ -79,4 +83,4 @@ PY
 chown root:"$app_group" "$config_dir/deploy.json"
 chmod 0640 "$config_dir/deploy.json"
 install -o root -g root -m 0440 "$sudoers_file" "$sudoers_path"
-printf 'Deployment scripts attached to %s. Configure private runtime/migration/backup files and bootstrap the database before the first deployment. No application release was started.\n' "$target"
+printf 'Deployment scripts attached to %s. Configure its GitHub Environment secrets and variables before the first deployment. No application release was started.\n' "$target"
