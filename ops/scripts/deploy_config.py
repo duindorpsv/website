@@ -20,6 +20,7 @@ VARIABLES = (
     'SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE', 'MAIL_FROM', 'TEST_MAIL_TO',
     'TRUST_PROXY_IP', 'NEWSLETTER_PROVIDER', 'NEWSLETTER_LIST_ID',
     'RESTIC_REPOSITORY', 'BACKUP_S3_REGION',
+    'NEWS_IMPORT_MAX_MB', 'NEWS_IMPORT_MAX_UNPACKED_MB', 'NEWS_IMPORT_MAX_ENTRIES',
 )
 REQUIRED = (
     'APP_BASE_URL', 'DATABASE_PASSWORD', 'APP_DATABASE_PASSWORD', 'AUTH_SESSION_SECRET',
@@ -61,9 +62,15 @@ def validate_configuration(values, target, installed):
     result = {key: values.get(key, '') for key in SECRETS + VARIABLES}
     for key, default in {'S3_REGION': 'eu-west-1', 'SMTP_PORT': '587',
                          'SMTP_SECURE': 'false', 'TRUST_PROXY_IP': 'false',
-                         'NEWSLETTER_PROVIDER': 'disabled'}.items():
+                         'NEWSLETTER_PROVIDER': 'disabled', 'NEWS_IMPORT_MAX_MB': '512',
+                         'NEWS_IMPORT_MAX_UNPACKED_MB': '2048', 'NEWS_IMPORT_MAX_ENTRIES': '10000'}.items():
         result[key] = result[key] or default
     result['BACKUP_S3_REGION'] = result['BACKUP_S3_REGION'] or result['S3_REGION']
+    for key, minimum, maximum in [('NEWS_IMPORT_MAX_MB', 32, 2048),
+                                  ('NEWS_IMPORT_MAX_UNPACKED_MB', 512, 4096),
+                                  ('NEWS_IMPORT_MAX_ENTRIES', 100, 50000)]:
+        require(result[key].isascii() and result[key].isdecimal()
+                and minimum <= int(result[key]) <= maximum, 'Invalid ' + key)
     for key in REQUIRED:
         require(bool(result[key]), 'Missing GitHub Environment setting: ' + key)
     for key, length in [('DATABASE_PASSWORD', 24), ('APP_DATABASE_PASSWORD', 24),
@@ -178,7 +185,8 @@ def generation_files(values, target):
                     'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'SMTP_HOST',
                     'SMTP_PORT', 'SMTP_SECURE', 'SMTP_USER', 'SMTP_PASSWORD', 'MAIL_FROM',
                     'TEST_MAIL_TO', 'TRUST_PROXY_IP', 'SPORTLINK_CLIENT_ID',
-                    'NEWSLETTER_PROVIDER', 'NEWSLETTER_API_KEY', 'NEWSLETTER_LIST_ID')
+                    'NEWSLETTER_PROVIDER', 'NEWSLETTER_API_KEY', 'NEWSLETTER_LIST_ID',
+                    'NEWS_IMPORT_MAX_MB', 'NEWS_IMPORT_MAX_UNPACKED_MB', 'NEWS_IMPORT_MAX_ENTRIES')
     runtime = {key: values[key] for key in runtime_keys if values[key] != ''}
     runtime.update(APP_ENV=target, MEDIA_DRIVER='s3',
                    DATABASE_URL='postgres://duindorp_app:' + password + '@database:5432/duindorp')

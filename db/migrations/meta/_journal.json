@@ -85,6 +85,13 @@
       "when": 1791974191264,
       "tag": "0011_json_shapes",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791974191265,
+      "tag": "0012_news_archive_import",
+      "breakpoints": true
     }
   ]
 }

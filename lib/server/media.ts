@@ -8,6 +8,8 @@ export async function uploadMedia(p: Principal, file: File, metadata: {
     teamId: string;
     season: string;
     folderId: string;
+    alt?:string;
+    importBatch?:string;
 }) {
     authorize(p, 'media', 'create', { teamId: metadata.teamId });
     if (file.size > 12000000 || !file.size)
@@ -24,9 +26,9 @@ export async function uploadMedia(p: Principal, file: File, metadata: {
         throw new CmsError('file-type', 'Gebruik een niet-geanimeerde JPG, PNG, WebP of AVIF.', 422);
     const id = crypto.randomUUID(), key = `originals/${id}.${info.format}`;
     await putObject(key, bytes, `image/${info.format}`);
-    const draft = { id, name: file.name.slice(0, 180), src: `/api/media/${id}`, folderId: metadata.folderId, alt: '', caption: '', credit: '', teamId: metadata.teamId, season: metadata.season, published: false, featured: false, order: 0, focusX: 50, focusY: 50, createdAt: new Date().toISOString() };
+    const draft = { id, name: file.name.slice(0, 180), src: `/api/media/${id}`, folderId: metadata.folderId, alt: (metadata.alt||'').slice(0,500), caption: '', credit: '', teamId: metadata.teamId, season: metadata.season, published: false, featured: false, order: 0, focusX: 50, focusY: 50, createdAt: new Date().toISOString() };
     try {
-        await sqlClient().begin(async (tx) => { await tx `insert into cms_records(id,module,title,team_id,draft) values (${id},'media',${draft.name},${draft.teamId || null},${tx.json(draft)})`; await tx `insert into cms_media_objects(id,storage_key,checksum,mime,bytes,width,height,state) values (${id},${key},${createHash('sha256').update(bytes).digest('hex')},${`image/${info.format}`},${file.size},${info.width || 0},${info.height || 0},'processing')`; await tx `insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${`image:${id}`},'image',${tx.json({ id })})`; });
+        await sqlClient().begin(async (tx) => { await tx `insert into cms_records(id,module,title,team_id,draft,import_batch) values (${id},'media',${draft.name},${draft.teamId || null},${tx.json(draft)},${metadata.importBatch||null})`; await tx `insert into cms_media_objects(id,storage_key,checksum,mime,bytes,width,height,state) values (${id},${key},${createHash('sha256').update(bytes).digest('hex')},${`image/${info.format}`},${file.size},${info.width || 0},${info.height || 0},'processing')`; await tx `insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${`image:${id}`},'image',${tx.json({ id })})`; });
     }
     catch (e) {
         await deleteObject(key);

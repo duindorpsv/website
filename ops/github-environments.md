@@ -42,6 +42,9 @@ Interactief instellen kan bijvoorbeeld met `gh secret set AUTH_SESSION_SECRET --
 | `NEWSLETTER_PROVIDER` | Standaard `disabled`; eventueel `brevo` met eigen testlijst | `disabled` of `brevo` |
 | `NEWSLETTER_LIST_ID` | Positief lijstnummer, verplicht bij Brevo | Positief lijstnummer, verplicht bij Brevo |
 | `RESTIC_REPOSITORY` | Externe repository, verplicht: `s3:https://backup-host/eigen-stagingbucket/pad` | Eigen externe repository, verplicht: `s3:https://backup-host/eigen-productiebucket/pad` |
+| `NEWS_IMPORT_MAX_MB` | Optioneel; standaard `512`, bereik 32–2048 MiB per ZIP | Zelfde regel |
+| `NEWS_IMPORT_MAX_UNPACKED_MB` | Optioneel; standaard `2048`, bereik 512–4096 MiB uitgepakt | Zelfde regel |
+| `NEWS_IMPORT_MAX_ENTRIES` | Optioneel; standaard `10000`, bereik 100–50000 ZIP-items | Zelfde regel |
 | `BACKUP_S3_REGION` | Standaard dezelfde waarde als `S3_REGION` | Standaard dezelfde waarde als `S3_REGION` |
 
 De backupadapter ondersteunt hier S3 via HTTPS voor Restic. De mediabucket en externe backupopslag moeten vooraf zijn aangemaakt en toegangsrechten moeten kloppen. Eerste deployment kan een lege Restic-repository initialiseren; een bestaande repository met een ander encryptiewachtwoord wordt nooit overschreven. Elke deployment stopt wanneer backup faalt. Bewaar minimaal 14 dagelijkse herstelpunten binnen de eigen omgeving; dit is geen bevestiging van een werkelijk uitgevoerde externe backup/restore.

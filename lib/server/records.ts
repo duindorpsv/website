@@ -35,11 +35,11 @@ else
     Object.assign(data, { published: !!row.live, live: row.live || undefined }); if (row.module === 'media' && String(data.src).startsWith('/api/media/'))
     data.src = `/api/cms/media/${row.id}/file`; if (row.deleted_at)
     Object.assign(data, { deletedAt: row.deleted_at }); return data; }
-export async function loadState(publicOnly = false, p?: Principal): Promise<{
+export async function loadState(publicOnly = false, p?: Principal,transaction?:any): Promise<{
     state: CmsState;
     versions: Record<string, number>;
 }> {
-    const sql = sqlClient(), state = emptyState(), versions: Record<string, number> = {};
+    const sql:ReturnType<typeof sqlClient> = transaction||sqlClient(), state = emptyState(), versions: Record<string, number> = {};
     const rows = await sql<RecordRow[]> `select *, (select run_at from cms_jobs j where j.kind='publish' and j.payload->>'id'=cms_records.id and j.status in ('pending','processing') limit 1) as scheduled_at from cms_records where ${publicOnly ? sql `live is not null and deleted_at is null` : sql `true`} and ${!publicOnly&&p?sql`(module!='media' or id in (select id from cms_records where module='media' order by updated_at desc,id limit 100) or id in (select target_id from cms_references))`:sql`true`} order by case when module in ('settings','navigation','hero') then 0 else 1 end,updated_at desc,id limit 1500`;
     for (const row of rows) {
         const fallbackPublic=!publicOnly&&!!p&&!has(p,permissionModule(row.module,row.draft),'read',scope(row));if(fallbackPublic&&(!row.live||row.deleted_at))continue;
@@ -135,20 +135,20 @@ export type Change = {
     data?: Record<string, any>;
     scheduledAt?: string;
 };
-export async function mutate(p: Principal, changes: Change[], operationId: string, requestId: string) {
+export async function mutate(p: Principal, changes: Change[], operationId: string, requestId: string, transaction?:any) {
     const sql = sqlClient();
-    return sql.begin(async (tx) => {
+    const perform=async (tx:any) => {
         const [operation] = await tx `select response from cms_operations where id=${operationId} and actor_id=${p.id}`;
         if (operation)
             return operation.response;
         // Serializes route reservations/parent changes and cross-record publication.
         await tx `select pg_advisory_xact_lock(736402)`;
-        const state = (await loadState(false)).state;
+        const state = (await loadState(false,undefined,tx)).state;
         const output: Record<string, number> = {};
         for (const change of changes) {
             if (!contentModules.includes(change.module))
                 throw new CmsError('module', 'Onbekende module.');
-            const [old] = await tx<RecordRow[]> `select * from cms_records where id=${change.id} for update`;
+            const [old]:RecordRow[] = await tx `select * from cms_records where id=${change.id} for update`;
             if (old && old.module !== change.module)
                 throw new CmsError('module', 'Het record behoort aan een andere module.');
             if ((old?.version || 0) !== change.expectedVersion)
@@ -262,6 +262,10 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
             }
             if(change.action==='publish'&&change.module==='pages')await moveChildPaths(tx,change.id,old?.live,live,p);
             if(['publish','unpublish','trash'].includes(change.action)&&change.module==='articles')await syncHomepage(tx,change.id,old?.live,live,p.id);
+            if(change.action==='publish'&&change.module==='articles'&&candidate.contentType==='news'){
+                const [origin]=await tx`select provenance->>'sourceUrl' as url from cms_news_import_identities where record_id=${change.id}`;
+                if(origin?.url){let url:URL|null=null;try{url=new URL(origin.url);}catch{}if(url&&url.hostname.replace(/^www\./,'')==='duindorpsv.nl'&&/^\/1\/\d+\//.test(url.pathname))await tx`insert into cms_redirects(from_path,to_path,record_id) values (${url.pathname},${livePath!},${change.id}) on conflict(from_path) do nothing`;}
+            }
             for (const part of ['draft', 'live'] as const) {
                 await tx `delete from cms_references where record_id=${change.id} and snapshot=${part}`;
                 for (const ref of referencesIn(part === 'draft' ? candidate : live)) {
@@ -284,5 +288,6 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
         }
         await tx `insert into cms_operations(id,actor_id,response) values (${operationId},${p.id},${tx.json(output)})`;
         return output;
-    });
+    };
+    return transaction?perform(transaction):sql.begin(perform);
 }
