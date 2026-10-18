@@ -18,7 +18,7 @@ Accounts: `/api/cms/users`, `/api/cms/users/{id}`, `/api/cms/roles`; laatste beh
 
 Import `/api/cms/imports` ondersteunt dry-run, apply en rollback van v1-browserbackups. Alleen volledige beheerders; originele JSON privé gearchiveerd, bestaande records standaard overgeslagen, geselecteerde vervanging vereist exact versietoken. Browsermedia worden gevalideerd en duurzaam gemapt. Demoaccounts worden geen logins, demoberichten geen echte aanmeldingen. Export `/api/cms/exports` is privé; operationele volledige DB/media-backup en restore zijn afzonderlijke procedures.
 
-Nieuwsbrief: `/api/newsletter` met expliciete toestemming, aparte bevestiging/afmelding en providerstatus. Bevestigen/afmelden worden pas door een expliciete POST uitgevoerd; het openen van de link heeft geen schrijfeffect. Geen automatische inschrijving vanuit contact/aanmelding. Ontbrekende SendGrid API-/provider-/Sportlinktoegang geeft wacht/fout/handmatige opvolging; geen gesimuleerd succes.
+Nieuwsbrief: `/api/newsletter` met expliciete toestemming, aparte bevestiging/afmelding en providerstatus. Bevestigen/afmelden worden pas door een expliciete POST uitgevoerd; het openen van de link heeft geen schrijfeffect. Geen automatische inschrijving vanuit contact/aanmelding. Ontbrekende Resend API-/Sportlinktoegang geeft wacht/fout/handmatige opvolging; geen gesimuleerd succes.
 
 Planning gebruikt Europe/Amsterdam, slaat UTC op en vereist bij het dubbele winteruur een keuze. De worker controleert de actuele rechten, scope, referenties en taaklease. Een nieuwe planning/intrekking annuleert de eerdere taak; een latere conceptbewerking verandert de bevroren publicatie niet.
 
@@ -28,6 +28,7 @@ Mediabootstrap bevat maximaal 100 niet-gerefereerde foto’s plus gebruikte cent
 
 PDF-documenten kunnen via `/api/cms/documents/uploads` worden opgeslagen. Alleen gecontroleerde PDF-header/afsluiting en maximaal 10 MB; originelen zijn private en publicatie is afzonderlijk. Openbare downloads zijn attachments met nosniff en een sandboxheader. Dit is geen claim van virusscanning of volledige PDF-sanitization. De bestaande Clubdocumentenpagina blijft behouden.
 
-Gebruikte providercontracten: [Brevo contactinformatie](https://developers.brevo.com/reference/get-contact-info), [Brevo contacten](https://developers.brevo.com/reference/create-contact). Bij asynchrone afmelding wordt het ontbreken in de doel-lijst afzonderlijk gecontroleerd. De echte provider is nog niet aangesloten.
 
-`GET /api/cms/integrations` levert `mailProvider: "sendgrid"` en `mailConfigured` voor de aanwezigheid van API-key en afzender; dit is geen externe verbindingstest. De worker verstuurt alle websitemail via de SendGrid HTTPS API. HTTP 202 betekent geaccepteerd, niet bewezen afgeleverd; fouten worden zonder providerbody als retrybare taakstatus opgeslagen.
+`GET /api/cms/integrations` levert `mailProvider: "resend"` en `mailConfigured` voor de aanwezigheid van API-key en afzender; dit is geen externe verbindingstest. De worker verstuurt alle websitemail via de Resend HTTPS API. HTTP 200 met geldig bericht-ID betekent geaccepteerd, niet bewezen afgeleverd; fouten worden zonder providerbody als retrybare taakstatus opgeslagen.
+
+`GET /api/cms/newsletter` vereist `settings/manage` en ondersteunt q, topic, status, offset en limit (maximaal 100). Alleen abonneegegevens en toestemmingstatus worden teruggegeven, geen tokens/hashes. `POST /api/cms/newsletter/{id}` vereist dezelfde rechten, de juiste Origin en expectedVersion; action is update (name, topics) of unsubscribe. Een beheerder kan geen onbevestigde/afgemelde inschrijving rechtstreeks activeren. Publieke bevestiging maakt lokaal actief; afmelding is direct lokaal. Externe lijstproviders worden niet gebruikt.

@@ -6,10 +6,9 @@ const config=z.object({
   MEDIA_DRIVER:z.enum(['filesystem','s3']).default('filesystem'), MEDIA_ROOT:z.string().default('.runtime/media'),
   S3_ENDPOINT:z.string().optional(), S3_REGION:z.string().default('eu-west-1'),
   S3_BUCKET:z.string().optional(), S3_ACCESS_KEY_ID:z.string().optional(),S3_SECRET_ACCESS_KEY:z.string().optional(),
-  SENDGRID_API_KEY:z.string().regex(/^[^\s]+$/).optional().or(z.literal('')),
+  RESEND_API_KEY:z.string().regex(/^[^\s]+$/).optional().or(z.literal('')),
   MAIL_FROM:z.string().email().optional().or(z.literal('')),TEST_MAIL_TO:z.string().email().optional().or(z.literal('')),
-  SPORTLINK_CLIENT_ID:z.string().optional(),NEWSLETTER_PROVIDER:z.enum(['disabled','brevo']).default('disabled'),
-  NEWSLETTER_API_KEY:z.string().optional(),NEWSLETTER_LIST_ID:z.coerce.number().optional(),
+  SPORTLINK_CLIENT_ID:z.string().optional(),
 });
 export function env(){
   const parsed=config.safeParse(process.env);
@@ -18,7 +17,7 @@ export function env(){
   if(value.APP_ENV==='production'&&new URL(value.APP_BASE_URL).protocol!=='https:')throw new Error('Productie vereist een HTTPS-siteadres.');
   if(value.APP_ENV==='production'&&value.MEDIA_DRIVER!=='s3')throw new Error('Productie vereist duurzame S3-opslag.');
   if(value.APP_ENV==='production'&&value.TEST_MAIL_TO)throw new Error('TEST_MAIL_TO moet leeg zijn in productie.');
-  if(value.APP_ENV==='production'&&(!value.SENDGRID_API_KEY||!value.MAIL_FROM))throw new Error('Productie vereist SENDGRID_API_KEY en MAIL_FROM.');
+  if(value.APP_ENV==='production'&&(!value.RESEND_API_KEY||!value.MAIL_FROM))throw new Error('Productie vereist RESEND_API_KEY en MAIL_FROM.');
   if(value.MEDIA_DRIVER==='s3'&&(!value.S3_BUCKET||!value.S3_ACCESS_KEY_ID||!value.S3_SECRET_ACCESS_KEY))throw new Error('S3-configuratie ontbreekt.');
   return value;
 }

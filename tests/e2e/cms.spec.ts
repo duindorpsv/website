@@ -26,6 +26,26 @@ test('real login, row/column builder and one-step undo/redo',async({page})=>{
 test('public pages remain usable at 320, 390, 768 and 1440 pixels',async({page})=>{for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});await page.goto('/clubmuur/club/ons-verhaal');const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);expect(overflow).toBe(false);}await page.screenshot({path:'.runtime/screenshots/history-1440.png',fullPage:true});});
 
 test('FORM01: public contact commits before acknowledging receipt',async({page,request})=>{await page.goto('/clubmuur/club/contact');await page.getByLabel('Naam *',{exact:true}).fill('Synthetische browserproef');await page.getByLabel('E-mailadres *',{exact:true}).fill('e2e-'+crypto.randomUUID()+'@example.invalid');await page.getByLabel('Bericht *',{exact:true}).fill('Controle van betrouwbare formulierontvangst.');const received=page.waitForResponse(r=>r.url().includes('/api/forms/contact/submissions'));await page.getByRole('button',{name:'Versturen',exact:true}).click();expect((await received).status()).toBe(201);await expect(page.getByText('Je inzending is ontvangen en opgeslagen. De club verwerkt deze verder.')).toBeVisible();});
+test('NEWSLETTER: subscribers and subjects are managed in the CMS without an external list',async({page,request})=>{
+ const email='cms-newsletter-'+crypto.randomUUID()+'@example.invalid';
+ expect((await request.get('/api/cms/newsletter')).status()).toBe(401);
+ await login(page);const origin=new URL(page.url()).origin;
+ const created=await page.request.post('/api/newsletter',{headers:{Origin:origin},data:{operationId:crypto.randomUUID(),email,name:'Browserabonnee',topics:['club'],consent:true}});expect(created.status()).toBe(201);
+ await page.getByRole('button',{name:'Instellingen & koppelingen',exact:true}).click();
+ const panel=page.getByRole('region',{name:'Nieuwsbriefabonnees'});
+ await panel.getByLabel('Abonnees zoeken',{exact:true}).fill(email);await panel.getByRole('button',{name:'Zoeken',exact:true}).click();
+ await panel.getByRole('button',{name:'Beheer abonnee '+email,exact:true}).click();
+ await expect(panel.getByText('Deze inschrijving is nog niet bevestigd.',{exact:true})).toBeVisible();
+ await panel.getByLabel('Naam abonnee',{exact:true}).fill('Bewerkt in het CMS');await panel.getByRole('textbox',{name:'Onderwerpen abonnee',exact:true}).fill('jeugd\nclub');
+ await panel.getByRole('button',{name:'Abonnee opslaan',exact:true}).click();await expect(panel.getByText('Abonnee opgeslagen.',{exact:true})).toBeVisible();
+ await page.reload();await panel.getByLabel('Abonnees zoeken',{exact:true}).fill(email);await panel.getByRole('button',{name:'Zoeken',exact:true}).click();
+ await panel.getByRole('button',{name:'Beheer abonnee '+email,exact:true}).click();await expect(panel.getByLabel('Naam abonnee',{exact:true})).toHaveValue('Bewerkt in het CMS');await expect(panel.getByRole('textbox',{name:'Onderwerpen abonnee',exact:true})).toHaveValue('jeugd\nclub');
+ page.once('dialog',dialog=>dialog.accept());await panel.getByRole('button',{name:'Abonnee afmelden',exact:true}).click();await expect(panel.getByText('Abonnee afgemeld.',{exact:true})).toBeVisible();
+ const status=await page.request.get('/api/cms/newsletter?'+new URLSearchParams({q:email})).then(r=>r.json());expect(status.items[0].status).toBe('unsubscribed');expect(status.items[0]).not.toHaveProperty('confirmation_hash');
+ const integration=await page.request.get('/api/cms/integrations').then(r=>r.json());expect(integration.mailProvider).toBe('resend');expect(integration.newsletterManagement).toBe('cms');
+ await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1)).toBe(false);
+ await page.screenshot({path:'.runtime/screenshots/newsletter-cms-390.png',fullPage:true});
+});
 test('PB-03/04/05: keyboard move menu and pointer drag across columns/rows preserve independent nodes',async({page})=>{
  await page.setViewportSize({width:1600,height:2200});await login(page);
  const people=await page.request.get('/api/cms/people').then(r=>r.json()),media=await page.request.get('/api/cms/media').then(r=>r.json());

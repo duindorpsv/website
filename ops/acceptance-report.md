@@ -1,6 +1,6 @@
 # Developmentacceptatie — 14 oktober 2026
 
-> Actuele inrichting vanaf 18 oktober 2026: development-VPS → main → uitsluitend GitHub Environment `production`; websitemail via SendGrid API. De staging-/SMTP-verwijzingen hieronder beschrijven eerdere inventarisatie en testresultaten. De actuele procedure en exacte instellingen staan in [github-environments.md](github-environments.md) en [first-deploy.md](first-deploy.md). Eerder voorbereide stagingresources zijn niet automatisch verwijderd.
+> Actuele inrichting vanaf 18 oktober 2026: development-VPS → main → uitsluitend GitHub Environment `production`; websitemail via Resend API en lokaal abonnee-/onderwerpbeheer. De staging-/SMTP-verwijzingen hieronder beschrijven eerdere inventarisatie en testresultaten. De actuele procedure en exacte instellingen staan in [github-environments.md](github-environments.md) en [first-deploy.md](first-deploy.md). Eerder voorbereide stagingresources zijn niet automatisch verwijderd.
 
 Dit is een verslag van uitgevoerde developmentcontroles, geen productieacceptatie. Bron: Sites v44, commit e91ed87f3e5917f286885c6593fe397f8e67cdf4; repository duindorpsv/website. Private fixtures, testaccounts, logs en backups staan uitsluitend in `.runtime/` en gaan niet naar Git.
 

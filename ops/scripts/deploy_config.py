@@ -11,21 +11,21 @@ from urllib.parse import quote, urlsplit
 
 SECRETS = (
     'DATABASE_PASSWORD', 'APP_DATABASE_PASSWORD', 'AUTH_SESSION_SECRET',
-    'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'SENDGRID_API_KEY',
+    'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'RESEND_API_KEY',
     'RESTIC_PASSWORD', 'BACKUP_S3_ACCESS_KEY_ID', 'BACKUP_S3_SECRET_ACCESS_KEY',
-    'SPORTLINK_CLIENT_ID', 'NEWSLETTER_API_KEY',
+    'SPORTLINK_CLIENT_ID',
 )
 VARIABLES = (
     'APP_BASE_URL', 'S3_ENDPOINT', 'S3_REGION', 'S3_BUCKET',
     'MAIL_FROM',
-    'TRUST_PROXY_IP', 'NEWSLETTER_PROVIDER', 'NEWSLETTER_LIST_ID',
+    'TRUST_PROXY_IP',
     'RESTIC_REPOSITORY', 'BACKUP_S3_REGION',
     'NEWS_IMPORT_MAX_MB', 'NEWS_IMPORT_MAX_UNPACKED_MB', 'NEWS_IMPORT_MAX_ENTRIES',
 )
 REQUIRED = (
     'APP_BASE_URL', 'DATABASE_PASSWORD', 'APP_DATABASE_PASSWORD', 'AUTH_SESSION_SECRET',
     'S3_REGION', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY',
-    'SENDGRID_API_KEY', 'MAIL_FROM', 'RESTIC_REPOSITORY', 'RESTIC_PASSWORD',
+    'RESEND_API_KEY', 'MAIL_FROM', 'RESTIC_REPOSITORY', 'RESTIC_PASSWORD',
     'BACKUP_S3_ACCESS_KEY_ID', 'BACKUP_S3_SECRET_ACCESS_KEY',
 )
 
@@ -61,7 +61,7 @@ def validate_configuration(values, target, installed):
                 'Invalid configuration value: ' + key)
     result = {key: values.get(key, '') for key in SECRETS + VARIABLES}
     for key, default in {'S3_REGION': 'eu-west-1', 'TRUST_PROXY_IP': 'false',
-                         'NEWSLETTER_PROVIDER': 'disabled', 'NEWS_IMPORT_MAX_MB': '512',
+                         'NEWS_IMPORT_MAX_MB': '512',
                          'NEWS_IMPORT_MAX_UNPACKED_MB': '2048', 'NEWS_IMPORT_MAX_ENTRIES': '10000'}.items():
         result[key] = result[key] or default
     result['BACKUP_S3_REGION'] = result['BACKUP_S3_REGION'] or result['S3_REGION']
@@ -86,19 +86,10 @@ def validate_configuration(values, target, installed):
             and '..' not in result['S3_BUCKET'], 'Invalid S3_BUCKET')
     for key in ('S3_REGION', 'BACKUP_S3_REGION'):
         require(bool(re.fullmatch(r'[A-Za-z0-9-]{1,64}', result[key])), 'Invalid ' + key)
-    require(not any(c.isspace() for c in result['SENDGRID_API_KEY']), 'Invalid SENDGRID_API_KEY')
+    require(not any(c.isspace() for c in result['RESEND_API_KEY']), 'Invalid RESEND_API_KEY')
     require(result['TRUST_PROXY_IP'] in ('true', 'false'), 'Invalid TRUST_PROXY_IP')
     require(bool(re.fullmatch(r'[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+', result['MAIL_FROM'])),
             'MAIL_FROM must be an email address')
-    require(result['NEWSLETTER_PROVIDER'] in ('disabled', 'brevo'), 'Invalid NEWSLETTER_PROVIDER')
-    if result['NEWSLETTER_LIST_ID']:
-        require(result['NEWSLETTER_LIST_ID'].isascii() and result['NEWSLETTER_LIST_ID'].isdecimal()
-                and int(result['NEWSLETTER_LIST_ID']) > 0, 'Invalid NEWSLETTER_LIST_ID')
-    if result['NEWSLETTER_PROVIDER'] == 'brevo':
-        require(bool(result['NEWSLETTER_API_KEY']) and result['NEWSLETTER_LIST_ID'].isascii()
-                and result['NEWSLETTER_LIST_ID'].isdecimal()
-                and int(result['NEWSLETTER_LIST_ID']) > 0,
-                'Brevo requires NEWSLETTER_API_KEY and NEWSLETTER_LIST_ID')
     require(result['RESTIC_REPOSITORY'].startswith('s3:https://'),
             'RESTIC_REPOSITORY must use an external S3 HTTPS repository')
     try:
@@ -171,9 +162,8 @@ def generation_files(values, target):
     password = quote(values['APP_DATABASE_PASSWORD'], safe='')
     migration_password = quote(values['DATABASE_PASSWORD'], safe='')
     runtime_keys = ('APP_BASE_URL', 'AUTH_SESSION_SECRET', 'S3_ENDPOINT', 'S3_REGION',
-                    'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'SENDGRID_API_KEY',
+                    'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'RESEND_API_KEY',
                     'MAIL_FROM', 'TRUST_PROXY_IP', 'SPORTLINK_CLIENT_ID',
-                    'NEWSLETTER_PROVIDER', 'NEWSLETTER_API_KEY', 'NEWSLETTER_LIST_ID',
                     'NEWS_IMPORT_MAX_MB', 'NEWS_IMPORT_MAX_UNPACKED_MB', 'NEWS_IMPORT_MAX_ENTRIES')
     runtime = {key: values[key] for key in runtime_keys if values[key] != ''}
     runtime.update(APP_ENV=target, MEDIA_DRIVER='s3',

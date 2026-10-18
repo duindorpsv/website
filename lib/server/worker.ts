@@ -1,7 +1,7 @@
 import {syncHomepage,moveChildPaths} from './publication-effects';
 import {has,type Principal} from './permissions';
 import {permissionModule} from './records';
-import {syncNewsletter} from './newsletter';
+import {settleLegacyNewsletterJob} from './newsletter';
 import { referencesIn } from '../cms/layout/document';
 import { sqlClient } from '../../db/index';
 import { processImage } from './media';
@@ -20,14 +20,13 @@ export async function runOnce(workerId = crypto.randomUUID()) {
     if (!job)
         return false;
     let status = 'done';
+    const renewal=setInterval(()=>{void sql`update cms_jobs set lease_until=now()+interval '60 seconds' where id=${job.id} and lease_owner=${workerId} and status='processing'`.catch(()=>{});},20000);
     try {
         if(['news-analyze','news-import'].includes(job.kind)){
-            const renewal=setInterval(()=>{void sql`update cms_jobs set lease_until=now()+interval '60 seconds' where id=${job.id} and lease_owner=${workerId} and status='processing'`.catch(()=>{});},20000);
             try{if(job.kind==='news-analyze')await analyzeNewsSession(job.payload.sessionId);else await processNewsBatch(job.payload.sessionId,job.payload.run,job.payload.batch);}
             catch(e){if(e instanceof CmsError)await failNewsJob(job.payload.sessionId,e.message);else throw e;}
-            finally{clearInterval(renewal);}
         }
-        else if(['newsletter-provider','newsletter-unsubscribe'].includes(job.kind)){if(!await syncNewsletter(job.payload.id,job.kind==='newsletter-unsubscribe'))status='waiting';}
+        else if(['newsletter-provider','newsletter-unsubscribe'].includes(job.kind)){await settleLegacyNewsletterJob(job.payload.id);}
         else if (job.kind === 'image')
             await processImage(job.payload.id);
         else if (job.kind === 'mail')
@@ -100,6 +99,7 @@ export async function runOnce(workerId = crypto.randomUUID()) {
             await sql `update cms_submissions set delivery_status=${permanent ? 'failed' : 'retry'} where id=${job.payload.submissionId}`;
         if(permanent&&['news-analyze','news-import'].includes(job.kind))await failNewsJob(job.payload.sessionId,'De achtergrondtaak kon niet worden afgerond. Eerder opgeslagen berichten blijven behouden; probeer de mislukte geselecteerde berichten opnieuw.');
     }
+    finally{clearInterval(renewal);}
     return true;
 }
 export async function retain() { const sql = sqlClient(); await sql.begin(async (tx) => { const rows = await tx `select id from cms_submissions where retain_until<now() for update skip locked limit 100`; for (const row of rows) {

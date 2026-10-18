@@ -1,6 +1,6 @@
 # GitHub Environment production: configuratie en secrets
 
-De route is **development-VPS → pull request → main → controles/build → production**. Er is één deploymentenvironment: `production`. Development en de geïsoleerde testdatabase blijven op de dev-VPS; daarvoor zijn geen GitHub Environments nodig. De stagingworkflow en stagingacceptatie zijn vervallen. Configuratieversie **3** gebruikt de SendGrid HTTPS API voor alle websitemail.
+De route is **development-VPS → pull request → main → controles/build → production**. Er is één deploymentenvironment: `production`. Development en de geïsoleerde testdatabase blijven op de dev-VPS; daarvoor zijn geen GitHub Environments nodig. De stagingworkflow en stagingacceptatie zijn vervallen. Configuratieversie **4** gebruikt de Resend HTTPS API voor alle websitemail.
 
 Ga naar [Settings → Environments → production](https://github.com/duindorpsv/website/settings/environments/production). Vul onderstaande namen daar in, met de juiste scheiding tussen **Environment secrets** en **Environment variables**. Applicatie-instellingen horen niet in het image of in repositorybestanden. Ontbrekende verplichte instellingen blokkeren deployment vóór databasewijzigingen.
 
@@ -13,16 +13,15 @@ Ga naar [Settings → Environments → production](https://github.com/duindorpsv
 | `AUTH_SESSION_SECRET` | Ja | Authenticatiesleutel van minimaal 32 tekens; genereer bijvoorbeeld 32 willekeurige bytes als 64 hextekens. |
 | `S3_ACCESS_KEY_ID` | Ja | Toegang tot uitsluitend de private productiemediabucket. |
 | `S3_SECRET_ACCESS_KEY` | Ja | Bijbehorende mediasleutel. |
-| `SENDGRID_API_KEY` | Ja | SendGrid API-key met uitsluitend de benodigde **Mail Send**-bevoegdheid (`mail.send`). Geen SMTP-wachtwoord. |
+| `RESEND_API_KEY` | Ja | Resend API-key met **Sending access**, beperkt tot het eigen geverifieerde afzenderdomein. Alleen voor e-mailverzending; geen contacten- of lijstrechten nodig. |
 | `RESTIC_PASSWORD` | Ja | Encryptiewachtwoord voor de externe backuprepository, minimaal 24 tekens. |
 | `BACKUP_S3_ACCESS_KEY_ID` | Ja | Afzonderlijke toegang tot de externe S3-backuprepository. |
 | `BACKUP_S3_SECRET_ACCESS_KEY` | Ja | Bijbehorende externe backupsleutel. |
 | `SPORTLINK_CLIENT_ID` | Alleen bij Sportlink-lezen | Werkelijke geautoriseerde leesconfiguratie; verleent geen schrijfrechten voor ledenaanmeldingen. |
-| `NEWSLETTER_API_KEY` | Alleen bij `NEWSLETTER_PROVIDER=brevo` | Brevo API-key voor lijstbeheer. Websitemail, waaronder bevestigingslinks, blijft via SendGrid lopen. |
 
 Bewaar herstelkopieën van encryptiesleutels en externe toegang ook buiten GitHub en de VPS. Bestaande secrets niet opnieuw genereren als ze al in gebruik zijn. GitHub secrets kunnen niet als plaintext worden teruggelezen. Vul echte waarden uitsluitend in GitHub in; publiceer ze niet in chat, issues of commits.
 
-Interactief instellen kan bijvoorbeeld met `gh secret set SENDGRID_API_KEY --repo duindorpsv/website --env production`; de CLI vraagt de waarde zonder die in het commando te plaatsen.
+Interactief instellen kan bijvoorbeeld met `gh secret set RESEND_API_KEY --repo duindorpsv/website --env production`; de CLI vraagt de waarde zonder die in het commando te plaatsen.
 
 ## Environment variables
 
@@ -30,32 +29,40 @@ Interactief instellen kan bijvoorbeeld met `gh secret set SENDGRID_API_KEY --rep
 | --- | --- | --- |
 | `APP_BASE_URL` | Ja | Definitieve HTTPS-origin van productie, zonder pad. Moet gelijk zijn aan de eenmalig geïnstalleerde proxy-origin. |
 | `S3_BUCKET` | Ja | Naam van de eigen private productiemediabucket. |
-| `MAIL_FROM` | Ja | In SendGrid geverifieerd afzenderadres, bijvoorbeeld `website@eigen-domein.nl`. Alleen het e-mailadres; de app gebruikt de naam Duindorp SV. |
+| `MAIL_FROM` | Ja | In Resend geverifieerd afzenderadres, bijvoorbeeld `website@eigen-domein.nl`. Alleen het e-mailadres; de app gebruikt de naam Duindorp SV. |
 | `RESTIC_REPOSITORY` | Ja | Externe repository: `s3:https://backup-host/eigen-backupbucket/pad`. |
 | `S3_ENDPOINT` | Bij S3-compatible opslag | HTTPS-origin van de objectopslag; leeg bij AWS S3. |
 | `S3_REGION` | `eu-west-1` | Werkelijke regio van de mediabucket. |
 | `BACKUP_S3_REGION` | Waarde van `S3_REGION` | Regio van de externe backupopslag. |
 | `TRUST_PROXY_IP` | `false` | Alleen `true` wanneer de proxy X-Real-IP overschrijft en directe toegang is geblokkeerd. |
-| `NEWSLETTER_PROVIDER` | `disabled` | Eventueel `brevo` voor lijstbeheer; dan zijn API-key en lijstnummer verplicht. |
-| `NEWSLETTER_LIST_ID` | Bij Brevo | Positief lijstnummer. |
 | `NEWS_IMPORT_MAX_MB` | `512` | Maximale ZIP-omvang in MiB; bereik 32–2048. |
 | `NEWS_IMPORT_MAX_UNPACKED_MB` | `2048` | Maximale uitgepakte omvang in MiB; bereik 512–4096. |
 | `NEWS_IMPORT_MAX_ENTRIES` | `10000` | Maximaal aantal ZIP-items; bereik 100–50000. |
 
-`TEST_MAIL_TO` hoort **niet** in production en wordt niet door de productieworkflow doorgegeven. In lokale development/testconfiguratie is een expliciet testadres verplicht zodra echte API-mail wordt gebruikt; alle ontvangers worden daarheen omgeleid. Zonder SendGrid-configuratie blijft mail met gecontroleerde retries in de queue staan.
+`TEST_MAIL_TO` hoort **niet** in production en wordt niet door de productieworkflow doorgegeven. In lokale development/testconfiguratie is een expliciet testadres verplicht zodra echte API-mail wordt gebruikt; alle ontvangers worden daarheen omgeleid. Zonder Resend-configuratie blijft mail met gecontroleerde retries in de queue staan.
 
 De oude `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER` en `SMTP_PASSWORD` worden niet meer gebruikt en kunnen uit GitHub verwijderd worden. Er is geen SMTP-service of Mailpit nodig.
 
 `APP_ENV=production`, `MEDIA_DRIVER=s3`, databasegebruikers, databasehost/-naam, beide database-URL’s, bestandspaden en poort worden door de vaste hostconfiguratie samengesteld. `GITHUB_TOKEN`, image-digest en releasemanifest levert Actions. Hiervoor maak je geen eigen secret of variable aan. Er zijn evenmin SSH-secrets voor de workflow nodig: de bestaande productierunner voert uitsluitend de vaste lokale wrapper uit.
 
-## SendGrid aansluiten
+## Resend aansluiten
 
-1. Verifieer het afzenderdomein in SendGrid en plaats de vereiste DNS-records. `MAIL_FROM` moet onder die geverifieerde identiteit vallen. Zie [Sender Identity](https://www.twilio.com/docs/sendgrid/for-developers/sending-email/sender-identity).
-2. Maak een beperkte API-key voor Mail Send en sla die op als `production` secret `SENDGRID_API_KEY`; zie [API Keys](https://www.twilio.com/docs/sendgrid/ui/account-and-settings/api-keys).
-3. De worker verstuurt activatie, wachtwoordherstel, formuliernotificaties/ontvangstbevestigingen en nieuwsbriefbevestiging via `POST https://api.sendgrid.com/v3/mail/send` met Bearer-authenticatie. De key blijft uitsluitend in de serverruntime. HTTPS-uitgaand verkeer naar `api.sendgrid.com:443` moet toegestaan zijn.
-4. HTTP **202** betekent geaccepteerd door SendGrid; het is geen bewijs van bezorging in de mailbox. Andere statussen, netwerkfouten en timeouts blijven retrybaar in de bestaande queue. Providerbodies en geheime waarden komen niet in de foutmelding of het taaklog. Controleer bij de eerste echte verzending ook SendGrid Activity en de ontvangende mailbox. Zie [Mail Send API](https://www.twilio.com/docs/sendgrid/api-reference/mail-send/mail-send).
+1. Verifieer het afzenderdomein in Resend en plaats de vereiste DNS-records. `MAIL_FROM` moet onder dat domein vallen; zie [Verified Domains](https://resend.com/docs/dashboard/domains/introduction).
+2. Maak een API-key met **Sending access**, beperkt tot het eigen domein, en sla die op als `production` secret `RESEND_API_KEY`. Er zijn geen externe lijsten, audiences, segments of contacts nodig. Zie [API keys](https://resend.com/docs/api-reference/api-keys/create-api-key).
+3. De worker verstuurt activatie, wachtwoordherstel, formuliernotificaties/ontvangstbevestigingen en nieuwsbriefbevestiging via `https://api.resend.com/emails`. Meerdere ontvangers krijgen afzonderlijke enveloppen, in batches van maximaal 100 via `/emails/batch`. Alleen de serverruntime krijgt de key. Uitgaand HTTPS naar `api.resend.com:443` moet toegestaan zijn.
+4. De app accepteert alleen HTTP **200** met een geldig bericht-ID voor iedere envelop. Dit is API-acceptatie, geen bewijs van mailboxbezorging. Afwijzing, ongeldige ontvangstbewijzen, netwerkfouten en timeouts blijven retrybaar; providerbodies en geheime waarden worden niet gelogd. Controleer bij de eerste echte verzending ook Resend en de ontvangende mailbox. Zie [Send Email](https://resend.com/docs/api-reference/emails/send-email) en [Batch Email](https://resend.com/docs/api-reference/emails/send-batch-emails).
 
-Ontvangers krijgen aparte enveloppen; Reply-To en tekstinhoud blijven behouden. Klik- en open-tracking staan uit voor deze berichten. De operatie-ID wordt alleen als correlatie meegestuurd: bij een storing tussen API-acceptatie en de databasecommit kan een retry dubbel bezorgen. Er wordt geen exact-eenmaal-bezorging geclaimd.
+Dezelfde operatie en batch krijgen bij retries dezelfde `Idempotency-Key`. Resend bewaart die binding **24 uur**, bij een gelijkblijvende aanvraag; daarna is dubbele bezorging mogelijk. Dit is geen onbeperkte exact-eenmaal-garantie. De worker spreidt requests en vernieuwt taakleases tijdens lange verwerking. Zie [Idempotency Keys](https://resend.com/docs/dashboard/emails/idempotency-keys).
+
+Naam en Reply-To blijven behouden. Configureer eventuele klik-/open-tracking bij het afzenderdomein in Resend; de app stuurt geen SendGrid-trackinginstellingen mee.
+
+## Abonnees en onderwerpen blijven in het CMS
+
+De bestaande eigen tabel `cms_newsletter` bewaart toestemming, bevestiging, afmelding, naam en onderwerpen. Bevestigen maakt een inschrijving direct lokaal actief; afmelden werkt direct in dezelfde database. Er worden geen contacten of lijsten naar een externe provider gesynchroniseerd.
+
+Beheer onder **Instellingen & koppelingen → Nieuwsbriefabonnees** vereist `settings/manage`. Zoek en filter op naam/e-mailadres, onderwerp en status; bewerk naam/onderwerpen of meld af. Alleen een nieuwe bevestigde openbare aanvraag kan een afgemelde abonnee opnieuw inschrijven. De CMS-API levert geen bevestigings- of afmeldtokens; wijzigingen controleren het versienummer en worden geaudit. Dit voegt geen campagne-editor of automatische bulkcampagne toe.
+
+Migratie `0013_local_newsletter` activeert eerder bevestigde lokale aanvragen, bewaart bestaande abonnees en stopt oude externe synchronisatietaken. `NEWSLETTER_PROVIDER`, `NEWSLETTER_API_KEY` en `NEWSLETTER_LIST_ID` zijn vervallen. Ook `SENDGRID_API_KEY` wordt niet meer gelezen; alleen `RESEND_API_KEY` is de mailsleutel.
 
 ## Branches, build en goedkeuring
 
@@ -63,7 +70,7 @@ De productieworkflow draait bij een push naar **main**. Developmentwerk komt via
 
 Stel in `production` bij **Deployment branches and tags** uitsluitend branch **main** in. Behoud de bestaande vereiste reviewer voor de productiedeployjob. Daarmee is er één productieomgeving met één eventuele goedkeuring, geen stagingacceptatiestap. Een melding *Waiting for review* wordt afgehandeld met **Review deployments** bij de productierun.
 
-Controles en Dockerbuild draaien op GitHub-hosted runners zonder applicatiesecrets. Het releaseartifact bevat alleen commit, Git-tree, migratiehash, run-ID, immutable GHCR-digest en `configVersion:3`. Alleen de deployjob gebruikt `production` en runnerlabel `duindorpsv-production`. Er wordt op die runner geen repositorycode uitgecheckt.
+Controles en Dockerbuild draaien op GitHub-hosted runners zonder applicatiesecrets. Het releaseartifact bevat alleen commit, Git-tree, migratiehash, run-ID, immutable GHCR-digest en `configVersion:4`. Alleen de deployjob gebruikt `production` en runnerlabel `duindorpsv-production`. Er wordt op die runner geen repositorycode uitgecheckt.
 
 ## Overdracht, backup en rollback
 
@@ -79,9 +86,9 @@ Bij een mislukte appstart wordt het vorige image met zijn vorige configuratie te
 
 ## Installeren en later instellingen aanpassen
 
-Installeer eerst de gereviewde versie-3-wrappers op de hosting-VPS volgens [first-deploy.md](first-deploy.md). Het vereiste sudo-recht is uitsluitend de vaste wrapper als de applicatiegebruiker, zonder argumenten; algemene sudo-/Dockerrechten zijn niet nodig. Oudere geïnstalleerde helpers worden bewust niet blind vervangen. Een protocol-1/2-installatie vraagt een gecontroleerde operator-upgrade met behoud van data en secretgeneraties.
+Installeer eerst de gereviewde versie-4-wrappers op de hosting-VPS volgens [first-deploy.md](first-deploy.md). Het vereiste sudo-recht is uitsluitend de vaste wrapper als de applicatiegebruiker, zonder argumenten; algemene sudo-/Dockerrechten zijn niet nodig. Oudere geïnstalleerde helpers worden bewust niet blind vervangen. Een protocol-1/2/3-installatie vraagt een gecontroleerde operator-upgrade met behoud van data en secretgeneraties.
 
-Na een gewone wijziging van bijvoorbeeld SendGrid-credentials of `MAIL_FROM` voer je alleen de deployjob van de laatste main-release opnieuw uit. `gh run view RUN_ID --repo duindorpsv/website --json jobs` toont het job-ID; gebruik daarna `gh run rerun RUN_ID --repo duindorpsv/website --job JOB_ID`. Dezelfde geteste image krijgt een nieuwe configuratiegeneratie; de productiegoedkeuring wordt opnieuw gevraagd. De verifier leest de geslaagde checks/build uit de eerdere poging van dezelfde run. Bij een nieuwere main-commit gebruik je de nieuwe release.
+Na een gewone wijziging van bijvoorbeeld Resend-credentials of `MAIL_FROM` voer je alleen de deployjob van de laatste main-release opnieuw uit. `gh run view RUN_ID --repo duindorpsv/website --json jobs` toont het job-ID; gebruik daarna `gh run rerun RUN_ID --repo duindorpsv/website --job JOB_ID`. Dezelfde geteste image krijgt een nieuwe configuratiegeneratie; de productiegoedkeuring wordt opnieuw gevraagd. De verifier leest de geslaagde checks/build uit de eerdere poging van dezelfde run. Bij een nieuwere main-commit gebruik je de nieuwe release.
 
 Databasewachtwoorden, `AUTH_SESSION_SECRET` en de locatie van media worden niet zomaar geroteerd: de wrapper weigert zulke wijzigingen aan een bestaande installatie totdat een gecontroleerde migratie is uitgevoerd. Een secret in GitHub wijzigen verandert geen bestaand PostgreSQL-account of versleutelde MFA-data. Bewaar oudere backupconfiguraties en hersteltoegang.
 
