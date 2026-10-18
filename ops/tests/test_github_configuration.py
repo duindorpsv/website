@@ -36,7 +36,7 @@ def settings(target='production'):
                 SUPABASE_URL='https://'+project+'.supabase.co',
                 SUPABASE_PUBLISHABLE_KEY='sb_publishable_synthetic', SUPABASE_SECRET_KEY='sb_secret_synthetic',
                 SUPABASE_DB_CA_CERT_B64=base64.b64encode((Path(__file__).parent/'fixtures/supabase-ca.crt').read_bytes()).decode(),
-                S3_BUCKET='cms-' + target, S3_ENDPOINT='https://'+project+'.storage.supabase.co/storage/v1/s3',
+                S3_BUCKET='cms-' + target, S3_ENDPOINT='https://fsn1.your-objectstorage.com', S3_REGION='fsn1',
                 S3_ACCESS_KEY_ID='synthetic-media-key', S3_SECRET_ACCESS_KEY='synthetic-media-secret',
                 RESEND_API_KEY='synthetic-resend-key', MAIL_FROM='cms@example.org',
                 RESTIC_REPOSITORY='s3:https://backup.example.org/cms-' + target,
@@ -91,8 +91,15 @@ class ConfigurationTests(unittest.TestCase):
                    dict(values, APP_BASE_URL='https://other.example.org'),
                    dict(values, TEST_MAIL_TO='test@example.org'), dict(values, S3_BUCKET='--config=/etc/passwd'),
                    dict(values, S3_ENDPOINT='http://169.254.169.254'),
+                   dict(values, S3_ENDPOINT='https://fsn1.your-objectstorage.com/cms-production'),
+                   dict(values, S3_ENDPOINT='https://fsn1.your-objectstorage.com.evil.example'),
+                   dict(values, S3_ENDPOINT='https://fsn1.your-objectstorage.com?endpoint=other'),
+                   dict(values, S3_ENDPOINT='https://abcdefghijklmnopqrst.storage.supabase.co/storage/v1/s3'),
+                   dict(values, S3_REGION='hel1'),
                    dict(values, RESTIC_REPOSITORY='/srv/another-site'),
                    dict(values, RESTIC_REPOSITORY='s3:https://user:password@example.org/backup'),
+                   dict(values, RESTIC_REPOSITORY='s3:https://fsn1.your-objectstorage.com/cms-production'),
+                   dict(values, RESTIC_REPOSITORY='s3:https://fsn1.your-objectstorage.com/cms-production/originals'),
                    dict(values, SUPABASE_URL='https://zzzzzzzzzzzzzzzzzzzz.supabase.co'),
                    dict(values, SUPABASE_DB_CA_CERT_B64='invalid'),
                    dict(values, DATABASE_URL=values['MIGRATION_DATABASE_URL']),
@@ -114,6 +121,10 @@ class ConfigurationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             configuration.validate_configuration(dict(settings('production'), TEST_MAIL_TO='test@example.org'),
                                                  'production', {'baseUrl': settings('production')['APP_BASE_URL']})
+
+    def test_shared_bucket_backup_is_separate_from_media(self):
+        values = dict(settings(), RESTIC_REPOSITORY='s3:https://fsn1.your-objectstorage.com/cms-production/.duindorp-backups/production')
+        self.assertEqual(configuration.validate_configuration(values, 'production', {'baseUrl': values['APP_BASE_URL']})['RESTIC_REPOSITORY'], values['RESTIC_REPOSITORY'])
 
     def test_generation_rejects_symlinks_and_modified_files(self):
         values = configuration.validate_configuration(settings(), 'production', {'baseUrl': settings()['APP_BASE_URL']})
@@ -461,6 +472,7 @@ class BackupTests(unittest.TestCase):
                  patch.object(backup.subprocess, 'run', side_effect=run):
                 backup.backup('production', identifier, environment, initialize=True)
             media_env = commands[0][1]
+            self.assertIn('/.duindorp-backups/**', commands[0][0])
             external_env = commands[1][1]
             self.assertEqual(media_env['RCLONE_CONFIG_MEDIA_SECRET_ACCESS_KEY'], values['S3_SECRET_ACCESS_KEY'])
             self.assertNotIn('AWS_SECRET_ACCESS_KEY', media_env)

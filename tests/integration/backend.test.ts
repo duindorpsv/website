@@ -198,12 +198,13 @@ test('AUTH08: runtime SQL has RLS policies while public Supabase roles cannot ac
  assert.equal(result.runtime,'duindorp_app');assert.equal(result.rls,true);assert.equal(result.anon,false);assert.equal(result.authenticated,false);assert.equal(result.service_role,false);assert.equal(result.auth_schema,false);assert.equal(result.anon_rpc,false);assert.equal(result.authenticated_rpc,false);assert.equal(result.server_rpc,true);
  const response=await fetch(process.env.SUPABASE_URL+'/rest/v1/cms_records?select=id&limit=1',{headers:{apikey:process.env.SUPABASE_PUBLISHABLE_KEY!}});assert.ok([401,403,404].includes(response.status));
 });
-test('MEDIA05: Supabase Storage refuses anonymous downloads from the private CMS bucket',async()=>{
- const {createClient}=await import('@supabase/supabase-js'),{putObject,deleteObject}=await import('../../lib/server/storage');
+test('MEDIA05: private S3 objects support signed reads and refuse unsigned downloads',async()=>{
+ const {putObject,getObject,deleteObject}=await import('../../lib/server/storage');
  const key='originals/private-fixture-'+crypto.randomUUID()+'.txt';
  try{await putObject(key,new TextEncoder().encode('private fixture'),'text/plain');
- const client=createClient(process.env.SUPABASE_URL!,process.env.SUPABASE_PUBLISHABLE_KEY!,{auth:{persistSession:false,autoRefreshToken:false}});
- const result=await client.storage.from(process.env.S3_BUCKET!).download(key);assert.ok(result.error);assert.equal(result.data,null);
+ assert.equal(new TextDecoder().decode(await getObject(key)),'private fixture');
+ const response=await fetch(process.env.S3_ENDPOINT!.replace(/\/$/,'')+'/'+process.env.S3_BUCKET+'/'+key);
+ assert.ok([400,401,403,404].includes(response.status));assert.notEqual(await response.text(),'private fixture');
  }finally{await deleteObject(key);}
 });
 test('AUTH09: a verified non-TOTP factor also prevents password-only CMS access',async()=>{

@@ -76,3 +76,10 @@ Lokaal gecontroleerd: 114 unit/regressietests plus één skip, 32 PostgreSQL-int
 De gebruiker bevestigde Supabase voor database, inloggen en opslag. De nog wachtende lokale-PostgreSQL-productierun 39151672865 is geannuleerd vóór goedkeuring. De nieuwe release gebruikt Supabase Auth/SSR met HttpOnly cookies, live sessiecontrole, MFA/AAL-controle en behoud van lokale CMS-rechten, Supabase PostgreSQL met gescheiden accounts en gecontroleerde TLS en een privébucket in Supabase Storage. Resend verzorgt ook activatie-/herstelmail via de bestaande outbox; er is geen SMTP-koppeling.
 
 Het echte Duindorp Supabase-project is nog niet aangewezen; in de gekoppelde account werd geen herkenbaar project aangetroffen. Er is geen cloudproject aangemaakt, geen andere projectdatabase gewijzigd en geen productiedeployment uitgevoerd. Verificatieresultaten volgen na de code- en workflowcontroles.
+
+
+## 19 oktober 2026 — bestaande Hetzner-opslag behouden
+
+Op verzoek van de eigenaar blijven bestanden in de bestaande Hetzner S3-bucket; Supabase verzorgt uitsluitend database en Auth/MFA. De productieconfiguratie controleert het Hetzner-regioadres zonder bucketpad. Readiness controleert bucket-ACL/policy en weigert publieke toegang of onleesbare permissies. De lokale CI gebruikt Supabase Storage uitsluitend als S3-testadapter; dit is geen productieprovidervereiste.
+
+Het openbare database-CA-certificaat is met succesvolle hostnaam-/ketencontrole tegen de aangewezen Supabase-database geverifieerd en in GitHub Environment production ingesteld. De bestaande S3-secrets blijven behouden. De externe Restic-backup gebruikt een gereserveerde prefix wanneer dezelfde bucket wordt gebruikt; eerdere backups worden uitgesloten van de mediakopie. Lokale unit-, type- en opscontroles zijn geslaagd; de volledige container-/browsercontrole en echte productieoplevering volgen via de bestaande workflow.
