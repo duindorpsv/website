@@ -36,6 +36,8 @@ jobs:
           pnpm exec tsx scripts/setup-local-supabase.ts
       - run: pnpm test && pnpm typecheck
       - run: pnpm db:migrate && pnpm exec tsx scripts/provision-database.ts && pnpm db:seed && pnpm test:integration
+      - name: Verify actual Supabase database backup
+        run: bash ops/scripts/verify-supabase-backup.sh
       - name: Supabase security advisors
         run: |
           npx --yes supabase@2.121.0 db advisors --help >/dev/null
@@ -84,6 +86,7 @@ jobs:
           path: |
             .runtime/e2e-report.json
             .runtime/news-large-proof.json
+            .runtime/database-backup-proof.json
             .runtime/supabase-advisors-summary.json
             .runtime/screenshots
           retention-days: 14
