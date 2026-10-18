@@ -4,8 +4,8 @@
   "private": true,
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
-    "@better-auth/drizzle-adapter": "catalog:",
-    "better-auth": "catalog:",
+    "@supabase/supabase-js": "2.117.3",
+    "@supabase/ssr": "0.12.7",
     "drizzle-orm": "catalog:",
     "htmlparser2": "12.0.0",
     "postgres": "catalog:",

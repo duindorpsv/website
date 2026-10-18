@@ -70,3 +70,9 @@ Op verzoek van de eigenaar vervangt Resend de eerder toegevoegde SendGrid-koppel
 Abonnees en onderwerpen worden lokaal beheerd onder Instellingen & koppelingen. Bevestiging activeert direct lokaal, afmelding werkt direct, wijzigingen vereisen beheerrecht en versiebinding en worden geaudit. Migratie 0013 bewaart bestaande data en beëindigt oude externe synchronisatietaken. Resend-requestsleutels blijven stabiel bij retries; de providerbinding verloopt na 24 uur. Echte verzending/bezorging en hostinginstallatie worden zonder werkelijke productie-instellingen niet als uitgevoerd gerapporteerd.
 
 Lokaal gecontroleerd: 114 unit/regressietests plus één skip, 32 PostgreSQL-integratietests, 27 opscontroles, typecheck en Next/runtimebuild. De echte browser controleerde abonnee zoeken/bewerken, behoud na herladen, afmelden, de beheer-API en 390-pixelweergave. De developmentdatabase is met migratie 0013 bijgewerkt; web/worker draaien gezond. Alle mail-API-contracten zijn synthetische fixtures; er zijn geen echte mails verzonden. De volledige container-/browsercontrole volgt via de PR-workflow.
+
+## Supabase-omzetting (in uitvoering)
+
+De gebruiker bevestigde Supabase voor database, inloggen en opslag. De nog wachtende lokale-PostgreSQL-productierun 39151672865 is geannuleerd vóór goedkeuring. De nieuwe release gebruikt Supabase Auth/SSR met HttpOnly cookies, live sessiecontrole, MFA/AAL-controle en behoud van lokale CMS-rechten, Supabase PostgreSQL met gescheiden accounts en gecontroleerde TLS en een privébucket in Supabase Storage. Resend verzorgt ook activatie-/herstelmail via de bestaande outbox; er is geen SMTP-koppeling.
+
+Het echte Duindorp Supabase-project is nog niet aangewezen; in de gekoppelde account werd geen herkenbaar project aangetroffen. Er is geen cloudproject aangemaakt, geen andere projectdatabase gewijzigd en geen productiedeployment uitgevoerd. Verificatieresultaten volgen na de code- en workflowcontroles.

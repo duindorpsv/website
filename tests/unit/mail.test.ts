@@ -3,7 +3,7 @@ import {createHash} from 'node:crypto';
 import {afterEach,beforeEach,test} from 'node:test';
 import {sendMail} from '../../lib/server/mail';
 import {env} from '../../lib/server/env';
-const settings={APP_ENV:'test',APP_BASE_URL:'http://localhost:3000',DATABASE_URL:'postgres://synthetic@localhost/unused',AUTH_SESSION_SECRET:'synthetic-session-'.repeat(4),MEDIA_DRIVER:'filesystem',RESEND_API_KEY:'synthetic-resend-contract',MAIL_FROM:'club@example.org',TEST_MAIL_TO:'mail-test@example.org',S3_BUCKET:'synthetic',S3_ACCESS_KEY_ID:'synthetic',S3_SECRET_ACCESS_KEY:'synthetic'};
+const settings={APP_ENV:'test',APP_BASE_URL:'http://localhost:3000',DATABASE_URL:'postgres://synthetic@localhost/unused',DATABASE_CA_CERT_B64:'synthetic-ca',SUPABASE_URL:'https://abcdefghijklmnopqrst.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_synthetic',SUPABASE_SECRET_KEY:'sb_secret_synthetic',MEDIA_DRIVER:'filesystem',RESEND_API_KEY:'synthetic-resend-contract',MAIL_FROM:'club@example.org',TEST_MAIL_TO:'mail-test@example.org',S3_BUCKET:'synthetic',S3_ACCESS_KEY_ID:'synthetic',S3_SECRET_ACCESS_KEY:'synthetic'};
 const input={to:['one@example.org','two@example.org'],subject:'Ontvangstbevestiging',text:'Uw bericht is ontvangen.',messageId:'<operation-1@duindorp.invalid>',replyTo:'visitor@example.org'};
 let previous:Record<string,string|undefined>;const realFetch=globalThis.fetch;
 const receipt=()=>({id:crypto.randomUUID()});

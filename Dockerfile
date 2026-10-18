@@ -26,7 +26,7 @@ COPY --from=build --chown=node:node /build/db/migrations ./db/migrations
 COPY --chown=node:node ops/scripts/entrypoint.sh /app/entrypoint.sh
 # ESM runtime bundles have .mjs names even though web server.js is CommonJS.
 WORKDIR /app/runtime
-RUN mv worker.js worker.mjs && mv migrate.js migrate.mjs && mv runtime-validate.js runtime-validate.mjs && mv seed.js seed.mjs && mv owner.js owner.mjs && mv provision.js provision.mjs && chmod 0555 /app/entrypoint.sh
+RUN mv worker.js worker.mjs && mv migrate.js migrate.mjs && mv runtime-validate.js runtime-validate.mjs && mv seed.js seed.mjs && mv owner.js owner.mjs && mv provision.js provision.mjs && mv migrate-accounts.js migrate-accounts.mjs && chmod 0555 /app/entrypoint.sh
 WORKDIR /app
 USER node
 EXPOSE 3000

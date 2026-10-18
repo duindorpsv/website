@@ -1,6 +1,6 @@
 # Servercontract
 
-CMS-API's vereisen een actuele Better Auth-sessie. Mutaties vereisen exact de ingestelde origin. Accountblokkering en wijzigingen van rollen/scopes worden bij elke aanvraag opnieuw gecontroleerd. Productiebeheerders moeten MFA activeren.
+CMS-API's vereisen een door Supabase gevalideerde sessie, waarvan de live provider-sessie en lokale intrekkingsstatus worden gecontroleerd. Mutaties vereisen exact de ingestelde origin. Accountblokkering en wijzigingen van rollen/scopes worden bij elke aanvraag opnieuw gecontroleerd. Productiebeheerders moeten TOTP activeren én de huidige sessie naar AAL2 verhogen. Een opgeslagen factor alleen geeft geen toegang.
 
 `GET /api/cms/bootstrap` levert de toegestane redactionele records en versietokens; geen volledige inzendingsdatabase. Resourcelezingen `/api/cms/{articles,pages,media,albums,people,forms,documents,settings,navigation,hero,narrowcasting}` hebben begrensde lijsten, offset/limit en objectautorisatie. Artikeltypen hebben een expliciet `contentType`-filter.
 

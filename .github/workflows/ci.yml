@@ -10,23 +10,10 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    services:
-      database:
-        image: postgres:17-bookworm
-        env:
-          POSTGRES_USER: duindorp
-          POSTGRES_DB: duindorp_test
-          POSTGRES_PASSWORD: ${{ github.run_id }}
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U duindorp -d duindorp_test"
-          --health-interval 5s --health-timeout 3s --health-retries 20
+    timeout-minutes: 35
     env:
       APP_ENV: test
       APP_BASE_URL: http://127.0.0.1:3000
-      DATABASE_URL: postgres://duindorp:${{ github.run_id }}@127.0.0.1:5432/duindorp_test
-      MEDIA_DRIVER: filesystem
       MEDIA_ROOT: ${{ github.workspace }}/.runtime/media
       TEST_MAIL_TO: test@example.invalid
     steps:
@@ -41,34 +28,35 @@ jobs:
           corepack prepare pnpm@11.25.0 --activate
           pnpm install --frozen-lockfile
           mkdir -p .runtime
-          session_secret=$(openssl rand -hex 32)
-          echo "::add-mask::$session_secret"
-          printf 'AUTH_SESSION_SECRET=%s\n' "$session_secret" >> "$GITHUB_ENV"
+      - name: Start isolated Supabase Database, Auth and Storage
+        run: |
+          umask 077
+          npx --yes supabase@2.121.0 start --exclude realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor > .runtime/supabase-start.log 2>&1
+          npx --yes supabase@2.121.0 status --output json > .runtime/supabase-status.json
+          pnpm exec tsx scripts/setup-local-supabase.ts
       - run: pnpm test && pnpm typecheck
-      - run: pnpm db:migrate && pnpm db:seed && pnpm test:integration
+      - run: pnpm db:migrate && pnpm exec tsx scripts/provision-database.ts && pnpm db:seed && pnpm test:integration
+      - name: Supabase security advisors
+        run: |
+          npx --yes supabase@2.121.0 db advisors --help >/dev/null
+          result=0
+          npx --yes supabase@2.121.0 db advisors --local --type security --level warn --fail-on error --output-format json > .runtime/supabase-advisors.json || result=$?
+          pnpm exec tsx scripts/summarize-supabase-advisors.ts
+          exit "$result"
       - run: pnpm build && pnpm build:runtime
       - run: |
           pnpm exec tsx scripts/development-test-account.ts
           docker build -t duindorp-ci .
           node --input-type=module <<'JS'
           import {writeFileSync} from 'node:fs';
-          import {randomBytes} from 'node:crypto';
           const values={};
-          for(const key of ['APP_ENV','APP_BASE_URL','DATABASE_URL','AUTH_SESSION_SECRET','MEDIA_DRIVER','TEST_MAIL_TO']) values[key]=process.env[key];
-          const password=randomBytes(24).toString('hex');console.log('::add-mask::'+password);
-          writeFileSync('.runtime/provision.env','MIGRATION_DATABASE_URL='+process.env.DATABASE_URL+'\nAPP_DATABASE_PASSWORD='+password+'\n',{mode:0o600});
-          const url=new URL(values.DATABASE_URL);url.username='duindorp_app';url.password=password;values.DATABASE_URL=url.href;
-          values.MEDIA_ROOT='/data/media';values.RELEASE_DIGEST='ci-image';
+          for(const key of ['APP_ENV','APP_BASE_URL','DATABASE_URL','SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','SUPABASE_SECRET_KEY','MEDIA_DRIVER','S3_ENDPOINT','S3_REGION','S3_BUCKET','S3_ACCESS_KEY_ID','S3_SECRET_ACCESS_KEY','TEST_MAIL_TO']) values[key]=process.env[key];
+          values.RELEASE_DIGEST='ci-image';
           writeFileSync('.runtime/image.env',Object.entries(values).map(([key,value])=>key+'='+value).join('\n')+'\n',{mode:0o600});
           JS
-          set -a
-          source .runtime/provision.env
-          set +a
-          pnpm exec tsx scripts/provision-database.ts
-          sudo chown -R 1000:1000 .runtime/media
           pnpm exec tsx -e 'import {sqlClient,closeDb} from "./db/index.ts";void(async()=>{await sqlClient()`delete from cms_heartbeats`;await closeDb();})();'
-          docker run -d --name duindorp-ci-worker --memory=512m --network host --env-file .runtime/image.env --mount type=bind,src="$PWD/.runtime/media",dst=/data/media --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges duindorp-ci worker
-          docker run -d --name duindorp-ci-web --memory=768m --network host --env-file .runtime/image.env --mount type=bind,src="$PWD/.runtime/media",dst=/data/media --read-only --tmpfs /tmp --tmpfs /app/.next/cache:uid=1000,gid=1000 --cap-drop ALL --security-opt no-new-privileges duindorp-ci
+          docker run -d --name duindorp-ci-worker --memory=512m --network host --env-file .runtime/image.env --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges duindorp-ci worker
+          docker run -d --name duindorp-ci-web --memory=768m --network host --env-file .runtime/image.env --read-only --tmpfs /tmp --tmpfs /app/.next/cache:uid=1000,gid=1000 --cap-drop ALL --security-opt no-new-privileges duindorp-ci
           pnpm exec playwright install --with-deps chromium --only-shell
           for attempt in $(seq 1 40); do
             if curl --fail --silent http://127.0.0.1:3000/health/ready >/dev/null; then break; fi
@@ -88,6 +76,7 @@ jobs:
           docker logs duindorp-ci-web > .runtime/web.log 2>&1 || true
           docker logs duindorp-ci-worker > .runtime/worker.log 2>&1 || true
           docker rm -f duindorp-ci-web duindorp-ci-worker >/dev/null 2>&1 || true
+          npx --yes supabase@2.121.0 stop --no-backup >/dev/null 2>&1 || true
       - if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -95,5 +84,6 @@ jobs:
           path: |
             .runtime/e2e-report.json
             .runtime/news-large-proof.json
+            .runtime/supabase-advisors-summary.json
             .runtime/screenshots
           retention-days: 14

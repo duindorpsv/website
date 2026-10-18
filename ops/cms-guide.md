@@ -1,6 +1,6 @@
 # Dagelijks clubbeheer
 
-Log in op /beheer met je persoonlijke account. Accountbeveiliging stelt een authenticator en herstelcodes in. Rollen zijn acties per module; teamredactie en formulieropvolging zien alleen toegewezen teams/afdelingen/stromen.
+Log in op /beheer met je persoonlijke account. Inloggen en de authenticator lopen via Supabase Auth. Stel de authenticator kort na het inloggen in via Accountbeveiliging. Neem bij verlies ervan contact op met de beheerder; deze versie geeft geen herstelcodes uit. Rollen zijn acties per module; teamredactie en formulieropvolging zien alleen toegewezen teams/afdelingen/stromen.
 
 Bewaren verandert de werkversie. Publiceren maakt een nieuwe livepublicatie voor alle bezoekers. Revisies herstellen eerst naar een concept. Bij een versieconflict blijft je werk herstelbaar; download niet-opgeslagen werk in Herstel/back-up en vergelijk met de opnieuw geladen serverversie.
 

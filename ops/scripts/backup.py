@@ -38,7 +38,7 @@ def backup(target, identifier, environment, initialize=False):
     # Do not inherit arbitrary credential helpers, rclone configuration or flags.
     base = {key: environment[key] for key in ('PATH', 'HOME', 'DOCKER_HOST', 'WEB_PORT',
             'APP_IMAGE', 'RELEASE_DIGEST', 'RUNTIME_ENV_FILE', 'MIGRATION_ENV_FILE',
-            'PROVISION_ENV_FILE', 'DATABASE_PASSWORD_FILE')}
+            'PROVISION_ENV_FILE')}
     media = {**base, 'RCLONE_CONFIG_MEDIA_TYPE': 's3',
              'RCLONE_CONFIG_MEDIA_PROVIDER': 'Other' if source['S3_ENDPOINT'] else 'AWS',
              'RCLONE_CONFIG_MEDIA_ACCESS_KEY_ID': source['S3_ACCESS_KEY_ID'],
@@ -57,8 +57,7 @@ def backup(target, identifier, environment, initialize=False):
         compose = ['docker', 'compose', '-p', 'duindorp-' + target,
                    '-f', str(CONFIG_ROOT / target / 'compose.yml')]
         with open(directory / 'database.dump', 'wb') as dump:
-            result = subprocess.run([*compose, 'exec', '-T', 'database', 'pg_dump',
-                                     '-U', 'duindorp_migration', '-d', 'duindorp', '--format=custom'],
+            result = subprocess.run([*compose, '--profile', 'backup', 'run', '--rm', '--no-deps', '-T', 'database-backup'],
                                     env=base, stdout=dump, stderr=subprocess.PIPE, timeout=300)
         if result.returncode:
             raise RuntimeError('Database backup failed')
@@ -66,12 +65,10 @@ def backup(target, identifier, environment, initialize=False):
                '--config', '/dev/null', '--quiet'], media)
         configuration = directory / 'configuration'
         configuration.mkdir(mode=0o700)
-        for filename in ('runtime.env', 'migration.env', 'provision.env'):
+        for filename in ('runtime.env', 'migration.env', 'provision.env', 'database-ca.crt'):
             contents = read_private(generation_path(state, snapshot_id) / filename)
             (configuration / filename).write_text(contents)
             (configuration / filename).chmod(0o600)
-        shutil.copyfile(base['DATABASE_PASSWORD_FILE'], configuration / 'database-password')
-        (configuration / 'database-password').chmod(0o600)
         if initialize:
             probe = subprocess.run(['restic', 'snapshots', '--json'], env=external,
                                    capture_output=True, timeout=60)

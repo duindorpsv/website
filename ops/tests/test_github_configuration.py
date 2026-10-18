@@ -1,6 +1,7 @@
 """Configuration and deployment boundaries using synthetic credentials and mocked hosts."""
 from contextlib import ExitStack, redirect_stdout
 import io
+import base64
 import json
 import os
 from pathlib import Path
@@ -26,11 +27,16 @@ REAL_COMMAND = deploy.command
 
 
 def settings(target='production'):
+    app_password='application-example-' + 'b' * 32
+    project='abcdefghijklmnopqrst'
     return dict(APP_BASE_URL='https://' + target + '.example.org',
-                DATABASE_PASSWORD='migration-example-' + 'a' * 32,
-                APP_DATABASE_PASSWORD='application-example-' + 'b' * 32,
-                AUTH_SESSION_SECRET='session-example-' + 'c' * 48,
-                S3_BUCKET='cms-' + target, S3_ENDPOINT='https://objects.example.org',
+                DATABASE_URL='postgres://duindorp_app:'+app_password+'@db.'+project+'.supabase.co:5432/postgres?sslmode=verify-full',
+                MIGRATION_DATABASE_URL='postgres://postgres:migration-example-'+'a'*32+'@db.'+project+'.supabase.co:5432/postgres?sslmode=verify-full',
+                APP_DATABASE_PASSWORD=app_password,
+                SUPABASE_URL='https://'+project+'.supabase.co',
+                SUPABASE_PUBLISHABLE_KEY='sb_publishable_synthetic', SUPABASE_SECRET_KEY='sb_secret_synthetic',
+                SUPABASE_DB_CA_CERT_B64=base64.b64encode((Path(__file__).parent/'fixtures/supabase-ca.crt').read_bytes()).decode(),
+                S3_BUCKET='cms-' + target, S3_ENDPOINT='https://'+project+'.storage.supabase.co/storage/v1/s3',
                 S3_ACCESS_KEY_ID='synthetic-media-key', S3_SECRET_ACCESS_KEY='synthetic-media-secret',
                 RESEND_API_KEY='synthetic-resend-key', MAIL_FROM='cms@example.org',
                 RESTIC_REPOSITORY='s3:https://backup.example.org/cms-' + target,
@@ -43,7 +49,7 @@ def release(run=10):
     return dict(schemaVersion=1, repository='duindorpsv/website',
                 workflow='.github/workflows/production.yml', runId=run,
                 sourceSha='a' * 40, treeSha='b' * 40, digest='sha256:' + str(run % 10) * 64,
-                migrationHash='c' * 64, configVersion=4)
+                migrationHash='c' * 64, configVersion=5)
 
 
 class ConfigurationTests(unittest.TestCase):
@@ -61,7 +67,7 @@ class ConfigurationTests(unittest.TestCase):
                 self.assertEqual(configuration.read_generation(state, identifier), values)
                 runtime = (directory / 'runtime.env').read_text()
                 self.assertIn('APP_ENV="' + target + '"', runtime)
-                self.assertNotIn(values['DATABASE_PASSWORD'], runtime)
+                self.assertNotIn(values['MIGRATION_DATABASE_URL'], runtime)
                 self.assertNotIn('MIGRATION_DATABASE_URL', runtime)
                 self.assertNotIn(values['RESTIC_PASSWORD'], runtime)
                 self.assertNotIn(values['BACKUP_S3_SECRET_ACCESS_KEY'], runtime)
@@ -82,10 +88,15 @@ class ConfigurationTests(unittest.TestCase):
                    dict(values, S3_ENDPOINT='http://169.254.169.254'),
                    dict(values, RESTIC_REPOSITORY='/srv/another-site'),
                    dict(values, RESTIC_REPOSITORY='s3:https://user:password@example.org/backup'),
+                   dict(values, SUPABASE_URL='https://zzzzzzzzzzzzzzzzzzzz.supabase.co'),
+                   dict(values, SUPABASE_DB_CA_CERT_B64='invalid'),
+                   dict(values, DATABASE_URL=values['MIGRATION_DATABASE_URL']),
+                   dict(values, MIGRATION_DATABASE_URL=values['MIGRATION_DATABASE_URL'].replace('5432','6543')),
+                   dict(values, DATABASE_URL=values['DATABASE_URL'].replace('verify-full','require')),
                    dict(values, NEWSLETTER_PROVIDER='brevo'),
                    dict(values, NEWSLETTER_LIST_ID='123'), dict(values, NEWSLETTER_API_KEY='obsolete'),
                    dict(values, SENDGRID_API_KEY='obsolete'),
-                   dict(values, AUTH_SESSION_SECRET=42),
+                   dict(values, SUPABASE_SECRET_KEY=42),
                    dict(values, NEWS_IMPORT_MAX_MB='0'),
                    dict(values, NEWS_IMPORT_MAX_UNPACKED_MB='99999'),
                    dict(values, NEWS_IMPORT_MAX_ENTRIES='x')]
@@ -150,10 +161,11 @@ class ConfigurationTests(unittest.TestCase):
             state = Path(temporary)
             tricky = "apostrophe'dollar$HOME${TOKEN}backtick`hash#backslash\\tail\\'"
             values = settings()
+            from urllib.parse import quote
             values.update(RESEND_API_KEY=tricky, APP_DATABASE_PASSWORD=tricky)
+            values['DATABASE_URL']='postgres://duindorp_app:'+quote(tricky,safe='')+'@db.abcdefghijklmnopqrst.supabase.co:5432/postgres?sslmode=verify-full'
             values = configuration.validate_configuration(values, 'production', {'baseUrl': values['APP_BASE_URL']})
             identifier = configuration.write_generation(state, values, 'production')
-            configuration.database_password_file(state, values)
             installed = dict(dockerHost='unix:///nonexistent.sock', webPort=3112)
             environment = {**os.environ, **configuration.compose_environment('production', installed, state, identifier, release(), manifests.REGISTRY)}
             parsed = subprocess.run(['docker', 'compose', '-f', str(ROOT / 'ops/compose.yml'),
@@ -167,13 +179,13 @@ class ConfigurationTests(unittest.TestCase):
             self.assertNotIn('MIGRATION_DATABASE_URL', services['web']['environment'])
             self.assertNotIn('RESTIC_PASSWORD', services['web']['environment'])
             # Verify what the engine actually receives, using the already pulled
-            # CI PostgreSQL image solely as an env printer: no DB, network or mounts.
+            # tiny BusyBox image solely as an env printer: no DB, network or mounts.
             probe = state / 'probe.json'
             probe.write_text(json.dumps({'services': {'configuration-check': {
-                'image': 'postgres:17-bookworm', 'entrypoint': ['/usr/bin/env'],
+                'image': 'busybox:1.37.0', 'entrypoint': ['/bin/busybox','env'],
                 'env_file': [str(state / 'configuration' / identifier / 'runtime.env')],
                 'network_mode': 'none', 'read_only': True, 'cap_drop': ['ALL'],
-                'tmpfs': ['/var/lib/postgresql/data:size=1m']}}}))
+                'tmpfs': ['/tmp:size=1m']}}}))
             printed = subprocess.run(['docker', 'compose', '-p', 'duindorp-config-' + os.urandom(4).hex(),
                                       '-f', str(probe), 'run', '--rm', '--no-deps', 'configuration-check'],
                                      capture_output=True, text=True, timeout=30)
@@ -223,7 +235,7 @@ class DeploymentTests(unittest.TestCase):
         self.assertLess(migrate_index, seed_index)
         self.assertEqual(self.current()['release'], release())
         self.health.assert_called_once_with(3112, release()['digest'])
-        self.assertTrue(all(settings()['AUTH_SESSION_SECRET'] not in str(args) for args in calls))
+        self.assertTrue(all(settings()['SUPABASE_SECRET_KEY'] not in str(args) for args in calls))
 
     def test_same_image_new_configuration_can_be_deployed_and_identical_retry_is_noop(self):
         deploy.deploy('production', self.request())
@@ -314,7 +326,7 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual(self.calls, [])
 
     def test_child_failure_never_exposes_captured_secrets(self):
-        process = SimpleNamespace(returncode=1, stdout='sensitive', stderr=settings()['AUTH_SESSION_SECRET'])
+        process = SimpleNamespace(returncode=1, stdout='sensitive', stderr=settings()['SUPABASE_SECRET_KEY'])
         with patch.object(subprocess, 'run', return_value=process):
             with self.assertRaisesRegex(RuntimeError, '^Deployment command failed$'):
                 REAL_COMMAND(['docker'], {})
@@ -380,7 +392,7 @@ class ProvenanceTests(unittest.TestCase):
                 deploy.verify(item, 'synthetic', 'production')
 
     def test_legacy_manifest_cannot_be_used_as_a_production_release(self):
-        for changes in [dict(configVersion=2), dict(configVersion=3), dict(workflow='.github/workflows/staging.yml')]:
+        for changes in [dict(configVersion=2), dict(configVersion=3), dict(configVersion=4), dict(workflow='.github/workflows/staging.yml')]:
             with self.assertRaises(ValueError):
                 manifests.validate({**release(), **changes})
 
@@ -418,7 +430,6 @@ class BackupTests(unittest.TestCase):
             state.mkdir(mode=0o700)
             values = configuration.validate_configuration(settings(), 'production', {'baseUrl': settings()['APP_BASE_URL']})
             identifier = configuration.write_generation(state, values, 'production')
-            configuration.database_password_file(state, values)
             installed = dict(baseUrl=values['APP_BASE_URL'], webPort=3112, dockerHost='unix:///fake')
             environment = configuration.compose_environment('production', installed, state, identifier, release(), manifests.REGISTRY)
             commands = []
@@ -428,10 +439,10 @@ class BackupTests(unittest.TestCase):
                 if args[:2] == ['restic', 'backup']:
                     directory = Path(args[2])
                     runtime = (directory / 'configuration/runtime.env').read_text()
-                    self.assertIn(values['AUTH_SESSION_SECRET'], runtime)
+                    self.assertIn(values['SUPABASE_SECRET_KEY'], runtime)
                     self.assertFalse((directory / 'configuration/configuration.json').exists())
             def run(args, **kwargs):
-                if 'pg_dump' in args:
+                if 'database-backup' in args:
                     kwargs['stdout'].write(b'synthetic-dump')
                 return SimpleNamespace(returncode=0)
             account = SimpleNamespace(pw_name='duindorpsv-production', pw_dir=temporary)
