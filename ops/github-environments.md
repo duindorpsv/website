@@ -1,95 +1,64 @@
-# GitHub Environment production: configuratie en secrets
+# GitHub Environment: production
 
-De route is **development-VPS → pull request → main → controles/build → production**. Er is één deploymentenvironment: `production`. Development en de geïsoleerde testdatabase blijven op de dev-VPS; daarvoor zijn geen GitHub Environments nodig. De stagingworkflow en stagingacceptatie zijn vervallen. Configuratieversie **4** gebruikt de Resend HTTPS API voor alle websitemail.
+Duindorp SV heeft één deploymentdoel: `production`. De development-VPS is de werkplek. GitHub controleert een PR, bouwt na de merge naar `main` een image en levert dat image met een vast digest op de productie-VPS. Daar draaien alleen web en worker; **database, inloggen/MFA en privébestanden gebruiken het eigen Supabase-project**. Alle website-, uitnodigings- en herstelmails gaan via de Resend HTTPS API. Nieuwsbriefabonnees worden in het CMS beheerd.
 
-Ga naar [Settings → Environments → production](https://github.com/duindorpsv/website/settings/environments/production). Vul onderstaande namen daar in, met de juiste scheiding tussen **Environment secrets** en **Environment variables**. Applicatie-instellingen horen niet in het image of in repositorybestanden. Ontbrekende verplichte instellingen blokkeren deployment vóór databasewijzigingen.
+De Supabase-omzetting gebruikt configuratieversie **5**. De oude release met een lokale PostgreSQL-container is geannuleerd en mag niet worden ingezet. De onderstaande configuratie vervangt de vorige handleiding.
 
-## Environment secrets
+## Secrets
 
-| Naam | Verplicht | Waarde / gebruik |
-| --- | --- | --- |
-| `DATABASE_PASSWORD` | Ja | Wachtwoord voor `duindorp_migration`, minimaal 24 tekens. |
-| `APP_DATABASE_PASSWORD` | Ja | Ander wachtwoord voor `duindorp_app`, minimaal 24 tekens. |
-| `AUTH_SESSION_SECRET` | Ja | Authenticatiesleutel van minimaal 32 tekens; genereer bijvoorbeeld 32 willekeurige bytes als 64 hextekens. |
-| `S3_ACCESS_KEY_ID` | Ja | Toegang tot uitsluitend de private productiemediabucket. |
-| `S3_SECRET_ACCESS_KEY` | Ja | Bijbehorende mediasleutel. |
-| `RESEND_API_KEY` | Ja | Resend API-key met **Sending access**, beperkt tot het eigen geverifieerde afzenderdomein. Alleen voor e-mailverzending; geen contacten- of lijstrechten nodig. |
-| `RESTIC_PASSWORD` | Ja | Encryptiewachtwoord voor de externe backuprepository, minimaal 24 tekens. |
-| `BACKUP_S3_ACCESS_KEY_ID` | Ja | Afzonderlijke toegang tot de externe S3-backuprepository. |
-| `BACKUP_S3_SECRET_ACCESS_KEY` | Ja | Bijbehorende externe backupsleutel. |
-| `SPORTLINK_CLIENT_ID` | Alleen bij Sportlink-lezen | Werkelijke geautoriseerde leesconfiguratie; verleent geen schrijfrechten voor ledenaanmeldingen. |
+Stel deze namen in onder repository → Settings → Environments → **production** → Environment secrets. Waarden blijven buiten Git, PR's en chat.
 
-Bewaar herstelkopieën van encryptiesleutels en externe toegang ook buiten GitHub en de VPS. Bestaande secrets niet opnieuw genereren als ze al in gebruik zijn. GitHub secrets kunnen niet als plaintext worden teruggelezen. Vul echte waarden uitsluitend in GitHub in; publiceer ze niet in chat, issues of commits.
+| Naam | Waarde |
+| --- | --- |
+| `MIGRATION_DATABASE_URL` | Supabase PostgreSQL-verbinding voor `postgres`, direct of **session pooler**, poort 5432, database `postgres`, met `?sslmode=verify-full`. Neem de host uit Supabase **Connect** over. |
+| `DATABASE_URL` | Dezelfde projectdatabase, met beperkt account `duindorp_app` en het afzonderlijke runtime-wachtwoord. Bij de session pooler wordt de gebruikersnaam `duindorp_app.PROJECTREF`. Ook poort 5432 en `?sslmode=verify-full`. |
+| `APP_DATABASE_PASSWORD` | Het wachtwoord uit `DATABASE_URL`, minimaal 24 willekeurige tekens. De provisioning maakt dit beperkte account aan; het mag niet gelijk zijn aan het migratiewachtwoord. |
+| `SUPABASE_SECRET_KEY` | Een serversleutel `sb_secret_…` uit het eigen project, voor accountbeheer, herstel-links en controle van de privébucket. Komt uitsluitend op de server. |
+| `S3_ACCESS_KEY_ID` | Supabase Storage → S3 → gegenereerde access key ID. |
+| `S3_SECRET_ACCESS_KEY` | De bijbehorende Supabase Storage S3-secret. |
+| `RESEND_API_KEY` | Resend API-sleutel met toestemming voor verzenden vanaf het geverifieerde afzenderdomein. |
+| `RESTIC_PASSWORD` | Sterk wachtwoord voor de versleutelde externe backup, minimaal 24 tekens. Bewaar hersteltoegang ook buiten GitHub. |
+| `BACKUP_S3_ACCESS_KEY_ID` | Schrijftoegang voor de aparte externe backupbucket. |
+| `BACKUP_S3_SECRET_ACCESS_KEY` | Bijbehorende backupsecret. |
+| `SPORTLINK_CLIENT_ID` | Alleen nodig als de Sportlink-koppeling gebruikt wordt. |
 
-Interactief instellen kan bijvoorbeeld met `gh secret set RESEND_API_KEY --repo duindorpsv/website --env production`; de CLI vraagt de waarde zonder die in het commando te plaatsen.
+Gebruik percent-encoding voor bijzondere tekens in database-URL's. `APP_DATABASE_PASSWORD` bevat het oorspronkelijke wachtwoord. De runtime krijgt geen migratieverbinding of backupcredentials. De certificaatcontrole blijft aan; poort 6543/transaction pooling wordt voor deze blijvende backend en migraties niet geaccepteerd.
 
-## Environment variables
+## Variables
 
-| Naam | Verplicht / standaard | Waarde / gebruik |
-| --- | --- | --- |
-| `APP_BASE_URL` | Ja | Definitieve HTTPS-origin van productie, zonder pad. Moet gelijk zijn aan de eenmalig geïnstalleerde proxy-origin. |
-| `S3_BUCKET` | Ja | Naam van de eigen private productiemediabucket. |
-| `MAIL_FROM` | Ja | In Resend geverifieerd afzenderadres, bijvoorbeeld `website@eigen-domein.nl`. Alleen het e-mailadres; de app gebruikt de naam Duindorp SV. |
-| `RESTIC_REPOSITORY` | Ja | Externe repository: `s3:https://backup-host/eigen-backupbucket/pad`. |
-| `S3_ENDPOINT` | Bij S3-compatible opslag | HTTPS-origin van de objectopslag; leeg bij AWS S3. |
-| `S3_REGION` | `eu-west-1` | Werkelijke regio van de mediabucket. |
-| `BACKUP_S3_REGION` | Waarde van `S3_REGION` | Regio van de externe backupopslag. |
-| `TRUST_PROXY_IP` | `false` | Alleen `true` wanneer de proxy X-Real-IP overschrijft en directe toegang is geblokkeerd. |
-| `NEWS_IMPORT_MAX_MB` | `512` | Maximale ZIP-omvang in MiB; bereik 32–2048. |
-| `NEWS_IMPORT_MAX_UNPACKED_MB` | `2048` | Maximale uitgepakte omvang in MiB; bereik 512–4096. |
-| `NEWS_IMPORT_MAX_ENTRIES` | `10000` | Maximaal aantal ZIP-items; bereik 100–50000. |
+| Naam | Waarde |
+| --- | --- |
+| `APP_BASE_URL` | Het echte HTTPS-siteadres, bijvoorbeeld `https://www.example.org`; moet overeenkomen met het ingerichte reverse-proxyadres. |
+| `SUPABASE_URL` | `https://PROJECTREF.supabase.co` van het **eigen Duindorp-project**. |
+| `SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…` uit datzelfde project. |
+| `SUPABASE_DB_CA_CERT_B64` | Het database-CA-certificaat uit Supabase Database settings → SSL, als één regel Base64. Dit certificaat is openbaar en geen privésleutel. |
+| `S3_ENDPOINT` | `https://PROJECTREF.storage.supabase.co/storage/v1/s3`, overgenomen uit de S3-instellingen van hetzelfde project. Het pad hoort erbij. |
+| `S3_REGION` | De regio uit die Supabase S3-instellingen. |
+| `S3_BUCKET` | De naam van een **privébucket**, uitsluitend voor Duindorp. |
+| `MAIL_FROM` | Het geverifieerde kale e-mailadres, bijvoorbeeld `website@example.org`, zonder weergavenaam. |
+| `RESTIC_REPOSITORY` | `s3:https://BACKUP-ENDPOINT/BUCKET/PAD` voor de aparte externe backup. |
+| `BACKUP_S3_REGION` | Regio van de backupbucket; standaard gelijk aan `S3_REGION`. |
+| `TRUST_PROXY_IP` | Alleen `true` als de proxy `X-Real-IP` overschrijft en de app uitsluitend via die proxy bereikbaar is; anders `false`. |
+| `NEWS_IMPORT_MAX_MB` | Optioneel: standaard `512`; toegestaan 32–2048 MiB. |
+| `NEWS_IMPORT_MAX_UNPACKED_MB` | Optioneel: standaard `2048`; toegestaan 512–4096 MiB. |
+| `NEWS_IMPORT_MAX_ENTRIES` | Optioneel: standaard `10000`; toegestaan 100–50000 bestanden. |
 
-`TEST_MAIL_TO` hoort **niet** in production en wordt niet door de productieworkflow doorgegeven. In lokale development/testconfiguratie is een expliciet testadres verplicht zodra echte API-mail wordt gebruikt; alle ontvangers worden daarheen omgeleid. Zonder Resend-configuratie blijft mail met gecontroleerde retries in de queue staan.
+Base64 maken zonder het certificaat of een sleutel af te drukken: `base64 -w0 SUPABASE-CA.crt > supabase-ca.base64`. Plak de inhoud van dat bestand in de variable. Op macOS: `base64 < SUPABASE-CA.crt | tr -d '\n' > supabase-ca.base64`.
 
-De oude `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER` en `SMTP_PASSWORD` worden niet meer gebruikt en kunnen uit GitHub verwijderd worden. Er is geen SMTP-service of Mailpit nodig.
+`DATABASE_PASSWORD` en `AUTH_SESSION_SECRET` worden in versie 5 niet meer gelezen. Oude SMTP-, SendGrid-, externe contactenlijst- of staginginstellingen zijn niet nodig. Bewaar oude backup-/MFA-herstelgegevens zolang de oude installatie nog moet kunnen worden hersteld.
 
-`APP_ENV=production`, `MEDIA_DRIVER=s3`, databasegebruikers, databasehost/-naam, beide database-URL’s, bestandspaden en poort worden door de vaste hostconfiguratie samengesteld. `GITHUB_TOKEN`, image-digest en releasemanifest levert Actions. Hiervoor maak je geen eigen secret of variable aan. Er zijn evenmin SSH-secrets voor de workflow nodig: de bestaande productierunner voert uitsluitend de vaste lokale wrapper uit.
+## Supabase-inrichting
 
-## Resend aansluiten
+Gebruik een apart project voor deze applicatie. Auth → URL Configuration: Site URL is `APP_BASE_URL`; sta uitsluitend het exacte hersteladres `APP_BASE_URL/beheer/herstel` toe. Zet openbare en anonieme registratie uit. Zet e-mail/wachtwoord en TOTP-enrollment/verificatie aan; minimum wachtwoordlengte 12. De applicatie maakt activatie-/herstellinks met `admin.generateLink` en verstuurt deze zelf via Resend; configureer hiervoor geen SMTP.
 
-1. Verifieer het afzenderdomein in Resend en plaats de vereiste DNS-records. `MAIL_FROM` moet onder dat domein vallen; zie [Verified Domains](https://resend.com/docs/dashboard/domains/introduction).
-2. Maak een API-key met **Sending access**, beperkt tot het eigen domein, en sla die op als `production` secret `RESEND_API_KEY`. Er zijn geen externe lijsten, audiences, segments of contacts nodig. Zie [API keys](https://resend.com/docs/api-reference/api-keys/create-api-key).
-3. De worker verstuurt activatie, wachtwoordherstel, formuliernotificaties/ontvangstbevestigingen en nieuwsbriefbevestiging via `https://api.resend.com/emails`. Meerdere ontvangers krijgen afzonderlijke enveloppen, in batches van maximaal 100 via `/emails/batch`. Alleen de serverruntime krijgt de key. Uitgaand HTTPS naar `api.resend.com:443` moet toegestaan zijn.
-4. De app accepteert alleen HTTP **200** met een geldig bericht-ID voor iedere envelop. Dit is API-acceptatie, geen bewijs van mailboxbezorging. Afwijzing, ongeldige ontvangstbewijzen, netwerkfouten en timeouts blijven retrybaar; providerbodies en geheime waarden worden niet gelogd. Controleer bij de eerste echte verzending ook Resend en de ontvangende mailbox. Zie [Send Email](https://resend.com/docs/api-reference/emails/send-email) en [Batch Email](https://resend.com/docs/api-reference/emails/send-batch-emails).
+Maak de Storage-bucket privé. De browser gebruikt de bestaande, geautoriseerde media-/documentroutes; hij krijgt geen S3- of serversleutel. De readinesscheck weigert een publieke bucket. Voor CMS-tabellen zijn `anon`, `authenticated` en `service_role` Data API-grants ingetrokken en staat RLS aan. De server gebruikt het aparte beperkte SQL-account en CMS-rollen/teamrechten; gebruikersmetadata bepaalt geen rechten.
 
-Dezelfde operatie en batch krijgen bij retries dezelfde `Idempotency-Key`. Resend bewaart die binding **24 uur**, bij een gelijkblijvende aanvraag; daarna is dubbele bezorging mogelijk. Dit is geen onbeperkte exact-eenmaal-garantie. De worker spreidt requests en vernieuwt taakleases tijdens lange verwerking. Zie [Idempotency Keys](https://resend.com/docs/dashboard/emails/idempotency-keys).
+Migratie 0014 bewaart bestaande CMS-profiel-ID's en historische verwijzingen. Een bestaand lokaal account wordt niet automatisch op e-mailadres aan een Supabase-account gekoppeld. Bestaande accounts, database-inhoud en media moeten vóór de eerste productieoplevering gecontroleerd worden overgezet; zie [eerste deployment](first-deploy.md). Oude sessies vervallen; oude MFA-instellingen werken niet als Supabase-factor.
 
-Naam en Reply-To blijven behouden. Configureer eventuele klik-/open-tracking bij het afzenderdomein in Resend; de app stuurt geen SendGrid-trackinginstellingen mee.
+## Productie-VPS en workflow
 
-## Abonnees en onderwerpen blijven in het CMS
+Het bestaande rootless Docker-account en de vaste deploywrapper blijven vereist. De runner heeft geen algemeen sudo- of Dockerrecht. De beheerder moet de **versie-5** helpers en Compose-configuratie uit deze release installeren; de oude root-owned wrapper begrijpt de nieuwe configuratie niet. Het installatiescript vervangt een bestaande inrichting niet stilzwijgend.
 
-De bestaande eigen tabel `cms_newsletter` bewaart toestemming, bevestiging, afmelding, naam en onderwerpen. Bevestigen maakt een inschrijving direct lokaal actief; afmelden werkt direct in dezelfde database. Er worden geen contacten of lijsten naar een externe provider gesynchroniseerd.
+De wrapper controleert `main`, CI, bron/tree en image-digest, bewaart de configuratie privé en maakt een externe database-/media-/configbackup vóór migraties. Daarna volgen migratie, beperkte databaseprovisioning en web/worker-readiness. Een mislukte applicatiestart herstelt de vorige combinatie van image en configuratie; database en media worden niet automatisch teruggezet. Een terugkeer naar de oude lokale-databasearchitectuur vereist een beheerde migratie.
 
-Beheer onder **Instellingen & koppelingen → Nieuwsbriefabonnees** vereist `settings/manage`. Zoek en filter op naam/e-mailadres, onderwerp en status; bewerk naam/onderwerpen of meld af. Alleen een nieuwe bevestigde openbare aanvraag kan een afgemelde abonnee opnieuw inschrijven. De CMS-API levert geen bevestigings- of afmeldtokens; wijzigingen controleren het versienummer en worden geaudit. Dit voegt geen campagne-editor of automatische bulkcampagne toe.
-
-Migratie `0013_local_newsletter` activeert eerder bevestigde lokale aanvragen, bewaart bestaande abonnees en stopt oude externe synchronisatietaken. `NEWSLETTER_PROVIDER`, `NEWSLETTER_API_KEY` en `NEWSLETTER_LIST_ID` zijn vervallen. Ook `SENDGRID_API_KEY` wordt niet meer gelezen; alleen `RESEND_API_KEY` is de mailsleutel.
-
-## Branches, build en goedkeuring
-
-De productieworkflow draait bij een push naar **main**. Developmentwerk komt via een PR en de vereiste CI-check op main. Dezelfde workflow kan handmatig via Actions op main worden gestart. Een dispatch op een andere branch krijgt geen build/deployment. Er is geen afzonderlijke productionbranch of stagingpromotie nodig.
-
-Stel in `production` bij **Deployment branches and tags** uitsluitend branch **main** in. Behoud de bestaande vereiste reviewer voor de productiedeployjob. Daarmee is er één productieomgeving met één eventuele goedkeuring, geen stagingacceptatiestap. Een melding *Waiting for review* wordt afgehandeld met **Review deployments** bij de productierun.
-
-Controles en Dockerbuild draaien op GitHub-hosted runners zonder applicatiesecrets. Het releaseartifact bevat alleen commit, Git-tree, migratiehash, run-ID, immutable GHCR-digest en `configVersion:4`. Alleen de deployjob gebruikt `production` en runnerlabel `duindorpsv-production`. Er wordt op die runner geen repositorycode uitgecheckt.
-
-## Overdracht, backup en rollback
-
-De deployjob stuurt uitsluitend toegestane instellingen via JSON op stdin naar `/usr/local/libexec/duindorp/duindorp-deploy-production`, als applicatiegebruiker `duindorpsv-production`. De wrapper controleert de succesvolle CI/build, main-commit/tree, Actions-artifact en imagelabels. De actuele main-commit moet nog overeenkomen; een oude wachtrijjob kan niet later een nieuwere bron overschrijven.
-
-Docker-socket, loopbackpoort, Compose-bestand en proxy-origin blijven vastgelegd onder `/etc/duindorp/production/`. Gevalideerde configuraties staan met rechten 0700/0600 onder `/var/lib/duindorp/production/configuration/<hash>/`. Web/worker krijgen runtimewaarden; migratie-, provisioning- en backupcredentials blijven apart. Er worden geen secrets in artifacts of image opgeslagen.
-
-Elke deployment maakt vóór migraties een externe versleutelde backup van database, media en bijbehorende private configuratie. De media- en backupopslag moeten vooraf bestaan. Eerste deployment kan een lege Restic-repository initialiseren; een bestaande repository met ander wachtwoord wordt niet overschreven. Bij backupfalen stopt deployment. Bewaar minimaal 14 dagelijkse herstelpunten binnen de eigen host/tag.
-
-De eerste deployment start de eigen database, maakt het eerste externe herstelpunt, migreert, provisiont het beperkte runtime-account en seedt de broncontent. Daarna starten web/worker en wordt readiness met de release-identiteit gecontroleerd. Maak de echte eigenaar eenmalig via het operatorcommand `owner`, ontvang de activatiemail en activeer MFA.
-
-Bij een mislukte appstart wordt het vorige image met zijn vorige configuratie teruggezet. Database en media blijven intact. Een herstelproef gebruikt een tijdelijke geïsoleerde database/bucket met mail en jobs afgeschermd; dit is geen tweede permanente deploymentenvironment. Voer de externe restoreproef en de functionele acceptatie uit vóór publieke ingebruikname en daarna periodiek; zie [rollback-and-restore.md](rollback-and-restore.md). De oude, aan een stagingdigest gekoppelde `restore-tested.json` is geen deployvoorwaarde meer. Externe backup vóór iedere migratie blijft verplicht.
-
-## Installeren en later instellingen aanpassen
-
-Installeer eerst de gereviewde versie-4-wrappers op de hosting-VPS volgens [first-deploy.md](first-deploy.md). Het vereiste sudo-recht is uitsluitend de vaste wrapper als de applicatiegebruiker, zonder argumenten; algemene sudo-/Dockerrechten zijn niet nodig. Oudere geïnstalleerde helpers worden bewust niet blind vervangen. Een protocol-1/2/3-installatie vraagt een gecontroleerde operator-upgrade met behoud van data en secretgeneraties.
-
-Na een gewone wijziging van bijvoorbeeld Resend-credentials of `MAIL_FROM` voer je alleen de deployjob van de laatste main-release opnieuw uit. `gh run view RUN_ID --repo duindorpsv/website --json jobs` toont het job-ID; gebruik daarna `gh run rerun RUN_ID --repo duindorpsv/website --job JOB_ID`. Dezelfde geteste image krijgt een nieuwe configuratiegeneratie; de productiegoedkeuring wordt opnieuw gevraagd. De verifier leest de geslaagde checks/build uit de eerdere poging van dezelfde run. Bij een nieuwere main-commit gebruik je de nieuwe release.
-
-Databasewachtwoorden, `AUTH_SESSION_SECRET` en de locatie van media worden niet zomaar geroteerd: de wrapper weigert zulke wijzigingen aan een bestaande installatie totdat een gecontroleerde migratie is uitgevoerd. Een secret in GitHub wijzigen verandert geen bestaand PostgreSQL-account of versleutelde MFA-data. Bewaar oudere backupconfiguraties en hersteltoegang.
-
-Bestaande stagingaccounts, data en secrets worden niet automatisch verwijderd. De stagingworkflow wordt uitgeschakeld; oude resources kunnen na controle op afhankelijkheden door de operator worden opgeruimd. Ze zijn geen voorwaarde voor productie.
+De Environment staat alleen `main` toe. Als een reviewer is ingesteld, wacht de productiejob op die goedkeuring. De echte projectverbinding, opslag en Resend-bezorging moeten worden gecontroleerd; een geslaagde CI bewijst geen live deployment.

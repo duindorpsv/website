@@ -15,7 +15,7 @@ import zipfile
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from release import api, validate, REGISTRY
 from deploy_config import (ConfigurationError, atomic_private, compose_environment,
-                           database_password_file, fingerprint, private_directory,
+                           fingerprint, private_directory,
                            read_generation, read_private, require, validate_configuration,
                            write_generation)
 
@@ -121,7 +121,7 @@ def deploy(target, request):
             raise ValueError('Current main commit differs from tested release')
         if previous:
             old_values = read_generation(state, previous['configuration'])
-            for key in ('DATABASE_PASSWORD', 'APP_DATABASE_PASSWORD', 'AUTH_SESSION_SECRET'):
+            for key in ('DATABASE_URL', 'MIGRATION_DATABASE_URL', 'APP_DATABASE_PASSWORD', 'SUPABASE_URL'):
                 require(values[key] == old_values[key],
                         key + ' changed; perform a controlled credential migration first')
             for key in ('S3_ENDPOINT', 'S3_BUCKET', 'S3_REGION'):
@@ -131,20 +131,18 @@ def deploy(target, request):
                 print('Release and GitHub configuration already active')
                 return
         identifier = write_generation(state, values, target)
-        database_password_file(state, values)
         environment = compose_environment(target, config, state, identifier, release, REGISTRY)
         with tempfile.TemporaryDirectory(prefix='duindorp-registry-') as registry:
             environment['DOCKER_CONFIG'] = registry
             command(['docker', 'login', 'ghcr.io', '-u', 'duindorpsv', '--password-stdin'],
                     environment, input=token)
-            command([*compose, 'pull', 'web', 'worker', 'migration', 'provision'], environment)
+            command([*compose, 'pull', 'web', 'worker', 'migration', 'provision', 'database-backup'], environment)
             labels = json.loads(command(['docker', 'image', 'inspect', environment['APP_IMAGE'],
                                          '--format', '{{json .Config.Labels}}'], environment))
             if labels.get('org.opencontainers.image.revision') != release['sourceSha']:
                 raise ValueError('Image source label mismatch')
             if labels.get('nl.duindorpsv.source-tree') != release['treeSha']:
                 raise ValueError('Image tree label mismatch')
-            command([*compose, 'up', '-d', '--wait', '--wait-timeout', '120', 'database'], environment)
             environment['DUINDORP_INITIAL_BACKUP'] = 'true' if previous is None else 'false'
             if previous:
                 environment['DUINDORP_SNAPSHOT_CONFIGURATION'] = previous['configuration']

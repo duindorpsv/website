@@ -1,4 +1,5 @@
 """Allowlisted GitHub Environment input; private, immutable runtime generations."""
+import base64
 import hashlib
 import json
 import os
@@ -6,25 +7,26 @@ import pwd
 from pathlib import Path
 import re
 import stat
+import ssl
 import tempfile
-from urllib.parse import quote, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 
 SECRETS = (
-    'DATABASE_PASSWORD', 'APP_DATABASE_PASSWORD', 'AUTH_SESSION_SECRET',
+    'DATABASE_URL', 'MIGRATION_DATABASE_URL', 'APP_DATABASE_PASSWORD', 'SUPABASE_SECRET_KEY',
     'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'RESEND_API_KEY',
     'RESTIC_PASSWORD', 'BACKUP_S3_ACCESS_KEY_ID', 'BACKUP_S3_SECRET_ACCESS_KEY',
     'SPORTLINK_CLIENT_ID',
 )
 VARIABLES = (
-    'APP_BASE_URL', 'S3_ENDPOINT', 'S3_REGION', 'S3_BUCKET',
+    'APP_BASE_URL', 'SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_DB_CA_CERT_B64', 'S3_ENDPOINT', 'S3_REGION', 'S3_BUCKET',
     'MAIL_FROM',
     'TRUST_PROXY_IP',
     'RESTIC_REPOSITORY', 'BACKUP_S3_REGION',
     'NEWS_IMPORT_MAX_MB', 'NEWS_IMPORT_MAX_UNPACKED_MB', 'NEWS_IMPORT_MAX_ENTRIES',
 )
 REQUIRED = (
-    'APP_BASE_URL', 'DATABASE_PASSWORD', 'APP_DATABASE_PASSWORD', 'AUTH_SESSION_SECRET',
-    'S3_REGION', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY',
+    'APP_BASE_URL', 'DATABASE_URL', 'MIGRATION_DATABASE_URL', 'APP_DATABASE_PASSWORD', 'SUPABASE_SECRET_KEY',
+    'SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_DB_CA_CERT_B64', 'S3_ENDPOINT', 'S3_REGION', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY',
     'RESEND_API_KEY', 'MAIL_FROM', 'RESTIC_REPOSITORY', 'RESTIC_PASSWORD',
     'BACKUP_S3_ACCESS_KEY_ID', 'BACKUP_S3_SECRET_ACCESS_KEY',
 )
@@ -72,16 +74,50 @@ def validate_configuration(values, target, installed):
                 and minimum <= int(result[key]) <= maximum, 'Invalid ' + key)
     for key in REQUIRED:
         require(bool(result[key]), 'Missing GitHub Environment setting: ' + key)
-    for key, length in [('DATABASE_PASSWORD', 24), ('APP_DATABASE_PASSWORD', 24),
-                        ('AUTH_SESSION_SECRET', 32), ('RESTIC_PASSWORD', 24)]:
+    for key, length in [('APP_DATABASE_PASSWORD', 24), ('RESTIC_PASSWORD', 24)]:
         require(len(result[key]) >= length, 'Configuration value too short: ' + key)
-    require(result['DATABASE_PASSWORD'] != result['APP_DATABASE_PASSWORD'],
-            'Use separate migration and runtime database passwords')
     result['APP_BASE_URL'] = https_origin(result['APP_BASE_URL'], 'APP_BASE_URL')
     require(result['APP_BASE_URL'] == installed['baseUrl'].rstrip('/'),
             'APP_BASE_URL differs from the installed proxy origin')
-    if result['S3_ENDPOINT']:
-        result['S3_ENDPOINT'] = https_origin(result['S3_ENDPOINT'], 'S3_ENDPOINT')
+    result['SUPABASE_URL'] = https_origin(result['SUPABASE_URL'], 'SUPABASE_URL')
+    project = urlsplit(result['SUPABASE_URL']).hostname
+    require(bool(re.fullmatch(r'[a-z0-9]{20}\.supabase\.co', project)), 'Use the dedicated Supabase project URL')
+    reference = project.split('.')[0]
+    for key, prefix in [('SUPABASE_PUBLISHABLE_KEY', 'sb_publishable_'), ('SUPABASE_SECRET_KEY', 'sb_secret_')]:
+        require(result[key].startswith(prefix) and not any(c.isspace() for c in result[key]), 'Invalid ' + key)
+    try:
+        ca = base64.b64decode(result['SUPABASE_DB_CA_CERT_B64'], validate=True).decode('ascii')
+    except (ValueError, UnicodeError):
+        raise ConfigurationError('Invalid SUPABASE_DB_CA_CERT_B64') from None
+    require(ca.startswith('-----BEGIN CERTIFICATE-----') and '-----END CERTIFICATE-----' in ca,
+            'Invalid SUPABASE_DB_CA_CERT_B64')
+    try:
+        ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT).load_verify_locations(cadata=ca)
+    except ssl.SSLError:
+        raise ConfigurationError('Invalid SUPABASE_DB_CA_CERT_B64') from None
+    for key, username in [('DATABASE_URL', 'duindorp_app'), ('MIGRATION_DATABASE_URL', 'postgres')]:
+        try:
+            database = urlsplit(result[key])
+            direct = database.hostname == 'db.' + project and database.username == username
+            pooled = (bool(re.fullmatch(r'[a-z0-9-]+\.pooler\.supabase\.com', database.hostname or ''))
+                      and database.username == username + '.' + reference)
+            valid = (database.scheme in ('postgres', 'postgresql') and (direct or pooled)
+                     and database.port in (None, 5432) and database.path == '/postgres'
+                     and not database.fragment and len(unquote(database.password or '')) >= 24
+                     and parse_qs(database.query) == {'sslmode': ['verify-full']})
+        except ValueError:
+            valid = False
+        require(valid, 'Invalid Supabase session connection: ' + key)
+        if key == 'DATABASE_URL':
+            require(unquote(database.password) == result['APP_DATABASE_PASSWORD'], 'DATABASE_URL password differs from APP_DATABASE_PASSWORD')
+        else:
+            require(unquote(database.password) != result['APP_DATABASE_PASSWORD'], 'Use separate migration and runtime database passwords')
+    endpoint = urlsplit(result['S3_ENDPOINT'])
+    require(endpoint.scheme == 'https' and endpoint.hostname in (project, reference + '.storage.supabase.co')
+            and endpoint.port in (None, 443) and endpoint.path.rstrip('/') == '/storage/v1/s3'
+            and not endpoint.username and not endpoint.password and not endpoint.query and not endpoint.fragment,
+            'S3_ENDPOINT must address this Supabase Storage project')
+    result['S3_ENDPOINT'] = result['S3_ENDPOINT'].rstrip('/')
     require(re.fullmatch(r'[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]', result['S3_BUCKET'])
             and '..' not in result['S3_BUCKET'], 'Invalid S3_BUCKET')
     for key in ('S3_REGION', 'BACKUP_S3_REGION'):
@@ -159,18 +195,18 @@ def read_generation(state, identifier):
 
 
 def generation_files(values, target):
-    password = quote(values['APP_DATABASE_PASSWORD'], safe='')
-    migration_password = quote(values['DATABASE_PASSWORD'], safe='')
-    runtime_keys = ('APP_BASE_URL', 'AUTH_SESSION_SECRET', 'S3_ENDPOINT', 'S3_REGION',
-                    'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'RESEND_API_KEY',
+    runtime_keys = ('APP_BASE_URL', 'DATABASE_URL', 'SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY',
+                    'SUPABASE_SECRET_KEY', 'S3_ENDPOINT', 'S3_REGION', 'S3_BUCKET',
+                    'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'RESEND_API_KEY',
                     'MAIL_FROM', 'TRUST_PROXY_IP', 'SPORTLINK_CLIENT_ID',
                     'NEWS_IMPORT_MAX_MB', 'NEWS_IMPORT_MAX_UNPACKED_MB', 'NEWS_IMPORT_MAX_ENTRIES')
     runtime = {key: values[key] for key in runtime_keys if values[key] != ''}
-    runtime.update(APP_ENV=target, MEDIA_DRIVER='s3',
-                   DATABASE_URL='postgres://duindorp_app:' + password + '@database:5432/duindorp')
-    migration = {'MIGRATION_DATABASE_URL': 'postgres://duindorp_migration:'
-                 + migration_password + '@database:5432/duindorp'}
+    runtime.update(APP_ENV=target, MEDIA_DRIVER='s3', DATABASE_CA_CERT_B64=values['SUPABASE_DB_CA_CERT_B64'])
+    migration = {'MIGRATION_DATABASE_URL': values['MIGRATION_DATABASE_URL'],
+                 'DATABASE_CA_CERT_B64': values['SUPABASE_DB_CA_CERT_B64'],
+                 'PGDATABASE': values['MIGRATION_DATABASE_URL']}
     return {'configuration.json': json.dumps(values, sort_keys=True),
+            'database-ca.crt': base64.b64decode(values['SUPABASE_DB_CA_CERT_B64']).decode('ascii'),
             'runtime.env': dotenv(runtime), 'migration.env': dotenv(migration),
             'provision.env': dotenv({**migration, 'APP_DATABASE_PASSWORD': values['APP_DATABASE_PASSWORD']})}
 
@@ -187,16 +223,6 @@ def write_generation(state, values, target):
     return identifier
 
 
-def database_password_file(state, values):
-    path = state / 'database-password'
-    if path.exists() or path.is_symlink():
-        require(read_private(path) == values['DATABASE_PASSWORD'],
-                'DATABASE_PASSWORD changed; perform a controlled database rotation first')
-    else:
-        atomic_private(path, values['DATABASE_PASSWORD'])
-    return path
-
-
 def compose_environment(target, installed, state, identifier, release, registry):
     directory = generation_path(state, identifier)
     for name, contents in generation_files(read_generation(state, identifier), target).items():
@@ -206,6 +232,5 @@ def compose_environment(target, installed, state, identifier, release, registry)
             'RUNTIME_ENV_FILE': str(directory / 'runtime.env'),
             'MIGRATION_ENV_FILE': str(directory / 'migration.env'),
             'PROVISION_ENV_FILE': str(directory / 'provision.env'),
-            'DATABASE_PASSWORD_FILE': str(state / 'database-password'),
             'DUINDORP_BACKUP_ENV': target, 'DUINDORP_CONFIGURATION': identifier,
             'RELEASE_DIGEST': release['digest'], 'APP_IMAGE': registry + '@' + release['digest']}

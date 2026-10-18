@@ -28,8 +28,8 @@ export async function principal(headers: Headers, options:{allowMfaSetup?:boolea
     if (!member)
         throw new CmsError('forbidden', 'Dit account heeft geen actieve CMS-toegang.', 403);
     const [teams, departments, grants] = await Promise.all([sql `select team_id as id from cms_user_teams where user_id=${session.user.id}`, sql `select department_id as id,kind from cms_user_departments where user_id=${session.user.id}`, sql `select module,action from cms_grants where role_id=${member.role_id}`]);
-    if(member.role_id==='admin'&&env().APP_ENV==='production'&&!session.user.twoFactorEnabled&&!options.allowMfaSetup)throw new CmsError('mfa-required','Activeer eerst de tweede factor voor dit beheerdersaccount.',403);
-    return { id: session.user.id, name: session.user.name, email: session.user.email, roleId: member.role_id, teamScoped: member.team_scoped, teams: teams.map(t => String(t.id)), departments: departments as unknown as Principal['departments'], grants: grants as unknown as Principal['grants'], mfa: !!session.user.twoFactorEnabled };
+    if(!session.mfaVerified&&(session.user.twoFactorEnabled||(member.role_id==='admin'&&env().APP_ENV==='production'&&!options.allowMfaSetup)))throw new CmsError('mfa-required','Controleer of activeer eerst de tweede factor voor dit account.',403);
+    return { id: session.user.id, name: session.user.name, email: session.user.email, roleId: member.role_id, teamScoped: member.team_scoped, teams: teams.map(t => String(t.id)), departments: departments as unknown as Principal['departments'], grants: grants as unknown as Principal['grants'], mfa: session.mfaVerified };
 }
 export function has(p: Principal, module: string, action: string, scope?: {
     teamId?: string;

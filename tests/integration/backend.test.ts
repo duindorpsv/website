@@ -1,3 +1,4 @@
+import {assertLocalSupabaseTests,authPost,authCookies,totp} from '../helpers/supabase-auth';
 import {test,after} from 'node:test';
 import assert from 'node:assert/strict';
 import {sqlClient,closeDb} from '../../db/index';
@@ -10,7 +11,7 @@ import {uploadMedia,mediaResponse} from '../../lib/server/media';
 import {changeAccount} from '../../lib/server/accounts';
 import type {Principal} from '../../lib/server/permissions';
 import sharp from 'sharp';
-if(process.env.APP_ENV!=='test'||!process.env.DATABASE_URL?.endsWith('/duindorp_test'))throw new Error('Integratietests vereisen de geïsoleerde duindorp_test database.');
+assertLocalSupabaseTests();
 const sql=sqlClient(),actor=await getAuth().api.createUser({body:{email:`integration-${crypto.randomUUID()}@example.invalid`,name:'Integratietest',password:crypto.randomUUID()+crypto.randomUUID(),role:'admin'}});
 await sql`insert into cms_memberships(user_id,role_id) values (${actor.user.id},'admin')`;
 const admin:Principal={id:actor.user.id,name:'Test',email:actor.user.email,roleId:'admin',teamScoped:false,teams:[],departments:[],grants:[{module:'*',action:'*'}],mfa:true};
@@ -22,7 +23,7 @@ test('PUB03/04: worker publishes frozen planned revision while preserving later 
 test('MEDIA01/04: true image decoding, private original, derivatives and durable upload',async()=>{await assert.rejects(uploadMedia(admin,new File(['<script>alert(1)</script>'],'fake.png',{type:'image/png'}),{teamId:'',season:'test',folderId:''}),(e:any)=>e.status===422);const bytes=await sharp({create:{width:100,height:80,channels:3,background:'#1474c4'}}).png().toBuffer();const record=await uploadMedia(admin,new File([bytes],'test.png',{type:'image/png'}),{teamId:'',season:'test',folderId:''});await assert.rejects(mediaResponse(record.id),(e:any)=>e.status===404);for(let i=0;i<50;i++){await runOnce();const [object]=await sql`select state from cms_media_objects where id=${record.id}`;if(object.state==='ready')break;}assert.equal((await mediaResponse(record.id,admin,true)).headers.get('Content-Disposition'),'attachment; filename="origineel"');await mutate(admin,[{module:'media',id:record.id,expectedVersion:1,action:'publish',data:{...record,alt:'Synthetisch blauw testvlak'}}],crypto.randomUUID(),crypto.randomUUID());assert.equal((await mediaResponse(record.id)).headers.get('Content-Type'),'image/webp');});
 after(async()=>{await closeDb();});
 test('AUTH04: blocking invalidates sessions and the last full administrator stays protected',async()=>{const all=await sql`select user_id,active from cms_memberships where role_id='admin'`;try{await sql`update cms_memberships set active=false where role_id='admin' and user_id!=${admin.id}`;await assert.rejects(changeAccount(admin,admin.id,{expectedVersion:1,active:false,roleId:'admin',teamIds:[],departments:[]}),(e:any)=>e.code==='last-admin');}finally{for(const row of all)await sql`update cms_memberships set active=${row.active} where user_id=${row.user_id}`;}
- const password=crypto.randomUUID()+crypto.randomUUID(),u=await getAuth().api.createUser({body:{email:`block-${crypto.randomUUID()}@example.invalid`,name:'Testredacteur',password}});await sql`insert into cms_memberships(user_id,role_id) values (${u.user.id},'editor')`;await getAuth().api.signInEmail({body:{email:u.user.email,password}});assert.ok((await sql`select id from auth_session where user_id=${u.user.id}`).length);await changeAccount(admin,u.user.id,{expectedVersion:1,active:false,roleId:'editor',teamIds:[],departments:[]});assert.equal((await sql`select id from auth_session where user_id=${u.user.id}`).length,0);
+ const password=crypto.randomUUID()+crypto.randomUUID(),u=await getAuth().api.createUser({body:{email:`block-${crypto.randomUUID()}@example.invalid`,name:'Testredacteur',password}});await sql`insert into cms_memberships(user_id,role_id) values (${u.user.id},'editor')`;const login=await authPost('sign-in/email',{email:u.user.email,password});assert.equal(login.status,200);const headers=new Headers({cookie:authCookies(login)});assert.ok(await getAuth().api.getSession({headers}));await changeAccount(admin,u.user.id,{expectedVersion:1,active:false,roleId:'editor',teamIds:[],departments:[]});assert.equal(await getAuth().api.getSession({headers}),null);await changeAccount(admin,u.user.id,{expectedVersion:2,active:true,roleId:'editor',teamIds:[],departments:[]});assert.equal(await getAuth().api.getSession({headers}),null);const next=await authPost('sign-in/email',{email:u.user.email,password});assert.equal(next.status,200);assert.ok(await getAuth().api.getSession({headers:new Headers({cookie:authCookies(next)})}));
 });
 test('PUB02: parent path changes update child routes atomically and reject hierarchy cycles',async()=>{
  const parent=page('parent-'+crypto.randomUUID()),child={...page('child-'+crypto.randomUUID()),parentId:parent.id};child.slug=parent.slug+'/kind';
@@ -68,15 +69,24 @@ test('FORM03/06: simultaneous requests commit one intake; retention removes note
  await sql`update cms_submissions set retain_until=now()-interval '1 day' where id=${a.id}`;await retain();
  assert.equal((await sql`select id from cms_submissions where id=${a.id}`).length,0);assert.equal((await sql`select id from cms_submission_notes where submission_id=${a.id}`).length,0);assert.equal((await sql`select id from cms_jobs where payload->>'submissionId'=${a.id}`).length,0);
 });
-test('AUTH05: maintained two-factor plugin activates TOTP and challenges a fresh login',async()=>{
- const password=crypto.randomUUID()+crypto.randomUUID(),auth=getAuth();const user=await auth.api.createUser({body:{email:'mfa-'+crypto.randomUUID()+'@example.invalid',name:'MFA test',password}});
- const login=await auth.api.signInEmail({body:{email:user.user.email,password},asResponse:true});assert.equal(login.status,200);
- const cookie=login.headers.getSetCookie().map(s=>s.split(';')[0]).join('; '),headers=new Headers({cookie,origin:new URL(process.env.APP_BASE_URL!).origin});
- const enabled=await auth.api.enableTwoFactor({body:{password},headers});assert.equal(enabled.method,'totp');
- if(enabled.method!=='totp')throw new Error('TOTP niet beschikbaar.');const secret=new URL(enabled.totpURI).searchParams.get('secret')!;
- const {symmetricDecrypt}=await import('better-auth/crypto');const [factor]=await sql`select secret from auth_two_factor where user_id=${user.user.id}`;const context=await auth.$context;const decoded=await symmetricDecrypt({key:context.secretConfig,data:factor.secret});const generated=await auth.api.generateTOTP({body:{secret:decoded}});const verified=await auth.api.verifyTOTP({body:{code:generated.code},headers});assert.ok(verified);
- const [saved]=await sql`select two_factor_enabled from auth_user where id=${user.user.id}`;assert.equal(saved.two_factor_enabled,true);
- const challenge=await auth.api.signInEmail({body:{email:user.user.email,password}});assert.ok('twoFactorRedirect' in challenge);
+test('AUTH05: Supabase TOTP enrolls, elevates AAL and challenges a fresh password login',async()=>{
+ const password=crypto.randomUUID()+crypto.randomUUID(),user=await getAuth().api.createUser({body:{email:'mfa-'+crypto.randomUUID()+'@example.invalid',name:'MFA test',password}});
+ await sql`insert into cms_memberships(user_id,role_id) values (${user.user.id},'editor')`;
+ const login=await authPost('sign-in/email',{email:user.user.email,password});assert.equal(login.status,200);
+ let cookie=authCookies(login);
+ const enabled=await authPost('two-factor/enable',{},cookie);assert.equal(enabled.status,200);cookie=authCookies(enabled,cookie);
+ const factor=await enabled.json();assert.equal(factor.method,'totp');const secret=new URL(factor.totpURI).searchParams.get('secret')!;
+ const verified=await authPost('two-factor/verify-totp',{code:totp(secret)},cookie);assert.equal(verified.status,200);cookie=authCookies(verified,cookie);
+ assert.equal((await getAuth().api.getSession({headers:new Headers({cookie})}))?.mfaVerified,true);
+ const challenge=await authPost('sign-in/email',{email:user.user.email,password});assert.equal(challenge.status,200);assert.equal((await challenge.json()).twoFactorRedirect,true);
+ assert.equal((await getAuth().api.getSession({headers:new Headers({cookie:authCookies(challenge)})}))?.mfaVerified,false);
+ const requested=await authPost('request-password-reset',{email:user.user.email});assert.equal(requested.status,200);
+ const [mail]=await sql`select payload from cms_jobs where kind='mail' and payload->'to' @> ${sql.json([user.user.email])}::jsonb order by created_at desc limit 1`;
+ const token=new URL(String(mail.payload.text).split('via ')[1]).searchParams.get('token')!,newPassword=crypto.randomUUID()+crypto.randomUUID();
+ const recovery=await authPost('reset-password',{token,newPassword});assert.equal(recovery.status,200);assert.equal((await recovery.json()).mfaRequired,true);
+ const recoveryCookie=authCookies(recovery),wrong=await authPost('reset-password',{token,newPassword,code:'00000'},recoveryCookie);assert.equal(wrong.status,422);
+ const completed=await authPost('reset-password',{token,newPassword,code:totp(secret,Date.now()+30000)},authCookies(wrong,recoveryCookie));assert.equal(completed.status,200);
+ const fresh=await authPost('sign-in/email',{email:user.user.email,password:newPassword});assert.equal(fresh.status,200);assert.equal((await fresh.json()).twoFactorRedirect,true);
 });
 test('NEWSLETTER01: opt-in, duplicate requests, management and unsubscribe are fully local',async()=>{
  const {requestNewsletter,confirmNewsletter,unsubscribeNewsletter,listSubscribers,changeSubscriber}=await import('../../lib/server/newsletter');
@@ -152,12 +162,15 @@ test('PUB03 and MEDIA03: scheduled publication indexes its frozen live reference
  assert.equal((await sql`select target_id from cms_references where record_id=${id} and snapshot='live'`)[0].target_id,mediaId);
  const [media]=await sql`select version from cms_records where id=${mediaId}`;await assert.rejects(mutate(admin,[{module:'media',id:mediaId,expectedVersion:media.version,action:'trash'}],crypto.randomUUID(),crypto.randomUUID()),(e:any)=>e.code==='in-use');
 });
-test('AUTH06: password-only production administrators cannot read CMS data, but can initialize MFA',async()=>{
+test('AUTH06: an enrolled factor never grants CMS access to a password-only session',async()=>{
  const {principal}=await import('../../lib/server/permissions'),password=crypto.randomUUID()+crypto.randomUUID(),user=await getAuth().api.createUser({body:{email:'mfa-gate-'+crypto.randomUUID()+'@example.invalid',name:'MFA gate fixture',password,role:'admin'}});await sql`insert into cms_memberships(user_id,role_id) values (${user.user.id},'admin')`;
- const response=await getAuth().api.signInEmail({body:{email:user.user.email,password},asResponse:true}),headers=new Headers({cookie:response.headers.getSetCookie().map(v=>v.split(';')[0]).join('; ')});
- const keys=['APP_ENV','APP_BASE_URL','MEDIA_DRIVER','S3_BUCKET','S3_ACCESS_KEY_ID','S3_SECRET_ACCESS_KEY','RESEND_API_KEY','MAIL_FROM','TEST_MAIL_TO'] as const,previous=Object.fromEntries(keys.map(key=>[key,process.env[key]]));
- try{Object.assign(process.env,{APP_ENV:'production',APP_BASE_URL:'https://club.example.invalid',MEDIA_DRIVER:'s3',S3_BUCKET:'synthetic',S3_ACCESS_KEY_ID:'synthetic',S3_SECRET_ACCESS_KEY:'synthetic',RESEND_API_KEY:'synthetic',MAIL_FROM:'cms@example.invalid',TEST_MAIL_TO:''});await assert.rejects(principal(headers),(e:any)=>e.code==='mfa-required');assert.equal((await principal(headers,{allowMfaSetup:true})).id,user.user.id);
- }finally{for(const key of keys){if(previous[key]===undefined)delete process.env[key];else process.env[key]=previous[key];}}
+ let response=await authPost('sign-in/email',{email:user.user.email,password}),cookie=authCookies(response);
+ assert.equal((await principal(new Headers({cookie}),{allowMfaSetup:true})).id,user.user.id);
+ response=await authPost('two-factor/enable',{},cookie);assert.equal(response.status,200);cookie=authCookies(response,cookie);const secret=new URL((await response.json()).totpURI).searchParams.get('secret')!;
+ response=await authPost('two-factor/verify-totp',{code:totp(secret)},cookie);assert.equal(response.status,200);cookie=authCookies(response,cookie);
+ assert.equal((await principal(new Headers({cookie}))).mfa,true);
+ response=await authPost('sign-in/email',{email:user.user.email,password});assert.equal(response.status,200);const headers=new Headers({cookie:authCookies(response)});
+ await assert.rejects(principal(headers),(e:any)=>e.code==='mfa-required');await assert.rejects(principal(headers,{allowMfaSetup:true}),(e:any)=>e.code==='mfa-required');
 });
 test('DATA04 and MEDIA04: browser blob URLs become durable mapped originals and repeat import stays idempotent',async()=>{
  const {createCmsSeed}=await import('../../lib/cms/seed'),{inspectImport,applyImport}=await import('../../lib/server/imports');const state=createCmsSeed();
@@ -166,4 +179,30 @@ test('DATA04 and MEDIA04: browser blob URLs become durable mapped originals and 
  const image=await sharp({create:{width:64,height:48,channels:3,background:'#184f87'}}).png().toBuffer(),backup={format:'duindorp-cms-backup-v1',state,blobs:[{key:blobKey,data:'data:image/png;base64,'+image.toString('base64')}]};
  assert.equal((await inspectImport(admin,backup)).report.issues.length,0);const applied=await applyImport(admin,backup);assert.ok(applied.idMapping[id]);const replay=await applyImport(admin,backup);assert.equal(replay.batch,applied.batch);assert.equal(replay.idMapping[id],applied.idMapping[id]);
  const [object]=await sql`select state,variants from cms_media_objects where id=${applied.idMapping[id]}`;assert.equal(object.state,'ready');assert.equal(object.variants.length,3);assert.equal((await sql`select media_id from cms_import_media where checksum=${applied.checksum} and source_id=${id}`).length,1);
+});
+test('AUTH07: recovery links use the Resend outbox, reset once and revoke old sessions',async()=>{
+ const password=crypto.randomUUID()+crypto.randomUUID(),next=crypto.randomUUID()+crypto.randomUUID(),user=await getAuth().api.createUser({body:{email:'recover-'+crypto.randomUUID()+'@example.invalid',name:'Recovery fixture',password}});
+ await sql`insert into cms_memberships(user_id,role_id) values (${user.user.id},'editor')`;
+ const login=await authPost('sign-in/email',{email:user.user.email,password});assert.equal(login.status,200);const oldHeaders=new Headers({cookie:authCookies(login)});
+ const request=await authPost('request-password-reset',{email:user.user.email,redirectTo:'/beheer/herstel'});assert.equal(request.status,200);
+ const [mail]=await sql`select payload from cms_jobs where kind='mail' and payload->'to' @> ${sql.json([user.user.email])}::jsonb order by created_at desc limit 1`;
+ assert.ok(mail);const token=new URL(String(mail.payload.text).split('via ')[1]).searchParams.get('token')!;
+ const reset=await authPost('reset-password',{newPassword:next,token});assert.equal(reset.status,200);assert.equal(await getAuth().api.getSession({headers:oldHeaders}),null);
+ assert.equal((await authPost('reset-password',{newPassword:password,token})).status,401);
+ assert.equal((await authPost('sign-in/email',{email:user.user.email,password})).status,401);
+ assert.equal((await authPost('sign-in/email',{email:user.user.email,password:next})).status,200);
+ const unknown=await authPost('request-password-reset',{email:'unknown-'+crypto.randomUUID()+'@example.invalid'});assert.equal(unknown.status,200);assert.deepEqual(await unknown.json(),await request.json());
+});
+test('AUTH08: runtime SQL has RLS policies while public Supabase roles cannot access CMS data or Auth secrets',async()=>{
+ const [result]=await sql`select current_user as runtime,row_security_active('public.cms_records') as rls,has_table_privilege('anon','public.cms_records','select') as anon,has_table_privilege('authenticated','public.cms_submissions','select') as authenticated,has_table_privilege('service_role','public.cms_newsletter','select') as service_role,has_column_privilege('duindorp_app','auth.sessions','id','select') as session_id,has_column_privilege('duindorp_app','auth.sessions','user_agent','select') as session_details,has_column_privilege('duindorp_app','auth.users','encrypted_password','select') as password_hashes`;
+ assert.equal(result.runtime,'duindorp_app');assert.equal(result.rls,true);assert.equal(result.anon,false);assert.equal(result.authenticated,false);assert.equal(result.service_role,false);assert.equal(result.session_id,true);assert.equal(result.session_details,false);assert.equal(result.password_hashes,false);
+ const response=await fetch(process.env.SUPABASE_URL+'/rest/v1/cms_records?select=id&limit=1',{headers:{apikey:process.env.SUPABASE_PUBLISHABLE_KEY!}});assert.ok([401,403,404].includes(response.status));
+});
+test('MEDIA05: Supabase Storage refuses anonymous downloads from the private CMS bucket',async()=>{
+ const {createClient}=await import('@supabase/supabase-js'),{putObject,deleteObject}=await import('../../lib/server/storage');
+ const key='originals/private-fixture-'+crypto.randomUUID()+'.txt';
+ try{await putObject(key,new TextEncoder().encode('private fixture'),'text/plain');
+ const client=createClient(process.env.SUPABASE_URL!,process.env.SUPABASE_PUBLISHABLE_KEY!,{auth:{persistSession:false,autoRefreshToken:false}});
+ const result=await client.storage.from(process.env.S3_BUCKET!).download(key);assert.ok(result.error);assert.equal(result.data,null);
+ }finally{await deleteObject(key);}
 });

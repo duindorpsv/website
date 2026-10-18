@@ -1,3 +1,4 @@
+import {assertLocalSupabaseTests,authPost,authCookies,totp} from '../helpers/supabase-auth';
 import {test,after} from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
@@ -9,7 +10,7 @@ import {createNewsSession,uploadNewsPart,finishNewsUpload,analyzeNewsSession,new
 import {NEWS_IMPORT_CHUNK_BYTES} from '../../lib/cms/news-import';
 import {deleteObject,putObject} from '../../lib/server/storage';
 import {zipBytes} from '../helpers/news-zip';
-if(process.env.APP_ENV!=='test'||!process.env.DATABASE_URL?.endsWith('/duindorp_test'))throw new Error('Vereist geïsoleerde duindorp_test database.');
+assertLocalSupabaseTests();
 const sql=sqlClient(),user=await getAuth().api.createUser({body:{email:`news-import-${crypto.randomUUID()}@example.invalid`,name:'Importproef',password:crypto.randomUUID()+crypto.randomUUID(),role:'admin'}});
 await sql`insert into cms_memberships(user_id,role_id) values (${user.user.id},'admin')`;
 const p=await actorPrincipal(user.user.id),sessions:string[]=[],prefix=crypto.randomUUID();let counter=0;

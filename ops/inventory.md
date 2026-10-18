@@ -1,6 +1,6 @@
 # Inventaris — 14 oktober 2026
 
-> Actuele inrichting vanaf 18 oktober 2026: development-VPS → main → uitsluitend GitHub Environment `production`; websitemail via Resend API en lokaal abonnee-/onderwerpbeheer. De staging-/SMTP-verwijzingen hieronder beschrijven eerdere inventarisatie en testresultaten. De actuele procedure en exacte instellingen staan in [github-environments.md](github-environments.md) en [first-deploy.md](first-deploy.md). Eerder voorbereide stagingresources zijn niet automatisch verwijderd.
+> Actuele inrichting vanaf 18 oktober 2026: development-VPS → main → uitsluitend GitHub Environment `production`; Supabase Database/Auth/Storage, websitemail via Resend API en lokaal abonnee-/onderwerpbeheer. De Supabase-omzetting is nog niet naar een aangewezen cloudproject uitgerold. De staging-/SMTP-verwijzingen hieronder beschrijven eerdere inventarisatie en testresultaten. De actuele procedure en exacte instellingen staan in [github-environments.md](github-environments.md) en [first-deploy.md](first-deploy.md). Eerder voorbereide stagingresources zijn niet automatisch verwijderd.
 
 Doelrepository: `duindorpsv/website`, door eigenaar aangewezen. Bij aanvang van development waren de repository en lokale werkmap leeg. De Sites-bronremote is niet overgenomen. Inmiddels bevat `main` de applicatie en drie workflows; de serving-host-aansluiting wordt op die broncode afgestemd.
 
