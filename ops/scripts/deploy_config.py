@@ -11,13 +11,13 @@ from urllib.parse import quote, urlsplit
 
 SECRETS = (
     'DATABASE_PASSWORD', 'APP_DATABASE_PASSWORD', 'AUTH_SESSION_SECRET',
-    'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'SMTP_USER', 'SMTP_PASSWORD',
+    'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'SENDGRID_API_KEY',
     'RESTIC_PASSWORD', 'BACKUP_S3_ACCESS_KEY_ID', 'BACKUP_S3_SECRET_ACCESS_KEY',
     'SPORTLINK_CLIENT_ID', 'NEWSLETTER_API_KEY',
 )
 VARIABLES = (
     'APP_BASE_URL', 'S3_ENDPOINT', 'S3_REGION', 'S3_BUCKET',
-    'SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE', 'MAIL_FROM', 'TEST_MAIL_TO',
+    'MAIL_FROM',
     'TRUST_PROXY_IP', 'NEWSLETTER_PROVIDER', 'NEWSLETTER_LIST_ID',
     'RESTIC_REPOSITORY', 'BACKUP_S3_REGION',
     'NEWS_IMPORT_MAX_MB', 'NEWS_IMPORT_MAX_UNPACKED_MB', 'NEWS_IMPORT_MAX_ENTRIES',
@@ -25,7 +25,7 @@ VARIABLES = (
 REQUIRED = (
     'APP_BASE_URL', 'DATABASE_PASSWORD', 'APP_DATABASE_PASSWORD', 'AUTH_SESSION_SECRET',
     'S3_REGION', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY',
-    'SMTP_HOST', 'MAIL_FROM', 'RESTIC_REPOSITORY', 'RESTIC_PASSWORD',
+    'SENDGRID_API_KEY', 'MAIL_FROM', 'RESTIC_REPOSITORY', 'RESTIC_PASSWORD',
     'BACKUP_S3_ACCESS_KEY_ID', 'BACKUP_S3_SECRET_ACCESS_KEY',
 )
 
@@ -52,7 +52,7 @@ def https_origin(value, key):
 
 
 def validate_configuration(values, target, installed):
-    require(target in ('staging', 'production'), 'Invalid deployment target')
+    require(target == 'production', 'Invalid deployment target')
     require(isinstance(values, dict) and not set(values) - set(SECRETS + VARIABLES),
             'Unknown deployment configuration keys')
     for key, value in values.items():
@@ -60,8 +60,7 @@ def validate_configuration(values, target, installed):
                 and not any(ord(c) < 32 or ord(c) == 127 for c in value),
                 'Invalid configuration value: ' + key)
     result = {key: values.get(key, '') for key in SECRETS + VARIABLES}
-    for key, default in {'S3_REGION': 'eu-west-1', 'SMTP_PORT': '587',
-                         'SMTP_SECURE': 'false', 'TRUST_PROXY_IP': 'false',
+    for key, default in {'S3_REGION': 'eu-west-1', 'TRUST_PROXY_IP': 'false',
                          'NEWSLETTER_PROVIDER': 'disabled', 'NEWS_IMPORT_MAX_MB': '512',
                          'NEWS_IMPORT_MAX_UNPACKED_MB': '2048', 'NEWS_IMPORT_MAX_ENTRIES': '10000'}.items():
         result[key] = result[key] or default
@@ -87,20 +86,10 @@ def validate_configuration(values, target, installed):
             and '..' not in result['S3_BUCKET'], 'Invalid S3_BUCKET')
     for key in ('S3_REGION', 'BACKUP_S3_REGION'):
         require(bool(re.fullmatch(r'[A-Za-z0-9-]{1,64}', result[key])), 'Invalid ' + key)
-    require(bool(re.fullmatch(r'[A-Za-z0-9.-]+', result['SMTP_HOST'])), 'Invalid SMTP_HOST')
-    require(result['SMTP_PORT'].isascii() and result['SMTP_PORT'].isdecimal()
-            and 1 <= int(result['SMTP_PORT']) <= 65535, 'Invalid SMTP_PORT')
-    for key in ('SMTP_SECURE', 'TRUST_PROXY_IP'):
-        require(result[key] in ('true', 'false'), 'Invalid ' + key)
-    require(bool(result['SMTP_USER']) == bool(result['SMTP_PASSWORD']),
-            'Set both SMTP_USER and SMTP_PASSWORD, or neither for a trusted relay')
+    require(not any(c.isspace() for c in result['SENDGRID_API_KEY']), 'Invalid SENDGRID_API_KEY')
+    require(result['TRUST_PROXY_IP'] in ('true', 'false'), 'Invalid TRUST_PROXY_IP')
     require(bool(re.fullmatch(r'[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+', result['MAIL_FROM'])),
             'MAIL_FROM must be an email address')
-    if target == 'staging':
-        require(bool(re.fullmatch(r'[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+', result['TEST_MAIL_TO'])),
-                'Staging requires TEST_MAIL_TO')
-    else:
-        require(not result['TEST_MAIL_TO'], 'Keep TEST_MAIL_TO empty in production')
     require(result['NEWSLETTER_PROVIDER'] in ('disabled', 'brevo'), 'Invalid NEWSLETTER_PROVIDER')
     if result['NEWSLETTER_LIST_ID']:
         require(result['NEWSLETTER_LIST_ID'].isascii() and result['NEWSLETTER_LIST_ID'].isdecimal()
@@ -182,9 +171,8 @@ def generation_files(values, target):
     password = quote(values['APP_DATABASE_PASSWORD'], safe='')
     migration_password = quote(values['DATABASE_PASSWORD'], safe='')
     runtime_keys = ('APP_BASE_URL', 'AUTH_SESSION_SECRET', 'S3_ENDPOINT', 'S3_REGION',
-                    'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'SMTP_HOST',
-                    'SMTP_PORT', 'SMTP_SECURE', 'SMTP_USER', 'SMTP_PASSWORD', 'MAIL_FROM',
-                    'TEST_MAIL_TO', 'TRUST_PROXY_IP', 'SPORTLINK_CLIENT_ID',
+                    'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'SENDGRID_API_KEY',
+                    'MAIL_FROM', 'TRUST_PROXY_IP', 'SPORTLINK_CLIENT_ID',
                     'NEWSLETTER_PROVIDER', 'NEWSLETTER_API_KEY', 'NEWSLETTER_LIST_ID',
                     'NEWS_IMPORT_MAX_MB', 'NEWS_IMPORT_MAX_UNPACKED_MB', 'NEWS_IMPORT_MAX_ENTRIES')
     runtime = {key: values[key] for key in runtime_keys if values[key] != ''}

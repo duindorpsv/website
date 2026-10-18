@@ -96,10 +96,27 @@ test('FORM01/04: all three intake streams remain distinct and membership awaits 
  const [member]=await sql`select integration_status from cms_submissions where id=${received.id}`;assert.equal(member.integration_status,'waiting');assert.equal((await sql`select id from cms_jobs where kind='sportlink-registration' and payload->>'submissionId'=${received.id}`).length,1);
 });
 test('FORM03: unavailable mail transport leaves a retryable job and durable submission',async()=>{
- const previous=process.env.SMTP_HOST;process.env.SMTP_HOST='';
+ const previous=process.env.SENDGRID_API_KEY;process.env.SENDGRID_API_KEY='';
  try{const id=crypto.randomUUID();await sql`insert into cms_jobs(id,operation_id,kind,payload,run_at) values (${id},${'mail-outage:'+id},'mail',${sql.json({to:['test@example.invalid'],subject:'Synthetische storing',text:'Test',messageId:id})},'2000-01-01T00:00:00Z')`;
  await runOnce();const [job]=await sql`select status,attempts,last_error from cms_jobs where id=${id}`;assert.equal(job.status,'pending');assert.equal(job.attempts,1);assert.equal(job.last_error,'mail-unconfigured');
- }finally{if(previous===undefined)delete process.env.SMTP_HOST;else process.env.SMTP_HOST=previous;}
+ }finally{if(previous===undefined)delete process.env.SENDGRID_API_KEY;else process.env.SENDGRID_API_KEY=previous;}
+});
+test('SendGrid queue: a rejected API request retries the same durable operation and completes on 202',async()=>{
+ const keys=['SENDGRID_API_KEY','MAIL_FROM','TEST_MAIL_TO'] as const,previous=Object.fromEntries(keys.map(key=>[key,process.env[key]])),originalFetch=globalThis.fetch;
+ const id=crypto.randomUUID(),operation='sendgrid-fixture:'+id,requests:any[]=[];
+ try{
+  Object.assign(process.env,{SENDGRID_API_KEY:'synthetic-sendgrid-contract',MAIL_FROM:'cms@example.invalid',TEST_MAIL_TO:'test@example.invalid'});
+  globalThis.fetch=async(url,options)=>{assert.equal(url,'https://api.sendgrid.com/v3/mail/send');requests.push(JSON.parse(String(options?.body)));return new Response(null,{status:requests.length===1?429:202});};
+  await sql`insert into cms_jobs(id,operation_id,kind,payload,run_at) values (${id},${operation},'mail',${sql.json({to:['original@example.invalid'],subject:'Synthetische SendGrid-proef',text:'Test'})},'1900-01-01T00:00:00Z')`;
+  await runOnce();const [retry]=await sql`select status,attempts,last_error from cms_jobs where id=${id}`;
+  assert.equal(retry.status,'pending');assert.equal(retry.attempts,1);assert.equal(retry.last_error,'mail-rejected');
+  await sql`update cms_jobs set run_at='1900-01-01T00:00:00Z' where id=${id}`;
+  await runOnce();const [done]=await sql`select status,attempts,last_error from cms_jobs where id=${id}`;
+  assert.equal(done.status,'done');assert.equal(done.attempts,2);assert.equal(done.last_error,null);
+  assert.equal(requests.length,2);assert.deepEqual(requests[0],requests[1]);
+  assert.equal(requests[0].custom_args.cms_operation_id,`<${operation}@duindorp.invalid>`);
+  assert.deepEqual(requests[0].personalizations,[{to:[{email:'test@example.invalid'}]}]);
+ }finally{globalThis.fetch=originalFetch;for(const key of keys){if(previous[key]===undefined)delete process.env[key];else process.env[key]=previous[key];}}
 });
 test('PUB03 and MEDIA03: scheduled publication indexes its frozen live references after a different draft',async()=>{
  const {createCmsSeed}=await import('../../lib/cms/seed'),mediaId=createCmsSeed().media.find(m=>m.published)!.id,id='frozen-ref-'+crypto.randomUUID(),data=page(id);
@@ -112,8 +129,8 @@ test('PUB03 and MEDIA03: scheduled publication indexes its frozen live reference
 test('AUTH06: password-only production administrators cannot read CMS data, but can initialize MFA',async()=>{
  const {principal}=await import('../../lib/server/permissions'),password=crypto.randomUUID()+crypto.randomUUID(),user=await getAuth().api.createUser({body:{email:'mfa-gate-'+crypto.randomUUID()+'@example.invalid',name:'MFA gate fixture',password,role:'admin'}});await sql`insert into cms_memberships(user_id,role_id) values (${user.user.id},'admin')`;
  const response=await getAuth().api.signInEmail({body:{email:user.user.email,password},asResponse:true}),headers=new Headers({cookie:response.headers.getSetCookie().map(v=>v.split(';')[0]).join('; ')});
- const keys=['APP_ENV','APP_BASE_URL','MEDIA_DRIVER','S3_BUCKET','S3_ACCESS_KEY_ID','S3_SECRET_ACCESS_KEY'] as const,previous=Object.fromEntries(keys.map(key=>[key,process.env[key]]));
- try{Object.assign(process.env,{APP_ENV:'production',APP_BASE_URL:'https://club.example.invalid',MEDIA_DRIVER:'s3',S3_BUCKET:'synthetic',S3_ACCESS_KEY_ID:'synthetic',S3_SECRET_ACCESS_KEY:'synthetic'});await assert.rejects(principal(headers),(e:any)=>e.code==='mfa-required');assert.equal((await principal(headers,{allowMfaSetup:true})).id,user.user.id);
+ const keys=['APP_ENV','APP_BASE_URL','MEDIA_DRIVER','S3_BUCKET','S3_ACCESS_KEY_ID','S3_SECRET_ACCESS_KEY','SENDGRID_API_KEY','MAIL_FROM','TEST_MAIL_TO'] as const,previous=Object.fromEntries(keys.map(key=>[key,process.env[key]]));
+ try{Object.assign(process.env,{APP_ENV:'production',APP_BASE_URL:'https://club.example.invalid',MEDIA_DRIVER:'s3',S3_BUCKET:'synthetic',S3_ACCESS_KEY_ID:'synthetic',S3_SECRET_ACCESS_KEY:'synthetic',SENDGRID_API_KEY:'synthetic',MAIL_FROM:'cms@example.invalid',TEST_MAIL_TO:''});await assert.rejects(principal(headers),(e:any)=>e.code==='mfa-required');assert.equal((await principal(headers,{allowMfaSetup:true})).id,user.user.id);
  }finally{for(const key of keys){if(previous[key]===undefined)delete process.env[key];else process.env[key]=previous[key];}}
 });
 test('DATA04 and MEDIA04: browser blob URLs become durable mapped originals and repeat import stays idempotent',async()=>{

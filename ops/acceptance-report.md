@@ -1,5 +1,7 @@
 # Developmentacceptatie — 14 oktober 2026
 
+> Actuele inrichting vanaf 18 oktober 2026: development-VPS → main → uitsluitend GitHub Environment `production`; websitemail via SendGrid API. De staging-/SMTP-verwijzingen hieronder beschrijven eerdere inventarisatie en testresultaten. De actuele procedure en exacte instellingen staan in [github-environments.md](github-environments.md) en [first-deploy.md](first-deploy.md). Eerder voorbereide stagingresources zijn niet automatisch verwijderd.
+
 Dit is een verslag van uitgevoerde developmentcontroles, geen productieacceptatie. Bron: Sites v44, commit e91ed87f3e5917f286885c6593fe397f8e67cdf4; repository duindorpsv/website. Private fixtures, testaccounts, logs en backups staan uitsluitend in `.runtime/` en gaan niet naar Git.
 
 `pnpm test`: 98 scenario’s, 97 geslaagd, één bewust overgeslagen Sportlink-observed-fixture. `pnpm typecheck`: geslaagd. `pnpm test:integration`: 18 echte PostgreSQL-scenario’s geslaagd. De browsersuite heeft acht scenario’s: login/401/SSR, bouwer/undo, responsive historie, contactontvangst, pointer/menuverplaatsingen, twee-browsernieuwsopslag, emulated touch/cancel en gepubliceerde layout/metadata zonder JS. De definitieve image/runtime- en remote-CI-resultaten staan in het uitvoerlog.

@@ -12,8 +12,5 @@ services:
       interval: 3s
       timeout: 3s
       retries: 15
-  mail:
-    image: public.ecr.aws/supabase/mailpit:v1.30.2
-    ports: ['127.0.0.1:62525:1025', '127.0.0.1:62580:8025']
 volumes:
   database:

@@ -23,7 +23,7 @@ def quiet(arguments, environment):
 
 
 def backup(target, identifier, environment, initialize=False):
-    require(target in ('staging', 'production')
+    require(target == 'production'
             and pwd.getpwuid(os.getuid()).pw_name == 'duindorpsv-' + target,
             'Backup identity rejected')
     state = STATE_ROOT / target

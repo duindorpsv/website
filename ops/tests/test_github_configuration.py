@@ -25,15 +25,14 @@ import rollback
 REAL_COMMAND = deploy.command
 
 
-def settings(target='staging'):
+def settings(target='production'):
     return dict(APP_BASE_URL='https://' + target + '.example.org',
                 DATABASE_PASSWORD='migration-example-' + 'a' * 32,
                 APP_DATABASE_PASSWORD='application-example-' + 'b' * 32,
                 AUTH_SESSION_SECRET='session-example-' + 'c' * 48,
                 S3_BUCKET='cms-' + target, S3_ENDPOINT='https://objects.example.org',
                 S3_ACCESS_KEY_ID='synthetic-media-key', S3_SECRET_ACCESS_KEY='synthetic-media-secret',
-                SMTP_HOST='smtp.example.org', MAIL_FROM='cms@example.org',
-                TEST_MAIL_TO='test@example.org' if target == 'staging' else '',
+                SENDGRID_API_KEY='synthetic-sendgrid-key', MAIL_FROM='cms@example.org',
                 RESTIC_REPOSITORY='s3:https://backup.example.org/cms-' + target,
                 RESTIC_PASSWORD='synthetic-restic-' + 'd' * 32,
                 BACKUP_S3_ACCESS_KEY_ID='synthetic-backup-key',
@@ -42,17 +41,17 @@ def settings(target='staging'):
 
 def release(run=10):
     return dict(schemaVersion=1, repository='duindorpsv/website',
-                workflow='.github/workflows/staging.yml', runId=run,
+                workflow='.github/workflows/production.yml', runId=run,
                 sourceSha='a' * 40, treeSha='b' * 40, digest='sha256:' + str(run % 10) * 64,
-                migrationHash='c' * 64, configVersion=2)
+                migrationHash='c' * 64, configVersion=3)
 
 
 class ConfigurationTests(unittest.TestCase):
     def test_requirements_defaults_and_environment_separation(self):
-        for target in ('staging', 'production'):
+        for target in ('production',):
             installed = {'baseUrl': settings(target)['APP_BASE_URL']}
             values = configuration.validate_configuration(settings(target), target, installed)
-            self.assertEqual(values['SMTP_PORT'], '587')
+            self.assertEqual(values['SENDGRID_API_KEY'], 'synthetic-sendgrid-key')
             self.assertEqual(values['NEWS_IMPORT_MAX_MB'], '512')
             self.assertEqual(values['NEWSLETTER_PROVIDER'], 'disabled')
             with tempfile.TemporaryDirectory() as temporary:
@@ -76,10 +75,10 @@ class ConfigurationTests(unittest.TestCase):
                    dict(values, WEB_PORT='22'), dict(values, APP_ENV='production'),
                    dict(values, DATABASE_URL='postgres://root@another-site/db'),
                    dict(values, DATABASE_PASSWORD='password\nDOCKER_HOST=evil'),
-                   dict(values, SMTP_PASSWORD='only-one-half'),
-                   dict(values, APP_BASE_URL='http://staging.example.org'),
-                   dict(values, APP_BASE_URL='https://production.example.org'),
-                   dict(values, TEST_MAIL_TO=''), dict(values, S3_BUCKET='--config=/etc/passwd'),
+                   dict(values, SENDGRID_API_KEY='contains whitespace'),
+                   dict(values, APP_BASE_URL='http://production.example.org'),
+                   dict(values, APP_BASE_URL='https://other.example.org'),
+                   dict(values, TEST_MAIL_TO='test@example.org'), dict(values, S3_BUCKET='--config=/etc/passwd'),
                    dict(values, S3_ENDPOINT='http://169.254.169.254'),
                    dict(values, RESTIC_REPOSITORY='/srv/another-site'),
                    dict(values, RESTIC_REPOSITORY='s3:https://user:password@example.org/backup'),
@@ -93,31 +92,38 @@ class ConfigurationTests(unittest.TestCase):
                 invalid.append(dict(values, **{key: ''}))
         for candidate in invalid:
             with self.subTest(keys=set(candidate)), self.assertRaises(ValueError):
-                configuration.validate_configuration(candidate, 'staging', {'baseUrl': values['APP_BASE_URL']})
+                configuration.validate_configuration(candidate, 'production', {'baseUrl': values['APP_BASE_URL']})
         with self.assertRaises(ValueError):
             configuration.validate_configuration(dict(settings('production'), TEST_MAIL_TO='test@example.org'),
                                                  'production', {'baseUrl': settings('production')['APP_BASE_URL']})
 
     def test_generation_rejects_symlinks_and_modified_files(self):
-        values = configuration.validate_configuration(settings(), 'staging', {'baseUrl': settings()['APP_BASE_URL']})
+        values = configuration.validate_configuration(settings(), 'production', {'baseUrl': settings()['APP_BASE_URL']})
         with tempfile.TemporaryDirectory() as temporary:
             state = Path(temporary)
-            identifier = configuration.write_generation(state, values, 'staging')
+            identifier = configuration.write_generation(state, values, 'production')
             runtime = configuration.generation_path(state, identifier) / 'runtime.env'
             runtime.write_text('modified')
             with self.assertRaises(ValueError):
-                configuration.write_generation(state, values, 'staging')
+                configuration.write_generation(state, values, 'production')
             runtime.unlink()
             runtime.symlink_to(state / 'outside')
             with self.assertRaises((ValueError, FileNotFoundError)):
-                configuration.write_generation(state, values, 'staging')
+                configuration.write_generation(state, values, 'production')
             for identifier in ('../production', 'x' * 64, '/etc/passwd'):
                 with self.assertRaises(ValueError):
                     configuration.generation_path(state, identifier)
 
     def test_workflow_payload_preserves_values_and_uses_only_expected_settings(self):
-        for target in ('staging', 'production'):
+        for target in ('production',):
             source = (ROOT / '.github/workflows' / (target + '.yml')).read_text()
+            self.assertIn('branches: [main]', source)
+            self.assertIn("if: github.ref == 'refs/heads/main'", source)
+            self.assertIn('environment: production', source)
+            self.assertIn('sudo -n -u duindorpsv-production /usr/local/libexec/duindorp/duindorp-deploy-production', source)
+            self.assertNotIn('staging', source)
+            self.assertNotIn('SMTP_', source)
+            self.assertFalse((ROOT / '.github/workflows/staging.yml').exists())
             mappings = re.findall(r'CFG_(\w+): \$\{\{ (vars|secrets)\.(\w+) \}\}', source)
             self.assertEqual({name for name, _, _ in mappings}, set(configuration.SECRETS + configuration.VARIABLES))
             for name, kind, lookup in mappings:
@@ -127,7 +133,7 @@ class ConfigurationTests(unittest.TestCase):
             script = '\n'.join(line[10:] for line in block.splitlines())
             with tempfile.TemporaryDirectory() as temporary:
                 (Path(temporary) / 'release.json').write_text(json.dumps(release()))
-                values = dict(settings(target), SMTP_PASSWORD="x'$`#\\", SMTP_USER='test')
+                values = dict(settings(target), SENDGRID_API_KEY="x'$`#\\")
                 environment = {**os.environ, **{'CFG_' + key: value for key, value in values.items()},
                                'DEPLOY_TOKEN': 'synthetic-job-token'}
                 result = subprocess.run([sys.executable, '-c', script], cwd=temporary,
@@ -140,21 +146,21 @@ class ConfigurationTests(unittest.TestCase):
     def test_compose_parses_generated_values_literally_without_shell_expansion(self):
         with tempfile.TemporaryDirectory() as temporary:
             state = Path(temporary)
-            tricky = "apostrophe' dollar$HOME ${TOKEN} backtick` hash# backslash\\ tail\\'"
+            tricky = "apostrophe'dollar$HOME${TOKEN}backtick`hash#backslash\\tail\\'"
             values = settings()
-            values.update(SMTP_USER='test', SMTP_PASSWORD=tricky, APP_DATABASE_PASSWORD=tricky)
-            values = configuration.validate_configuration(values, 'staging', {'baseUrl': values['APP_BASE_URL']})
-            identifier = configuration.write_generation(state, values, 'staging')
+            values.update(SENDGRID_API_KEY=tricky, APP_DATABASE_PASSWORD=tricky)
+            values = configuration.validate_configuration(values, 'production', {'baseUrl': values['APP_BASE_URL']})
+            identifier = configuration.write_generation(state, values, 'production')
             configuration.database_password_file(state, values)
             installed = dict(dockerHost='unix:///nonexistent.sock', webPort=3112)
-            environment = {**os.environ, **configuration.compose_environment('staging', installed, state, identifier, release(), manifests.REGISTRY)}
+            environment = {**os.environ, **configuration.compose_environment('production', installed, state, identifier, release(), manifests.REGISTRY)}
             parsed = subprocess.run(['docker', 'compose', '-f', str(ROOT / 'ops/compose.yml'),
                                      '--profile', 'bootstrap', '--profile', 'migration',
                                      'config', '--format', 'json'], env=environment, capture_output=True, text=True)
             self.assertEqual(parsed.returncode, 0, 'Docker Compose rejected generated configuration')
             services = json.loads(parsed.stdout)['services']
             # `compose config` escapes dollars again for reusable serialization.
-            self.assertEqual(services['web']['environment']['SMTP_PASSWORD'].replace('$$', '$'), tricky)
+            self.assertEqual(services['web']['environment']['SENDGRID_API_KEY'].replace('$$', '$'), tricky)
             self.assertEqual(services['provision']['environment']['APP_DATABASE_PASSWORD'].replace('$$', '$'), tricky)
             self.assertNotIn('MIGRATION_DATABASE_URL', services['web']['environment'])
             self.assertNotIn('RESTIC_PASSWORD', services['web']['environment'])
@@ -171,7 +177,7 @@ class ConfigurationTests(unittest.TestCase):
                                      capture_output=True, text=True, timeout=30)
             self.assertEqual(printed.returncode, 0, 'Synthetic configuration container failed')
             actual = dict(line.split('=', 1) for line in printed.stdout.splitlines() if '=' in line)
-            self.assertEqual(actual['SMTP_PASSWORD'], tricky)
+            self.assertEqual(actual['SENDGRID_API_KEY'], tricky)
 
 
 class DeploymentTests(unittest.TestCase):
@@ -184,14 +190,14 @@ class DeploymentTests(unittest.TestCase):
         self.stack.enter_context(patch.object(deploy, 'STATE_ROOT', self.directory))
         self.stack.enter_context(patch.object(deploy, 'installed_configuration', return_value=self.installed))
         self.stack.enter_context(patch.object(deploy.pwd, 'getpwuid', return_value=SimpleNamespace(
-            pw_name='duindorpsv-staging', pw_dir=str(self.directory))))
+            pw_name='duindorpsv-production', pw_dir=str(self.directory))))
         self.verify = self.stack.enter_context(patch.object(deploy, 'verify'))
         self.stack.enter_context(patch.object(deploy, 'api', side_effect=lambda path, token:
             {'object': {'sha': 'a' * 40}} if 'git/ref/' in path else {'tree': {'sha': 'b' * 40}}))
         self.calls = []
         def command(args, env, input=None):
             self.calls.append((args, dict(env), input))
-            return json.dumps({'org.opencontainers.image.revision': 'a' * 40}) if 'inspect' in args else ''
+            return json.dumps({'org.opencontainers.image.revision': 'a' * 40, 'nl.duindorpsv.source-tree': 'b' * 40}) if 'inspect' in args else ''
         self.stack.enter_context(patch.object(deploy, 'command', side_effect=command))
         self.health = self.stack.enter_context(patch.object(deploy, 'ready'))
         self.stack.enter_context(redirect_stdout(io.StringIO()))
@@ -203,10 +209,10 @@ class DeploymentTests(unittest.TestCase):
                 'configuration': {**settings(), **changes}}
 
     def current(self):
-        return json.loads((self.directory / 'staging/current.json').read_text())
+        return json.loads((self.directory / 'production/current.json').read_text())
 
     def test_first_boot_backs_up_before_migration_and_activates_after_health(self):
-        deploy.deploy('staging', self.request())
+        deploy.deploy('production', self.request())
         calls = [args for args, _, _ in self.calls]
         backup_index = next(i for i, args in enumerate(calls) if args[0].endswith('/backup.sh'))
         migrate_index = next(i for i, args in enumerate(calls) if args[-1] == 'migration' and 'run' in args)
@@ -218,80 +224,92 @@ class DeploymentTests(unittest.TestCase):
         self.assertTrue(all(settings()['AUTH_SESSION_SECRET'] not in str(args) for args in calls))
 
     def test_same_image_new_configuration_can_be_deployed_and_identical_retry_is_noop(self):
-        deploy.deploy('staging', self.request())
+        deploy.deploy('production', self.request())
         old = self.current()
         self.calls.clear()
-        deploy.deploy('staging', self.request(MAIL_FROM='changed@example.org'))
+        deploy.deploy('production', self.request(MAIL_FROM='changed@example.org'))
         new = self.current()
         self.assertEqual(old['release'], new['release'])
         self.assertNotEqual(old['configuration'], new['configuration'])
-        self.assertEqual(json.loads((self.directory / 'staging/previous.json').read_text()), old)
+        self.assertEqual(json.loads((self.directory / 'production/previous.json').read_text()), old)
         self.assertFalse(any(args[-1] == 'seed' for args, _, _ in self.calls))
         backup_env = next(env for args, env, _ in self.calls if args[0].endswith('/backup.sh'))
         self.assertEqual(backup_env['DUINDORP_SNAPSHOT_CONFIGURATION'], old['configuration'])
         self.calls.clear()
-        deploy.deploy('staging', self.request(MAIL_FROM='changed@example.org'))
+        deploy.deploy('production', self.request(MAIL_FROM='changed@example.org'))
         self.assertEqual(self.calls, [])
 
     def test_failed_health_restores_previous_image_and_configuration(self):
-        deploy.deploy('staging', self.request())
+        deploy.deploy('production', self.request())
         old = self.current()
         self.calls.clear()
         self.health.side_effect = [RuntimeError('unhealthy'), None]
         with self.assertRaises(RuntimeError):
-            deploy.deploy('staging', self.request(11, MAIL_FROM='changed@example.org'))
+            deploy.deploy('production', self.request(11, MAIL_FROM='changed@example.org'))
         self.assertEqual(self.current(), old)
         last_env = self.calls[-1][1]
         self.assertIn(old['configuration'], last_env['RUNTIME_ENV_FILE'])
         self.assertEqual(last_env['APP_IMAGE'], manifests.REGISTRY + '@' + old['release']['digest'])
 
     def test_unsafe_rotations_and_stale_jobs_do_not_change_containers(self):
-        deploy.deploy('staging', self.request())
+        deploy.deploy('production', self.request())
         self.calls.clear()
         for change in ({'APP_DATABASE_PASSWORD': 'different-' + 'x' * 32},
                        {'DATABASE_PASSWORD': 'different-' + 'x' * 32},
                        {'AUTH_SESSION_SECRET': 'different-' + 'x' * 32},
                        {'S3_BUCKET': 'another-bucket'}):
             with self.assertRaises(ValueError):
-                deploy.deploy('staging', self.request(11, **change))
+                deploy.deploy('production', self.request(11, **change))
         with self.assertRaises(ValueError):
-            deploy.deploy('staging', self.request(9))
+            deploy.deploy('production', self.request(9))
         self.assertEqual(self.calls, [])
-        (self.directory / 'staging/latest-run-id').write_text('20')
+        (self.directory / 'production/latest-run-id').write_text('20')
         with self.assertRaises(ValueError):
-            deploy.deploy('staging', self.request(11))
+            deploy.deploy('production', self.request(11))
 
     def test_bad_configuration_and_untrusted_artifacts_never_reach_docker(self):
         with self.assertRaises(ValueError):
-            deploy.deploy('staging', self.request(DOCKER_HOST='unix:///var/run/docker.sock'))
+            deploy.deploy('production', self.request(DOCKER_HOST='unix:///var/run/docker.sock'))
         self.verify.assert_not_called()
         self.verify.side_effect = ValueError('untrusted')
         with self.assertRaises(ValueError):
-            deploy.deploy('staging', self.request())
+            deploy.deploy('production', self.request())
         self.assertEqual(self.calls, [])
-        self.assertFalse((self.directory / 'staging/configuration').exists())
+        self.assertFalse((self.directory / 'production/configuration').exists())
 
     def test_failed_backup_stops_migrations_and_web_activation(self):
         def fail_backup(args, environment, input=None):
             if args[0].endswith('/backup.sh'):
                 raise RuntimeError('external backup unavailable')
             self.calls.append((args, environment, input))
-            return json.dumps({'org.opencontainers.image.revision': 'a' * 40}) if 'inspect' in args else ''
+            return json.dumps({'org.opencontainers.image.revision': 'a' * 40, 'nl.duindorpsv.source-tree': 'b' * 40}) if 'inspect' in args else ''
         with patch.object(deploy, 'command', side_effect=fail_backup), self.assertRaises(RuntimeError):
-            deploy.deploy('staging', self.request())
-        self.assertFalse((self.directory / 'staging/current.json').exists())
+            deploy.deploy('production', self.request())
+        self.assertFalse((self.directory / 'production/current.json').exists())
         self.assertFalse(any('run' in args for args, _, _ in self.calls))
         self.health.assert_not_called()
 
-    def test_production_rejects_without_matching_external_restore_evidence(self):
-        self.installed['baseUrl'] = settings('production')['APP_BASE_URL']
-        account = SimpleNamespace(pw_name='duindorpsv-production', pw_dir=str(self.directory))
-        with patch.object(deploy.pwd, 'getpwuid', return_value=account):
-            with self.assertRaises(FileNotFoundError):
-                deploy.deploy('production', {'release': release(), 'token': 'synthetic-token',
-                                            'configuration': settings('production')})
-        self.assertFalse(any('up' in args for args, _, _ in self.calls))
+    def test_older_main_commit_and_wrong_image_tree_cannot_activate(self):
+        with patch.object(deploy, 'api', return_value={'object': {'sha': 'f' * 40}}):
+            with self.assertRaises(ValueError):
+                deploy.deploy('production', self.request())
+        self.assertEqual(self.calls, [])
+        def wrong_tree(args, environment, input=None):
+            self.calls.append((args, environment, input))
+            return json.dumps({'org.opencontainers.image.revision': 'a' * 40,
+                               'nl.duindorpsv.source-tree': 'f' * 40}) if 'inspect' in args else ''
+        with patch.object(deploy, 'command', side_effect=wrong_tree):
+            with self.assertRaises(ValueError):
+                deploy.deploy('production', self.request())
+        self.assertFalse(any('up' in args or 'run' in args for args, _, _ in self.calls))
         self.assertFalse((self.directory / 'production/current.json').exists())
+
+    def test_staging_is_rejected_even_for_the_old_application_account(self):
+        account = SimpleNamespace(pw_name='duindorpsv-staging', pw_dir=str(self.directory))
+        with patch.object(deploy.pwd, 'getpwuid', return_value=account):
+            with self.assertRaises(PermissionError):
+                deploy.deploy('staging', self.request())
+        self.assertEqual(self.calls, [])
 
     def test_child_failure_never_exposes_captured_secrets(self):
         process = SimpleNamespace(returncode=1, stdout='sensitive', stderr=settings()['AUTH_SESSION_SECRET'])
@@ -300,47 +318,92 @@ class DeploymentTests(unittest.TestCase):
                 REAL_COMMAND(['docker'], {})
 
     def test_operator_rollback_keeps_matching_config_and_stale_run_protection(self):
-        deploy.deploy('staging', self.request())
+        deploy.deploy('production', self.request())
         old = self.current()
-        deploy.deploy('staging', self.request(11, MAIL_FROM='changed@example.org'))
+        deploy.deploy('production', self.request(11, MAIL_FROM='changed@example.org'))
         current = self.current()
         with patch.object(rollback, 'STATE_ROOT', self.directory), \
              patch.object(rollback, 'installed_configuration', return_value=self.installed), \
              patch.object(rollback, 'command') as command, \
              patch.object(rollback, 'ready', side_effect=RuntimeError('not ready')) as health:
             with self.assertRaises(RuntimeError):
-                rollback.rollback('staging')
+                rollback.rollback('production')
             self.assertEqual(self.current(), current)
             health.side_effect = None
-            rollback.rollback('staging')
+            rollback.rollback('production')
             self.assertEqual(self.current(), old)
             self.assertIn(old['configuration'], command.call_args.args[1]['RUNTIME_ENV_FILE'])
         with self.assertRaises(ValueError):
-            deploy.deploy('staging', self.request(10))
+            deploy.deploy('production', self.request(10))
 
 
 class ProvenanceTests(unittest.TestCase):
+    def test_only_main_production_builds_with_successful_latest_checks_are_accepted(self):
+        item = release()
+        archive = io.BytesIO()
+        with zipfile.ZipFile(archive, 'w') as contents:
+            contents.writestr('release.json', json.dumps(item))
+        run = dict(head_sha=item['sourceSha'], head_branch='main', event='push',
+                   path='.github/workflows/production.yml', conclusion=None)
+        jobs = [dict(id=i, run_attempt=1, name=name, conclusion='success')
+                for i, name in enumerate(('checks / verify', 'build'))]
+        artifacts = [dict(name='release', id=1, expired=False)]
+        def api(path, token, binary=False):
+            if binary:
+                return archive.getvalue()
+            if '/jobs?' in path:
+                return dict(total_count=len(jobs), jobs=jobs)
+            if path.endswith('/artifacts'):
+                return dict(artifacts=artifacts)
+            return run
+        with patch.object(deploy, 'api', side_effect=api):
+            deploy.verify(item, 'synthetic', 'production')
+            for field, bad in [('head_branch', 'staging'), ('head_branch', 'production'),
+                               ('head_sha', 'f' * 40), ('event', 'pull_request'),
+                               ('path', '.github/workflows/staging.yml'), ('conclusion', 'failure')]:
+                with self.subTest(field=field, bad=bad), patch.dict(run, {field: bad}):
+                    with self.assertRaises(ValueError):
+                        deploy.verify(item, 'synthetic', 'production')
+            artifacts[0]['expired'] = True
+            with self.assertRaises(ValueError):
+                deploy.verify(item, 'synthetic', 'production')
+            artifacts[0]['expired'] = False
+            jobs.append(dict(id=5, run_attempt=2, name='build', conclusion='failure'))
+            with self.assertRaises(ValueError):
+                deploy.verify(item, 'synthetic', 'production')
+            jobs[-1]['conclusion'] = 'success'
+            deploy.verify(item, 'synthetic', 'production')
+            jobs.append(dict(id=6, run_attempt=3, name='checks / verify', conclusion='failure'))
+            with self.assertRaises(ValueError):
+                deploy.verify(item, 'synthetic', 'production')
+
+    def test_legacy_manifest_cannot_be_used_as_a_production_release(self):
+        for changes in [dict(configVersion=2), dict(workflow='.github/workflows/staging.yml')]:
+            with self.assertRaises(ValueError):
+                manifests.validate({**release(), **changes})
+
     def test_runtime_configuration_does_not_bypass_digest_or_acceptance_binding(self):
         item = release()
         archive = io.BytesIO()
         with zipfile.ZipFile(archive, 'w') as contents:
             contents.writestr('release.json', json.dumps(item))
-        run = dict(head_sha=item['sourceSha'], head_branch='staging', event='push',
-                   path='.github/workflows/staging.yml', conclusion='success')
+        run = dict(head_sha=item['sourceSha'], head_branch='main', event='push',
+                   path='.github/workflows/production.yml', conclusion='success')
         def api(path, token, binary=False):
             if binary:
                 return archive.getvalue()
-            if path.endswith('/jobs'):
-                return {'jobs': [{'name': 'build', 'conclusion': 'success'}]}
+            if '/jobs?' in path:
+                return {'total_count': 2, 'jobs': [{'id': i, 'run_attempt': 1, 'name': name, 'conclusion': 'success'} for i, name in enumerate(('checks / verify', 'build'))]}
             if path.endswith('/artifacts'):
                 return {'artifacts': [{'name': name, 'expired': False, 'id': index}
-                                      for index, name in enumerate(('release', 'staging-approved'))]}
+                                      for index, name in enumerate(('release',))]}
             return run
         with patch.object(deploy, 'api', side_effect=api):
-            deploy.verify(item, 'synthetic', 'staging')
+            deploy.verify(item, 'synthetic', 'production')
+            run['event'] = 'workflow_dispatch'
             deploy.verify(item, 'synthetic', 'production')
             with self.assertRaises(ValueError):
-                deploy.verify({**item, 'digest': 'sha256:' + 'f' * 64}, 'synthetic', 'staging')
+                deploy.verify({**item, 'digest': 'sha256:' + 'f' * 64}, 'synthetic', 'production')
             run['conclusion'] = 'failure'
             with self.assertRaises(ValueError):
                 deploy.verify(item, 'synthetic', 'production')
@@ -349,13 +412,13 @@ class ProvenanceTests(unittest.TestCase):
 class BackupTests(unittest.TestCase):
     def test_backup_separates_media_and_external_credentials_and_includes_runtime_settings(self):
         with tempfile.TemporaryDirectory() as temporary:
-            state = Path(temporary) / 'staging'
+            state = Path(temporary) / 'production'
             state.mkdir(mode=0o700)
-            values = configuration.validate_configuration(settings(), 'staging', {'baseUrl': settings()['APP_BASE_URL']})
-            identifier = configuration.write_generation(state, values, 'staging')
+            values = configuration.validate_configuration(settings(), 'production', {'baseUrl': settings()['APP_BASE_URL']})
+            identifier = configuration.write_generation(state, values, 'production')
             configuration.database_password_file(state, values)
             installed = dict(baseUrl=values['APP_BASE_URL'], webPort=3112, dockerHost='unix:///fake')
-            environment = configuration.compose_environment('staging', installed, state, identifier, release(), manifests.REGISTRY)
+            environment = configuration.compose_environment('production', installed, state, identifier, release(), manifests.REGISTRY)
             commands = []
             def quiet(args, env):
                 commands.append((args, env))
@@ -369,8 +432,8 @@ class BackupTests(unittest.TestCase):
                 if 'pg_dump' in args:
                     kwargs['stdout'].write(b'synthetic-dump')
                 return SimpleNamespace(returncode=0)
-            account = SimpleNamespace(pw_name='duindorpsv-staging', pw_dir=temporary)
-            config_root = Path(temporary) / 'etc/staging'
+            account = SimpleNamespace(pw_name='duindorpsv-production', pw_dir=temporary)
+            config_root = Path(temporary) / 'etc/production'
             config_root.mkdir(parents=True)
             (config_root / 'deploy.json').write_text(json.dumps(installed))
             with patch.object(backup, 'STATE_ROOT', Path(temporary)), \
@@ -378,7 +441,7 @@ class BackupTests(unittest.TestCase):
                  patch.object(backup.pwd, 'getpwuid', return_value=account), \
                  patch.object(backup, 'quiet', side_effect=quiet), \
                  patch.object(backup.subprocess, 'run', side_effect=run):
-                backup.backup('staging', identifier, environment, initialize=True)
+                backup.backup('production', identifier, environment, initialize=True)
             media_env = commands[0][1]
             external_env = commands[1][1]
             self.assertEqual(media_env['RCLONE_CONFIG_MEDIA_SECRET_ACCESS_KEY'], values['S3_SECRET_ACCESS_KEY'])

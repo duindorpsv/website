@@ -14,7 +14,7 @@ from release import validate, REGISTRY
 
 
 def rollback(target):
-    require(target in ('staging', 'production')
+    require(target == 'production'
             and pwd.getpwuid(os.getuid()).pw_name == 'duindorpsv-' + target,
             'Rollback requires the matching application account')
     state = STATE_ROOT / target
@@ -36,7 +36,7 @@ def rollback(target):
 
 if __name__ == '__main__':
     try:
-        require(len(sys.argv) == 2, 'Choose staging or production')
+        require(len(sys.argv) == 2, 'Choose production')
         rollback(sys.argv[1])
     except Exception as error:
         print('Rollback rejected: ' + type(error).__name__, file=sys.stderr)
