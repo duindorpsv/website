@@ -1,6 +1,6 @@
 # Uitvoerlog
 
-> Actuele inrichting vanaf 18 oktober 2026: development-VPS → main → uitsluitend GitHub Environment `production`; websitemail via SendGrid API. De staging-/SMTP-verwijzingen hieronder beschrijven eerdere inventarisatie en testresultaten. De actuele procedure en exacte instellingen staan in [github-environments.md](github-environments.md) en [first-deploy.md](first-deploy.md). Eerder voorbereide stagingresources zijn niet automatisch verwijderd.
+> Actuele inrichting vanaf 18 oktober 2026: development-VPS → main → uitsluitend GitHub Environment `production`; websitemail via Resend API en lokaal abonnee-/onderwerpbeheer. De staging-/SMTP-verwijzingen hieronder beschrijven eerdere inventarisatie en testresultaten. De actuele procedure en exacte instellingen staan in [github-environments.md](github-environments.md) en [first-deploy.md](first-deploy.md). Eerder voorbereide stagingresources zijn niet automatisch verwijderd.
 
 ## Bron en runtime
 
@@ -62,3 +62,11 @@ Nog geen staging/productiondeployment, browserdatamigratie of externe verzending
 - Configuratieversie 3 vereist SENDGRID_API_KEY en MAIL_FROM. Hostwrappers, backup/rollback, API-status en operationele handleidingen zijn aangepast. De stagingdigest-/restoremarker-gate is vervallen; externe backup vóór iedere migratie blijft verplicht, externe herstelacceptatie vóór publieke ingebruikname blijft een operatorhandeling.
 - Lokaal geslaagd: 113 unit/regressietests plus één skip, 31 PostgreSQL-integratietests, 27 Python-opscontroles, frozen installatie, typecheck en Next/runtimebuild. SendGrid-contracten zijn gemockt; echte verzending/bezorging is nog niet bewezen. Volledige container/browsercontrole volgt ook via de PR-workflow.
 - Echte productieinstellingen voor domein, media, SendGrid en externe backup plus de versie-3-hostinstallatie zijn nog nodig. Er wordt geen uitgevoerde productiedeployment geclaimd.
+
+## 18 oktober 2026 — Resend en lokale abonnees
+
+Op verzoek van de eigenaar vervangt Resend de eerder toegevoegde SendGrid-koppeling. Configuratieversie 4 vereist RESEND_API_KEY en MAIL_FROM; externe nieuwsbriefprovider-/lijstsleutels vervallen. De eerdere wachtende SendGrid-productierun is geannuleerd voordat die kon deployen. De productieflow via main en de bestaande productiegoedkeuring blijven in gebruik.
+
+Abonnees en onderwerpen worden lokaal beheerd onder Instellingen & koppelingen. Bevestiging activeert direct lokaal, afmelding werkt direct, wijzigingen vereisen beheerrecht en versiebinding en worden geaudit. Migratie 0013 bewaart bestaande data en beëindigt oude externe synchronisatietaken. Resend-requestsleutels blijven stabiel bij retries; de providerbinding verloopt na 24 uur. Echte verzending/bezorging en hostinginstallatie worden zonder werkelijke productie-instellingen niet als uitgevoerd gerapporteerd.
+
+Lokaal gecontroleerd: 114 unit/regressietests plus één skip, 32 PostgreSQL-integratietests, 27 opscontroles, typecheck en Next/runtimebuild. De echte browser controleerde abonnee zoeken/bewerken, behoud na herladen, afmelden, de beheer-API en 390-pixelweergave. De developmentdatabase is met migratie 0013 bijgewerkt; web/worker draaien gezond. Alle mail-API-contracten zijn synthetische fixtures; er zijn geen echte mails verzonden. De volledige container-/browsercontrole volgt via de PR-workflow.

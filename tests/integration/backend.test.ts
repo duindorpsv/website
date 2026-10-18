@@ -78,15 +78,41 @@ test('AUTH05: maintained two-factor plugin activates TOTP and challenges a fresh
  const [saved]=await sql`select two_factor_enabled from auth_user where id=${user.user.id}`;assert.equal(saved.two_factor_enabled,true);
  const challenge=await auth.api.signInEmail({body:{email:user.user.email,password}});assert.ok('twoFactorRedirect' in challenge);
 });
-test('NEWSLETTER01: opt-in and provider status are separate; asynchronous unsubscribe needs read-back proof',async()=>{
- const {requestNewsletter,confirmNewsletter,unsubscribeNewsletter,syncNewsletter}=await import('../../lib/server/newsletter');const operationId=crypto.randomUUID(),email='newsletter-'+crypto.randomUUID()+'@example.invalid';
- await requestNewsletter({operationId,email,name:'Synthetische opt-in',topics:['club'],consent:true},'test-'+operationId);const [job]=await sql`select payload from cms_jobs where operation_id=${'newsletter-confirm:'+operationId}`;const tokens=Array.from(String(job.payload.text).matchAll(/token=([0-9a-f]{64})/g),m=>m[1]);assert.equal(tokens.length,2);
- await confirmNewsletter(tokens[0]);const [subscription]=await sql`select id,status from cms_newsletter where email=${email}`;assert.equal(subscription.status,'confirmed');assert.equal(await syncNewsletter(subscription.id),false);
- const prior={provider:process.env.NEWSLETTER_PROVIDER,key:process.env.NEWSLETTER_API_KEY,list:process.env.NEWSLETTER_LIST_ID,fetch:globalThis.fetch};
- try{process.env.NEWSLETTER_PROVIDER='brevo';process.env.NEWSLETTER_API_KEY='synthetic-contract-fixture';process.env.NEWSLETTER_LIST_ID='123';globalThis.fetch=async()=>new Response('{}',{status:201});assert.equal(await syncNewsletter(subscription.id),true);assert.equal((await sql`select status from cms_newsletter where id=${subscription.id}`)[0].status,'active');
- await unsubscribeNewsletter(tokens[1]);let removed=false;globalThis.fetch=async(url,options)=>String(url).includes('/contacts/lists/')?new Response('{"processId":9}',{status:201}):new Response(JSON.stringify({listIds:removed?[]:[123]}));
- await assert.rejects(syncNewsletter(subscription.id,true),/unsubscribe-pending/);removed=true;assert.equal(await syncNewsletter(subscription.id,true),true);
- }finally{globalThis.fetch=prior.fetch;for(const [key,value] of [['NEWSLETTER_PROVIDER',prior.provider],['NEWSLETTER_API_KEY',prior.key],['NEWSLETTER_LIST_ID',prior.list]] as const){if(value===undefined)delete process.env[key];else process.env[key]=value;}}
+test('NEWSLETTER01: opt-in, duplicate requests, management and unsubscribe are fully local',async()=>{
+ const {requestNewsletter,confirmNewsletter,unsubscribeNewsletter,listSubscribers,changeSubscriber}=await import('../../lib/server/newsletter');
+ const originalFetch=globalThis.fetch;globalThis.fetch=async()=>{throw new Error('Newsletter management must stay local');};
+ try{
+ const operationId=crypto.randomUUID(),email='newsletter-'+crypto.randomUUID()+'@example.invalid',body={operationId,email,name:'Synthetische opt-in',topics:['club'],consent:true};
+ await Promise.all([requestNewsletter(body,'test-'+operationId),requestNewsletter(body,'test-'+operationId)]);
+ const jobs=await sql`select payload from cms_jobs where operation_id=${'newsletter-confirm:'+operationId}`;assert.equal(jobs.length,1);
+ const tokens=Array.from(String(jobs[0].payload.text).matchAll(/token=([0-9a-f]{64})/g),m=>m[1]);assert.equal(tokens.length,2);
+ assert.equal((await confirmNewsletter(tokens[0])).status,'active');
+ const [subscription]=await sql`select id,status,version from cms_newsletter where email=${email}`;assert.equal(subscription.status,'active');
+ assert.equal((await sql`select id from cms_jobs where payload->>'id'=${subscription.id} and kind like 'newsletter-%'`).length,0);
+ const result=await listSubscribers(admin,{q:email,status:'active',topic:'club'});assert.equal(result.total,1);assert.ok(!('confirmation_hash' in result.items[0]));assert.ok(!('unsubscribe_hash' in result.items[0]));
+ await changeSubscriber(admin,subscription.id,{expectedVersion:subscription.version,action:'update',name:'Beheerde abonnee',topics:['jeugd']});
+ await assert.rejects(changeSubscriber(admin,subscription.id,{expectedVersion:subscription.version,action:'unsubscribe'}),(e:any)=>e.code==='conflict');
+ await requestNewsletter({...body,operationId:crypto.randomUUID(),name:'Onbevestigde wijziging',topics:['ongewenst']},'other-'+operationId);
+ const [preserved]=await sql`select name,topics from cms_newsletter where id=${subscription.id}`;assert.equal(preserved.name,'Beheerde abonnee');assert.deepEqual(preserved.topics,['jeugd']);
+ await unsubscribeNewsletter(tokens[1]);assert.equal((await sql`select status from cms_newsletter where id=${subscription.id}`)[0].status,'unsubscribed');
+ await assert.rejects(confirmNewsletter(tokens[0]),(e:any)=>e.code==='token');
+ await assert.rejects(listSubscribers({...admin,grants:[{module:'settings',action:'read'}]},{}),(e:any)=>e.code==='forbidden');
+ await assert.rejects(changeSubscriber({...admin,grants:[]},subscription.id,{expectedVersion:1,action:'unsubscribe'}),(e:any)=>e.code==='forbidden');
+ }finally{globalThis.fetch=originalFetch;}
+});
+test('NEWSLETTER02: legacy synchronization never reactivates an unsubscribed contact',async()=>{
+ const {requestNewsletter,confirmNewsletter,unsubscribeNewsletter,settleLegacyNewsletterJob,listSubscribers,changeSubscriber}=await import('../../lib/server/newsletter');
+ const id=crypto.randomUUID(),email='newsletter-legacy-'+id+'@example.invalid';
+ await requestNewsletter({operationId:id,email,name:'Legacy fixture',topics:['club'],consent:true},id);
+ const [job]=await sql`select payload from cms_jobs where operation_id=${'newsletter-confirm:'+id}`;
+ const tokens=Array.from(String(job.payload.text).matchAll(/token=([0-9a-f]{64})/g),m=>m[1]);await confirmNewsletter(tokens[0]);
+ let [row]=await sql`select id,version from cms_newsletter where email=${email}`;
+ await sql`update cms_newsletter set status='confirmed' where id=${row.id}`;await settleLegacyNewsletterJob(row.id);
+ assert.equal((await listSubscribers(admin,{q:email,status:'active'})).total,1);
+ [row]=await sql`select id,version from cms_newsletter where email=${email}`;
+ const results=await Promise.allSettled([changeSubscriber(admin,row.id,{action:'update',expectedVersion:row.version,name:'First',topics:['one']}),changeSubscriber(admin,row.id,{action:'update',expectedVersion:row.version,name:'Second',topics:['two']})]);
+ assert.equal(results.filter(r=>r.status==='fulfilled').length,1);assert.equal(results.filter(r=>r.status==='rejected').length,1);
+ await unsubscribeNewsletter(tokens[1]);await settleLegacyNewsletterJob(row.id);assert.equal((await listSubscribers(admin,{q:email,status:'unsubscribed'})).total,1);
 });
 test('FORM01/04: all three intake streams remain distinct and membership awaits authorized processing',async()=>{
  const cases=[['contact',{name:'Synthetisch',email:'test@example.invalid',message:'Contact'}],['activity-signup',{name:'Synthetisch',email:'test@example.invalid',activity:'Testactiviteit'}],['volunteer-request',{name:'Synthetisch',email:'test@example.invalid',task:'Testtaak',message:'Aanvraag'}]] as const;
@@ -96,26 +122,26 @@ test('FORM01/04: all three intake streams remain distinct and membership awaits 
  const [member]=await sql`select integration_status from cms_submissions where id=${received.id}`;assert.equal(member.integration_status,'waiting');assert.equal((await sql`select id from cms_jobs where kind='sportlink-registration' and payload->>'submissionId'=${received.id}`).length,1);
 });
 test('FORM03: unavailable mail transport leaves a retryable job and durable submission',async()=>{
- const previous=process.env.SENDGRID_API_KEY;process.env.SENDGRID_API_KEY='';
+ const previous=process.env.RESEND_API_KEY;process.env.RESEND_API_KEY='';
  try{const id=crypto.randomUUID();await sql`insert into cms_jobs(id,operation_id,kind,payload,run_at) values (${id},${'mail-outage:'+id},'mail',${sql.json({to:['test@example.invalid'],subject:'Synthetische storing',text:'Test',messageId:id})},'2000-01-01T00:00:00Z')`;
  await runOnce();const [job]=await sql`select status,attempts,last_error from cms_jobs where id=${id}`;assert.equal(job.status,'pending');assert.equal(job.attempts,1);assert.equal(job.last_error,'mail-unconfigured');
- }finally{if(previous===undefined)delete process.env.SENDGRID_API_KEY;else process.env.SENDGRID_API_KEY=previous;}
+ }finally{if(previous===undefined)delete process.env.RESEND_API_KEY;else process.env.RESEND_API_KEY=previous;}
 });
-test('SendGrid queue: a rejected API request retries the same durable operation and completes on 202',async()=>{
- const keys=['SENDGRID_API_KEY','MAIL_FROM','TEST_MAIL_TO'] as const,previous=Object.fromEntries(keys.map(key=>[key,process.env[key]])),originalFetch=globalThis.fetch;
- const id=crypto.randomUUID(),operation='sendgrid-fixture:'+id,requests:any[]=[];
+test('Resend queue: a rejected API request retries the same durable operation and completes on a valid receipt',async()=>{
+ const keys=['RESEND_API_KEY','MAIL_FROM','TEST_MAIL_TO'] as const,previous=Object.fromEntries(keys.map(key=>[key,process.env[key]])),originalFetch=globalThis.fetch;
+ const id=crypto.randomUUID(),operation='resend-fixture:'+id,requests:any[]=[];
  try{
-  Object.assign(process.env,{SENDGRID_API_KEY:'synthetic-sendgrid-contract',MAIL_FROM:'cms@example.invalid',TEST_MAIL_TO:'test@example.invalid'});
-  globalThis.fetch=async(url,options)=>{assert.equal(url,'https://api.sendgrid.com/v3/mail/send');requests.push(JSON.parse(String(options?.body)));return new Response(null,{status:requests.length===1?429:202});};
-  await sql`insert into cms_jobs(id,operation_id,kind,payload,run_at) values (${id},${operation},'mail',${sql.json({to:['original@example.invalid'],subject:'Synthetische SendGrid-proef',text:'Test'})},'1900-01-01T00:00:00Z')`;
+  Object.assign(process.env,{RESEND_API_KEY:'synthetic-resend-contract',MAIL_FROM:'cms@example.invalid',TEST_MAIL_TO:'test@example.invalid'});
+  globalThis.fetch=async(url,options)=>{assert.equal(url,'https://api.resend.com/emails');requests.push(JSON.parse(String(options?.body)));return requests.length===1?new Response(null,{status:429}):Response.json({id:crypto.randomUUID()});};
+  await sql`insert into cms_jobs(id,operation_id,kind,payload,run_at) values (${id},${operation},'mail',${sql.json({to:['original@example.invalid'],subject:'Synthetische Resend-proef',text:'Test'})},'1900-01-01T00:00:00Z')`;
   await runOnce();const [retry]=await sql`select status,attempts,last_error from cms_jobs where id=${id}`;
   assert.equal(retry.status,'pending');assert.equal(retry.attempts,1);assert.equal(retry.last_error,'mail-rejected');
   await sql`update cms_jobs set run_at='1900-01-01T00:00:00Z' where id=${id}`;
   await runOnce();const [done]=await sql`select status,attempts,last_error from cms_jobs where id=${id}`;
   assert.equal(done.status,'done');assert.equal(done.attempts,2);assert.equal(done.last_error,null);
   assert.equal(requests.length,2);assert.deepEqual(requests[0],requests[1]);
-  assert.equal(requests[0].custom_args.cms_operation_id,`<${operation}@duindorp.invalid>`);
-  assert.deepEqual(requests[0].personalizations,[{to:[{email:'test@example.invalid'}]}]);
+  assert.match(requests[0].tags[0].value,/^[0-9a-f]{64}$/);
+  assert.deepEqual(requests[0].to,['test@example.invalid']);
  }finally{globalThis.fetch=originalFetch;for(const key of keys){if(previous[key]===undefined)delete process.env[key];else process.env[key]=previous[key];}}
 });
 test('PUB03 and MEDIA03: scheduled publication indexes its frozen live references after a different draft',async()=>{
@@ -129,8 +155,8 @@ test('PUB03 and MEDIA03: scheduled publication indexes its frozen live reference
 test('AUTH06: password-only production administrators cannot read CMS data, but can initialize MFA',async()=>{
  const {principal}=await import('../../lib/server/permissions'),password=crypto.randomUUID()+crypto.randomUUID(),user=await getAuth().api.createUser({body:{email:'mfa-gate-'+crypto.randomUUID()+'@example.invalid',name:'MFA gate fixture',password,role:'admin'}});await sql`insert into cms_memberships(user_id,role_id) values (${user.user.id},'admin')`;
  const response=await getAuth().api.signInEmail({body:{email:user.user.email,password},asResponse:true}),headers=new Headers({cookie:response.headers.getSetCookie().map(v=>v.split(';')[0]).join('; ')});
- const keys=['APP_ENV','APP_BASE_URL','MEDIA_DRIVER','S3_BUCKET','S3_ACCESS_KEY_ID','S3_SECRET_ACCESS_KEY','SENDGRID_API_KEY','MAIL_FROM','TEST_MAIL_TO'] as const,previous=Object.fromEntries(keys.map(key=>[key,process.env[key]]));
- try{Object.assign(process.env,{APP_ENV:'production',APP_BASE_URL:'https://club.example.invalid',MEDIA_DRIVER:'s3',S3_BUCKET:'synthetic',S3_ACCESS_KEY_ID:'synthetic',S3_SECRET_ACCESS_KEY:'synthetic',SENDGRID_API_KEY:'synthetic',MAIL_FROM:'cms@example.invalid',TEST_MAIL_TO:''});await assert.rejects(principal(headers),(e:any)=>e.code==='mfa-required');assert.equal((await principal(headers,{allowMfaSetup:true})).id,user.user.id);
+ const keys=['APP_ENV','APP_BASE_URL','MEDIA_DRIVER','S3_BUCKET','S3_ACCESS_KEY_ID','S3_SECRET_ACCESS_KEY','RESEND_API_KEY','MAIL_FROM','TEST_MAIL_TO'] as const,previous=Object.fromEntries(keys.map(key=>[key,process.env[key]]));
+ try{Object.assign(process.env,{APP_ENV:'production',APP_BASE_URL:'https://club.example.invalid',MEDIA_DRIVER:'s3',S3_BUCKET:'synthetic',S3_ACCESS_KEY_ID:'synthetic',S3_SECRET_ACCESS_KEY:'synthetic',RESEND_API_KEY:'synthetic',MAIL_FROM:'cms@example.invalid',TEST_MAIL_TO:''});await assert.rejects(principal(headers),(e:any)=>e.code==='mfa-required');assert.equal((await principal(headers,{allowMfaSetup:true})).id,user.user.id);
  }finally{for(const key of keys){if(previous[key]===undefined)delete process.env[key];else process.env[key]=previous[key];}}
 });
 test('DATA04 and MEDIA04: browser blob URLs become durable mapped originals and repeat import stays idempotent',async()=>{

@@ -72,13 +72,11 @@ jobs:
           CFG_NEWS_IMPORT_MAX_UNPACKED_MB: ${{ vars.NEWS_IMPORT_MAX_UNPACKED_MB }}
           CFG_NEWS_IMPORT_MAX_ENTRIES: ${{ vars.NEWS_IMPORT_MAX_ENTRIES }}
           CFG_TRUST_PROXY_IP: ${{ vars.TRUST_PROXY_IP }}
-          CFG_NEWSLETTER_PROVIDER: ${{ vars.NEWSLETTER_PROVIDER }}
-          CFG_NEWSLETTER_LIST_ID: ${{ vars.NEWSLETTER_LIST_ID }}
           CFG_RESTIC_REPOSITORY: ${{ vars.RESTIC_REPOSITORY }}
           CFG_BACKUP_S3_REGION: ${{ vars.BACKUP_S3_REGION }}
           CFG_DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           CFG_APP_DATABASE_PASSWORD: ${{ secrets.APP_DATABASE_PASSWORD }}
-          CFG_SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          CFG_RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           CFG_AUTH_SESSION_SECRET: ${{ secrets.AUTH_SESSION_SECRET }}
           CFG_S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
           CFG_S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
@@ -86,7 +84,6 @@ jobs:
           CFG_BACKUP_S3_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
           CFG_BACKUP_S3_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
           CFG_SPORTLINK_CLIENT_ID: ${{ secrets.SPORTLINK_CLIENT_ID }}
-          CFG_NEWSLETTER_API_KEY: ${{ secrets.NEWSLETTER_API_KEY }}
         run: |
           python3 - <<'PY' | sudo -n -u duindorpsv-production /usr/local/libexec/duindorp/duindorp-deploy-production
           import json,os

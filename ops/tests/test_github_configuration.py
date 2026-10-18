@@ -32,7 +32,7 @@ def settings(target='production'):
                 AUTH_SESSION_SECRET='session-example-' + 'c' * 48,
                 S3_BUCKET='cms-' + target, S3_ENDPOINT='https://objects.example.org',
                 S3_ACCESS_KEY_ID='synthetic-media-key', S3_SECRET_ACCESS_KEY='synthetic-media-secret',
-                SENDGRID_API_KEY='synthetic-sendgrid-key', MAIL_FROM='cms@example.org',
+                RESEND_API_KEY='synthetic-resend-key', MAIL_FROM='cms@example.org',
                 RESTIC_REPOSITORY='s3:https://backup.example.org/cms-' + target,
                 RESTIC_PASSWORD='synthetic-restic-' + 'd' * 32,
                 BACKUP_S3_ACCESS_KEY_ID='synthetic-backup-key',
@@ -43,7 +43,7 @@ def release(run=10):
     return dict(schemaVersion=1, repository='duindorpsv/website',
                 workflow='.github/workflows/production.yml', runId=run,
                 sourceSha='a' * 40, treeSha='b' * 40, digest='sha256:' + str(run % 10) * 64,
-                migrationHash='c' * 64, configVersion=3)
+                migrationHash='c' * 64, configVersion=4)
 
 
 class ConfigurationTests(unittest.TestCase):
@@ -51,9 +51,9 @@ class ConfigurationTests(unittest.TestCase):
         for target in ('production',):
             installed = {'baseUrl': settings(target)['APP_BASE_URL']}
             values = configuration.validate_configuration(settings(target), target, installed)
-            self.assertEqual(values['SENDGRID_API_KEY'], 'synthetic-sendgrid-key')
+            self.assertEqual(values['RESEND_API_KEY'], 'synthetic-resend-key')
             self.assertEqual(values['NEWS_IMPORT_MAX_MB'], '512')
-            self.assertEqual(values['NEWSLETTER_PROVIDER'], 'disabled')
+            self.assertNotIn('NEWSLETTER_PROVIDER', values)
             with tempfile.TemporaryDirectory() as temporary:
                 state = Path(temporary)
                 identifier = configuration.write_generation(state, values, target)
@@ -75,7 +75,7 @@ class ConfigurationTests(unittest.TestCase):
                    dict(values, WEB_PORT='22'), dict(values, APP_ENV='production'),
                    dict(values, DATABASE_URL='postgres://root@another-site/db'),
                    dict(values, DATABASE_PASSWORD='password\nDOCKER_HOST=evil'),
-                   dict(values, SENDGRID_API_KEY='contains whitespace'),
+                   dict(values, RESEND_API_KEY='contains whitespace'),
                    dict(values, APP_BASE_URL='http://production.example.org'),
                    dict(values, APP_BASE_URL='https://other.example.org'),
                    dict(values, TEST_MAIL_TO='test@example.org'), dict(values, S3_BUCKET='--config=/etc/passwd'),
@@ -83,6 +83,8 @@ class ConfigurationTests(unittest.TestCase):
                    dict(values, RESTIC_REPOSITORY='/srv/another-site'),
                    dict(values, RESTIC_REPOSITORY='s3:https://user:password@example.org/backup'),
                    dict(values, NEWSLETTER_PROVIDER='brevo'),
+                   dict(values, NEWSLETTER_LIST_ID='123'), dict(values, NEWSLETTER_API_KEY='obsolete'),
+                   dict(values, SENDGRID_API_KEY='obsolete'),
                    dict(values, AUTH_SESSION_SECRET=42),
                    dict(values, NEWS_IMPORT_MAX_MB='0'),
                    dict(values, NEWS_IMPORT_MAX_UNPACKED_MB='99999'),
@@ -133,7 +135,7 @@ class ConfigurationTests(unittest.TestCase):
             script = '\n'.join(line[10:] for line in block.splitlines())
             with tempfile.TemporaryDirectory() as temporary:
                 (Path(temporary) / 'release.json').write_text(json.dumps(release()))
-                values = dict(settings(target), SENDGRID_API_KEY="x'$`#\\")
+                values = dict(settings(target), RESEND_API_KEY="x'$`#\\")
                 environment = {**os.environ, **{'CFG_' + key: value for key, value in values.items()},
                                'DEPLOY_TOKEN': 'synthetic-job-token'}
                 result = subprocess.run([sys.executable, '-c', script], cwd=temporary,
@@ -148,7 +150,7 @@ class ConfigurationTests(unittest.TestCase):
             state = Path(temporary)
             tricky = "apostrophe'dollar$HOME${TOKEN}backtick`hash#backslash\\tail\\'"
             values = settings()
-            values.update(SENDGRID_API_KEY=tricky, APP_DATABASE_PASSWORD=tricky)
+            values.update(RESEND_API_KEY=tricky, APP_DATABASE_PASSWORD=tricky)
             values = configuration.validate_configuration(values, 'production', {'baseUrl': values['APP_BASE_URL']})
             identifier = configuration.write_generation(state, values, 'production')
             configuration.database_password_file(state, values)
@@ -160,7 +162,7 @@ class ConfigurationTests(unittest.TestCase):
             self.assertEqual(parsed.returncode, 0, 'Docker Compose rejected generated configuration')
             services = json.loads(parsed.stdout)['services']
             # `compose config` escapes dollars again for reusable serialization.
-            self.assertEqual(services['web']['environment']['SENDGRID_API_KEY'].replace('$$', '$'), tricky)
+            self.assertEqual(services['web']['environment']['RESEND_API_KEY'].replace('$$', '$'), tricky)
             self.assertEqual(services['provision']['environment']['APP_DATABASE_PASSWORD'].replace('$$', '$'), tricky)
             self.assertNotIn('MIGRATION_DATABASE_URL', services['web']['environment'])
             self.assertNotIn('RESTIC_PASSWORD', services['web']['environment'])
@@ -177,7 +179,7 @@ class ConfigurationTests(unittest.TestCase):
                                      capture_output=True, text=True, timeout=30)
             self.assertEqual(printed.returncode, 0, 'Synthetic configuration container failed')
             actual = dict(line.split('=', 1) for line in printed.stdout.splitlines() if '=' in line)
-            self.assertEqual(actual['SENDGRID_API_KEY'], tricky)
+            self.assertEqual(actual['RESEND_API_KEY'], tricky)
 
 
 class DeploymentTests(unittest.TestCase):
@@ -378,7 +380,7 @@ class ProvenanceTests(unittest.TestCase):
                 deploy.verify(item, 'synthetic', 'production')
 
     def test_legacy_manifest_cannot_be_used_as_a_production_release(self):
-        for changes in [dict(configVersion=2), dict(workflow='.github/workflows/staging.yml')]:
+        for changes in [dict(configVersion=2), dict(configVersion=3), dict(workflow='.github/workflows/staging.yml')]:
             with self.assertRaises(ValueError):
                 manifests.validate({**release(), **changes})
 

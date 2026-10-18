@@ -14,7 +14,7 @@ Contactberichten, Aanmeldingen en Aanvragen hebben aparte inboxen, statussets en
 
 Herstel/back-up geeft audit en integratiefouten, private export, importcontrole en herstart van mislukte taken. Een bronzip is geen databackup. Browserimport wordt eerst gecontroleerd; bestaande IDs worden alleen met een bewuste selectie en versietoken vervangen.
 
-Nieuwsbrief vraagt apart toestemming en bevestiging. Ontbrekende provider-/mailtoegang blijft zichtbaar wachten. Publiceer bestaande placeholders niet met verzonnen inhoud; historie en vrijwilligersbron blijven volledig behouden. Oefenwedstrijd en club-tv blijven buiten de menu’s.
+Nieuwsbrief vraagt apart toestemming en bevestiging per e-mail via Resend. Na bevestiging is de inschrijving lokaal actief; afmelden werkt direct. Onder Instellingen & koppelingen → Nieuwsbriefabonnees beheren gebruikers met settings/manage de naam, onderwerpen en afmelding, met zoek-/status-/onderwerpfilters. Afmeldingen kunnen alleen via een nieuwe bevestigde aanvraag worden herroepen. Er zijn geen externe lijsten of lijstcredentials nodig. Zonder mailtoegang blijft de bevestigingsmail in de verzendqueue. Publiceer bestaande placeholders niet met verzonnen inhoud; historie en vrijwilligersbron blijven volledig behouden. Oefenwedstrijd en club-tv blijven buiten de menu’s.
 
 Planning: kies datum/tijd in Europe/Amsterdam. Bij de dubbele wintertijd kies je de eerste of tweede keer; een niet-bestaand zomeruur wordt geweigerd. De gekozen versie is vastgezet. Gebruik Planning annuleren om die taak te stoppen.
 

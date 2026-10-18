@@ -12,7 +12,7 @@ Restore:
 
 1. Kies exact het DB-herstelpunt met bijbehorende objectmanifest/media en de compatibele release. Documenteer het dataverliesvenster; overschrijf productie niet als onderdeel van een automatische test.
 2. Herstel naar een nieuwe geïsoleerde DB/bucket/omgeving; herstel benodigde secrets via de externe secretvoorziening. Gebruik pg_restore en behoud de versie-/publicatiehistorie.
-3. Controleer aantallen/checksums, accountlogin, MFA/herstel, livepagina plus metadata, albums/afgeleiden/originelen, formulierhistorie/notities, rechten en worker; houd SendGrid-verzending tijdens de proef uitgeschakeld. Contactgegevens en afdelingen blijven historisch gescheiden.
+3. Controleer aantallen/checksums, accountlogin, MFA/herstel, livepagina plus metadata, albums/afgeleiden/originelen, formulierhistorie/notities, rechten en worker; houd Resend-verzending tijdens de proef uitgeschakeld. Contactgegevens en afdelingen blijven historisch gescheiden.
 4. Meet werkelijke herstelduur en fouten; leg bewijs vast. Stel geen RTO/RPO-belofte zonder meting.
 5. Alleen na een afzonderlijk herstelbesluit productie omschakelen. Rotatie/intrekking van sessies en integratietokens bij een incident; geen standaardwachtwoord of achterdeur.
 
