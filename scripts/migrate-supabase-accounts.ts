@@ -5,8 +5,11 @@ const flags=new Set(process.argv.slice(2));
 if([...flags].some(flag=>!['--apply','--queue-activation'].includes(flag))||(flags.has('--queue-activation')&&!flags.has('--apply')))throw new Error('Gebruik --apply, eventueel met --queue-activation. Zonder --apply wordt alleen geteld.');
 const sql=sqlClient();
 try{
- const profiles=await sql`select u.id,u.name,u.email from auth_user u join cms_memberships m on m.user_id=u.id where u.supabase_user_id is null and m.active=true and coalesce(u.banned,false)=false order by u.id`;
- if(!flags.has('--apply'))console.log(JSON.stringify({pendingAccounts:profiles.length,applied:false}));
+ const candidates=await sql`select u.id,u.name,u.email from auth_user u join cms_memberships m on m.user_id=u.id where u.supabase_user_id is null and m.active=true and coalesce(u.banned,false)=false order by u.id`;
+ // Preserve historical development profiles without provisioning unusable
+ // .invalid mailboxes as production Auth identities.
+ const profiles=candidates.filter(profile=>!String(profile.email).toLowerCase().endsWith('.invalid')),excludedTestAccounts=candidates.length-profiles.length;
+ if(!flags.has('--apply'))console.log(JSON.stringify({pendingAccounts:profiles.length,excludedTestAccounts,applied:false}));
  else{
   const admin=supabaseAdmin();let migrated=0;
   for(const profile of profiles){
@@ -19,6 +22,6 @@ try{
    if(flags.has('--queue-activation'))await getAuth().api.requestPasswordReset({body:{email:profile.email}});
    migrated++;
   }
-  console.log(JSON.stringify({migratedAccounts:migrated,activationQueued:flags.has('--queue-activation')}));
+  console.log(JSON.stringify({migratedAccounts:migrated,excludedTestAccounts,activationQueued:flags.has('--queue-activation')}));
  }
 }finally{await closeDb();}
