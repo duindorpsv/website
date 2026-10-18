@@ -17,7 +17,7 @@ const albumHref=(slug:string)=>`/clubmuur/media/fotos/${encodeURIComponent(slug)
 const storyFormats:Record<StoryFormat,string>={column:'Column',interview:'Interview',story:'Clubverhaal'};
 function publishedArticles(state:CmsState,contentType:ContentType='news'):PublicArticle[]{return state.articles.filter(a=>!a.deletedAt&&a.live&&(a.live.contentType||'news')===contentType).map(a=>({...a.live!,id:a.id,demo:a.demo})).sort((a,b)=>new Date(b.publishedAt).getTime()-new Date(a.publishedAt).getTime());}
 function publicMedia(state:CmsState,id:string){return state.media.find(m=>m.id===id&&m.published&&!m.deletedAt);}
-function formatDate(value:string){const date=new Date(value);return Number.isNaN(date.getTime())?'':new Intl.DateTimeFormat('nl-NL',{day:'numeric',month:'long',year:'numeric'}).format(date);}
+function formatDate(value:string){const date=new Date(value);return Number.isNaN(date.getTime())?'':new Intl.DateTimeFormat('nl-NL',{timeZone:'Europe/Amsterdam',day:'numeric',month:'long',year:'numeric'}).format(date);}
 const readingTime=(doc:CmsDoc)=>Math.max(1,Math.ceil(docText(doc).trim().split(/\s+/).length/200));
 function imageUrl(src:unknown){return typeof src==='string'&&(/^(https?:\/\/|\/(?!\/)|blob:)/i.test(src)||/^data:image\/(png|jpeg|webp|gif);base64,/i.test(src))?src:'';}
 function MediaImage({media,className,loading='lazy'}:{media:CmsMedia;className?:string;loading?:'lazy'|'eager'}){return imageUrl(media.src)?<img src={imageUrl(media.src)} alt={media.alt||media.caption||media.name} className={className} loading={loading} decoding="async" style={{objectPosition:`${media.focusX??50}% ${media.focusY??50}%`}}/>:<div className={`cmsp-image-empty ${className||''}`}><Camera size={32}/><span>Foto niet beschikbaar</span></div>;}
