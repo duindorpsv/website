@@ -1,3 +1,4 @@
+import postgres from 'postgres';
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 const owner=JSON.parse(readFileSync('.runtime/e2e-account.json','utf8'));
@@ -82,4 +83,24 @@ test('PB06 and SEO01: the published two-column renderer stacks in order without 
  const publicContext=await browser.newContext({javaScriptEnabled:false}),visitor=await publicContext.newPage();
  for(const width of [320,768,1440]){await visitor.setViewportSize({width,height:900});await visitor.goto('/clubmuur/'+slug);await expect(visitor.getByText('Eerst links',{exact:true})).toBeVisible();await expect(visitor.getByText('Daarna rechts',{exact:true})).toBeVisible();expect(await visitor.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1)).toBe(false);}
  await expect(visitor).toHaveTitle(/Publicatietest/);await publicContext.close();
+});
+
+test('AUTH10: invitation activation renders the correct server form and signs in through Supabase',async({page,browser})=>{
+ const database=new URL(process.env.DATABASE_URL||'postgres://invalid/invalid');
+ if(process.env.APP_ENV!=='test'||process.env.SUPABASE_LOCAL_TESTS!=='true'||database.hostname!=='127.0.0.1')throw new Error('Activatieproef vereist de geïsoleerde lokale Supabase-teststack.');
+ const email='activation-e2e-'+crypto.randomUUID()+'@example.invalid',password=crypto.randomUUID()+crypto.randomUUID();
+ await login(page);const invited=await page.request.post('/api/cms/users',{headers:{Origin:new URL(page.url()).origin},data:{name:'Browseractivatie',email,roleId:'editor',teamIds:[],departments:[]}});expect(invited.status()).toBe(200);
+ const fixture=postgres(process.env.DATABASE_URL!,{max:1,prepare:false});let path:string;
+ try{const [mail]=await fixture`select payload from cms_jobs where kind='mail' and payload->'to' @> ${fixture.json([email])}::jsonb order by created_at desc limit 1`;expect(!!mail).toBe(true);const link=new URL(String(mail.payload.text).split('via ')[1]);path=link.pathname+link.search;}finally{await fixture.end();}
+ const withoutJs=await browser.newContext({javaScriptEnabled:false});
+ try{const server=await withoutJs.newPage(),response=await server.goto(path!);expect(response?.headers()['referrer-policy']).toBe('no-referrer');await expect(server.getByLabel('Nieuw wachtwoord',{exact:true})).toBeVisible();}finally{await withoutJs.close();}
+ const context=await browser.newContext();
+ try{
+  const activation=await context.newPage(),errors:string[]=[];activation.on('pageerror',error=>errors.push(error.message));
+  await activation.goto(path!);await expect(activation.getByRole('heading',{name:'Wachtwoord instellen',exact:true})).toBeVisible();await activation.getByLabel('Nieuw wachtwoord',{exact:true}).fill(password);
+  const completed=activation.waitForResponse(response=>response.url().endsWith('/api/auth/reset-password')&&response.request().method()==='POST');await activation.getByRole('button',{name:'Wachtwoord bewaren',exact:true}).click();expect((await completed).status()).toBe(200);
+  await expect(activation.getByRole('status')).toHaveText('Wachtwoord ingesteld. Je kunt nu inloggen.');expect(new URL(activation.url()).search).toBe('');
+  await activation.getByRole('link',{name:'Naar inloggen',exact:true}).click();await activation.getByLabel('E-mailadres',{exact:true}).fill(email);await activation.getByLabel('Wachtwoord',{exact:true}).fill(password);await activation.getByRole('button',{name:'Inloggen',exact:true}).click();await expect(activation.getByText('Gedeeld CMS',{exact:true})).toBeVisible();
+  expect(errors.filter(message=>/hydration|Minified React error #418/i.test(message))).toEqual([]);
+ }finally{await context.close();}
 });
