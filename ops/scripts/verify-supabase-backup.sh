@@ -6,7 +6,7 @@ python3 - <<'PY'
 import base64,json,os,pathlib,sys
 from urllib.parse import urlsplit,urlunsplit,parse_qsl,urlencode
 sys.path.insert(0,'ops/scripts')
-from deploy_config import dotenv
+from deploy_config import dotenv,postgres_environment
 url=urlsplit(os.environ.get('MIGRATION_DATABASE_URL',''))
 if (os.environ.get('APP_ENV')!='test' or os.environ.get('SUPABASE_LOCAL_TESTS')!='true'
     or os.environ.get('GITHUB_ACTIONS')!='true' or url.hostname!='127.0.0.1'):
@@ -16,7 +16,7 @@ if (os.environ.get('APP_ENV')!='test' or os.environ.get('SUPABASE_LOCAL_TESTS')!
 query=[(key,value) for key,value in parse_qsl(url.query) if key!='sslmode']+[('sslmode','disable')]
 connection=urlunsplit((url.scheme,url.netloc,url.path,urlencode(query),''))
 certificate=base64.b64encode(pathlib.Path('ops/tests/fixtures/supabase-ca.crt').read_bytes()).decode()
-pathlib.Path('.runtime/database-backup-probe.env').write_text(dotenv({'PGDATABASE':connection,'DATABASE_CA_CERT_B64':certificate}))
+pathlib.Path('.runtime/database-backup-probe.env').write_text(dotenv({**postgres_environment(connection),'DATABASE_CA_CERT_B64':certificate}))
 pathlib.Path('.runtime/database-backup-probe.override.json').write_text(json.dumps({'services':{'database-backup':{'network_mode':'host'}}}))
 PY
 export APP_IMAGE=duindorp-backup-unused RELEASE_DIGEST=backup-probe WEB_PORT=3000

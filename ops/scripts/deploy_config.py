@@ -194,6 +194,16 @@ def read_generation(state, identifier):
     return values
 
 
+def postgres_environment(connection):
+    # libpq does not expand a URL supplied only through PGDATABASE. Separate
+    # environment fields also keep passwords out of pg_dump command arguments.
+    url = urlsplit(connection)
+    return {'PGHOST': url.hostname, 'PGPORT': str(url.port or 5432),
+            'PGUSER': unquote(url.username or ''), 'PGPASSWORD': unquote(url.password or ''),
+            'PGDATABASE': unquote(url.path.lstrip('/')),
+            'PGSSLMODE': parse_qs(url.query).get('sslmode', ['verify-full'])[0]}
+
+
 def generation_files(values, target):
     runtime_keys = ('APP_BASE_URL', 'DATABASE_URL', 'SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY',
                     'SUPABASE_SECRET_KEY', 'S3_ENDPOINT', 'S3_REGION', 'S3_BUCKET',
@@ -204,7 +214,7 @@ def generation_files(values, target):
     runtime.update(APP_ENV=target, MEDIA_DRIVER='s3', DATABASE_CA_CERT_B64=values['SUPABASE_DB_CA_CERT_B64'])
     migration = {'MIGRATION_DATABASE_URL': values['MIGRATION_DATABASE_URL'],
                  'DATABASE_CA_CERT_B64': values['SUPABASE_DB_CA_CERT_B64'],
-                 'PGDATABASE': values['MIGRATION_DATABASE_URL']}
+                 **postgres_environment(values['MIGRATION_DATABASE_URL'])}
     return {'configuration.json': json.dumps(values, sort_keys=True),
             'database-ca.crt': base64.b64decode(values['SUPABASE_DB_CA_CERT_B64']).decode('ascii'),
             'runtime.env': dotenv(runtime), 'migration.env': dotenv(migration),

@@ -69,6 +69,11 @@ class ConfigurationTests(unittest.TestCase):
                 self.assertIn('APP_ENV="' + target + '"', runtime)
                 self.assertNotIn(values['MIGRATION_DATABASE_URL'], runtime)
                 self.assertNotIn('MIGRATION_DATABASE_URL', runtime)
+                migration=(directory/'migration.env').read_text()
+                self.assertIn('PGHOST="db.abcdefghijklmnopqrst.supabase.co"',migration)
+                self.assertIn('PGDATABASE="postgres"',migration)
+                self.assertIn('PGSSLMODE="verify-full"',migration)
+                self.assertNotIn('PGPASSWORD',runtime)
                 self.assertNotIn(values['RESTIC_PASSWORD'], runtime)
                 self.assertNotIn(values['BACKUP_S3_SECRET_ACCESS_KEY'], runtime)
                 for file in directory.iterdir():
