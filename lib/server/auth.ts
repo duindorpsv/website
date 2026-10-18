@@ -20,7 +20,9 @@ async function verified(client:SupabaseClient){
   if(claims.error||claims.data?.claims.sub!==user.data.user.id)return null;
   const sessionId=uuid.safeParse(claims.data.claims.session_id);
   if(!sessionId.success)return null;
-  const sql=sqlClient(),[session]=await sql`select id,created_at from auth.sessions where id=${sessionId.data}::uuid and user_id=${user.data.user.id}::uuid and (not_after is null or not_after>now())`;
+  const live=await supabaseAdmin().rpc('cms_auth_session',{provider_session:sessionId.data,provider_user:user.data.user.id});
+  if(live.error)throw new CmsError('auth-unavailable','Inloggen is tijdelijk niet beschikbaar.',503);
+  const session=live.data?.[0],sql=sqlClient();
   if(!session||Date.now()-new Date(session.created_at).getTime()>12*3600_000)return null;
   const [profile]=await sql`select id,name,email,banned from auth_user where supabase_user_id=${user.data.user.id}::uuid`;
   if(!profile||profile.banned)return null;

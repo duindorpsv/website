@@ -22,12 +22,10 @@ const sql=postgres(process.env.MIGRATION_DATABASE_URL||'',databaseOptions(1));tr
    await sql`create policy duindorp_backend on ${sql('public.'+table.tablename)} to duindorp_app using(true) with check(true)`;
    await sql`revoke all on ${sql('public.'+table.tablename)} from anon,authenticated,service_role`;
  }
- // Read only the four session fields needed for live revocation checks; never
- // expose Auth password hashes, refresh tokens or MFA secrets to the runtime.
- await sql`grant usage on schema auth to duindorp_app`;
- await sql`grant select(id,user_id,created_at,not_after) on auth.sessions to duindorp_app`;
- await sql`drop policy if exists duindorp_session_check on auth.sessions`;
- await sql`create policy duindorp_session_check on auth.sessions for select to duindorp_app using(true)`;
+ // The runtime never receives membership in Supabase roles or access to the
+ // managed Auth schema. The server-only invoker RPC checks live sessions.
+ const [scope]=await sql`select has_schema_privilege('duindorp_app','auth','usage') as auth_access`;
+ if(scope.auth_access)throw new Error('Het runtime-account heeft onverwachte toegang tot het beheerde Auth-schema.');
  await sql`revoke update,delete on cms_audit,cms_revisions,cms_publications from duindorp_app`;
  console.log('Beperkt runtime-account ingericht. Migratie-account blijft gescheiden.');
 }catch(error){console.error(JSON.stringify({code:'database-provision-failed',reason:error instanceof Error&&'code' in error?String(error.code):'unknown'}));process.exitCode=1;}finally{await sql.end();}

@@ -21,7 +21,7 @@ DO $$ BEGIN
     RAISE EXCEPTION 'This release requires Supabase Auth in the target database';
   END IF;
   ALTER TABLE auth_user ADD CONSTRAINT auth_user_supabase_fk
-    FOREIGN KEY (supabase_user_id) REFERENCES auth.users(id) ON DELETE RESTRICT;
+    FOREIGN KEY (supabase_user_id) REFERENCES auth.users(id) ON DELETE SET NULL;
 END $$;
 --> statement-breakpoint
 -- This dedicated project exposes no CMS data through Supabase's Data API.
@@ -44,3 +44,21 @@ DO $$ DECLARE item record; access_role text; BEGIN
     END LOOP;
   END LOOP;
 END $$;
+
+--> statement-breakpoint
+-- Supabase owns the auth schema. Expose only the required live-session check
+-- through an invoker function for the server secret key, never by granting the
+-- runtime SQL role membership in a privileged Supabase role.
+CREATE FUNCTION public.cms_auth_session(provider_session uuid, provider_user uuid)
+RETURNS TABLE(created_at timestamptz, not_after timestamptz)
+LANGUAGE sql STABLE SECURITY INVOKER SET search_path = '' AS $$
+  SELECT s.created_at,s.not_after FROM auth.sessions s
+  WHERE s.id=provider_session AND s.user_id=provider_user
+    AND (s.not_after IS NULL OR s.not_after>now());
+$$;
+--> statement-breakpoint
+REVOKE ALL ON FUNCTION public.cms_auth_session(uuid,uuid) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.cms_auth_session(uuid,uuid) TO service_role;
+GRANT SELECT(id,user_id,created_at,not_after) ON auth.sessions TO service_role;
+--> statement-breakpoint
+NOTIFY pgrst, 'reload schema';

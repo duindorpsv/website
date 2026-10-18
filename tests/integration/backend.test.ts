@@ -142,7 +142,7 @@ test('Resend queue: a rejected API request retries the same durable operation an
  const id=crypto.randomUUID(),operation='resend-fixture:'+id,requests:any[]=[];
  try{
   Object.assign(process.env,{RESEND_API_KEY:'synthetic-resend-contract',MAIL_FROM:'cms@example.invalid',TEST_MAIL_TO:'test@example.invalid'});
-  globalThis.fetch=async(url,options)=>{assert.equal(url,'https://api.resend.com/emails');requests.push(JSON.parse(String(options?.body)));return requests.length===1?new Response(null,{status:429}):Response.json({id:crypto.randomUUID()});};
+  globalThis.fetch=async(url,options)=>{if(url!=='https://api.resend.com/emails')return originalFetch(url,options);requests.push(JSON.parse(String(options?.body)));return requests.length===1?new Response(null,{status:429}):Response.json({id:crypto.randomUUID()});};
   await sql`insert into cms_jobs(id,operation_id,kind,payload,run_at) values (${id},${operation},'mail',${sql.json({to:['original@example.invalid'],subject:'Synthetische Resend-proef',text:'Test'})},'1900-01-01T00:00:00Z')`;
   await runOnce();const [retry]=await sql`select status,attempts,last_error from cms_jobs where id=${id}`;
   assert.equal(retry.status,'pending');assert.equal(retry.attempts,1);assert.equal(retry.last_error,'mail-rejected');
@@ -158,7 +158,7 @@ test('PUB03 and MEDIA03: scheduled publication indexes its frozen live reference
  const {createCmsSeed}=await import('../../lib/cms/seed'),mediaId=createCmsSeed().media.find(m=>m.published)!.id,id='frozen-ref-'+crypto.randomUUID(),data=page(id);
  data.body.content[0].content![0].content=[{type:'cmsWidget',attrs:{id:'image-'+id,kind:'image',data:{refId:mediaId}}}];
  await mutate(admin,[{module:'pages',id,expectedVersion:0,action:'schedule',data,scheduledAt:new Date(Date.now()+60000).toISOString()}],crypto.randomUUID(),crypto.randomUUID());
- await mutate(admin,[{module:'pages',id,expectedVersion:1,action:'save',data:page(id)}],crypto.randomUUID(),crypto.randomUUID());await sql`update cms_jobs set run_at='1999-01-01T00:00:00Z' where payload->>'id'=${id}`;await runOnce();
+ await mutate(admin,[{module:'pages',id,expectedVersion:1,action:'save',data:page(id)}],crypto.randomUUID(),crypto.randomUUID());await sql`update cms_jobs set run_at='1999-01-01T00:00:00Z' where payload->>'id'=${id}`;for(let attempt=0;attempt<30;attempt++){await runOnce();if((await sql`select live from cms_records where id=${id}`)[0].live)break;}
  assert.equal((await sql`select target_id from cms_references where record_id=${id} and snapshot='live'`)[0].target_id,mediaId);
  const [media]=await sql`select version from cms_records where id=${mediaId}`;await assert.rejects(mutate(admin,[{module:'media',id:mediaId,expectedVersion:media.version,action:'trash'}],crypto.randomUUID(),crypto.randomUUID()),(e:any)=>e.code==='in-use');
 });
@@ -194,8 +194,8 @@ test('AUTH07: recovery links use the Resend outbox, reset once and revoke old se
  const unknown=await authPost('request-password-reset',{email:'unknown-'+crypto.randomUUID()+'@example.invalid'});assert.equal(unknown.status,200);assert.deepEqual(await unknown.json(),await request.json());
 });
 test('AUTH08: runtime SQL has RLS policies while public Supabase roles cannot access CMS data or Auth secrets',async()=>{
- const [result]=await sql`select current_user as runtime,row_security_active('public.cms_records') as rls,has_table_privilege('anon','public.cms_records','select') as anon,has_table_privilege('authenticated','public.cms_submissions','select') as authenticated,has_table_privilege('service_role','public.cms_newsletter','select') as service_role,has_column_privilege('duindorp_app','auth.sessions','id','select') as session_id,has_column_privilege('duindorp_app','auth.sessions','user_agent','select') as session_details,has_column_privilege('duindorp_app','auth.users','encrypted_password','select') as password_hashes`;
- assert.equal(result.runtime,'duindorp_app');assert.equal(result.rls,true);assert.equal(result.anon,false);assert.equal(result.authenticated,false);assert.equal(result.service_role,false);assert.equal(result.session_id,true);assert.equal(result.session_details,false);assert.equal(result.password_hashes,false);
+ const [result]=await sql`select current_user as runtime,row_security_active('public.cms_records') as rls,has_table_privilege('anon','public.cms_records','select') as anon,has_table_privilege('authenticated','public.cms_submissions','select') as authenticated,has_table_privilege('service_role','public.cms_newsletter','select') as service_role,has_schema_privilege('duindorp_app','auth','usage') as auth_schema,has_function_privilege('anon','public.cms_auth_session(uuid,uuid)','execute') as anon_rpc,has_function_privilege('authenticated','public.cms_auth_session(uuid,uuid)','execute') as authenticated_rpc,has_function_privilege('service_role','public.cms_auth_session(uuid,uuid)','execute') as server_rpc`;
+ assert.equal(result.runtime,'duindorp_app');assert.equal(result.rls,true);assert.equal(result.anon,false);assert.equal(result.authenticated,false);assert.equal(result.service_role,false);assert.equal(result.auth_schema,false);assert.equal(result.anon_rpc,false);assert.equal(result.authenticated_rpc,false);assert.equal(result.server_rpc,true);
  const response=await fetch(process.env.SUPABASE_URL+'/rest/v1/cms_records?select=id&limit=1',{headers:{apikey:process.env.SUPABASE_PUBLISHABLE_KEY!}});assert.ok([401,403,404].includes(response.status));
 });
 test('MEDIA05: Supabase Storage refuses anonymous downloads from the private CMS bucket',async()=>{

@@ -1,3 +1,4 @@
+import postgres from 'postgres';
 import {assertLocalSupabaseTests,authPost,authCookies,totp} from '../helpers/supabase-auth';
 import {test,after} from 'node:test';
 import assert from 'node:assert/strict';
@@ -77,11 +78,12 @@ test('encrypted/unsupported compression, oversized expansion and a missing root 
 });
 
 test('a real transaction failure preserves successes and retries only the failed selected article',async()=>{
+ const operator=postgres(process.env.MIGRATION_DATABASE_URL!,{max:1,prepare:false});
  const fault='news_fault_'+crypto.randomUUID().replace(/-/g,''),articles=[row(),{...row(),title:fault},row(),row()],id=await upload(manifest(articles));
- await sql.unsafe(`create function ${fault}() returns trigger language plpgsql as $$ begin if NEW.title = '${fault}' then raise exception 'Synthetic transient storage failure'; end if; return NEW; end $$`);
- await sql.unsafe(`create trigger ${fault} before insert on cms_records for each row execute function ${fault}()`);
+ await operator.unsafe(`create function ${fault}() returns trigger language plpgsql as $$ begin if NEW.title = '${fault}' then raise exception 'Synthetic transient storage failure'; end if; return NEW; end $$`);
+ await operator.unsafe(`create trigger ${fault} before insert on cms_records for each row execute function ${fault}()`);
  try{await run(id,articles.slice(0,3).map(a=>a.sourceId));const result=await newsImportStatus(p,id);assert.equal(result.status,'partial');assert.equal(result.counts.imported,2);assert.equal(result.counts.failed,1);assert.equal(result.counts.selected,3);assert.equal(result.rows.find(r=>r.sourceId===articles[3].sourceId)?.status,'ready');}
- finally{await sql.unsafe(`drop trigger ${fault} on cms_records`);await sql.unsafe(`drop function ${fault}()`);}
+ finally{await operator.unsafe(`drop trigger ${fault} on cms_records`);await operator.unsafe(`drop function ${fault}()`);await operator.end();}
  await run(id,[articles[1].sourceId],'draft',true);const result=await newsImportStatus(p,id);assert.equal(result.status,'completed');assert.equal(result.counts.imported,3);assert.equal(result.counts.failed,0);assert.equal(result.counts.importable,1);await expire(id);
 });
 
