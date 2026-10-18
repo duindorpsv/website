@@ -12,13 +12,14 @@ export function newsImportLimits(){
 }
 export type ArchivePart={part:number;storage_key:string;bytes:number;checksum?:string};
 export type ArchiveSource={bytes:number;filename:string;parts:ArchivePart[]};
-export function safeArchivePath(path:unknown):path is string{return typeof path==='string'&&!!path&&path.length<=600&&path===path.normalize('NFC')&&!/[\u0000-\u001f\u007f\\:]/.test(path)&&!path.startsWith('/')&&!path.split('/').some(s=>s==='..'||s==='.')&&!path.includes('//');}
+export function safeArchivePath(path:unknown):path is string{return typeof path==='string'&&path.isWellFormed()&&!!path&&path.length<=600&&path===path.normalize('NFC')&&!/[\u0000-\u001f\u007f\\:]/.test(path)&&!path.startsWith('/')&&!path.split('/').some(s=>s==='..'||s==='.')&&!path.includes('//');}
+class ArchiveStorageError extends Error{constructor(){super('news-archive-storage-unavailable');this.name='ArchiveStorageError';}}
 class UploadReader extends RandomAccessReader{
  private cache=new Map<number,Buffer>();
  constructor(private source:ArchiveSource){super();}
  _readStreamForRange(start:number,end:number){const self=this;return Readable.from((async function*(){
   if(!Number.isSafeInteger(start)||!Number.isSafeInteger(end)||start<0||end>self.source.bytes)throw new Error('archive-range');
-  let offset=start;while(offset<end){const index=Math.floor(offset/NEWS_IMPORT_CHUNK_BYTES),part=self.source.parts[index];if(!part||part.part!==index)throw new Error('archive-part-missing');let bytes=self.cache.get(index);if(!bytes){bytes=Buffer.from(await getObject(part.storage_key));if(bytes.length!==part.bytes||(part.checksum&&createHash('sha256').update(bytes).digest('hex')!==part.checksum))throw new CmsError('news-part-corrupt','Een opgeslagen uploaddeel is beschadigd. Upload het oorspronkelijke bestand opnieuw.',422);self.cache.set(index,bytes);while(self.cache.size>2)self.cache.delete(self.cache.keys().next().value!);}const from=offset-index*NEWS_IMPORT_CHUNK_BYTES,take=Math.min(bytes.length-from,end-offset);if(take<=0)throw new Error('archive-range');yield bytes.subarray(from,from+take);offset+=take;}
+  let offset=start;while(offset<end){const index=Math.floor(offset/NEWS_IMPORT_CHUNK_BYTES),part=self.source.parts[index];if(!part||part.part!==index)throw new Error('archive-part-missing');let bytes=self.cache.get(index);if(!bytes){try{bytes=Buffer.from(await getObject(part.storage_key));}catch{throw new ArchiveStorageError();}if(bytes.length!==part.bytes||(part.checksum&&createHash('sha256').update(bytes).digest('hex')!==part.checksum))throw new CmsError('news-part-corrupt','Een opgeslagen uploaddeel is beschadigd. Upload het oorspronkelijke bestand opnieuw.',422);self.cache.set(index,bytes);while(self.cache.size>2)self.cache.delete(self.cache.keys().next().value!);}const from=offset-index*NEWS_IMPORT_CHUNK_BYTES,take=Math.min(bytes.length-from,end-offset);if(take<=0)throw new Error('archive-range');yield bytes.subarray(from,from+take);offset+=take;}
  })());}
 }
 export class NewsArchive{
@@ -40,7 +41,7 @@ export class NewsArchive{
    }
    if(!this.entries.has('nieuws.json'))throw new Error('manifest-missing');
    return this;
-  }catch(error){this.close();throw new CmsError('news-zip','Dit ZIP-bestand is beschadigd, onveilig of overschrijdt de limieten. Verwacht nieuws.json in de hoofdmap.',422);}
+  }catch(error){this.close();if(error instanceof ArchiveStorageError||error instanceof CmsError)throw error;throw new CmsError('news-zip','Dit ZIP-bestand is beschadigd, onveilig of overschrijdt de limieten. Verwacht nieuws.json in de hoofdmap.',422);}
  }
  has(path:string){return this.entries.has(path);}
  async read(path:string,max:number){

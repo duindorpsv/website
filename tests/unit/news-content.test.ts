@@ -4,7 +4,7 @@ import {getSchema} from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import {TableKit} from '@tiptap/extension-table';
-import {originalDate,normalizeArticle,mergeMedia,mediaAvailable,convertNewsHtml} from '../../lib/server/news-content';
+import {archiveText,originalDate,normalizeArticle,normalizeMedia,mergeMedia,mediaAvailable,convertNewsHtml} from '../../lib/server/news-content';
 import {referencesIn} from '../../lib/cms/layout/document';
 import {safeArchivePath,newsImportLimits} from '../../lib/server/news-archive';
 const article=()=>normalizeArticle({sourceId:'123',title:'Archief',sourceUrl:'https://www.duindorpsv.nl/1/123/archief/',publishedAt:'2016-07-23T12:00:00+02:00',lead:'Inleiding',bodyHtml:'<p>Inleiding</p><p>Inhoud</p>',media:[]}).article!;
@@ -18,3 +18,5 @@ test('local image and PDF mappings replace old references; external source HTML 
 test('invalid external media URLs cannot map unrelated blocked images or links',()=>{const a=article();a.media=[{url:'javascript:bad',path:'media/local.png',kind:'image',includedInZip:true}];a.bodyHtml='<p>Tekst</p><img src="javascript:another">';assert.ok(!JSON.stringify(convertNewsHtml(a,new Map(),()=>'/private/local.png').doc).includes('/private/local.png'));});
 
 test('PDF links remain indexed when the existing rich editor round-trips their href',()=>{const id='f8e4d386-5d51-4275-a2e6-a743c51a0644';assert.deepEqual(referencesIn({type:'text',text:'PDF',marks:[{type:'link',attrs:{href:'/api/documents/'+id}}]}),[id]);assert.deepEqual(referencesIn({href:'https://other.invalid/api/documents/'+id}),[]);});
+
+test('metadata truncation remains valid Unicode for PostgreSQL JSONB',()=>{assert.equal(archiveText('a😀',2).isWellFormed(),true);assert.equal(archiveText('a\u0000b'), 'ab');assert.equal(normalizeMedia({path:'media/a\u0000.png'}).path,null);assert.equal(normalizeArticle({...article(),sourceId:'\ud800'}).article,null);});

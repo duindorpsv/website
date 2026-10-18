@@ -7,6 +7,7 @@ import {safeArchivePath} from './news-archive';
 import {CmsError} from './errors';
 
 export const NEWS_SOURCE='duindorp-sv-nieuwsarchief';
+export const archiveText=(value:unknown,max=1000)=>typeof value==='string'?value.replace(/\u0000/g,'').slice(0,max).toWellFormed():'';
 export type MediaMapping={id:string;kind:'image'|'file';url:string;alt:string};
 export function webUrl(input:unknown){if(typeof input!=='string'||input.length>2000||!safeDestination(input))return '';try{const url=new URL(input);if(!['http:','https:'].includes(url.protocol)||url.username||url.password)return '';url.hostname=url.hostname.toLowerCase().replace(/^www\./,'');url.hash='';return url.href;}catch{return '';}}
 export function originalDate(input:unknown){
@@ -15,20 +16,20 @@ export function originalDate(input:unknown){
  if(month<1||month>12||day<1||day>days||Number(input.slice(11,13))>23||Number(input.slice(14,16))>59||Number(input.slice(17,19)||0)>59||!Number.isFinite(Date.parse(input)))return null;
  return new Date(input).toISOString();
 }
-export function normalizeMedia(input:any):NewsImportMedia{return {...input,url:typeof input.url==='string'?input.url:'',path:typeof input.path==='string'?input.path:null,alt:typeof input.alt==='string'?input.alt.slice(0,500):'',kind:input.kind==='image'?'image':'file',status:typeof input.status==='string'?input.status:'pending',includedInZip:typeof input.includedInZip==='boolean'?input.includedInZip:undefined};}
+export function normalizeMedia(input:any):NewsImportMedia{return {url:webUrl(input.url),path:safeArchivePath(input.path)?input.path:null,alt:archiveText(input.alt,500),kind:input.kind==='image'?'image':'file',status:archiveText(input.status,30)||'pending',mime:archiveText(input.mime,100)||null,bytes:Number.isSafeInteger(input.bytes)?input.bytes:null,error:archiveText(input.error)||null,exportError:archiveText(input.exportError)||null,includedInZip:typeof input.includedInZip==='boolean'?input.includedInZip:undefined};}
 export function normalizeArticle(input:any):{article:NewsImportArticle|null;errors:string[];warnings:string[]}{
  const errors:string[]=[],warnings:string[]=[];
  if(!input||typeof input!=='object'||Array.isArray(input))return {article:null,errors:['Dit bericht is geen object.'],warnings};
- if(typeof input.sourceId!=='string'||!input.sourceId.trim()||input.sourceId.length>200||/[\u0000-\u001f]/.test(input.sourceId))errors.push('Een geldig bron-ID ontbreekt.');
- if(typeof input.title!=='string'||!input.title.trim()||input.title.length>500)errors.push('Een bruikbare titel van maximaal 500 tekens ontbreekt.');
- if(typeof input.bodyHtml!=='string'||Buffer.byteLength(input.bodyHtml)>900_000)errors.push('De inhoud ontbreekt of is groter dan 900 KB.');
+ if(typeof input.sourceId!=='string'||!input.sourceId.trim()||input.sourceId.length>200||/[\u0000-\u001f]/.test(input.sourceId)||!input.sourceId.isWellFormed())errors.push('Een geldig bron-ID ontbreekt.');
+ if(typeof input.title!=='string'||!input.title.trim()||input.title.length>500||input.title.includes('\u0000')||!input.title.isWellFormed())errors.push('Een bruikbare titel van maximaal 500 tekens ontbreekt.');
+ if(typeof input.bodyHtml!=='string'||Buffer.byteLength(input.bodyHtml)>900_000||input.bodyHtml.includes('\u0000')||!input.bodyHtml.isWellFormed())errors.push('De inhoud ontbreekt, bevat ongeldige tekens of is groter dan 900 KB.');
  if(input.media!==undefined&&!Array.isArray(input.media))warnings.push('De medialijst is ongeldig; tekst kan wel worden geïmporteerd.');
  if(!originalDate(input.publishedAt))warnings.push('Oorspronkelijke publicatiedatum ontbreekt of is ongeldig. Alleen import als concept is mogelijk.');
  if(input.status==='pending')warnings.push('Dit bronbericht is nog niet volledig opgehaald.');
  if(input.sourceHtmlIncluded===false||input.sourceHtmlError)warnings.push('Oorspronkelijke bron-HTML ontbreekt; dit blokkeert de tekst niet.');
  if(!webUrl(input.sourceUrl))warnings.push('De oorspronkelijke bronlink ontbreekt of is ongeldig.');
- for(const warning of Array.isArray(input.warnings)?input.warnings:[])if(typeof warning==='string')warnings.push(warning.slice(0,1000));
- return {article:errors.length?null:{...input,sourceId:input.sourceId.trim(),title:input.title.trim(),sourceUrl:webUrl(input.sourceUrl),publishedAt:originalDate(input.publishedAt),lead:typeof input.lead==='string'?input.lead.slice(0,10000):'',bodyHtml:input.bodyHtml,media:Array.isArray(input.media)?input.media.filter((m:any)=>m&&typeof m==='object'&&!Array.isArray(m)).slice(0,500).map(normalizeMedia):[],warnings:[]},errors,warnings};
+ for(const warning of (Array.isArray(input.warnings)?input.warnings:[]).slice(0,80))if(typeof warning==='string')warnings.push(archiveText(warning));
+ return {article:errors.length?null:{sourceId:input.sourceId.trim(),title:input.title.trim(),sourceUrl:webUrl(input.sourceUrl),publishedAt:originalDate(input.publishedAt),lead:archiveText(input.lead,10000),bodyHtml:input.bodyHtml,status:archiveText(input.status,30),fetchedAt:archiveText(input.fetchedAt,100),sourceHtmlPath:archiveText(input.sourceHtmlPath,600),sourceHtmlIncluded:input.sourceHtmlIncluded===true,sourceHtmlError:archiveText(input.sourceHtmlError),media:Array.isArray(input.media)?input.media.filter((m:any)=>m&&typeof m==='object'&&!Array.isArray(m)).slice(0,500).map(normalizeMedia):[],warnings:[]},errors,warnings};
 }
 export function rowChecksum(article:NewsImportArticle){return createHash('sha256').update(JSON.stringify([article.title,article.sourceUrl,article.publishedAt,article.lead,article.bodyHtml,article.media.map(m=>[m.url,m.path,m.kind,m.alt,m.status,m.includedInZip])])).digest('hex');}
 export function mergeMedia(article:NewsImportArticle,global:NewsImportMedia[]|Map<string,NewsImportMedia>){return article.media.map(item=>{const stored=global instanceof Map?(global.get(webUrl(item.url))||global.get(item.path||'')):global.find(g=>!!item.url&&webUrl(g.url)===webUrl(item.url)||!!item.path&&g.path===item.path);return {...item,...stored,url:item.url||stored?.url||'',path:stored?.path||item.path||null,kind:item.kind,alt:typeof item.alt==='string'?item.alt:'',includedInZip:item.includedInZip===false||stored?.includedInZip===false?false:stored?.includedInZip??item.includedInZip} as NewsImportMedia;});}
@@ -47,7 +48,7 @@ export function convertNewsHtml(article:NewsImportArticle,mapping:Map<string,Med
   const tag=String(node.name||'').toLowerCase();if(blocked.has(tag)||!tag)return [];
   if(tag==='img'){
    const key=mediaKey(node.attribs?.src||''),mapped=mapping.get(key),media=sourceMedia.get(key),src=mapped?.kind==='image'?mapped.url:media&&preview?preview(media):'';
-   const alt=String(node.attribs?.alt||mapped?.alt||media?.alt||'').slice(0,500);
+   const alt=archiveText(node.attribs?.alt||mapped?.alt||media?.alt||'',500);
    if(src)return [{type:'image',attrs:{src,alt,...(mapped?{mediaId:mapped.id}:{}),title:''}}];
    warnings.push('Een niet-overgenomen afbeelding is uit de inhoud verwijderd.');return alt?[{type:'text',text:`[Afbeelding: ${alt}]`}]:[];
   }
