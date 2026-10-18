@@ -112,12 +112,12 @@ def validate_configuration(values, target, installed):
             require(unquote(database.password) == result['APP_DATABASE_PASSWORD'], 'DATABASE_URL password differs from APP_DATABASE_PASSWORD')
         else:
             require(unquote(database.password) != result['APP_DATABASE_PASSWORD'], 'Use separate migration and runtime database passwords')
+    result['S3_ENDPOINT'] = https_origin(result['S3_ENDPOINT'], 'S3_ENDPOINT')
     endpoint = urlsplit(result['S3_ENDPOINT'])
-    require(endpoint.scheme == 'https' and endpoint.hostname in (project, reference + '.storage.supabase.co')
-            and endpoint.port in (None, 443) and endpoint.path.rstrip('/') == '/storage/v1/s3'
-            and not endpoint.username and not endpoint.password and not endpoint.query and not endpoint.fragment,
-            'S3_ENDPOINT must address this Supabase Storage project')
-    result['S3_ENDPOINT'] = result['S3_ENDPOINT'].rstrip('/')
+    require(endpoint.hostname in ('fsn1.your-objectstorage.com', 'nbg1.your-objectstorage.com',
+                                  'hel1.your-objectstorage.com')
+            and result['S3_REGION'] == endpoint.hostname.split('.')[0],
+            'S3_ENDPOINT must address the configured Hetzner region without a bucket path')
     require(re.fullmatch(r'[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]', result['S3_BUCKET'])
             and '..' not in result['S3_BUCKET'], 'Invalid S3_BUCKET')
     for key in ('S3_REGION', 'BACKUP_S3_REGION'):
@@ -137,6 +137,9 @@ def validate_configuration(values, target, installed):
         valid = False
     require(valid and not any(c.isspace() for c in result['RESTIC_REPOSITORY']),
             'Invalid RESTIC_REPOSITORY')
+    if backup.hostname == endpoint.hostname and backup.path.split('/')[1] == result['S3_BUCKET']:
+        require(backup.path == '/' + result['S3_BUCKET'] + '/.duindorp-backups/production',
+                'A shared media/backup bucket requires the reserved .duindorp-backups/production prefix')
     return result
 
 

@@ -62,7 +62,7 @@ def backup(target, identifier, environment, initialize=False):
         if result.returncode:
             raise RuntimeError('Database backup failed')
         quiet(['rclone', 'copy', 'media:' + source['S3_BUCKET'], str(directory / 'media'),
-               '--config', '/dev/null', '--quiet'], media)
+               '--exclude', '/.duindorp-backups/**', '--config', '/dev/null', '--quiet'], media)
         configuration = directory / 'configuration'
         configuration.mkdir(mode=0o700)
         for filename in ('runtime.env', 'migration.env', 'provision.env', 'database-ca.crt'):
