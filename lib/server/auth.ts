@@ -28,7 +28,7 @@ async function verified(client:SupabaseClient){
   if(!profile||profile.banned)return null;
   const [revoked]=await sql`select user_id from cms_auth_revocations where user_id=${profile.id} and invalid_before>=${session.created_at}`;
   if(revoked)return null;
-  const enrolled=!!user.data.user.factors?.some(f=>f.factor_type==='totp'&&f.status==='verified');
+  const enrolled=!!user.data.user.factors?.some(f=>f.status==='verified');
   return {user:{id:String(profile.id),name:String(profile.name),email:String(profile.email),twoFactorEnabled:enrolled},session:{id:sessionId.data,createdAt:new Date(session.created_at).getTime()},mfaVerified:enrolled&&claims.data.claims.aal==='aal2'};
 }
 
@@ -136,7 +136,7 @@ async function handler(request:Request){
         const enrolled=await client.auth.mfa.enroll({factorType:'totp',issuer:'Duindorp SV',friendlyName:'Duindorp SV authenticator'});
         if(enrolled.error)throw fail();data={method:'totp',totpURI:enrolled.data.totp.uri};
       }else{
-        const {code}=z.object({code:z.string().regex(/^\d{6}$/)}).strict().parse(body),factor=factors.data.all.find(f=>f.factor_type==='totp');
+        const {code}=z.object({code:z.string().regex(/^\d{6}$/)}).strict().parse(body),factor=factors.data.totp[0]||factors.data.all.find(f=>f.factor_type==='totp'&&f.status==='unverified');
         if(!factor||(await client.auth.mfa.challengeAndVerify({factorId:factor.id,code})).error)throw fail();
         await sqlClient()`update auth_user set two_factor_enabled=true where id=${session.user.id}`;
       }

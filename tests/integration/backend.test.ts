@@ -206,3 +206,18 @@ test('MEDIA05: Supabase Storage refuses anonymous downloads from the private CMS
  const result=await client.storage.from(process.env.S3_BUCKET!).download(key);assert.ok(result.error);assert.equal(result.data,null);
  }finally{await deleteObject(key);}
 });
+test('AUTH09: a verified non-TOTP factor also prevents password-only CMS access',async()=>{
+ const {principal}=await import('../../lib/server/permissions'),password=crypto.randomUUID()+crypto.randomUUID(),user=await getAuth().api.createUser({body:{email:'other-factor-'+crypto.randomUUID()+'@example.invalid',name:'Provider-factor fixture',password}});
+ await sql`insert into cms_memberships(user_id,role_id) values (${user.user.id},'editor')`;
+ const login=await authPost('sign-in/email',{email:user.user.email,password});assert.equal(login.status,200);const headers=new Headers({cookie:authCookies(login)}),originalFetch=globalThis.fetch;
+ try{
+  // Model a factor newly enrolled at the provider after this real AAL1 token
+  // was issued. This tests fail-closed behavior without sending an SMS.
+  globalThis.fetch=async(input,init)=>{
+   const response=await originalFetch(input,init);
+   if(String(input).endsWith('/auth/v1/user')&&response.ok){const body=await response.json();body.factors=[{id:crypto.randomUUID(),factor_type:'phone',status:'verified',created_at:new Date().toISOString(),updated_at:new Date().toISOString()}];return Response.json(body,{status:response.status,headers:response.headers});}
+   return response;
+  };
+  await assert.rejects(principal(headers),(error:any)=>error.code==='mfa-required');
+ }finally{globalThis.fetch=originalFetch;}
+});

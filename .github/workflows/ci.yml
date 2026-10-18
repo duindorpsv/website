@@ -36,6 +36,13 @@ jobs:
           pnpm exec tsx scripts/setup-local-supabase.ts
       - run: pnpm test && pnpm typecheck
       - run: pnpm db:migrate && pnpm exec tsx scripts/provision-database.ts && pnpm db:seed && pnpm test:integration
+      - name: Supabase security advisors
+        run: |
+          npx --yes supabase@2.121.0 db advisors --help >/dev/null
+          result=0
+          npx --yes supabase@2.121.0 db advisors --local --type security --level warn --fail-on error --output-format json > .runtime/supabase-advisors.json || result=$?
+          pnpm exec tsx scripts/summarize-supabase-advisors.ts
+          exit "$result"
       - run: pnpm build && pnpm build:runtime
       - run: |
           pnpm exec tsx scripts/development-test-account.ts
@@ -77,5 +84,6 @@ jobs:
           path: |
             .runtime/e2e-report.json
             .runtime/news-large-proof.json
+            .runtime/supabase-advisors-summary.json
             .runtime/screenshots
           retention-days: 14

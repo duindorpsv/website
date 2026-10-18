@@ -62,3 +62,7 @@ GRANT EXECUTE ON FUNCTION public.cms_auth_session(uuid,uuid) TO service_role;
 GRANT SELECT(id,user_id,created_at,not_after) ON auth.sessions TO service_role;
 --> statement-breakpoint
 NOTIFY pgrst, 'reload schema';
+
+--> statement-breakpoint
+ALTER FUNCTION public.reject_cms_audit_mutation() SET search_path = '';
+ALTER FUNCTION public.normalize_cms_metadata() SET search_path = '';
