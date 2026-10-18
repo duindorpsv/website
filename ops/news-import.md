@@ -27,10 +27,10 @@ ZIP-controle weigert padtraversal, absolute paden, symlinks, canonieke dubbele n
 
 Bekende oorspronkelijke `/1/<nummer>/…`-links van duindorpsv.nl krijgen bij publicatie een gerichte redirect. Die werkt alleen voor een nog gepubliceerd nieuwsbericht. Een concept krijgt geen openbare redirect.
 
-## Verificatie en staging
+## Verificatie en productie
 
 `pnpm test` bevat parser-, datum-, ZIP-pad- en Tiptap-schemacontroles. `pnpm test:integration` controleert de echte PostgreSQL-opslag, expliciete selectie, bronidentiteit bij gelijktijdige imports, rechten, hervatting, lokale media/PDF, ontbrekende media en schadelijke ZIP's. Deze tests vereisen de afgeschermde `duindorp_test` database.
 
 `pnpm test:e2e` gebruikt de echte browser, API en worker. De importtests controleren desktop/mobiel, selectie over paginering en filters, bronmetadata in de nieuwseditor en een ZIP van ruim 150 MiB met `nieuws.json` als laatste entry. De grote upload wordt na twee bevestigde delen onderbroken en na herladen hervat; slechts drie van tien berichten worden geïmporteerd. CI voert dit uit tegen het daadwerkelijke alleen-lezen containerimage, met 768 MiB geheugen voor web en 512 MiB voor worker. Het artifact `verification` bevat screenshots, het browserrapport en `news-large-proof.json` met omvang, delen, hervatting en gemeten piek-RSS.
 
-Promoveer uitsluitend de geslaagde commit via de bestaande stagingworkflow. Staging vereist de echte GitHub Environment-instellingen en de overeenkomstige hostinginstallatie; zie [github-environments.md](github-environments.md). Herhaal daar de import met representatieve brondata, controleer publicatie en rapport en registreer de bestaande menselijke acceptatie. Deze implementatie zet geen productiepromotie of productieimport in gang.
+Merge de geslaagde PR naar main; controles, imagebuild en de productiedeploy lopen via de enige GitHub Environment `production`. De echte Environment-instellingen en hostinginstallatie moeten gereed zijn; zie [github-environments.md](github-environments.md). Controleer import, publicatie en verslag op de dev-VPS met representatieve testdata. Een productieimport vereist vervolgens expliciete selectie door een bevoegde beheerder; de releaseworkflow start geen nieuwsimport.

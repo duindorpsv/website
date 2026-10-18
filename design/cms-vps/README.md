@@ -133,7 +133,7 @@ De bestaande Sportlink-voetbalgegevenskoppeling blijft iets anders dan ledenaanm
 
 ## Overdracht naar de development-VPS
 
-1. **Behoud bron en inhoud.** Neem de repository over in de normale development → staging → productieprocedure. Exporteer gewenste lokale inhoud inclusief uploads; controleer ontbrekende bestanden. Behoud historie, vrijwilligersverhaal, placeholders en menukeuzes.
+1. **Behoud bron en inhoud.** Neem de repository over in de normale development → main → productieprocedure. Exporteer gewenste lokale inhoud inclusief uploads; controleer ontbrekende bestanden. Behoud historie, vrijwilligersverhaal, placeholders en menukeuzes.
 2. **Maak het productiedatamodel.** Vertaal `CmsState` naar tabellen en relaties. Behoud stabiele IDs, schemaVersion, revisies, redirects en liveversies. Kies of personen en albums ook een afzonderlijke werkversie krijgen. Valideer velden en widgetreferenties op de server.
 3. **Sluit accounts en rechten aan.** Bepaal login, sessies, herstel en uitnodigingen. Koppel verzoeken aan één gebruiker. Controleer module-, team-, publicatie- en bestandsrechten server-side; maak bevoegde conceptpreviews. Vertrouw niet op de lokale rolselector.
 4. **Vervang de opslaglaag.** Behoud editors en renderers waar mogelijk; laat CRUD en publicatie via gecontroleerde serveracties verlopen. Voeg transacties, gelijktijdigheidscontrole en foutafhandeling toe. Migreer foto’s naar objectopslag en herschrijf verwijzingen naar permanente IDs/URL’s.

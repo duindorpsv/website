@@ -1,5 +1,7 @@
 # Inventaris — 14 oktober 2026
 
+> Actuele inrichting vanaf 18 oktober 2026: development-VPS → main → uitsluitend GitHub Environment `production`; websitemail via SendGrid API. De staging-/SMTP-verwijzingen hieronder beschrijven eerdere inventarisatie en testresultaten. De actuele procedure en exacte instellingen staan in [github-environments.md](github-environments.md) en [first-deploy.md](first-deploy.md). Eerder voorbereide stagingresources zijn niet automatisch verwijderd.
+
 Doelrepository: `duindorpsv/website`, door eigenaar aangewezen. Bij aanvang van development waren de repository en lokale werkmap leeg. De Sites-bronremote is niet overgenomen. Inmiddels bevat `main` de applicatie en drie workflows; de serving-host-aansluiting wordt op die broncode afgestemd.
 
 Development: Linux x86_64, Node 24.18.0, pnpm 11.25.0, gebruiker codex. Docker, PostgreSQL-client en GitHub CLI beschikbaar. Bestaande containers en loopbackdiensten behoren aan andere projecten; ze blijven intact. Op inventarisatiemoment circa 16 GB vrije schijf. Testdiensten krijgen eigen Duindorp-namen, volumes en uitsluitend vrije loopbackpoorten.

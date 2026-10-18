@@ -3,7 +3,7 @@
 set -euo pipefail
 umask 077
 if [[ $# -lt 3 || $# -gt 4 || ${4:-} != '' && ${4:-} != '--check' ]]; then
-  printf 'Usage: sudo bash install-host.sh staging|production PORT HTTPS_ORIGIN [--check]\n' >&2
+  printf 'Usage: sudo bash install-host.sh production PORT HTTPS_ORIGIN [--check]\n' >&2
   exit 64
 fi
 [[ $(id -u) == 0 ]] || { printf 'Run with sudo\n' >&2; exit 64; }
@@ -48,7 +48,7 @@ for source in release.py deploy_config.py backup.py rollback.py; do
     mode=$(stat -c %a "$shared_path")
     (( (8#$mode & 0022) == 0 ))
     cmp -s "$script_dir/$source" "$shared_path" || {
-      printf 'Shared %s differs; review an upgrade for both environments first\n' "$source" >&2
+      printf 'Shared %s differs; review the installed helpers before upgrading production\n' "$source" >&2
       exit 65
     }
   fi

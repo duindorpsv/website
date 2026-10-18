@@ -18,9 +18,6 @@ catalogs:
     drizzle-orm:
       specifier: 0.45.2
       version: 0.45.2
-    nodemailer:
-      specifier: 10.0.15
-      version: 10.0.15
     postgres:
       specifier: 3.4.9
       version: 3.4.9
@@ -116,9 +113,6 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      nodemailer:
-        specifier: 'catalog:'
-        version: 10.0.15
       postgres:
         specifier: 'catalog:'
         version: 3.4.9
@@ -174,9 +168,6 @@ importers:
       '@types/node':
         specifier: 22.19.19
         version: 22.19.19
-      '@types/nodemailer':
-        specifier: ^7.0.0
-        version: 7.0.12
       '@types/react':
         specifier: 19.2.14
         version: 19.2.14
@@ -225,9 +216,6 @@ importers:
       htmlparser2:
         specifier: 12.0.0
         version: 12.0.0
-      nodemailer:
-        specifier: 'catalog:'
-        version: 10.0.15
       postgres:
         specifier: 'catalog:'
         version: 3.4.9
@@ -2462,9 +2450,6 @@ packages:
   '@types/node@22.19.19':
     resolution: {integrity: sha512-dyh/xO2Fh5bYrfWaaqGrRQQGkNdmYw6AmaAUvYeUMNTWQtvb796ikLdmTchRmOlOiIJ1TDXfWgVx1QkUlQ6Hew==}
 
-  '@types/nodemailer@7.0.12':
-    resolution: {integrity: sha512-80vKwiIsVSyFA1rRovH59jNPLBOuc6dRZIHEu40gXTkBkZnQv8vog1xSGEb9j5q/tdMAs5ivvDR2pLTU0hGHXA==}
-
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
     peerDependencies:
@@ -3872,10 +3857,6 @@ packages:
 
   node-releases@2.0.44:
     resolution: {integrity: sha512-5WUyunoPMsvvEhS8AxHtRzP+oA8UCkJ7YRxatWKjngndhDGLiqEVAQKWjFAiAiuL8zMRGzGSJxFnLetoa43qGQ==}
-
-  nodemailer@10.0.15:
-    resolution: {integrity: sha512-EUqp5PhtcsYXs9Fq/lS7s/8zlTrnBqmzZWzFFROrNikMiz+om/YRKMwqN907t+0A1KKyT8jd39CBUbFZmaZmcA==}
-    engines: {node: '>=20.0.0'}
 
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
@@ -6545,10 +6526,6 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@types/nodemailer@7.0.12':
-    dependencies:
-      '@types/node': 22.19.19
-
   '@types/react-dom@19.2.3(@types/react@19.2.14)':
     dependencies:
       '@types/react': 19.2.14
@@ -8030,8 +8007,6 @@ snapshots:
       semver: 6.3.1
 
   node-releases@2.0.44: {}
-
-  nodemailer@10.0.15: {}
 
   object-assign@4.1.1: {}
 

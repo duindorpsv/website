@@ -1,5 +1,7 @@
 # Uitvoerlog
 
+> Actuele inrichting vanaf 18 oktober 2026: development-VPS → main → uitsluitend GitHub Environment `production`; websitemail via SendGrid API. De staging-/SMTP-verwijzingen hieronder beschrijven eerdere inventarisatie en testresultaten. De actuele procedure en exacte instellingen staan in [github-environments.md](github-environments.md) en [first-deploy.md](first-deploy.md). Eerder voorbereide stagingresources zijn niet automatisch verwijderd.
+
 ## Bron en runtime
 
 - 14 oktober 2026: verzoek en alle specificaties 00–08 gelezen. Pakket bevat Sites v44, commit e91ed87f3e5917f286885c6593fe397f8e67cdf4.
@@ -52,3 +54,11 @@ Nog geen staging/productiondeployment, browserdatamigratie of externe verzending
 - Image en configuratie worden samen geactiveerd en teruggezet na appfalen. De eerste deployment maakt een extern herstelpunt vóór migratie en seed; retentie blijft beperkt tot de eigen omgevingshost/tag. Database-/authsleutels en medialocatie worden niet blind geroteerd.
 - Gerichte lokale controles omvatten input-/identiteitsgrenzen, workflow→JSON-overdracht, permissies, echte Compose-/containerdoorgifte met synthetische waarden, deploymentvolgorde, configuratiewijziging op hetzelfde image, falende backup en herstel van de vorige image/configuratie. Externe S3/SMTP/Restic en de hosting-VPS worden hiermee niet als getest beschouwd.
 - De exacte GitHub-namen, defaults, voorwaardelijke integratiekeys en eenmalige hoststappen staan in `github-environments.md`. Er zijn geen echte credentials verzonnen, uitgelezen of in Git vastgelegd. De bestaande reviewers en eis van externe restore vóór production blijven gelden.
+
+## 18 oktober 2026 — één productieomgeving en SendGrid
+
+- Actieve releaseflow vervangen door main → controles/build → GitHub Environment production. Stagingworkflow verwijderd en in GitHub uitgeschakeld. De bestaande production-branchpolicy staat nu op main; de vereiste productiereviewer is behouden. Oude SMTP-defaultvariables zijn uit production verwijderd.
+- Alle websitemail gebruikt de SendGrid HTTPS API, met expliciete dev/testontvanger, aparte productie-enveloppen, timeout, geredigeerde fouten en duurzame retries. De Nodemailer-afhankelijkheden en lokale Mailpit-service zijn uit de applicatieconfiguratie verwijderd.
+- Configuratieversie 3 vereist SENDGRID_API_KEY en MAIL_FROM. Hostwrappers, backup/rollback, API-status en operationele handleidingen zijn aangepast. De stagingdigest-/restoremarker-gate is vervallen; externe backup vóór iedere migratie blijft verplicht, externe herstelacceptatie vóór publieke ingebruikname blijft een operatorhandeling.
+- Lokaal geslaagd: 113 unit/regressietests plus één skip, 31 PostgreSQL-integratietests, 27 Python-opscontroles, frozen installatie, typecheck en Next/runtimebuild. SendGrid-contracten zijn gemockt; echte verzending/bezorging is nog niet bewezen. Volledige container/browsercontrole volgt ook via de PR-workflow.
+- Echte productieinstellingen voor domein, media, SendGrid en externe backup plus de versie-3-hostinstallatie zijn nog nodig. Er wordt geen uitgevoerde productiedeployment geclaimd.

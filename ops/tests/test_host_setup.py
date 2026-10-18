@@ -43,24 +43,25 @@ class HostSetupTests(unittest.TestCase):
                 host_check.validate_engine({**info, key: value}, expected)
 
     def test_accepts_only_expected_target_port_and_https_origin(self):
-        host_check.validate_target("staging", "3112", "https://staging.duindorpsv.nl")
+        with self.assertRaises(ValueError):
+            host_check.validate_target("staging", "3112", "https://staging.duindorpsv.nl")
         host_check.validate_target("production", "3113", "https://duindorpsv.nl/")
         bad = [("../production", "3112", "https://example.org"),
-               ("staging", "443", "https://example.org"),
-               ("staging", "65536", "https://example.org"),
-               ("staging", "3;id", "https://example.org"),
-               ("staging", "3112", "http://example.org"),
-               ("staging", "3112", "https://user:secret@example.org"),
-               ("staging", "3112", "https://example.org/path"),
-               ("staging", "3112", "https://example.org?token=secret"),
-               ("staging", "3112", "https://example.org#fragment"),
-               ("staging", "3112", "https://example.org:broken")]
+               ("production", "443", "https://example.org"),
+               ("production", "65536", "https://example.org"),
+               ("production", "3;id", "https://example.org"),
+               ("production", "3112", "http://example.org"),
+               ("production", "3112", "https://user:secret@example.org"),
+               ("production", "3112", "https://example.org/path"),
+               ("production", "3112", "https://example.org?token=secret"),
+               ("production", "3112", "https://example.org#fragment"),
+               ("production", "3112", "https://example.org:broken")]
         for args in bad:
             with self.subTest(args=args), self.assertRaises(ValueError):
                 host_check.validate_target(*args)
 
     def test_deploy_accepts_application_identity_then_validates_input(self):
-        for target in ("staging", "production"):
+        for target in ("production",):
             account = SimpleNamespace(pw_name="duindorpsv-" + target)
             with self.subTest(target=target), patch.object(deploy.pwd, "getpwuid", return_value=account):
                 with self.assertRaisesRegex(ValueError, "Invalid request"):

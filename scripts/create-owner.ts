@@ -8,5 +8,5 @@ const sql=sqlClient();try{
  const password=crypto.randomUUID()+crypto.randomUUID();const result=await getAuth().api.createUser({body:{email,name,password,role:'admin'}});
  await sql`insert into cms_memberships(user_id,role_id) values (${result.user.id},'admin')`;
  await getAuth().api.requestPasswordReset({body:{email,redirectTo:'/beheer/herstel'}});
- console.log('Account aangemaakt. Activatie-e-mail staat in de verzendqueue; SMTP moet aangesloten zijn. Geen standaardwachtwoord aangemaakt.');
+ console.log('Account aangemaakt. Activatie-e-mail staat in de verzendqueue; SendGrid API moet aangesloten zijn. Geen standaardwachtwoord aangemaakt.');
 }finally{await closeDb();}

@@ -34,17 +34,32 @@ def command(arguments, environment, input=None):
 
 def verify(release, token, target):
     run = api('actions/runs/' + str(release['runId']), token)
-    if (run['head_sha'] != release['sourceSha'] or run['head_branch'] != 'staging'
-            or run['event'] != 'push' or run['path'] != '.github/workflows/staging.yml'):
+    if (target != 'production' or run['head_sha'] != release['sourceSha'] or run['head_branch'] != 'main'
+            or run['event'] not in ('push', 'workflow_dispatch')
+            or run['path'] != '.github/workflows/production.yml'
+            or run.get('conclusion') not in (None, 'success')):
         raise ValueError('Build provenance rejected')
-    jobs = api('actions/runs/' + str(release['runId']) + '/jobs', token)['jobs']
-    if not any(j['name'] == 'build' and j['conclusion'] == 'success' for j in jobs):
-        raise ValueError('Build checks not successful')
+    # A deploy-only rerun reuses checks/build from an earlier attempt. Select the
+    # newest execution of each required job, so an older success cannot hide a
+    # later failed rebuild. Bound the history instead of accepting a partial page.
+    jobs = []
+    for page in range(1, 11):
+        result = api('actions/runs/' + str(release['runId'])
+                     + '/jobs?filter=all&per_page=100&page=' + str(page), token)
+        jobs.extend(result['jobs'])
+        if len(jobs) >= result['total_count']:
+            break
+    else:
+        raise ValueError('Workflow job history exceeds verification limit')
+    for name in ('checks / verify', 'build'):
+        matching = [job for job in jobs if job['name'] == name]
+        if (not matching or max(matching, key=lambda job: (job['run_attempt'], job['id']))
+                ['conclusion'] != 'success'):
+            raise ValueError('Build checks not successful')
     artifacts = api('actions/runs/' + str(release['runId']) + '/artifacts', token)['artifacts']
-    name = 'staging-approved' if target == 'production' else 'release'
-    artifact = next((a for a in artifacts if a['name'] == name and not a['expired']), None)
-    if not artifact or (target == 'production' and run['conclusion'] != 'success'):
-        raise ValueError('Required staging evidence absent')
+    artifact = next((a for a in artifacts if a['name'] == 'release' and not a['expired']), None)
+    if not artifact:
+        raise ValueError('Verified production release artifact absent')
     with zipfile.ZipFile(io.BytesIO(api('actions/artifacts/' + str(artifact['id']) + '/zip',
                                      token, binary=True))) as archive:
         binding = validate(json.loads(archive.read('release.json')))
@@ -71,7 +86,7 @@ def ready(port, digest):
 
 
 def deploy(target, request):
-    if (target not in ('staging', 'production')
+    if (target != 'production'
             or pwd.getpwuid(os.getuid()).pw_name != 'duindorpsv-' + target):
         raise PermissionError('Deployment identity rejected')
     if not isinstance(request, dict) or set(request) != {'release', 'token', 'configuration'}:
@@ -100,9 +115,10 @@ def deploy(target, request):
                     or (previous_release['runId'] == release['runId'] and previous_release != release)):
                 raise ValueError('Stale deployment rejected')
         verify(release, token, target)
-        sha = api('git/ref/heads/' + target, token)['object']['sha']
-        if api('git/commits/' + sha, token)['tree']['sha'] != release['treeSha']:
-            raise ValueError('Current branch tree differs from tested release')
+        sha = api('git/ref/heads/main', token)['object']['sha']
+        if (sha != release['sourceSha']
+                or api('git/commits/' + sha, token)['tree']['sha'] != release['treeSha']):
+            raise ValueError('Current main commit differs from tested release')
         if previous:
             old_values = read_generation(state, previous['configuration'])
             for key in ('DATABASE_PASSWORD', 'APP_DATABASE_PASSWORD', 'AUTH_SESSION_SECRET'):
@@ -126,13 +142,8 @@ def deploy(target, request):
                                          '--format', '{{json .Config.Labels}}'], environment))
             if labels.get('org.opencontainers.image.revision') != release['sourceSha']:
                 raise ValueError('Image source label mismatch')
-            if target == 'production':
-                evidence = json.loads((state / 'restore-tested.json').read_text())
-                if (evidence.get('digest') != release['digest']
-                        or evidence.get('externalBackup') is not True or not evidence.get('backupRef')
-                        or evidence.get('checks') != {'login': True, 'page': True,
-                                                     'media': True, 'formHistory': True}):
-                    raise ValueError('Production requires matching external restore evidence')
+            if labels.get('nl.duindorpsv.source-tree') != release['treeSha']:
+                raise ValueError('Image tree label mismatch')
             command([*compose, 'up', '-d', '--wait', '--wait-timeout', '120', 'database'], environment)
             environment['DUINDORP_INITIAL_BACKUP'] = 'true' if previous is None else 'false'
             if previous:
