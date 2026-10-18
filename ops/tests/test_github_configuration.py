@@ -53,6 +53,7 @@ class ConfigurationTests(unittest.TestCase):
             installed = {'baseUrl': settings(target)['APP_BASE_URL']}
             values = configuration.validate_configuration(settings(target), target, installed)
             self.assertEqual(values['SMTP_PORT'], '587')
+            self.assertEqual(values['NEWS_IMPORT_MAX_MB'], '512')
             self.assertEqual(values['NEWSLETTER_PROVIDER'], 'disabled')
             with tempfile.TemporaryDirectory() as temporary:
                 state = Path(temporary)
@@ -83,7 +84,10 @@ class ConfigurationTests(unittest.TestCase):
                    dict(values, RESTIC_REPOSITORY='/srv/another-site'),
                    dict(values, RESTIC_REPOSITORY='s3:https://user:password@example.org/backup'),
                    dict(values, NEWSLETTER_PROVIDER='brevo'),
-                   dict(values, AUTH_SESSION_SECRET=42)]
+                   dict(values, AUTH_SESSION_SECRET=42),
+                   dict(values, NEWS_IMPORT_MAX_MB='0'),
+                   dict(values, NEWS_IMPORT_MAX_UNPACKED_MB='99999'),
+                   dict(values, NEWS_IMPORT_MAX_ENTRIES='x')]
         for key in configuration.REQUIRED:
             if key != 'S3_REGION':
                 invalid.append(dict(values, **{key: ''}))

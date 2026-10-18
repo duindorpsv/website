@@ -46,6 +46,9 @@ jobs:
           CFG_SMTP_SECURE: ${{ vars.SMTP_SECURE }}
           CFG_MAIL_FROM: ${{ vars.MAIL_FROM }}
           CFG_TEST_MAIL_TO: ${{ vars.TEST_MAIL_TO }}
+          CFG_NEWS_IMPORT_MAX_MB: ${{ vars.NEWS_IMPORT_MAX_MB }}
+          CFG_NEWS_IMPORT_MAX_UNPACKED_MB: ${{ vars.NEWS_IMPORT_MAX_UNPACKED_MB }}
+          CFG_NEWS_IMPORT_MAX_ENTRIES: ${{ vars.NEWS_IMPORT_MAX_ENTRIES }}
           CFG_TRUST_PROXY_IP: ${{ vars.TRUST_PROXY_IP }}
           CFG_NEWSLETTER_PROVIDER: ${{ vars.NEWSLETTER_PROVIDER }}
           CFG_NEWSLETTER_LIST_ID: ${{ vars.NEWSLETTER_LIST_ID }}

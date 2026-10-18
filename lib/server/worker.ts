@@ -9,6 +9,8 @@ import { sendMail } from './mail';
 import { storageReady } from './storage';
 import { env } from './env';
 import {listObjects,deleteObject} from './storage';
+import {analyzeNewsSession,processNewsBatch,failNewsJob,cleanExpiredNews} from './news-imports';
+import {CmsError} from './errors';
 export async function runOnce(workerId = crypto.randomUUID()) {
     const sql = sqlClient();
     await storageReady();
@@ -19,7 +21,13 @@ export async function runOnce(workerId = crypto.randomUUID()) {
         return false;
     let status = 'done';
     try {
-        if(['newsletter-provider','newsletter-unsubscribe'].includes(job.kind)){if(!await syncNewsletter(job.payload.id,job.kind==='newsletter-unsubscribe'))status='waiting';}
+        if(['news-analyze','news-import'].includes(job.kind)){
+            const renewal=setInterval(()=>{void sql`update cms_jobs set lease_until=now()+interval '60 seconds' where id=${job.id} and lease_owner=${workerId} and status='processing'`.catch(()=>{});},20000);
+            try{if(job.kind==='news-analyze')await analyzeNewsSession(job.payload.sessionId);else await processNewsBatch(job.payload.sessionId,job.payload.run,job.payload.batch);}
+            catch(e){if(e instanceof CmsError)await failNewsJob(job.payload.sessionId,e.message);else throw e;}
+            finally{clearInterval(renewal);}
+        }
+        else if(['newsletter-provider','newsletter-unsubscribe'].includes(job.kind)){if(!await syncNewsletter(job.payload.id,job.kind==='newsletter-unsubscribe'))status='waiting';}
         else if (job.kind === 'image')
             await processImage(job.payload.id);
         else if (job.kind === 'mail')
@@ -90,6 +98,7 @@ export async function runOnce(workerId = crypto.randomUUID()) {
         await sql `update cms_jobs set status=${permanent ? 'failed' : 'pending'},lease_until=null,lease_owner=null,last_error=${code.slice(0, 100)},run_at=now()+${wait}*interval '1 second' where id=${job.id} and lease_owner=${workerId} and status='processing'`;
         if (job.kind === 'submission-mail')
             await sql `update cms_submissions set delivery_status=${permanent ? 'failed' : 'retry'} where id=${job.payload.submissionId}`;
+        if(permanent&&['news-analyze','news-import'].includes(job.kind))await failNewsJob(job.payload.sessionId,'De achtergrondtaak kon niet worden afgerond. Eerder opgeslagen berichten blijven behouden; probeer de mislukte geselecteerde berichten opnieuw.');
     }
     return true;
 }
@@ -97,7 +106,7 @@ export async function retain() { const sql = sqlClient(); await sql.begin(async 
     await tx `delete from cms_jobs where payload->>'submissionId'=${row.id}`;
     await tx `delete from cms_submissions where id=${row.id}`;
     await tx `insert into cms_audit(id,action,record_id,request_id) values (${crypto.randomUUID()},'retention-delete',${row.id},${crypto.randomUUID()})`;
-} }); await sql `delete from cms_rate_limits where expires_at<now()`; }
+} }); await sql `delete from cms_rate_limits where expires_at<now()`; await cleanExpiredNews(); }
 export async function cleanOrphans(){
     const sql=sqlClient(),objects=await sql`select storage_key,variants from cms_media_objects`;
     const kept=new Set<string>();for(const object of objects){kept.add(object.storage_key);for(const variant of object.variants||[])kept.add(variant.key);}
