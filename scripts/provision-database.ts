@@ -1,31 +1,12 @@
 import postgres from 'postgres';
 import {databaseOptions} from '../lib/server/database-config';
+import {provisionDatabase,type ProvisionStage} from '../lib/server/database-provision';
+import {safeDatabaseCode} from '../lib/server/database-diagnostics';
 // Operator command: a protected env file supplies the migration connection and
 // APP_DATABASE_PASSWORD; neither a shell argument nor stdout contains secrets.
-const password=process.env.APP_DATABASE_PASSWORD;if(!password||password.length<24)throw new Error('APP_DATABASE_PASSWORD moet minimaal 24 tekens bevatten.');
-const sql=postgres(process.env.MIGRATION_DATABASE_URL||'',databaseOptions(1));try{
- const [statement]=await sql`select format('CREATE ROLE duindorp_app LOGIN PASSWORD %L',${password}::text) as command`;
- const [existing]=await sql`select rolname from pg_roles where rolname='duindorp_app'`;
- if(!existing)await sql.unsafe(statement.command);
- await sql`grant usage on schema public,drizzle to duindorp_app`;
- await sql`grant select,insert,update,delete on all tables in schema public to duindorp_app`;
- await sql`grant usage,select on all sequences in schema public to duindorp_app`;
- await sql`alter default privileges in schema public grant select,insert,update,delete on tables to duindorp_app`;
- await sql`alter default privileges in schema public grant usage,select on sequences to duindorp_app`;
- await sql`grant select on all tables in schema drizzle to duindorp_app`;
- // CMS data is server-only: no anon/authenticated/service_role Data API access.
- // The runtime role has explicit policies as well as SQL grants.
- const tables=await sql`select tablename from pg_tables where schemaname='public' and tablename ~ '^(cms_|auth_|sportlink_)'`;
- for(const table of tables){
-   await sql`alter table ${sql('public.'+table.tablename)} enable row level security`;
-   await sql`drop policy if exists duindorp_backend on ${sql('public.'+table.tablename)}`;
-   await sql`create policy duindorp_backend on ${sql('public.'+table.tablename)} to duindorp_app using(true) with check(true)`;
-   await sql`revoke all on ${sql('public.'+table.tablename)} from anon,authenticated,service_role`;
- }
- // The runtime never receives membership in Supabase roles or access to the
- // managed Auth schema. The server-only invoker RPC checks live sessions.
- const [scope]=await sql`select has_schema_privilege('duindorp_app','auth','usage') as auth_access`;
- if(scope.auth_access)throw new Error('Het runtime-account heeft onverwachte toegang tot het beheerde Auth-schema.');
- await sql`revoke update,delete on cms_audit,cms_revisions,cms_publications from duindorp_app`;
+let sql:ReturnType<typeof postgres>|undefined,stage:ProvisionStage='configuration';
+try{
+ sql=postgres(process.env.MIGRATION_DATABASE_URL||'',{...databaseOptions(1),connection:{application_name:'duindorp-database-provision'}});
+ await provisionDatabase(sql,process.env.APP_DATABASE_PASSWORD||'',value=>{stage=value;});
  console.log('Beperkt runtime-account ingericht. Migratie-account blijft gescheiden.');
-}catch(error){console.error(JSON.stringify({code:'database-provision-failed',reason:error instanceof Error&&'code' in error?String(error.code):'unknown'}));process.exitCode=1;}finally{await sql.end();}
+}catch(error){console.error(JSON.stringify({code:'database-provision-failed',stage,reason:safeDatabaseCode(error)}));process.exitCode=1;}finally{await sql?.end({timeout:2});}
