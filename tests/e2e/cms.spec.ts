@@ -75,7 +75,7 @@ test('MEDIA01: saving a photo also persists its homepage selection without an un
  try{
   await page.goto('/beheer#media');
   await page.locator('.cms-media-tile').filter({hasText:original.name}).first().click();
-  await page.getByLabel('Bijschrift',{exact:true}).fill(caption);
+  await page.getByRole('textbox',{name:/^Bijschrift/}).fill(caption);
   await page.getByLabel('Uitlichten op de fotomuur van de homepage',{exact:true}).uncheck();
   const saved=page.waitForResponse(r=>r.url().endsWith('/api/cms/mutations')&&r.request().method()==='POST');
   await page.getByRole('button',{name:'Opslaan',exact:true}).click();
@@ -85,14 +85,16 @@ test('MEDIA01: saving a photo also persists its homepage selection without an un
   await expect(page.getByText('Foto opgeslagen.',{exact:true})).toBeVisible();
   await page.reload();
   await page.locator('.cms-media-tile').filter({hasText:original.name}).first().click();
-  await expect(page.getByLabel('Bijschrift',{exact:true})).toHaveValue(caption);
+  await expect(page.getByRole('textbox',{name:/^Bijschrift/})).toHaveValue(caption);
   await expect(page.getByLabel('Uitlichten op de fotomuur van de homepage',{exact:true})).not.toBeChecked();
   const persisted=await page.request.get('/api/cms/bootstrap').then(r=>r.json());
   expect(persisted.state.settings.homepagePhotoIds).not.toContain(original.id);
   await expect(page.getByText(/Onbekend veld:/)).toHaveCount(0);
  }finally{
-  const current=await page.request.get('/api/cms/bootstrap').then(r=>r.json());
-  const restored=await page.request.post('/api/cms/mutations',{headers:{Origin:origin},data:{operationId:crypto.randomUUID(),changes:[
+  // Allow bounded cleanup even if an earlier UI action reached the test timeout.
+  test.setTimeout(test.info().timeout+10000);
+  const current=await page.request.get('/api/cms/bootstrap',{timeout:5000}).then(r=>r.json());
+  const restored=await page.request.post('/api/cms/mutations',{timeout:5000,headers:{Origin:origin},data:{operationId:crypto.randomUUID(),changes:[
    {module:'media',id:original.id,expectedVersion:current.versions[original.id],action:'save',data:original},
    {module:'settings',id:'settings',expectedVersion:current.versions.settings,action:'save',data:{...current.state.settings,homepagePhotoIds:bootstrap.state.settings.homepagePhotoIds}},
   ]}});
