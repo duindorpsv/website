@@ -11,11 +11,11 @@ function publishedPhoto(photo:any,fallbackAlt:string) {
 }
 
 /** One-time repair of the original club photos still selected in both public areas. */
-export async function applyHomepagePhotoRepair(tx:any) {
+export async function applyHomepagePhotoRepair(tx:any,releaseId=release) {
   await tx`set local lock_timeout='5s'`;
   await tx`set local statement_timeout='30s'`;
   await tx`select pg_advisory_xact_lock(736402)`;
-  if ((await tx`select id from cms_audit where action=${release} and record_id is null`).length) return;
+  if ((await tx`select id from cms_audit where action=${releaseId} and record_id is null`).length) return;
   const [home] = await tx`select live from cms_records where id='settings' and deleted_at is null for share`;
   const albums = await tx`select id,live from cms_records where module='albums' and live is not null and deleted_at is null for share`;
   const homePhotos = new Set<string>(home?.live?.homepagePhotoIds || []);
@@ -43,7 +43,7 @@ export async function applyHomepagePhotoRepair(tx:any) {
     repaired.push(old.id);
   }
   const report = {inspected,repaired};
-  await tx`insert into cms_audit(id,action,request_id,metadata) values (${crypto.randomUUID()},${release},${crypto.randomUUID()},${tx.json(report)})`;
+  await tx`insert into cms_audit(id,action,request_id,metadata) values (${crypto.randomUUID()},${releaseId},${crypto.randomUUID()},${tx.json(report)})`;
   return report;
 }
 

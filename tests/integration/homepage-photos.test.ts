@@ -4,20 +4,20 @@ import postgres from 'postgres';
 import {assertLocalSupabaseTests} from '../helpers/supabase-auth';
 import {databaseOptions} from '../../lib/server/database-config';
 import {createCmsSeed} from '../../lib/cms/seed';
-import {applyHomepagePhotoRepair} from '../../lib/server/homepage-photos';
+import {applyHomepagePhotoRepair as applyRepair} from '../../lib/server/homepage-photos';
 import {loadState} from '../../lib/server/records';
 
 assertLocalSupabaseTests();
 const migrationUrl=new URL(process.env.MIGRATION_DATABASE_URL||'postgres://invalid/invalid');
 if(!['127.0.0.1','localhost'].includes(migrationUrl.hostname)||!['/postgres','/duindorp_test'].includes(migrationUrl.pathname))throw new Error('Content upgrade tests require the isolated local migration connection.');
 const sql=postgres(migrationUrl.href,databaseOptions(1)),seed=createCmsSeed(),photos=seed.media.filter(photo=>photo.id.startsWith('photo-'));
-const release='homepage-club-photos-v1';
+const release='test-homepage-club-photos-'+crypto.randomUUID();
+const applyHomepagePhotoRepair=(tx:any)=>applyRepair(tx,release);
 
 async function fixture(run:(tx:any)=>Promise<void>){
   const rollback=new Error('Rollback isolated homepage fixtures');
   try{
     await sql.begin(async tx=>{
-      await tx`delete from cms_audit where action=${release}`;
       await tx`update cms_records set live=${tx.json(seed.settings)} where id='settings'`;
       const album=seed.albums[0];
       await tx`insert into cms_records(id,module,draft,live) values (${album.id},'albums',${tx.json(album)},${tx.json(album)}) on conflict(id) do update set live=excluded.live,deleted_at=null`;
