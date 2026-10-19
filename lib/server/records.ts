@@ -85,6 +85,9 @@ export function validateCandidate(module: ContentModule, value: Record<string, a
     const clean = structuredClone(value);
     for (const key of ['live', 'revisions', 'version', 'updatedAt', 'deletedAt', 'scheduledAt'])
         delete clean[key];
+    // Settings use a command ID, but their singleton content has no ID field.
+    if (module === 'settings')
+        delete clean.id;
     if (module === 'pages' && clean.bodyFormat !== 'page-layout-v2') {
         clean.body = migrateLayout(clean.body, clean.id);
         clean.bodyFormat = 'page-layout-v2';
