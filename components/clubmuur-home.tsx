@@ -1,4 +1,5 @@
 'use client';
+import {siteText} from '@/lib/cms/site-copy';
 
 import {useEffect,useRef} from 'react';
 import {CalendarDays,Users,House,Newspaper,Plus} from 'lucide-react';
@@ -22,6 +23,7 @@ import {type Article,type Team} from '@/lib/club-data';
 type Actions={openArticle:(a:Article)=>void;openTeam:(t:Team)=>void;openJoin:()=>void;openMatch:()=>void};
 
 export function ClubmuurHero({actions,items,layout='01',photo='01-trots',preview=false}:{actions:Actions;items:Article[];layout?:HeroLayout;photo?:HeroPhotoId;preview?:boolean}){
+  const {state}=useCMS();
   const cards=useHeroCards();
   const scene=useRef<HTMLDivElement>(null);
   const portrait=heroPhotos.find(item=>item.id===photo)!;
@@ -67,7 +69,7 @@ export function ClubmuurHero({actions,items,layout='01',photo='01-trots',preview
         <div className="cm-tile-grid">{['top-left','bottom-left','bottom-right'].map(id=>cards.find(card=>card.id===id)!).map(card=><HeroTile key={card.id} card={card} actions={actions} items={items}/>)}</div>
       </div>
     </section>
-    <div className="cm-together"><div><h2>ONZE CLUB. ONZE TROTS.</h2><span className="cm-band-line" aria-hidden="true"/><span className="cm-band-since">SINDS 1950</span></div></div>
+    <div className="cm-together"><div><h2>{siteText(state,'bandTitle')}</h2><span className="cm-band-line" aria-hidden="true"/><span className="cm-band-since">{siteText(state,'bandSince')}</span></div></div>
     </div>
     <ClubmuurSponsors/>
     <ClubmuurCompetition/>
@@ -78,7 +80,7 @@ export function ClubmuurHero({actions,items,layout='01',photo='01-trots',preview
 function HeroTile({card,actions,items,featured=false}:{card:HeroCardConfig;actions:Actions;items:Article[];featured?:boolean}){
  const {data}=useSportlink();
  const {state}=useCMS();
- if(card.kind==='match')return featured?<ClubmuurHeroMatch card={card}/>:<ClubmuurLiveMatch card={card}/>;
+ if(card.kind==='match'){const match=featured?<ClubmuurHeroMatch card={card}/>:<ClubmuurLiveMatch card={card}/>;return card.imageId?<div className="cm-match-media has-image"><img className="cm-match-custom-image" src={card.image} alt=""/>{match}</div>:match;}
  if(card.kind==='news')return <ClubmuurNewsTile card={card} items={items} onOpen={actions.openArticle}/>;
  const split=card.layout==='split';
  const photoClass=card.image.includes('portrait')?'cm-portrait':card.image.includes('team.png')?'cm-volunteers':'';

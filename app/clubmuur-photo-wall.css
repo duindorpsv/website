@@ -1,5 +1,5 @@
-.cm-life{--life-blue:var(--cm-club-blue,#03438a);position:relative;isolation:isolate;padding:72px 0 30px;background:radial-gradient(ellipse at 85% 0%,#ffffff0d,transparent 58%),var(--life-blue);color:#fff;overflow:clip;border-block:1px solid #a6c7e055}
-.cm-life:before{content:'';position:absolute;inset:0;background:url('/assets/clubmuur-wall.webp') center 48%/cover;mix-blend-mode:multiply;opacity:.3;z-index:-1;pointer-events:none;mask-image:linear-gradient(#000 0%,#000b 45%,#0006 100%)}
+.cm-life{--life-blue:var(--cm-club-blue,#03438a);position:relative;isolation:isolate;padding:72px 0 30px;background:var(--life-blue) url('/assets/clubmuur-wall.webp') center 80%/cover;background-blend-mode:multiply;color:#fff;overflow:clip;border-block:1px solid #a6c7e055}
+.cm-life:before{content:'';position:absolute;inset:0;background:var(--cm-band-shade,linear-gradient(90deg,#0002,transparent 48%,#0001));z-index:-1;pointer-events:none}
 .cm-life-heading{max-width:1600px;margin:0 auto 38px;padding:0 var(--cm-edge,4vw);display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
 .cm-life-eyebrow{display:flex;align-items:center;gap:12px;font-size:10px;font-weight:800;letter-spacing:.16em;line-height:1.5;margin-bottom:18px}
 .cm-life-eyebrow>span{width:26px;height:3px;background:currentColor}

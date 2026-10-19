@@ -21,7 +21,7 @@ export async function publishNewsInBulk(page:Page){
   await search.fill(tag+' Bericht 1');await expect(page.locator('.cms-news-item')).toHaveCount(1);
   await expect(page.getByRole('button',{name:'Selectie publiceren (0)',exact:true})).toBeDisabled();
   await search.fill(tag);
-  await page.getByLabel('Selecteer alle zichtbare nieuwsberichten',{exact:true}).check();
+  await page.getByLabel('Selecteer alle gefilterde nieuwsberichten',{exact:true}).check();
   await page.getByLabel('Selecteer nieuwsbericht: '+articles[3].title,{exact:true}).uncheck();
   const requested=page.waitForResponse(r=>r.url().endsWith('/api/cms/mutations')&&r.request().postDataJSON().changes.some((change:any)=>change.id===ids[0]&&change.action==='publish'));
   await page.getByRole('button',{name:'Selectie publiceren (3)',exact:true}).click();

@@ -20,8 +20,13 @@ test('real login, row/column builder and one-step undo/redo',async({page})=>{
  await page.keyboard.type(text);await expect(content).toHaveText(text);
  await page.getByRole('button',{name:'Ongedaan maken',exact:true}).click();await expect(content).toHaveText('');
  const redo=page.getByRole('button',{name:'Opnieuw',exact:true});await expect(redo).toBeEnabled();await redo.click();await expect(content).toHaveText(text);
- const saved=page.waitForResponse((r:any)=>r.url().endsWith('/api/cms/mutations')&&r.request().method()==='POST');
- await page.getByRole('button',{name:'Bewaren',exact:true}).first().click();expect((await saved).status()).toBe(200);
+ await content.locator('p').click();await page.keyboard.press('Home');await page.keyboard.press('Shift+End');
+ await page.getByRole('button',{name:'Onderstrepen',exact:true}).click();await expect(content.locator('u')).toHaveText(text);
+ await page.getByRole('button',{name:'Centreren',exact:true}).click();await expect(content.locator('p')).toHaveCSS('text-align','center');
+ await page.getByRole('button',{name:'Bewaren',exact:true}).first().click();
+ await expect.poll(async()=>JSON.stringify((await page.request.get('/api/cms/pages/'+createdId).then(response=>response.json())).body)).toContain('underline');
+ await expect.poll(async()=>JSON.stringify((await page.request.get('/api/cms/pages/'+createdId).then(response=>response.json())).body)).toContain('center');
+
  await page.screenshot({path:'.runtime/screenshots/builder.png',fullPage:true});
 });
 test('owner can open and manage stories from the CMS',async({page})=>{
@@ -82,6 +87,7 @@ test('MEDIA01: saving a photo also persists its homepage selection without an un
  const caption='Fotowijziging '+crypto.randomUUID(),origin=new URL(page.url()).origin;
  try{
   await page.goto('/beheer#media');
+  await page.getByRole('textbox',{name:'Zoek foto’s',exact:true}).fill(original.name);
   await page.locator('.cms-media-tile').filter({hasText:original.name}).first().click();
   await page.getByRole('textbox',{name:/^Bijschrift/}).fill(caption);
   await page.getByLabel('Uitlichten op de fotomuur van de homepage',{exact:true}).uncheck();
@@ -92,6 +98,7 @@ test('MEDIA01: saving a photo also persists its homepage selection without an un
   expect(response.status()).toBe(200);
   await expect(page.getByText('Foto opgeslagen.',{exact:true})).toBeVisible();
   await page.reload();
+  await page.getByRole('textbox',{name:'Zoek foto’s',exact:true}).fill(original.name);
   await page.locator('.cms-media-tile').filter({hasText:original.name}).first().click();
   await expect(page.getByRole('textbox',{name:/^Bijschrift/})).toHaveValue(caption);
   await expect(page.getByLabel('Uitlichten op de fotomuur van de homepage',{exact:true})).not.toBeChecked();
@@ -103,8 +110,8 @@ test('MEDIA01: saving a photo also persists its homepage selection without an un
   test.setTimeout(test.info().timeout+10000);
   const current=await page.request.get('/api/cms/bootstrap',{timeout:5000}).then(r=>r.json());
   const restored=await page.request.post('/api/cms/mutations',{timeout:5000,headers:{Origin:origin},data:{operationId:crypto.randomUUID(),changes:[
-   {module:'media',id:original.id,expectedVersion:current.versions[original.id],action:'save',data:original},
-   {module:'settings',id:'settings',expectedVersion:current.versions.settings,action:'save',data:{...current.state.settings,homepagePhotoIds:bootstrap.state.settings.homepagePhotoIds}},
+   {module:'media',id:original.id,expectedVersion:current.versions[original.id],action:'publish',data:original},
+   {module:'settings',id:'settings',expectedVersion:current.versions.settings,action:'publish',data:{...current.state.settings,homepagePhotoIds:bootstrap.state.settings.homepagePhotoIds}},
   ]}});
   expect(restored.status()).toBe(200);
  }

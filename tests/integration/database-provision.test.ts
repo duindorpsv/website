@@ -62,14 +62,18 @@ test('database inspection exposes operational metadata without SQL text, client 
   assert.equal(safeDatabaseCode({code:url,message:url}),'unavailable');
 });
 
-test('connection repair ignores recent queries and other roles, and rolls back only the explicit stalled application session',async()=>{
+test('connection repair ignores recent queries and other roles, and rolls back only the explicit stalled application session',{timeout:10000},async()=>{
   const runtimeUrl=new URL(url);runtimeUrl.username='duindorp_app';runtimeUrl.password=password;
-  const runtime=postgres(runtimeUrl.href,{...databaseOptions(1),onnotice:()=>{}});
-  let release!:()=>void,ready!:()=>void;
-  const waiting=new Promise<void>(resolve=>{release=resolve;}),started=new Promise<void>(resolve=>{ready=resolve;});
-  const held=runtime.begin(async tx=>{await tx`insert into ${tx('public.'+table)}(id) values ('uncommitted')`;ready();await waiting;}).then(()=>null,error=>error);
+  let disconnected!:()=>void;
+  const closed=new Promise<void>(resolve=>{disconnected=resolve;});
+  const runtime=postgres(runtimeUrl.href,{...databaseOptions(1),onnotice:()=>{},onclose:()=>disconnected()});
+  // Hold an explicit transaction on its dedicated connection. A begin(callback)
+  // scope would try to COMMIT when released after the deliberate termination,
+  // racing the driver's socket-close handler instead of testing recovery.
+  const connection=await runtime.reserve();
   try {
-    await started;
+    await connection.unsafe('begin');
+    await connection`insert into ${connection('public.'+table)}(id) values ('uncommitted')`;
     const [session]=await admin`select pid from pg_stat_activity where usename='duindorp_app' and state='idle in transaction' and pid in (select pid from pg_locks where relation=${'public.'+table}::regclass)`;
     assert.ok(session);
     assert.equal((await resetStalledConnections(admin,[session.pid])).length,0);
@@ -77,9 +81,10 @@ test('connection repair ignores recent queries and other roles, and rolls back o
     assert.equal((await resetStalledConnections(admin,[own.pid],0)).length,0);
     const stopped=await resetStalledConnections(admin,[session.pid],0);
     assert.deepEqual(stopped.map((row:any)=>({pid:row.pid,terminated:row.terminated})),[{pid:session.pid,terminated:true}]);
-    release();assert.ok(await held);
+    await closed;
+    assert.equal((await admin`select pid from pg_stat_activity where pid=${session.pid}`).length,0);
     assert.equal((await admin`select id from ${name} where id='uncommitted'`).length,0);
-  } finally {release();await held;await runtime.end({timeout:2});}
+  } finally {await runtime.end({timeout:2});}
 });
 
 after(async()=>{try{await admin`drop table if exists ${name}`;}finally{await Promise.all([admin.end({timeout:2}),blocker.end({timeout:2})]);}});

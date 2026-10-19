@@ -3,7 +3,7 @@ export type Layout='full'|'equal'|'wide-left'|'wide-right';
 export type LayoutIssue={nodeId:string;message:string};
 const richTypes=new Set(['doc','paragraph','heading','text','bulletList','orderedList','listItem','blockquote','hardBreak','horizontalRule','image','table','tableRow','tableCell','tableHeader','codeBlock','taskList','taskItem']);
 const marks=new Set(['bold','italic','underline','strike','code','link','highlight','subscript','superscript']);
-const widgetKinds=new Set(['person','people','image','textImage','album','news','story','documents','faq','timeline','cta','team','contact','form']);
+const widgetKinds=new Set(['person','people','image','textImage','album','news','story','documents','faq','timeline','cta','team','contact','form','training','newsletter','matches']);
 export const presets={layout:['full','equal','wide-left','wide-right'],gap:['small','normal','large'],padding:['none','small','normal','large'],tone:['default','soft','blue'],verticalAlign:['start','center','end']} as const;
 export function safeDestination(value:unknown):boolean {return typeof value==='string'&&(!value||(/^(https?:\/\/|mailto:|tel:|\/(?!\/)|#)/i.test(value)&&!/[\u0000-\u0020\\]/.test(value)));}
 function nodeId(n:CmsDoc){return String(n.attrs?.id||n.type||'document');}
@@ -112,4 +112,4 @@ export function migrateLayout(body:CmsDoc,key='page'):CmsDoc{
  }
  flush();return assertLayout({type:'doc',content:rows.length?rows:[makeRow([column([],id())])]});
 }
-export function referencesIn(value:unknown):string[]{const refs=new Set<string>();function scan(v:unknown){if(!v||typeof v!=='object')return;if(Array.isArray(v)){v.forEach(scan);return;}for(const [key,x] of Object.entries(v)){if(key==='href'&&typeof x==='string'){const match=/^\/api\/documents\/([0-9a-f-]{36})(?:[?#].*)?$/i.exec(x);if(match)refs.add(match[1]);}if(['refId','mediaId','coverId','authorId','parentId'].includes(key)&&typeof x==='string'&&x)refs.add(x);else if(['ids','mediaIds','homepageArticleIds','homepageStoryIds','homepageAlbumIds','homepagePhotoIds'].includes(key)&&Array.isArray(x))x.forEach(id=>{if(typeof id==='string'&&id)refs.add(id);});else scan(x);}}scan(value);return [...refs];}
+export function referencesIn(value:unknown):string[]{const refs=new Set<string>();function scan(v:unknown){if(!v||typeof v!=='object')return;if(Array.isArray(v)){v.forEach(scan);return;}for(const [key,x] of Object.entries(v)){if(key==='href'&&typeof x==='string'){const match=/^\/api\/documents\/([0-9a-f-]{36})(?:[?#].*)?$/i.exec(x);if(match)refs.add(match[1]);}if(['refId','mediaId','imageId','coverId','authorId','parentId'].includes(key)&&typeof x==='string'&&x)refs.add(x);else if(['ids','mediaIds','homepageArticleIds','homepageStoryIds','homepageAlbumIds','homepagePhotoIds'].includes(key)&&Array.isArray(x))x.forEach(id=>{if(typeof id==='string'&&id)refs.add(id);});else scan(x);}}scan(value);return [...refs];}

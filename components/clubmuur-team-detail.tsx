@@ -7,6 +7,7 @@ import {ClubLogo} from '@/components/clubmuur-competition';
 import {SportlinkMatchDialog} from '@/components/sportlink-pages';
 import {useSportlink} from '@/hooks/use-sportlink';
 import {useSportlinkTeam} from '@/hooks/use-sportlink-team';
+import {useCMS} from '@/components/cms/provider';
 import {trainingForTeam} from '@/lib/clubmuur-training';
 import {reportsForTeam} from '@/lib/clubmuur-team-content';
 import type {SportlinkMatch,SportlinkStanding} from '@/lib/sportlink-types';
@@ -74,7 +75,7 @@ function TeamDetail({teamId}:{teamId:string}){
  const choices=data||catalog;
  const pools=choices?.pools.filter(item=>item.seasonId===selectedSeason)||[];
  const competition=pools.find(item=>item.id===selectedPool);
- const training=team?trainingForTeam(team):[];
+ const {state:cmsState}=useCMS();const training=team?trainingForTeam(team,cmsState.appearance?.training):[];
  const ownStanding=data?.standings.find(row=>row.team.own);
  const reports=team?reportsForTeam(team,selectedSeason):[];
  const nextFixtures=data?.fixtures.filter(match=>new Date(match.kickoff).getTime()>=Date.now()&&!/afgelast|uitgesteld|vervallen|geannuleerd/i.test(match.status))||[];

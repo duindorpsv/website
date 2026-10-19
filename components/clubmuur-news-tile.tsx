@@ -117,7 +117,7 @@ export function ClubmuurNewsTile({card, items, onOpen}: {
               aria-controls={`${id}-excerpt-${index}`}
               onClick={() => setActive(index)}
             >
-              <span className="cm-news-tile-photo" aria-hidden="true"><img src={item.image} alt="" width={80} height={80} loading="lazy" decoding="async"/></span>
+              <span className="cm-news-tile-photo" aria-hidden="true"><img src={card.imageId?card.image:item.image} alt="" width={80} height={80} loading="lazy" decoding="async"/></span>
               <span className="cm-news-tile-copy"><span className="cm-news-tile-title" id={`${id}-title-${index}`}>{item.title}</span><span className="cm-news-tile-intro">{item.intro}</span></span>
             </button>
             <button type="button" className="cm-news-tile-open" onClick={() => onOpen(item)} aria-label={`Lees bericht: ${item.title}`}><ArrowUpRight size={18}/></button>
@@ -125,7 +125,7 @@ export function ClubmuurNewsTile({card, items, onOpen}: {
           <div className="cm-news-tile-excerpt" id={`${id}-excerpt-${index}`} aria-hidden={!expanded}>
             <div className="cm-news-tile-feature">
               <div className="cm-news-tile-hero" aria-hidden="true">
-                <img src={item.image} alt="" width={640} height={360} loading="lazy" decoding="async"/>
+                <img src={card.imageId?card.image:item.image} alt="" width={640} height={360} loading="lazy" decoding="async"/>
                 <span className="cm-news-tile-category">{item.category}</span>
               </div>
               <p>{excerpt}</p>

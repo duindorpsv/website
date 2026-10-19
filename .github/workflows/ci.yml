@@ -100,4 +100,5 @@ jobs:
             .runtime/database-backup-proof.json
             .runtime/supabase-advisors-summary.json
             .runtime/screenshots
+            test-results/**/error-context.md
           retention-days: 14

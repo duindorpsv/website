@@ -50,7 +50,7 @@ export async function settleLegacyNewsletterJob(id:string){
 }
 export async function listSubscribers(p:Principal,value:unknown){
  authorize(p,'settings','manage');
- const filter=z.object({q:z.string().trim().max(200).default(''),topic:z.string().trim().max(120).default(''),status:z.enum(['all','active','pending-confirmation','unsubscribed']).default('all'),offset:z.coerce.number().int().min(0).max(10000).default(0),limit:z.coerce.number().int().min(1).max(100).default(50)}).strict().parse(value);
+ const filter=z.object({q:z.string().trim().max(200).default(''),topic:z.string().trim().max(120).default(''),status:z.enum(['all','active','pending-confirmation','unsubscribed']).default('all'),offset:z.coerce.number().int().min(0).max(1000000).default(0),limit:z.coerce.number().int().min(1).max(100).default(25)}).strict().parse(value);
  const sql=sqlClient();
  // Parameterized literal matching also treats %, _ and backslashes as text.
  const where=sql`${filter.status==='all'?sql`true`:sql`status=${filter.status}`} and ${filter.q?sql`(strpos(lower(email),lower(${filter.q}))>0 or strpos(lower(name),lower(${filter.q}))>0)`:sql`true`} and ${filter.topic?sql`topics @> ${sql.json([filter.topic])}`:sql`true`}`;

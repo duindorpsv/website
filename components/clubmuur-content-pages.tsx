@@ -18,7 +18,6 @@ function ClubHubPage(){return <ClubPageFrame group="club" kicker="MEER DAN EEN C
 
 export function ClubmuurContentPage({path}:{path:string}){
  if(path==='club/vrijwilligers')return <ClubVolunteerStory/>;
- if(isPlaceholderPage(path))return <ClubPlaceholderPage path={path}/>;
  if(path==='club')return <ClubHubPage/>;
  const [group,kind]=path.split('/');
  if(group==='club'&&['bestuur','commissies','jeugdorganisatie','vertrouwenspersoon'].includes(kind))return <OrganisationPage kind={kind as 'bestuur'|'commissies'|'jeugdorganisatie'|'vertrouwenspersoon'}/>;
