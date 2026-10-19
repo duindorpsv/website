@@ -66,6 +66,8 @@ test('archive publication publishes all remaining 409 articles and linked photos
 });
 after(async()=>{
   // Preserve immutable history, while removing these synthetic records from use.
+  // Later worker tests must not spend their bounded runs on this archive's caches.
+  await sql`delete from cms_jobs where payload->>'id' like ${prefix+'%'}`;
   await sql`update cms_records set live=null,live_id=null,deleted_at=now(),status='archived',updated_at='2000-01-01T00:00:00Z' where id like ${prefix+'%'}`;
   await closeDb();
 });
