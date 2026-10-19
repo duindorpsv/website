@@ -1,15 +1,6 @@
-export type ClubCommunityEvent = {
-  id: string;
-  title: string;
-  day: string;
-  month: string;
-  category: string;
-  date: string;
-  description: string;
-};
-
-// Only confirmed club activities belong in the public agenda.
-export const clubCommunityEvents: ClubCommunityEvent[] = [];
+import {planningInstant} from './cms/planning';
+import type {ClubAgendaEvent} from './club-agenda';
+export type ClubCommunityEvent=ClubAgendaEvent;
 
 export type ClubCommunityRole = { id: string; title: string; duration: string; description: string };
 
@@ -30,7 +21,7 @@ export const clubCommunityPoll = {
 };
 
 function escapeCalendarText(value: string) {
-  return value.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/;/g, '\\;').replace(/,/g, '\\,');
+  return value.replace(/\r\n?/g, '\n').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/;/g, '\\;').replace(/,/g, '\\,');
 }
 
 function foldCalendarLine(value: string) {
@@ -49,13 +40,12 @@ function foldCalendarLine(value: string) {
 }
 
 export function communityEventCalendar(event: ClubCommunityEvent) {
-  const nextDay = new Date(`${event.date}T00:00:00Z`);
-  nextDay.setUTCDate(nextDay.getUTCDate() + 1);
-  const end = nextDay.toISOString().slice(0, 10).replaceAll('-', '');
+  const start=planningInstant(`${event.date}T${event.time}`,'earlier').replaceAll('-','').replaceAll(':','');
+  const stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
   return [
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Duindorp SV//Clubagenda//NL', 'CALSCALE:GREGORIAN',
-    'BEGIN:VEVENT', `UID:activiteit-${event.id}-${event.date}@duindorpsv.nl`,
-    'DTSTAMP:20261010T000000Z', `DTSTART;VALUE=DATE:${event.date.replaceAll('-', '')}`, `DTEND;VALUE=DATE:${end}`,
+    'BEGIN:VEVENT', `UID:activiteit-${event.id}@duindorpsv.nl`,
+    `DTSTAMP:${stamp}`, `DTSTART:${start}`,
     `SUMMARY:${escapeCalendarText(event.title)}`,
     `DESCRIPTION:${escapeCalendarText(event.description)}`,
     'LOCATION:Houtrust - Duindorp SV', 'STATUS:CONFIRMED', 'TRANSP:TRANSPARENT', 'END:VEVENT', 'END:VCALENDAR', '',

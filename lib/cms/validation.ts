@@ -1,4 +1,8 @@
 import {z} from 'zod';
+import {validHeroCards,type HeroCardConfig} from '../clubmuur-config';
+import {validClubNavigation,type ClubNavigationItem} from '../clubmuur-navigation';
+import {agendaSchema} from '../club-agenda';
+import {validHeroPhotoIds,type HeroPhotoId} from '../clubmuur-layouts';
 import type {CmsState} from './types';
 
 const text=z.string();
@@ -25,6 +29,7 @@ const revision=<T extends z.ZodTypeAny>(data:T)=>z.object({id,at:date,label:text
 const uniqueIds=<T extends z.ZodTypeAny>(item:T)=>z.array(item).refine(rows=>new Set(rows.map(row=>(row as {id:string}).id)).size===rows.length,'Dubbele identifiers');
 export const cmsStateSchema=z.object({
   schemaVersion:z.literal(1),
+  appearance:z.object({hero:z.custom<HeroCardConfig[]>(validHeroCards).optional(),navigation:z.custom<ClubNavigationItem[]>(validClubNavigation).optional(),heroPhotos:z.custom<HeroPhotoId[]>(validHeroPhotoIds).optional(),agenda:agendaSchema.optional()}).optional(),
   articles:uniqueIds(articleContent.extend({id,status:statuses,updatedAt:date,scheduledAt:optionalDate,live:articleContent.optional(),revisions:z.array(revision(articleContent)),deletedAt:date.optional(),demo:z.boolean().optional()})),
   pages:uniqueIds(pageContent.extend({id,scheduledAt:optionalDate.optional(),status:statuses,updatedAt:date,live:pageContent.optional(),revisions:z.array(revision(pageContent)),deletedAt:date.optional(),system:z.boolean().optional()})),
   people:uniqueIds(z.object({id,name:text,role:text,group:text,teamId:text,bio:text,mediaId:text,email:text,phone:text,showContact:z.boolean(),published:z.boolean(),order:number,deletedAt:date.optional()})),

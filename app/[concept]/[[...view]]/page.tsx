@@ -7,7 +7,7 @@ import {resolveHeader} from '@/lib/clubmuur-config';
 import { notFound, redirect } from 'next/navigation';
 import { ClubSite } from '@/components/club-site';
 import {cookies} from 'next/headers';
-import {HERO_VISIT_COOKIE,HERO_PHOTO_COOKIE,pickHeroLayout,pickHeroPhoto,resolveHeroLayout,resolveHeroPhoto} from '@/lib/clubmuur-layouts';
+import {HERO_VISIT_COOKIE,HERO_PHOTO_COOKIE,pickHeroLayout,pickHeroPhoto,resolveHeroLayout,resolveHeroPhoto,validHeroPhotoIds,defaultHeroPhotoIds} from '@/lib/clubmuur-layouts';
 export async function generateMetadata({params}:{params:Promise<{concept:string;view?:string[]}>}){
  const {concept,view}=await params;if(concept!=='clubmuur')return {};
  const path=clubPathFromSegments(view)||'home';const {state}=await loadState(true);
@@ -39,10 +39,11 @@ export default async function Page({ params,searchParams }: { params: Promise<{c
  const contentPage=isClubContentPath(path)||(!['home','nieuws','verhalen','teams','wedstrijden'].includes(path)&&isCmsDynamicPath(path));
  const section=contentPage?clubPageGroup(path):path;
  const headerDesign=resolveHeader(query.header);
+ const enabled=validHeroPhotoIds(state.appearance?.heroPhotos)?state.appearance.heroPhotos:defaultHeroPhotoIds;
  const heroPreview=resolveHeroLayout(query.hero);
  const visit=concept==='clubmuur'&&section==='home'?await cookies():null;
- const heroLayout=visit?(heroPreview??pickHeroLayout(visit.get(HERO_VISIT_COOKIE)?.value)):'01';
- const photoPreview=resolveHeroPhoto(query.photo,heroLayout);
- const heroPhoto=photoPreview??pickHeroPhoto(heroLayout,heroPreview?undefined:visit?.get(HERO_PHOTO_COOKIE)?.value);
+ const heroLayout=pickHeroLayout(heroPreview??visit?.get(HERO_VISIT_COOKIE)?.value,Math.random(),enabled);
+ const photoPreview=resolveHeroPhoto(query.photo,heroLayout,enabled);
+ const heroPhoto=photoPreview??pickHeroPhoto(heroLayout,heroPreview?undefined:visit?.get(HERO_PHOTO_COOKIE)?.value,Math.random(),enabled);
  return <ClubSite key={`${concept}-${path}`} concept="clubmuur" initialState={state} section={section} contentPath={contentPage?path:undefined} headerDesign={headerDesign} heroLayout={heroLayout} heroPhoto={heroPhoto} heroPreview={!!heroPreview||!!photoPreview}/>;
 }

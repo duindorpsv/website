@@ -1,3 +1,5 @@
+import {agendaSchema} from '../club-agenda';
+import {validHeroPhotoIds} from '../clubmuur-layouts';
 import {currentClubLinks} from '../current-club-links';
 import {syncHomepage,moveChildPaths} from './publication-effects';
 import {heroNewsRows} from './hero-news';
@@ -12,7 +14,7 @@ import { assertLayout, migrateLayout, referencesIn, validateDocument, safeDestin
 import type { CmsState, CmsArticle, CmsPage } from '../cms/types';
 import { CmsError } from './errors';
 import { authorize, has, type Principal } from './permissions';
-export const contentModules = ['articles', 'pages', 'people', 'media', 'folders', 'albums', 'forms', 'documents', 'settings', 'navigation', 'hero', 'narrowcasting', 'patterns'] as const;
+export const contentModules = ['articles', 'pages', 'people', 'media', 'folders', 'albums', 'forms', 'documents', 'settings', 'navigation', 'hero', 'heroPhotos', 'agenda', 'narrowcasting', 'patterns'] as const;
 export type ContentModule = typeof contentModules[number];
 export type RecordRow = {
     id: string;
@@ -28,7 +30,7 @@ export type RecordRow = {
 };
 export function emptyState(): CmsState { const s = createCmsSeed(); for (const key of ['articles', 'pages', 'people', 'media', 'folders', 'albums', 'departments', 'forms', 'submissions', 'roles', 'members', 'documents', 'redirects', 'audit'] as const)
     s[key] = [] as never; return s; }
-const alias: Record<string, string> = { articles: 'news', albums: 'media', folders: 'media', documents: 'pages', navigation: 'pages', hero: 'pages', narrowcasting: 'pages',patterns:'pages' };
+const alias: Record<string, string> = { articles: 'news', albums: 'media', folders: 'media', documents: 'pages', navigation: 'pages', hero: 'pages', heroPhotos: 'pages', agenda: 'pages', narrowcasting: 'pages',patterns:'pages' };
 export function permissionModule(module: string,data?:Record<string,any>) { return module==='articles'&&data?.contentType==='story'?'stories':alias[module] || module; }
 export function scope(row: RecordRow) { return { teamId: row.team_id || '', departmentId: row.department_id || '', kind: String(row.draft.kind || '') }; }
 export function recordOutput(row: RecordRow, revisions: unknown[] = []) { const data: Record<string, any> = { ...row.draft, id: row.id, version: row.version }; if (['articles', 'pages'].includes(row.module))
@@ -42,12 +44,12 @@ export async function loadState(publicOnly = false, p?: Principal,transaction?:a
     versions: Record<string, number>;
 }> {
     const sql:ReturnType<typeof sqlClient> = transaction||sqlClient(), state = emptyState(), versions: Record<string, number> = {};
-    const rows = await sql<RecordRow[]> `select *, (select run_at from cms_jobs j where j.kind='publish' and j.payload->>'id'=cms_records.id and j.status in ('pending','processing') limit 1) as scheduled_at from cms_records where ${publicOnly ? sql `live is not null and deleted_at is null` : sql `true`} and ${!publicOnly&&p?sql`(module!='media' or id in (select id from cms_records where module='media' order by updated_at desc,id limit 100) or id in (select target_id from cms_references))`:sql`true`} order by case when module in ('settings','navigation','hero') then 0 else 1 end,updated_at desc,id limit 1500`;
+    const rows = await sql<RecordRow[]> `select *, (select run_at from cms_jobs j where j.kind='publish' and j.payload->>'id'=cms_records.id and j.status in ('pending','processing') limit 1) as scheduled_at from cms_records where ${publicOnly ? sql `live is not null and deleted_at is null` : sql `true`} and ${!publicOnly&&p?sql`(module!='media' or id in (select id from cms_records where module='media' order by updated_at desc,id limit 100) or id in (select target_id from cms_references))`:sql`true`} order by case when module in ('settings','navigation','hero','heroPhotos','agenda') then 0 else 1 end,updated_at desc,id limit 1500`;
     const records=publicOnly?[...new Map([...rows,...await heroNewsRows(sql)].map(row=>[row.id,row])).values()]:rows;
     for (const row of records) {
         const fallbackPublic=!publicOnly&&!!p&&!has(p,permissionModule(row.module,row.draft),'read',scope(row));if(fallbackPublic&&(!row.live||row.deleted_at))continue;
         versions[row.id] = row.version;
-        if (['navigation', 'hero'].includes(row.module)) {
+        if (['navigation', 'hero', 'heroPhotos', 'agenda'].includes(row.module)) {
             state.appearance ||= {};
             (state.appearance as any)[row.module] = (publicOnly||fallbackPublic ? row.live : row.draft)?.items;
             continue;
@@ -104,6 +106,18 @@ export function validateCandidate(module: ContentModule, value: Record<string, a
         assertLayout(clean.body);
     if(clean.slug&&(!/^[a-z0-9]+(?:[-/][a-z0-9]+)*$/.test(clean.slug)||clean.slug.length>240))throw new CmsError('slug','Gebruik een geldig en begrensd pad.',422);
     if(module==='patterns'){if(typeof clean.title!=='string'||!clean.title.trim()||clean.title.length>150)throw new CmsError('pattern-title','Geef het rijpatroon een naam.',422);assertLayout({type:'doc',content:[clean.row]});return clean;}
+    if (module === 'heroPhotos' || module === 'agenda') {
+        delete clean.id;
+        delete clean.published;
+        if (Object.keys(clean).some(key=>key!=='items'))throw new CmsError('unknown-field','Gebruik alleen de items van dit onderdeel.',422);
+        if(module==='heroPhotos'){
+            if(!validHeroPhotoIds(clean.items))throw new CmsError('hero-photos','Selecteer minimaal één geldige spelersfoto.',422);
+            return {items:clean.items};
+        }
+        const result=agendaSchema.safeParse(clean.items);
+        if(!result.success)throw new CmsError('agenda','Controleer titel, datum, tijd en beschrijving van de activiteiten.',422,result.error.issues.map(issue=>({path:issue.path.join('.'),message:issue.message})));
+        return {items:result.data};
+    }
     if (module === 'navigation') {
         if (!validClubNavigation(clean.items))
             throw new CmsError('navigation', 'Controleer namen en bestemmingen van het menu.', 422);
@@ -156,6 +170,7 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
         for (const change of changes) {
             if (!contentModules.includes(change.module))
                 throw new CmsError('module', 'Onbekende module.');
+            if((change.module==='heroPhotos'&&change.id!=='site-hero-photos')||(change.module==='agenda'&&change.id!=='site-agenda'))throw new CmsError('configuration-id','Ongeldige website-instelling.',422);
             const [old]:RecordRow[] = await tx `select * from cms_records where id=${change.id} for update`;
             if (old && old.module !== change.module)
                 throw new CmsError('module', 'Het record behoort aan een andere module.');
