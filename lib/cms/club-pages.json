@@ -1,0 +1,2516 @@
+{
+  "club": {
+    "title": "Onze club",
+    "coverSrc": "/assets/club-life-v28/supporters-1280.webp",
+    "intro": "Een plek om te voetballen, elkaar te ontmoeten en samen iets op te bouwen. Ontdek de mensen, de verhalen en alles wat je wilt weten over Duindorp SV.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Samen houden we de club draaiende."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Een aanspreekpunt voor elke vraag. Maak kennis met de mensen achter de vereniging."
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Het bestuur",
+              "text": "De mensen en verantwoordelijkheden achter de koers van onze vereniging.",
+              "url": "/clubmuur/club/bestuur",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Onze commissies",
+              "text": "Van voetbalzaken tot de kantine. Ontdek wie zich waarvoor inzet.",
+              "url": "/clubmuur/club/commissies",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Voor onze jeugd",
+              "text": "Jeugdbestuur, begeleiding en het juiste aanspreekpunt voor spelers en ouders.",
+              "url": "/clubmuur/club/jeugdorganisatie",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Geworteld in de wijk."
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "Trots op onze club."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Van die eerste bal tot de gesprekken langs de lijn. Ons clubgevoel gaat verder dan negentig minuten."
+            }
+          ]
+        },
+        {
+          "type": "image",
+          "attrs": {
+            "src": "/assets/club-life-v28/canteen-1280.webp",
+            "alt": "vrijwilligers in een clubkantine"
+          }
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Alles voor jouw clubleven."
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Lidmaatschap",
+              "text": "Lid worden, contributie, kleding en wijzigingen in je lidmaatschap.",
+              "url": "/clubmuur/club/lidmaatschap",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Op bezoek",
+              "text": "De route naar Houtrust, onze accommodatie en praktische bezoekersinformatie.",
+              "url": "/clubmuur/club/accommodatie",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Jouw uurtje telt",
+              "text": "Vind een taak die bij je past en ontdek hoe jij mee kunt helpen.",
+              "url": "/clubmuur/club/vrijwilligers",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Zo doen wij dat",
+              "text": "Sportiviteit, respect en een fijne plek voor iedereen op en rond het veld.",
+              "url": "/clubmuur/club/clubwaarden",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Clubdocumenten",
+              "text": "Een overzichtelijke plek voor afspraken, reglementen en clubinformatie.",
+              "url": "/clubmuur/club/documenten",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Kom in contact",
+              "text": "Stel je vraag aan het juiste onderdeel van de vereniging.",
+              "url": "/clubmuur/club/contact",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Een veilige club maken we samen."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Zit je ergens mee? Op de pagina van de vertrouwenspersoon lees je waar je terechtkunt en hoe we dit aanspreekpunt zichtbaar maken."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "club/commissies": {
+    "title": "Onze commissies",
+    "intro": "Op het veld, in het clubhuis en achter de schermen. Samen zorgen we dat de vereniging blijft draaien.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Onze commissies houden de club draaiende. Hieronder vind je de contactpersonen en hun taken."
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "people",
+            "data": {
+              "layout": "Commissies"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "club/vertrouwenspersoon": {
+    "title": "Vertrouwenspersoon",
+    "intro": "Iedereen moet zich prettig kunnen voelen bij de club. Soms wil je iets bespreken met iemand buiten je eigen team.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Er mag ruimte zijn"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "voor jouw verhaal."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Voel je je niet prettig door het gedrag van iemand binnen de vereniging? Of twijfel je of iets wel in orde is? Deze pagina helpt je het juiste aanspreekpunt te vinden."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Je hoeft hier geen namen, details of gevoelige informatie achter te laten. Bespreek eerst met het aanspreekpunt hoe een gesprek kan plaatsvinden en wat er met je informatie gebeurt."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Monique Bruijn"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Vertrouwenspersoon Duindorp SV"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Wil je iets bespreken? Neem rechtstreeks contact op en spreek samen een geschikt moment af voor je gesprek."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Bekijk de officiële contactvermelding ",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "/clubmuur/club/vertrouwenspersoon"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Als iets niet goed voelt."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Een vraag of twijfel."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Je wilt iets bespreken, maar weet nog niet precies met wie of hoe."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Gedrag dat raakt."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Bijvoorbeeld pesten, uitsluiten of ander gedrag waardoor je je niet prettig voelt."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Een volgende stap."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Je zoekt iemand die met je meedenkt over een passend aanspreekpunt."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Goed om vooraf te weten."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Moet ik hier vertellen wat er is gebeurd?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Nee. Deze pagina vraagt niet om jouw verhaal of persoonsgegevens. Neem eerst rechtstreeks contact op met de vertrouwenspersoon en bespreek hoe je veilig verder kunt praten."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Is mijn gesprek altijd geheim?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Vraag bij het begin van je gesprek hoe met jouw informatie wordt omgegaan. Spreek samen af wat vertrouwelijk blijft en in welke situaties informatie mogelijk gedeeld moet worden."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Ik heb een gewone vraag over mijn team. Waar moet ik zijn?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Voor teamzaken kun je bij je trainer of teamleider beginnen. Je vindt meer informatie op de "
+            },
+            {
+              "type": "text",
+              "text": "teampagina",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "/clubmuur/teams"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " of in de "
+            },
+            {
+              "type": "text",
+              "text": "jeugdwegwijzer",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "/clubmuur/club/jeugdorganisatie"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "."
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Zo gaan we met elkaar om",
+              "text": "Bekijk de beschikbare clubafspraken en verenigingsdocumenten.",
+              "url": "/clubmuur/club/documenten",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Vind je aanspreekpunt",
+              "text": "De algemene contactroutes van Duindorp SV op één plek.",
+              "url": "/clubmuur/club/contact",
+              "label": "Lees meer"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "club/accommodatie": {
+    "title": "Accommodatie & route",
+    "coverSrc": "/assets/clubmuur-brush-v25/houtrust-wide-1280.webp",
+    "intro": "De weg naar de club. En alles wat je wilt weten voordat je langskomt.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "image",
+          "attrs": {
+            "src": "/assets/clubmuur-brush-v25/section-houtrust-1600.webp",
+            "alt": "Het clubgebouw van Duindorp SV in onze blauw-witte brushstijl"
+          }
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Hier voelen"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "we ons thuis."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Duindorp SV"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "Houtrustlaan 1"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "2566 ZW Den Haag"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Kom je voor een wedstrijd? Controleer de aanvangstijd en locatie in het wedstrijdcentrum."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Een fijne dag op Houtrust."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Een paar praktische handvatten voor spelers, bezoekers en gasten."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "De route naar ons."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "De routeknop opent de locatie in Google Maps. Kies daar zelf voor lopen, fietsen, openbaar vervoer of de auto."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Even wegwijs."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Ben je voor het eerst op de club? Vraag je trainer, teamleider of een vrijwilliger waar je wordt verwacht."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Bijzondere vraag?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Over toegankelijkheid, faciliteiten of een bezoek met een groep? Stem je bezoek vooraf met de club af."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Op het sportpark."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Waar speelt mijn team?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Bekijk eerst het wedstrijdcentrum. Daar staat de beschikbare wedstrijdinformatie uit Sportlink. De definitieve veld- en kleedkamerindeling controleer je op de wedstrijddag bij de club. Een actuele plattegrond is nog niet aan de website toegevoegd."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Gebruik van het kunstgras"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Volg de aangegeven instructies bij het veld. Houd het speelveld vrij van afval en laat materialen netjes achter. Over schoeisel of specifieke afspraken? Vraag het aan je trainer of de beheerder. De officiële kunstgrasregels komen bij de clubdocumenten."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Kantine en bezoekmomenten"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "De kantine is een ontmoetingsplek voor onze club. Vraag bij een gepland bezoek naar de actuele openingstijden; die zijn nog niet in de website opgenomen."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Iets gevonden of iets kapot?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Spreek een aanwezige vrijwilliger aan of stel je vraag via accommodatiezaken. Beschrijf duidelijk waar je iets hebt gevonden of gezien. Deel geen persoonsgegevens van anderen in een openbare melding."
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Het wedstrijdcentrum",
+              "text": "Programma, uitslagen en wedstrijdinformatie.",
+              "url": "/clubmuur/wedstrijden",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Trainingen",
+              "text": "Vind je team en de informatie over trainen.",
+              "url": "/clubmuur/teams/trainingen",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Clubdocumenten",
+              "text": "De afspraken over onze club en ons sportpark.",
+              "url": "/clubmuur/club/documenten",
+              "label": "Lees meer"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "club/lidmaatschap": {
+    "title": "Lidmaatschap & kleding",
+    "coverSrc": "/assets/clubmuur-brush-v25/de-wijk-wide-1280.webp",
+    "intro": "Voor de eerste training, je volgende seizoen en alles daaromheen.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Begin met"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "kennismaken."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Een team waarin je je thuis voelt. Mensen die je leren kennen. En samen plezier maken op het veld. Daar begint het."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Of je nu voor het eerst voetbalt of al jaren speelt: laat weten wie je bent en waar je naar zoekt. De club helpt je verder naar een passende plek."
+            }
+          ]
+        },
+        {
+          "type": "image",
+          "attrs": {
+            "src": "/assets/club-life-v28/youth-1280.webp",
+            "alt": "jeugdspelers die samen trainen"
+          }
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Wat wil je weten?"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Van kennismaken naar meedoen."
+            }
+          ]
+        },
+        {
+          "type": "orderedList",
+          "content": [
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "01"
+                    },
+                    {
+                      "type": "text",
+                      "text": "Vertel iets over jezelf",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "Geef je leeftijdscategorie, voetbalervaring en voorkeur door aan de ledenadministratie."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "02"
+                    },
+                    {
+                      "type": "text",
+                      "text": "Vind een passende plek",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "De club bekijkt met je bij welk team of welke vorm van voetbal je kunt aansluiten."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "03"
+                    },
+                    {
+                      "type": "text",
+                      "text": "Maak samen de afspraken",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "Bespreek een kennismaking en ontvang de actuele informatie over inschrijven en lidmaatschap."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3,
+            "anchor": "contributie"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Contributie"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "De contributie en eventuele bijkomende kosten horen bij de informatie die je bij je aanmelding ontvangt. Vraag welke afspraken voor jouw leeftijdscategorie of team gelden."
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "content": [
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableHeader",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Categorie"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableHeader",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Bedrag"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableHeader",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Mini’s"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "€ 50"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableHeader",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Jeugd t/m O12"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "€ 150"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableHeader",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Jeugd O13 t/m O19"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "€ 185"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableHeader",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Senioren"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "€ 300"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableHeader",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Niet-spelende leden"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "€ 80"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Contributie per leeftijdscategorie. Voor O13 t/m O19 geldt € 185 vanaf seizoen 2026/2027. "
+            },
+            {
+              "type": "text",
+              "text": "Informatie over lidmaatschap ",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "/clubmuur/club/lidmaatschap#contributie"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Wat kost een lidmaatschap?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "De bovenstaande tabel toont de gepubliceerde contributie per categorie. De vereniging werkt met NIKKI voor de inning. Vraag de ledenadministratie wat inbegrepen is en of er aparte afspraken gelden voor kleding of andere kosten."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Een vraag over betalen?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Neem contact op met de ledenadministratie en bespreek je vraag persoonlijk. Deel geen betaal- of bankgegevens via het contactformulier."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3,
+            "anchor": "kleding"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Clubkleding"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Het blauw en wit verbindt ons. Voor de jeugd vermeldt de club voor 2026/2027: wedstrijdshirt € 45, broek € 15 en sokken € 12,50. Vraag je trainer of leider eerst naar de afspraken voor jouw team en eventuele sponsoring."
+            }
+          ]
+        },
+        {
+          "type": "bulletList",
+          "content": [
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Welke kleding wordt via het team verstrekt?"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Wat bestel je zelf en via welk kanaal?"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Welke maten en afspraken gelden er?"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "image",
+          "attrs": {
+            "src": "/assets/crest-close.webp",
+            "alt": "Het Duindorp SV-embleem op het clubshirt"
+          }
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3,
+            "anchor": "wijzigen"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Wijzigen & opzeggen"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Mijn contactgegevens zijn veranderd"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Geef wijzigingen door aan de ledenadministratie via de daarvoor afgesproken clubroute. Denk aan een nieuw e-mailadres of telefoonnummer, zodat belangrijke clubinformatie je blijft bereiken."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Ik wil mijn lidmaatschap opzeggen"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "De club vraagt om een schriftelijke opzegging; per e-mail is voldoende. Bekijk de "
+            },
+            {
+              "type": "text",
+              "text": "officiële opzegpagina",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "/clubmuur/club/contact?onderwerp=lidmaatschap"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " voor de juiste contactroute en vraag om een bevestiging. Een opzegtermijn is hier niet bevestigd. Vermeld je naam en team en vraag het secretariaat om een ontvangstbevestiging."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Ik wil van team of vorm van voetbal veranderen"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Bespreek je wens eerst met de team- of jeugdcoördinatie. Samen kun je kijken wat mogelijk is en welke administratieve stappen daarbij horen."
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "form",
+            "data": {
+              "refId": "membership"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Ontdek onze teams",
+              "text": "Van de eerste stappen tot een leven lang voetbal.",
+              "url": "/clubmuur/teams",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Meedoen kan ook anders",
+              "text": "Ook naast het veld is er een plek voor jou.",
+              "url": "/clubmuur/club/vrijwilligers",
+              "label": "Lees meer"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "club/clubwaarden": {
+    "title": "Clubwaarden",
+    "coverSrc": "/assets/clubmuur-brush-v25/de-wijk-wide-1280.webp",
+    "intro": "Met plezier in het spel, respect voor elkaar en een Duindorps hart.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Trots zijn doen we samen."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Voor elkaar."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "We zien elkaar staan. Nieuwe gezichten krijgen een welkom en iedereen verdient een plek om met plezier mee te doen."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Voor het spel."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "We gaan voor onze kleuren, spelen sportief en behandelen tegenstanders, scheidsrechters en vrijwilligers met respect."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Voor Duindorp."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "We zorgen voor onze club en onze omgeving. Op Houtrust, op bezoek bij een andere vereniging en daarbuiten."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Moedig aan."
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "Geef plezier door.",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Zo maken we het concreet."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Op het veld en langs de lijn"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Steun je team op een positieve manier. Geef spelers de ruimte om te leren en accepteer dat iedereen fouten maakt. Bespreek een verschil van mening rustig en via de juiste persoon."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "In de kleedkamer en kantine"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Behandel elkaar en de materialen met zorg. Laat je plek netjes achter en help een ander als dat nodig is. Onze vrijwilligers maken de club mogelijk; geef ze de waardering die daarbij hoort."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Online en op sociale media"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Ook online draag je bij aan de sfeer rond onze club. Reageer respectvol, denk na voordat je iets deelt en houd rekening met de privacy en wensen van anderen."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Wanneer iets niet goed voelt"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Blijf er niet alleen mee lopen. Bekijk de pagina "
+            },
+            {
+              "type": "text",
+              "text": "Vertrouwenscontactpersoon",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "/clubmuur/club/vertrouwenspersoon"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " voor persoonlijk contact. Een gevoelige kwestie hoort in een persoonlijk gesprek, niet in een openbare reactie of het contactformulier."
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "De mensen achter de club",
+              "text": "Vind bestuur, commissies en de juiste aanspreekpunten.",
+              "url": "/clubmuur/club/bestuur",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Afspraken op papier",
+              "text": "Bekijk welke officiële clubdocumenten beschikbaar komen.",
+              "url": "/clubmuur/club/documenten",
+              "label": "Lees meer"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "club/documenten": {
+    "title": "Clubdocumenten",
+    "intro": "De afspraken en informatie van onze vereniging op één overzichtelijke plek.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Hier vind je de gepubliceerde documenten van onze vereniging."
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "documents",
+            "data": {}
+          }
+        }
+      ]
+    }
+  },
+  "club/contact": {
+    "title": "Contact",
+    "coverSrc": "/assets/clubmuur-brush-v25/houtrust-wide-1280.webp",
+    "intro": "Een vraag, een idee of gewoon even kennismaken? Begin bij het juiste onderwerp.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "form",
+            "data": {
+              "refId": "contact"
+            }
+          }
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Tot op Houtrust."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Duindorp SV"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "Houtrustlaan 1"
+            },
+            {
+              "type": "hardBreak"
+            },
+            {
+              "type": "text",
+              "text": "2566 ZW Den Haag"
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Wie doet wat?",
+              "text": "Maak kennis met het bestuur.",
+              "url": "/clubmuur/club/bestuur",
+              "label": "Lees meer"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "teams/trainingen": {
+    "title": "Trainingstijden",
+    "coverSrc": "/assets/clubmuur-brush-v25/section-houtrust-1600.webp",
+    "intro": "Van die eerste bal tot een perfecte pass. Op het trainingsveld begint de volgende mooie zaterdag.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Op naar het veld."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Vind het trainingsmoment van je team en zie op welk veld je wordt verwacht. Je trainer of teamleider deelt eventuele wijzigingen."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Jouw week begint hier."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Het onderstaande rooster komt van de officiële clubwebsite, gecontroleerd op 10 oktober 2026. Bij vakanties, slecht weer of een wijziging hoor je de actuele afspraken van je teambegeleiding."
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "training",
+            "data": {}
+          }
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Kan ik eerst een keer meetrainen?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Leuk dat je wilt kennismaken. Neem vooraf contact op met de club. De coördinator kijkt welke groep bij je past en stemt een kennismaking af met de trainer. "
+            },
+            {
+              "type": "text",
+              "text": "Vraag naar meetrainen.",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "/clubmuur/club/contact?onderwerp=meetrainen"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Waar vind ik wijzigingen of afgelastingen?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Je trainer of teamleider deelt wijzigingen in de teamcommunicatie. Wedstrijdinformatie staat in het "
+            },
+            {
+              "type": "text",
+              "text": "wedstrijdcentrum",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "/clubmuur/wedstrijden"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": ". Een afgelaste wedstrijd betekent niet automatisch dat een training ook vervalt."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Wat neem ik mee naar een training?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Neem sportkleding voor het weer, geschikte voetbalschoenen, scheenbeschermers en een gevulde bidon mee. Stem specifieke afspraken met je trainer af."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "teams/walking-football": {
+    "title": "Walking Football",
+    "intro": "Voetbal op wandeltempo. Samen bewegen, een bal trappen en daarna tijd voor elkaar. Je hoeft het spel nooit los te laten.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "image",
+          "attrs": {
+            "src": "/assets/club-life-v28/walking-1280.webp",
+            "alt": "Sfeerbeeld van senioren die samen voetballen"
+          }
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Blijf in beweging. Blijf erbij."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Het gaat om de bal, maar net zo goed om de mensen eromheen. Bij Walking Football is er ruimte voor sportief plezier, een goed gesprek en nieuwe contacten in de wijk."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "We spelen op wandeltempo, zonder rennen. Een laagdrempelige manier om samen actief te zijn en de sfeer van de club te blijven beleven."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Een nieuw begin. Samen."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "De eerste training staat gepland op dinsdag 27 oktober 2026. Wil je aansluiten of eerst even komen kijken? Laat het de club weten."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Op jouw tempo."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Samen actief zijn, met aandacht voor elkaar en ruimte om mee te doen."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Nieuwe contacten."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Ontmoet andere voetballiefhebbers uit de club en uit de wijk."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Het plezier voorop."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "De bal blijft rollen. Ontspanning en samenspel staan centraal."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Een paar snelle antwoorden."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Moet ik al kunnen voetballen?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Voetbalervaring is mooi meegenomen, maar plezier in samen bewegen is het belangrijkste. Bespreek je ervaring en wensen met de begeleiding bij je kennismaking."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Kan ik een keer komen kijken?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Graag. Neem vooraf contact op, dan kunnen we je vertellen wanneer je welkom bent en waar je je kunt melden. "
+            },
+            {
+              "type": "text",
+              "text": "Vraag een kennismaking aan.",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "/clubmuur/club/contact?onderwerp=walking-football"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Wat zijn de trainingsmomenten en kosten?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "De eerste training is gepland op 27 oktober 2026. Het exacte tijdstip, het vaste rooster en eventuele kosten worden nog bevestigd. Vraag de vereniging naar de actuele afspraken voordat je langskomt."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Hoe meld ik mijn belangstelling?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Gebruik de contactpagina en kies Walking Football als onderwerp. Je kunt daar een bericht voorbereiden voor de vereniging. "
+            },
+            {
+              "type": "text",
+              "text": "Naar contact.",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "/clubmuur/club/contact?onderwerp=walking-football"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Meer dan een club.",
+              "text": "Maak kennis met Duindorp SV, onze mensen en onze wijk.",
+              "url": "/clubmuur/club",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Elke generatie telt.",
+              "text": "Ontdek alle teams die onze blauw-witte kleuren dragen.",
+              "url": "/clubmuur/teams",
+              "label": "Lees meer"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "wedstrijden/informatie": {
+    "title": "Wedstrijdinformatie",
+    "coverSrc": "/assets/clubmuur-brush-v25/section-houtrust-1600.webp",
+    "intro": "De aftrap, de route en de afspraken. Hier vind je wat je nodig hebt voor een fijne dag bij Duindorp SV.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Programma & uitslagen",
+              "text": "Zoek je team, de aanvangstijd en de locatie.",
+              "url": "/clubmuur/wedstrijden",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Afgelastingen",
+              "text": "Bekijk doorgegeven wijzigingen via Sportlink.",
+              "url": "/clubmuur/wedstrijden/afgelastingen",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Op bezoek bij ons",
+              "text": "Route, accommodatie en praktische informatie.",
+              "url": "/clubmuur/club/accommodatie",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Goed voorbereid het veld op."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Een goede wedstrijddag begint met heldere afspraken binnen je team."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Voor vertrek"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Bekijk het actuele programma en stem de verzameltijd, het vervoer en je tenue af met de teambegeleiding. Een aanvangstijd kan nog wijzigen."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Op het sportpark"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Vraag je begeleider naar de kleedkamer en het veld. Houd doorgangen vrij en laat de kleedkamer samen netjes achter."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Vragen over je wedstrijd"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Je trainer of teamleider is je eerste aanspreekpunt. Voor een wijziging of organisatorische vraag kun je terecht bij wedstrijdzaken via de contactpagina."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Sportief op én naast het veld."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Onze clubwaarden geven richting aan hoe we met elkaar omgaan."
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Een vraag voor wedstrijdzaken",
+              "text": "Vind het aanspreekpunt voor jouw wedstrijd.",
+              "url": "/clubmuur/club/contact?onderwerp=wedstrijdzaken",
+              "label": "Lees meer"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Veilig sporten",
+              "text": "Een luisterend oor en de juiste route bij zorgen.",
+              "url": "/clubmuur/club/vertrouwenspersoon",
+              "label": "Lees meer"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "wedstrijden/afgelastingen": {
+    "title": "Afgelastingen",
+    "intro": "Afgelastingen en andere onderbrekingen uit het beschikbare Sportlink-programma, voor alle teams op één plek.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Hieronder vind je de actuele afgelastingen. Je trainer of teamleider deelt eventuele wijzigingen van trainingen en teamafspraken."
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "matches",
+            "data": {
+              "layout": "cancellations"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Programma en uitslagen",
+              "label": "Naar het wedstrijdcentrum",
+              "url": "/clubmuur/wedstrijden"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "wedstrijden/oefenwedstrijd": {
+    "title": "Oefenwedstrijd aanvragen",
+    "intro": "Stuur je voorstel voor een oefenwedstrijd naar de club. Een wedstrijd is definitief zodra beide verenigingen de afspraken hebben bevestigd.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "form",
+            "data": {
+              "refId": "friendly-request"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "media/club-tv": {
+    "title": "Duindorp SV-TV",
+    "intro": "Van een mooi doelpunt tot een goed gesprek langs de lijn. Een plek voor de verhalen van onze vereniging in bewegend beeld.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "De verhalen en beelden van Duindorp SV. Ontdek het laatste clubnieuws en de momenten in onze fotoalbums."
+            }
+          ]
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "Het laatste nieuws",
+              "label": "Lees het clubnieuws",
+              "url": "/clubmuur/nieuws"
+            }
+          }
+        },
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "cta",
+            "data": {
+              "title": "De fotomuur",
+              "label": "Bekijk de albums",
+              "url": "/clubmuur/media/fotos"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "media/nieuwsbrief": {
+    "title": "Nieuwsbrief",
+    "intro": "Vraag de clubnieuwsbrief aan en bevestig je toestemming via e-mail.",
+    "body": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "cmsWidget",
+          "attrs": {
+            "kind": "newsletter",
+            "data": {}
+          }
+        }
+      ]
+    }
+  }
+}

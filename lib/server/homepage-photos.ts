@@ -10,7 +10,7 @@ function publishedPhoto(photo:any,fallbackAlt:string) {
   return {...photo,published:true,alt,credit};
 }
 
-/** One-time repair of the original club photos still selected in both public areas. */
+/** One-time repair of the original club photos still selected for a public homepage or album. */
 export async function applyHomepagePhotoRepair(tx:any,releaseId=release) {
   await tx`set local lock_timeout='5s'`;
   await tx`set local statement_timeout='30s'`;
@@ -21,7 +21,7 @@ export async function applyHomepagePhotoRepair(tx:any,releaseId=release) {
   const homePhotos = new Set<string>(home?.live?.homepagePhotoIds || []);
   const homeAlbums = new Set<string>(home?.live?.homepageAlbumIds || []);
   const albumPhotos = new Set<string>(albums.filter((row:any) => homeAlbums.has(row.id)).flatMap((row:any) => row.live.mediaIds || []));
-  const originals = createCmsSeed().media.filter(photo => photo.id.startsWith('photo-') && homePhotos.has(photo.id) && albumPhotos.has(photo.id));
+  const originals = createCmsSeed().media.filter(photo => photo.id.startsWith('photo-') && (homePhotos.has(photo.id) || albumPhotos.has(photo.id)));
   const repaired:string[] = [], inspected:{id:string;state:string}[] = [];
   for (const original of originals) {
     const [old] = await tx`select * from cms_records where id=${original.id} and module='media' for update`;

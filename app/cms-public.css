@@ -21,3 +21,7 @@
 .cmsp-layout-column .cmsp-news-grid,.cmsp-layout-column .cmsp-editorial-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
 
 .cmsp-person{flex-wrap:wrap}.cmsp-person-copy{flex:1;min-width:min(140px,100%)}.cmsp-person-photo{max-width:100%}
+
+.cmsp-page-anchors{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}.cmsp-page-anchors button{border:1px solid #cbd8e6;border-radius:6px;padding:10px 14px;background:white;color:#03438a}.cmsp-page-anchors button[aria-pressed=true]{background:#03438a;color:white}.cmsp-rich [id]{scroll-margin-top:110px}.cmsp-person-copy>p{white-space:pre-line}
+
+.cmsp-home-albums{background:#03438a url('/assets/clubmuur-wall.webp') center 80%/cover;background-blend-mode:multiply;color:white}.cmsp-home-albums .cmsp-section-heading .cmsp-eyebrow,.cmsp-home-albums .cmsp-section-heading h2,.cmsp-home-albums .cmsp-section-heading>a{color:white}.cmsp-home-albums .cmsp-section-heading>a:focus-visible{outline:2px solid white;outline-offset:5px}

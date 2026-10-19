@@ -1,6 +1,8 @@
 import {z} from 'zod';
+import {safeDestination} from './layout/document';
 import {validHeroCards,type HeroCardConfig} from '../clubmuur-config';
 import {validClubNavigation,type ClubNavigationItem} from '../clubmuur-navigation';
+import {trainingSchema} from './training';
 import {agendaSchema} from '../club-agenda';
 import {validHeroPhotoIds,type HeroPhotoId} from '../clubmuur-layouts';
 import type {CmsState} from './types';
@@ -14,7 +16,7 @@ const permissions=['news','stories','pages','media','people','forms','settings',
 const statuses=z.enum(['draft','review','scheduled','published','archived']);
 const seo=z.object({title:text,description:text,noIndex:z.boolean()});
 const widget=z.object({contentType:z.enum(['news','story']).optional(),title:text.optional(),text:text.optional(),refId:text.optional(),ids:z.array(text).optional(),url:text.optional(),label:text.optional(),layout:text.optional(),items:z.array(z.object({title:text,text,url:text.optional()})).optional()});
-const widgetKinds=['person','people','image','textImage','columns','album','news','documents','faq','timeline','cta','team','contact','form','story'];
+const widgetKinds=['person','people','image','textImage','columns','album','news','documents','faq','timeline','cta','team','contact','form','story','training','newsletter','matches'];
 const doc:z.ZodType<unknown>=z.lazy(()=>z.object({
   type:id,text:text.optional(),attrs:z.record(z.unknown()).optional(),
   marks:z.array(z.object({type:id,attrs:z.record(z.unknown()).optional()})).optional(),
@@ -24,12 +26,12 @@ const doc:z.ZodType<unknown>=z.lazy(()=>z.object({
 }));
 const body=doc.refine(value=>!!value&&typeof value==='object'&&'type'in value&&value.type==='doc','De editorinhoud moet een document zijn');
 const articleContent=z.object({contentType:z.enum(['news','story']).default('news'),storyFormat:z.enum(['column','interview','story']).default('story'),title:text,slug:text,intro:text,body,coverId:text,authorId:text.optional(),author:text,category:text,tags:z.array(text),teamId:text,season:text,seo,featured:z.boolean(),featuredUntil:optionalDate.optional(),publishedAt:optionalDate});
-const pageContent=z.object({bodyFormat:z.enum(['legacy-tiptap-v1','page-layout-v2']).optional(),title:text,slug:text,intro:text,body,parentId:text,menuGroup:text,menuVisible:z.boolean(),order:number,seo,useBuilder:z.boolean()});
+const pageContent=z.object({coverId:text.optional(),coverSrc:text.refine(safeDestination).optional(),bodyFormat:z.enum(['legacy-tiptap-v1','page-layout-v2']).optional(),title:text,slug:text,intro:text,body,parentId:text,menuGroup:text,menuVisible:z.boolean(),order:number,seo,useBuilder:z.boolean()});
 const revision=<T extends z.ZodTypeAny>(data:T)=>z.object({id,at:date,label:text,data});
 const uniqueIds=<T extends z.ZodTypeAny>(item:T)=>z.array(item).refine(rows=>new Set(rows.map(row=>(row as {id:string}).id)).size===rows.length,'Dubbele identifiers');
 export const cmsStateSchema=z.object({
   schemaVersion:z.literal(1),
-  appearance:z.object({hero:z.custom<HeroCardConfig[]>(validHeroCards).optional(),navigation:z.custom<ClubNavigationItem[]>(validClubNavigation).optional(),heroPhotos:z.custom<HeroPhotoId[]>(validHeroPhotoIds).optional(),agenda:agendaSchema.optional()}).optional(),
+  appearance:z.object({hero:z.custom<HeroCardConfig[]>(validHeroCards).optional(),navigation:z.custom<ClubNavigationItem[]>(validClubNavigation).optional(),heroPhotos:z.custom<HeroPhotoId[]>(validHeroPhotoIds).optional(),agenda:agendaSchema.optional(),training:trainingSchema.optional()}).optional(),
   articles:uniqueIds(articleContent.extend({id,imported:z.boolean().optional(),status:statuses,updatedAt:date,scheduledAt:optionalDate,live:articleContent.optional(),revisions:z.array(revision(articleContent)),deletedAt:date.optional(),demo:z.boolean().optional()})),
   pages:uniqueIds(pageContent.extend({id,scheduledAt:optionalDate.optional(),status:statuses,updatedAt:date,live:pageContent.optional(),revisions:z.array(revision(pageContent)),deletedAt:date.optional(),system:z.boolean().optional()})),
   people:uniqueIds(z.object({id,name:text,role:text,group:text,teamId:text,bio:text,mediaId:text,email:text,phone:text,showContact:z.boolean(),published:z.boolean(),order:number,deletedAt:date.optional()})),
@@ -42,7 +44,7 @@ export const cmsStateSchema=z.object({
   roles:uniqueIds(z.object({id,name:text,description:text,permissions:z.array(z.enum(permissions)),teamScoped:z.boolean()})),
   members:uniqueIds(z.object({id,name:text,email:text,roleId:text,teamIds:z.array(text),active:z.boolean()})),
   documents:uniqueIds(z.object({id,title:text,url:text,category:text,published:z.boolean()})),
-  settings:z.object({clubName:text,siteDescription:text,contactEmail:text,season:text,newsCategories:z.array(text),teams:uniqueIds(z.object({id,name:text})),homepageArticleIds:z.array(text),homepageStoryIds:z.array(text).default([]),homepageAlbumIds:z.array(text),homepagePhotoIds:z.array(text),homepageHeading:text,newsletterEnabled:z.boolean(),newsletterLabel:text,socials:z.array(z.object({label:text,url:text}))}),
+  settings:z.object({sponsors:z.array(z.object({name:z.string().trim().min(1).max(150),src:z.string().min(1).refine(safeDestination),imageId:z.string().optional(),url:z.string().refine(value=>!value||/^https?:\/\//.test(value)&&safeDestination(value)).optional(),width:z.number().positive().max(10000),height:z.number().positive().max(10000)})).max(100).optional(),siteCopy:z.record(z.string().max(2000)).optional(),clubName:text,siteDescription:text,contactEmail:text,season:text,newsCategories:z.array(text),teams:uniqueIds(z.object({id,name:text})),homepageArticleIds:z.array(text),homepageStoryIds:z.array(text).default([]),homepageAlbumIds:z.array(text),homepagePhotoIds:z.array(text),homepageHeading:text,newsletterEnabled:z.boolean(),newsletterLabel:text,socials:z.array(z.object({label:text,url:text}))}),
   redirects:z.array(z.object({from:text,to:text})),
   audit:uniqueIds(z.object({id,at:date,action:text,role:text})),
 });

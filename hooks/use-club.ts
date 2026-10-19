@@ -1,5 +1,5 @@
 'use client';
-import {useEffect,useState} from 'react';
+import {useEffect,useMemo,useState} from 'react';
 import {type Article} from '@/lib/club-data';
 import {useCMS} from '@/components/cms/provider';
 import {cmsArticlesForSite} from '@/lib/cms/public-adapters';
@@ -28,5 +28,5 @@ function migrateHeroCards(cards:HeroCardConfig[]){
   return unchangedDefault?{...defaultHeroCards.find(value=>value.id===card.id)!}:card;
  });
 }
-export function useHeroCards(){const {state}=useCMS();return state.appearance?.hero||defaultHeroCards;}
+export function useHeroCards(){const {state}=useCMS();return useMemo(()=>(state.appearance?.hero||defaultHeroCards).map(card=>{if(!card.imageId)return card;const media=state.media.find(media=>media.id===card.imageId&&media.published&&!media.deletedAt);return {...card,image:media?.src.replace(/^\/api\/cms\/media\/(.*?)\/file$/, '/api/media/$1')||defaultHeroCards.find(item=>item.id===card.id)!.image};}),[state.appearance?.hero,state.media]);}
 export async function saveHeroCards(cards:HeroCardConfig[]){if(!validHeroCards(cards))throw new Error('Controleer de vier vakken.');const current=await fetch('/api/cms/hero/site-hero').then(r=>r.ok?r.json():null);const response=await fetch('/api/cms/mutations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operationId:crypto.randomUUID(),changes:[{module:'hero',id:'site-hero',expectedVersion:current?.version||0,action:'publish',data:{items:cards}}]})});const data=await response.json();if(!response.ok)throw new Error(data.message);window.dispatchEvent(new Event('duindorp-hero'));}

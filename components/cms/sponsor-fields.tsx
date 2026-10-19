@@ -1,0 +1,10 @@
+'use client';
+import type {SiteSponsor} from '@/lib/cms/site-sponsors';
+import {MediaPicker} from './media-picker';
+import {Pagination,usePagination} from './pagination';
+export function SponsorFields({items,onChange}:{items:SiteSponsor[];onChange:(items:SiteSponsor[])=>void}){
+ const pagination=usePagination(items.map((item,index)=>({item,index})));
+ const patch=(index:number,value:Partial<SiteSponsor>)=>onChange(items.map((item,i)=>i===index?{...item,...value}:item));
+ function move(index:number,direction:number){const next=[...items];[next[index],next[index+direction]]=[next[index+direction],next[index]];onChange(next);}
+ return <details><summary>Sponsorlogo’s</summary><p>De volgorde bepaalt de logo’s in de sponsorstrook. Kies gepubliceerde afbeeldingen.</p>{pagination.items.map(({item,index})=><section className="cms-panel" key={index}><label className="cms-field">Sponsornaam<input required value={item.name} onChange={event=>patch(index,{name:event.target.value})}/></label>{item.src&&<img src={item.src} alt="" width={160} style={{maxHeight:70,objectFit:'contain'}}/>}<MediaPicker value={item.imageId} label="Sponsorlogo kiezen" onSelect={media=>patch(index,{imageId:media.id,src:media.src.replace(/^\/api\/cms\/media\/(.*?)\/file$/,'/api/media/$1'),width:240,height:120})}/><label className="cms-field">Website sponsor (optioneel)<input type="url" value={item.url||''} onChange={event=>patch(index,{url:event.target.value})}/></label><div className="cms-toolbar"><button className="cms-button" type="button" disabled={index===0} onClick={()=>move(index,-1)}>Omhoog</button><button className="cms-button" type="button" disabled={index===items.length-1} onClick={()=>move(index,1)}>Omlaag</button><button className="cms-button danger" type="button" onClick={()=>onChange(items.filter((_,i)=>i!==index))}>Sponsor verwijderen</button></div></section>)}<Pagination label="Sponsoren" {...pagination}/><button className="cms-button" type="button" onClick={()=>onChange([...items,{name:'',src:'',width:240,height:120}])}>Sponsor toevoegen</button></details>;
+}

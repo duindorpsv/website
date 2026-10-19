@@ -1,4 +1,5 @@
 'use client';
+import {Pagination,usePagination} from './pagination';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowUpRight, Check, Clock, Copy, Eye, FileText, History, ImagePlus, Newspaper, Plus, Save, Search, Send, Trash2 } from 'lucide-react';
 import type { ArticleContent, CmsArticle, ContentStatus, ContentType, StoryFormat } from '@/lib/cms/types';
@@ -83,6 +84,7 @@ export function NewsManager({ contentType = 'news' }: {
     const teamOptions = state.settings.teams;
     const canCreate = can(contentType==='story'?'stories':'news') || teamOptions.some(t => can(contentType==='story'?'stories':'news', t.id));
     const visible = articles.filter(a => (filter === 'all' || a.status === filter) && (!teamFilter || a.teamId === teamFilter) && (!formatFilter || a.storyFormat === formatFilter) && `${a.title} ${a.author} ${a.category} ${a.tags.join(' ')}`.toLowerCase().includes(query.toLowerCase())).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    const pagination=usePagination(visible,JSON.stringify([query,filter,teamFilter,formatFilter,contentType]));
     const canBulkPublish=(article:CmsArticle)=>can('news',article.teamId)&&can('publish',article.teamId,'news');
     const selectable=contentType==='news'?visible.filter(canBulkPublish):[];
     const allSelected=selectable.length>0&&selectable.every(article=>bulkIds.includes(article.id));
@@ -185,7 +187,7 @@ export function NewsManager({ contentType = 'news' }: {
         ][]).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>}<select aria-label="Filter op team" value={teamFilter} onChange={e => setTeamFilter(e.target.value)}><option value="">Alle teams</option>{teamOptions.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></div>
     {contentType==='news'&&<>
         <div className="cms-news-bulk-toolbar">
-            <label className="cms-news-bulk-select"><input ref={selectAllRef} type="checkbox" aria-label="Selecteer alle zichtbare nieuwsberichten" checked={allSelected} disabled={!selectable.length||saving} onChange={()=>setBulkIds(allSelected?[]:selectable.map(article=>article.id))}/><span>Alles in dit overzicht selecteren</span></label>
+            <label className="cms-news-bulk-select"><input ref={selectAllRef} type="checkbox" aria-label="Selecteer alle zichtbare nieuwsberichten" checked={allSelected} disabled={!selectable.length||saving} onChange={()=>setBulkIds(allSelected?[]:selectable.map(article=>article.id))}/><span>Alle gefilterde berichten selecteren (ook op andere pagina’s)</span></label>
             <span className="cms-news-bulk-count">{bulkIds.length} geselecteerd</span>
             <div className="cms-news-bulk-buttons"><button className="cms-button" disabled={!bulkIds.length||saving} onClick={()=>setBulkIds([])}>Selectie wissen</button><button className="cms-button primary" disabled={!bulkIds.length||saving||!!bulkResult?.stopped} onClick={publishBulk}><Send size={16}/>Selectie publiceren ({bulkIds.length})</button></div>
             {bulkIds.length>0&&<p>De geselecteerde werkversies komen direct online. Bijbehorende geïmporteerde foto’s worden meegepubliceerd. Een bestaande planning vervalt.</p>}
@@ -196,12 +198,12 @@ export function NewsManager({ contentType = 'news' }: {
             {bulkResult.issues.length>0&&<details open><summary>Deze berichten hebben aandacht nodig</summary><ul>{bulkResult.issues.map(issue=><li key={issue.id}><strong>{issue.title}</strong><p>{issue.messages.join(' ')}</p>{articles.some(article=>article.id===issue.id)&&<button className="cms-button" onClick={()=>open(issue.id)}>Bericht openen<span className="cms-sr-only">: {issue.title}</span></button>}</li>)}</ul>{bulkResult.stopped&&<button className="cms-button" onClick={async()=>{try{await reload();clearStorageError();setBulkResult(null);}catch{notify('Het overzicht kon niet opnieuw worden geladen. Probeer het opnieuw.');}}}>Overzicht opnieuw laden</button>}</details>}
         </section>}
     </>}
-    {visible.length ? <div className="cms-news-list">{visible.map(a => {
+    {visible.length ? <div className="cms-news-list">{pagination.items.map(a => {
         const image = media.find(m => m.id === a.coverId);
         const item=<button className="cms-news-item" key={a.id} onClick={() => open(a.id)}><div className="cms-news-thumb">{image?.src ? <img src={image.src} alt=""/> : <Newspaper size={27}/>}</div><div className="cms-news-item-copy"><span>{a.contentType === 'story' ? `${storyFormatLabel[a.storyFormat]} · ` : ''}{a.category}</span><h3>{a.title || 'Zonder titel'}</h3><p>{a.intro || 'Voeg een korte inleiding toe.'}</p><small>{a.author} · Bewerkt {dateLabel(a.updatedAt)}</small></div><div className="cms-news-item-end"><span className={`cms-news-status ${a.status}`}>{statusLabel[a.status]}</span>{a.live && a.status !== 'published' && <small>Vorige versie staat live{a.live.contentType !== a.contentType ? ` bij ${contentTypeLabel[a.live.contentType]}` : ''}</small>}<ArrowUpRight size={20}/></div></button>;
         return contentType==='news'?<div className={`cms-news-row${bulkIds.includes(a.id)?' is-selected':''}`} key={a.id}><label className="cms-news-row-select" title={canBulkPublish(a)?'Selecteren voor publicatie':'Je hebt geen publicatierechten voor dit bericht.'}><input type="checkbox" aria-label={`Selecteer nieuwsbericht: ${a.title||'Zonder titel'}`} checked={bulkIds.includes(a.id)} disabled={!canBulkPublish(a)||saving} onChange={()=>toggleBulk(a.id)}/></label>{item}</div>:item;
     })}</div> : <div className="cms-empty"><Newspaper size={32}/><h3>{contentType === 'story' ? 'Hier begint een nieuw verhaal' : 'Het volgende nieuws begint hier'}</h3><p>{query || filter !== 'all' || teamFilter || formatFilter ? 'Er zijn geen berichten die bij je filters passen.' : contentType === 'story' ? 'Maak een column, interview of clubverhaal.' : 'Schrijf het eerste nieuwsbericht voor de club.'}</p>{(query || filter !== 'all' || teamFilter || formatFilter) ? <button className="cms-button" onClick={() => { setQuery(''); setFilter('all'); setTeamFilter(''); setFormatFilter(''); }}>Filters wissen</button> : <button className="cms-button primary" onClick={create} disabled={!canCreate}>{createLabel}</button>}</div>}</div>
-  </fieldset></div>;
+  <Pagination label={moduleTitle} {...pagination} disabled={bulkBusy}/></fieldset></div>;
     const cover = media.find(m => m.id === selected.coverId);
     const words = docText(selected.body).trim().split(/\s+/).filter(Boolean).length;
     const categories = [...new Set([...state.settings.newsCategories, selected.category])].filter(Boolean);

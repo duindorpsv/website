@@ -56,9 +56,9 @@ test('homepage photo repair leaves other private media, changed files and existi
   const privateId='private-homepage-'+crypto.randomUUID();
   const privatePhoto={...photos[0],id:privateId,published:false};
   await tx`insert into cms_records(id,module,draft) values (${privateId},'media',${tx.json(privatePhoto)})`;
-  const home={...seed.settings,homepagePhotoIds:[photos[0].id,photos[1].id,photos[2].id,privateId]};
+  const home={...seed.settings,homepagePhotoIds:[photos[0].id,photos[1].id,privateId]};
   await tx`update cms_records set live=${tx.json(home)} where id='settings'`;
-  const album={...seed.albums[0],mediaIds:[photos[0].id,photos[1].id,photos[3].id,privateId]};
+  const album={...seed.albums[0],mediaIds:[photos[0].id,photos[1].id,privateId]};
   await tx`update cms_records set live=${tx.json(album)} where id=${album.id}`;
   const live={...photos[0],caption:'Gepubliceerd bijschrift'},draft={...live,caption:'Nog niet gepubliceerd'};
   await tx`update cms_records set live=${tx.json(live)},draft=${tx.json(draft)} where id=${photos[0].id}`;

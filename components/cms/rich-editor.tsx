@@ -1,4 +1,5 @@
 'use client';
+import {Pagination,usePagination} from './pagination';
 
 import {useEffect,useMemo,useRef,useState} from 'react';
 import {EditorContent,useEditor,useEditorState} from '@tiptap/react';
@@ -37,6 +38,7 @@ export function RichEditor({value,onChange,placeholder='Hier begint jouw verhaal
   useEffect(()=>{editor?.setEditable(!readOnly);if(readOnly)setPicker(null);},[editor,readOnly]);
   function applyLink(){if(!editor)return;const url=link.trim();if(url&&!safeUrl(url)){setError('Gebruik een volledige https://-link, mailto:, tel: of een intern pad.');return;}if(url)editor.chain().focus().extendMarkRange('link').setLink({href:url}).run();else editor.chain().focus().extendMarkRange('link').unsetLink().run();setPicker(null);setError('');}
   const selectableMedia=state.media.filter(m=>!m.deletedAt&&m.published&&m.src);
+  const mediaPage=usePagination(selectableMedia);
   return <div className={`cms-rich-editor${readOnly?' is-readonly':''}`}>
     {!readOnly&&<div className="cms-rich-toolbar" role="toolbar" aria-label="Tekstopmaak">
       <select aria-label="Tekststijl" value={formatting?.heading||0} onChange={e=>{const level=Number(e.target.value);if(level)editor?.chain().focus().setHeading({level:level as 2|3|4}).run();else editor?.chain().focus().setParagraph().run();}} disabled={!editor}><option value={0}>Alinea</option><option value={2}>Kop 2</option><option value={3}>Kop 3</option><option value={4}>Kop 4</option></select>
@@ -60,7 +62,7 @@ export function RichEditor({value,onChange,placeholder='Hier begint jouw verhaal
     </div>}
     {!readOnly&&formatting?.table&&<div className="cms-rich-table-tools"><span>Tabel bewerken</span><button type="button" onClick={()=>editor?.chain().focus().addRowAfter().run()}>+ Rij</button><button type="button" onClick={()=>editor?.chain().focus().addColumnAfter().run()}>+ Kolom</button><button type="button" onClick={()=>editor?.chain().focus().deleteRow().run()}>Rij verwijderen</button><button type="button" onClick={()=>editor?.chain().focus().deleteColumn().run()}>Kolom verwijderen</button><button type="button" onClick={()=>editor?.chain().focus().deleteTable().run()}>Tabel verwijderen</button></div>}
     {picker==='link'&&<div className="cms-rich-popover"><label className="cms-field">Linkadres<input value={link} onChange={e=>setLink(e.target.value)} placeholder="https://…" onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();applyLink();}}}/></label><div className="cms-toolbar"><button className="cms-button primary" type="button" onClick={applyLink}>Link toepassen</button><button className="cms-button" type="button" onClick={()=>{editor?.chain().focus().extendMarkRange('link').unsetLink().run();setPicker(null);}}>Link verwijderen</button><button type="button" className="cms-button" onClick={()=>setPicker(null)}>Sluiten</button></div>{error&&<p role="alert" className="cms-news-errors">{error}</p>}</div>}
-    {picker==='image'&&<div className="cms-rich-popover"><div className="cms-toolbar"><strong>Kies een gepubliceerde foto</strong><button type="button" className="cms-button" aria-label="Fotokiezer sluiten" onClick={()=>setPicker(null)}><X size={16}/></button></div>{selectableMedia.length?<div className="cms-rich-media">{selectableMedia.map(m=><button type="button" key={m.id} onClick={()=>{editor?.chain().focus().insertContent({type:'image',attrs:{src:m.src,mediaId:m.id,alt:m.alt,title:m.caption||m.name}}).run();setPicker(null);}}><img src={m.src} alt={m.alt||m.name}/><span>{m.name}</span></button>)}</div>:<p>Publiceer eerst een foto in de mediabibliotheek.</p>}</div>}
+    {picker==='image'&&<div className="cms-rich-popover"><div className="cms-toolbar"><strong>Kies een gepubliceerde foto</strong><button type="button" className="cms-button" aria-label="Fotokiezer sluiten" onClick={()=>setPicker(null)}><X size={16}/></button></div>{selectableMedia.length?<div className="cms-rich-media">{mediaPage.items.map(m=><button type="button" key={m.id} onClick={()=>{editor?.chain().focus().insertContent({type:'image',attrs:{src:m.src,mediaId:m.id,alt:m.alt,title:m.caption||m.name}}).run();setPicker(null);}}><img src={m.src} alt={m.alt||m.name}/><span>{m.name}</span></button>)}</div>:<p>Publiceer eerst een foto in de mediabibliotheek.</p>}<Pagination label="Afbeelding in tekst" {...mediaPage}/></div>}
     <EditorContent editor={editor}/>
     {!editor&&<div className="cms-rich-loading">Editor laden…</div>}
     {!readOnly&&<div className="cms-rich-footnote">TipTap Editor · Selecteer tekst om je verhaal op te maken.</div>}

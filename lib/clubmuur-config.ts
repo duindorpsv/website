@@ -11,7 +11,7 @@ export type HeaderDesign = typeof headerDesigns[number]['id'];
 export function resolveHeader(value:unknown):HeaderDesign{return headerDesigns.some(x=>x.id===value)?value as HeaderDesign:'clubband';}
 export const heroPositions=['Nieuws · volle hoogte','Uitgelicht naast de spelers','Rechtsboven','Rechtsonder'] as const;
 export type HeroCardKind='page'|'article'|'team'|'match'|'news';
-export type HeroCardConfig={id:string;kind:HeroCardKind;target:string;title:string;kicker:string;description:string;image:string;layout:'photo'|'split'};
+export type HeroCardConfig={id:string;kind:HeroCardKind;target:string;title:string;kicker:string;description:string;image:string;imageId?:string;layout:'photo'|'split'};
 export const heroImages=[
  {value:'/assets/clubmuur-portrait.webp',label:'Spelersportret'},
  {value:'/assets/team.png',label:'Spelers op het veld'},
@@ -28,5 +28,5 @@ export const defaultHeroCards:HeroCardConfig[]=[
  {id:'bottom-right',kind:'team',target:'walking',title:'Walking\nFootball',kicker:'EEN LEVEN LANG',description:'Voetbalplezier\nvoor iedereen',image:'/assets/clubmuur-walking.jpg',layout:'split'},
 ];
 export function validHeroCards(value:unknown):value is HeroCardConfig[]{
- return Array.isArray(value)&&value.length===4&&value.every((c,i)=>c&&c.id===defaultHeroCards[i].id&&['page','article','team','match','news'].includes(c.kind)&&['photo','split'].includes(c.layout)&&['target','title','kicker','description','image'].every(k=>typeof c[k]==='string')&&c.title.trim().length>0&&c.title.length<=64&&c.kicker.length<=40&&c.description.length<=100&&heroImages.some(im=>im.value===c.image)&&(['article','team'].includes(c.kind)||c.kind==='match'&&c.target==='next'||c.kind==='news'&&c.target==='latest'||c.kind==='page'&&heroPages.some(p=>p.value===c.target)));
+ return Array.isArray(value)&&value.length===4&&value.every((c,i)=>c&&c.id===defaultHeroCards[i].id&&['page','article','team','match','news'].includes(c.kind)&&['photo','split'].includes(c.layout)&&['target','title','kicker','description','image'].every(k=>typeof c[k]==='string')&&c.title.trim().length>0&&c.title.length<=64&&c.kicker.length<=40&&c.description.length<=100&&(c.imageId?typeof c.imageId==='string'&&c.imageId.length<=160&&/^(https?:\/\/|\/(?!\/))/i.test(c.image)&&!/[\u0000-\u0020\\]/.test(c.image):heroImages.some(im=>im.value===c.image))&&(['article','team'].includes(c.kind)||c.kind==='match'&&c.target==='next'||c.kind==='news'&&c.target==='latest'||c.kind==='page'&&heroPages.some(p=>p.value===c.target)));
 }

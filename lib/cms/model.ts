@@ -11,7 +11,7 @@ export const docText=(doc:CmsDoc):string=>doc.text|| (doc.content||[]).map(docTe
 export function slugify(value:string){return value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
 export function safeUrl(url:string){return /^(https?:\/\/|mailto:|tel:|\/(?!\/))[^\s]*$/i.test(url)&&!/[<>"\\]/.test(url);}
 export function articleContent(a:CmsArticle):ArticleContent{const {contentType,storyFormat,title,slug,intro,body,coverId,authorId,author,category,tags,teamId,season,seo,featured,featuredUntil,publishedAt}=a;return structuredClone({contentType,storyFormat,title,slug,intro,body,coverId,...(authorId?{authorId}:{}),author,category,tags,teamId,season,seo,featured,...(featuredUntil!==undefined?{featuredUntil}:{}),publishedAt});}
-export function pageContent(p:CmsPage):PageContent{const {bodyFormat,title,slug,intro,body,parentId,menuGroup,menuVisible,order,seo,useBuilder}=p;return structuredClone({...(bodyFormat?{bodyFormat}:{}),title,slug,intro,body,parentId,menuGroup,menuVisible,order,seo,useBuilder});}
+export function pageContent(p:CmsPage):PageContent{const {coverId,coverSrc,bodyFormat,title,slug,intro,body,parentId,menuGroup,menuVisible,order,seo,useBuilder}=p;return structuredClone({...(coverId!==undefined?{coverId}:{}),...(coverSrc!==undefined?{coverSrc}:{}),...(bodyFormat?{bodyFormat}:{}),title,slug,intro,body,parentId,menuGroup,menuVisible,order,seo,useBuilder});}
 export function allowed(state:CmsState,roleId:string,permission:Permission,teamId?:string){const role=state.roles.find(r=>r.id===roleId);if(!role?.permissions.includes(permission))return false;if(role.teamScoped){if(!teamId)return false;return state.members.some(m=>m.active&&m.roleId===roleId&&m.teamIds.includes(teamId));}return true;}
 function validateDocument(doc:CmsDoc,state:CmsState):string[]{
  const errors=new Set<string>();
@@ -25,6 +25,7 @@ function validateDocument(doc:CmsDoc,state:CmsState):string[]{
   }
   if(node.type==='cmsWidget'){
    const kind=node.attrs?.kind,data=(node.attrs?.data||{}) as WidgetData,ref=data.refId||'';
+   if(kind==='form'&&!state.forms.some(form=>form.id===ref&&form.active&&form.published!==false))errors.add('Kies voor ieder formulierblok een gepubliceerd en actief formulier.');
    if(kind==='person'&&!personReady(ref))errors.add('Kies voor ieder persoonsblok een gepubliceerde persoon.');
    if(kind==='people'&&data.ids?.some(id=>!personReady(id)))errors.add('Een geselecteerde persoon is verwijderd of nog niet gepubliceerd.');
    if(['image','textImage'].includes(kind)&&!mediaReady(ref))errors.add('Kies voor ieder afbeeldingsblok een gepubliceerde foto.');

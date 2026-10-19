@@ -28,8 +28,8 @@ function AccommodationContent() {
   </>;
 }
 
-function MembershipContent() {
-  const [tab, setTab] = useState('kennismaken');
+export function MembershipContent({initialTab='kennismaken'}:{initialTab?:string}={}) {
+  const [tab, setTab] = useState(initialTab);
   useEffect(()=>{const sync=()=>{const hash=location.hash.slice(1);if(['kennismaken','contributie','kleding','wijzigen'].includes(hash))setTab(hash);};sync();addEventListener('hashchange',sync);return()=>removeEventListener('hashchange',sync);},[]);
   const tabs = [{ id: 'kennismaken', label: 'Kom erbij' }, { id: 'contributie', label: 'Contributie' }, { id: 'kleding', label: 'Clubkleding' }, { id: 'wijzigen', label: 'Wijzigen & opzeggen' }];
   return <>
