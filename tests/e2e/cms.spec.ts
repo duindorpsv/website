@@ -28,7 +28,8 @@ test('owner can open and manage stories from the CMS',async({page})=>{
  await login(page);const bootstrap=await (await page.request.get('/api/cms/bootstrap')).json();
  expect(bootstrap.state.roles[0].permissions).toContain('stories');
  await page.getByRole('button',{name:'Verhalen & columns',exact:true}).click();
- await expect(page.getByRole('heading',{name:'Verhalen',exact:true})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Verhalen & columns',exact:true})).toBeVisible();
+ await expect(page.getByRole('textbox',{name:'Zoek in verhalen',exact:true})).toBeVisible();
  await expect(page.getByRole('button',{name:'Nieuw verhaal',exact:true}).first()).toBeEnabled();
 });
 test('public pages remain usable at 320, 390, 768 and 1440 pixels',async({page})=>{for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});await page.goto('/clubmuur/club/ons-verhaal');const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);expect(overflow).toBe(false);}await page.screenshot({path:'.runtime/screenshots/history-1440.png',fullPage:true});});
