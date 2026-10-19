@@ -9,6 +9,14 @@ function fixture(count:number){
   state.articles=Array.from({length:count},(_,index)=>({...structuredClone(source),id:'bulk-'+index,version:3,title:'Bericht '+index,slug:'bulk-'+index,coverId:'',featured:false,live:undefined,status:'draft' as const}));
   return state;
 }
+test('imported news includes its draft photos and original lead during publication without relaxing manual drafts',async()=>{
+  const state=fixture(2),photo=state.media[0];photo.published=false;
+  for(const article of state.articles){article.coverId=photo.id;article.body={type:'doc',content:[]};article.intro='Oorspronkelijke inleiding uit het archief.';}
+  state.articles[0].imported=true;
+  const result=await publishNewsSelection({state,ids:state.articles.map(item=>item.id),can:()=>true,update:async(recipe)=>{const copy=structuredClone(state);recipe(copy);assert.equal(copy.articles[0].body.content?.[0].content?.[0].text,state.articles[0].intro);return true;}});
+  assert.deepEqual(result.published,[state.articles[0].id]);assert.equal(result.issues.length,1);
+  assert.equal(state.media[0].published,false);assert.equal(state.articles[0].body.content?.length,0);
+});
 test('bulk publishing validates each selected news item and retains explicit versions and publication commands',async()=>{
   const state=fixture(6);
   state.articles[0].status='scheduled';state.articles[0].scheduledAt='2099-01-01T00:00:00Z';

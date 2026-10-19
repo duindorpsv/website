@@ -1,3 +1,4 @@
+import type {Permission} from '../cms/types';
 import { getAuth } from './auth';
 import { sqlClient } from '../../db/index';
 import { CmsError } from './errors';
@@ -29,6 +30,13 @@ export async function principal(headers: Headers): Promise<Principal> {
         throw new CmsError('forbidden', 'Dit account heeft geen actieve CMS-toegang.', 403);
     const [teams, departments, grants] = await Promise.all([sql `select team_id as id from cms_user_teams where user_id=${session.user.id}`, sql `select department_id as id,kind from cms_user_departments where user_id=${session.user.id}`, sql `select module,action from cms_grants where role_id=${member.role_id}`]);
     return { id: session.user.id, name: session.user.name, email: session.user.email, roleId: member.role_id, teamScoped: member.team_scoped, teams: teams.map(t => String(t.id)), departments: departments as unknown as Principal['departments'], grants: grants as unknown as Principal['grants'], mfa: false };
+}
+/** Navigation uses these same grants as server authorization, including stories. */
+export function cmsPermissions(p:Principal):Permission[]{
+ const modules:Permission[]=['news','stories','pages','media','people','forms','settings','users'];
+ const permissions=modules.filter(module=>p.grants.some(grant=>grant.module==='*'||grant.module===module||module==='forms'&&grant.module==='submissions'));
+ if(p.grants.some(grant=>grant.action==='publish'||grant.action==='*'))permissions.push('publish');
+ return permissions;
 }
 export function has(p: Principal, module: string, action: string, scope?: {
     teamId?: string;

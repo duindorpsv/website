@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {sqlClient} from '@/db';
-import {principal,authorize,has,verifyOrigin,writeAudit} from '@/lib/server/permissions';
+import {principal,authorize,has,cmsPermissions,verifyOrigin,writeAudit} from '@/lib/server/permissions';
 import {contentModules,loadState,mutate,permissionModule,recordOutput,scope,type RecordRow,type Change} from '@/lib/server/records';
 import {bodyJson,CmsError,errorResponse} from '@/lib/server/errors';
 import {listSubscribers,changeSubscriber} from '@/lib/server/newsletter';
@@ -10,8 +10,7 @@ export async function GET(request:Request,{params}:{params:Promise<{path:string[
  const p=await principal(request.headers),{path}=await params,sql=sqlClient();
  if(path[0]==='newsletter'&&path.length===1)return Response.json(await listSubscribers(p,Object.fromEntries(new URL(request.url).searchParams)),{headers:{'Cache-Control':'no-store'}});
  if(path[0]==='bootstrap'){
-  const result=await loadState(false,p);result.state.roles=[{id:p.roleId,name:p.roleId,description:'',permissions:[...new Set(p.grants.map(g=>g.module==='*'?'settings':g.module==='submissions'?'forms':g.module).filter(m=>['news','pages','media','people','forms','settings','users'].includes(m))) as any],teamScoped:p.teamScoped}];
-  if(p.grants.some(g=>g.module==='*'))result.state.roles[0].permissions=['news','pages','media','people','forms','settings','users','publish'];else if(p.grants.some(g=>g.action==='publish'))result.state.roles[0].permissions.push('publish');
+  const result=await loadState(false,p);result.state.roles=[{id:p.roleId,name:p.roleId,description:'',permissions:cmsPermissions(p),teamScoped:p.teamScoped}];
   result.state.members=[{id:p.id,name:p.name,email:p.email,roleId:p.roleId,teamIds:p.teams,active:true}];
   return Response.json({...result,principal:p},{headers:{'Cache-Control':'no-store'}});
  }
@@ -27,9 +26,9 @@ export async function GET(request:Request,{params}:{params:Promise<{path:string[
  }
  const module=path[0];if(!contentModules.includes(module as any))throw new CmsError('missing','Onderdeel niet gevonden.',404);
  const url=new URL(request.url),limit=Math.max(1,Math.min(100,Number(url.searchParams.get('limit')||50))),offset=Math.max(0,Math.min(10000,Number(url.searchParams.get('offset')||0)));
- if(path[1]){const [row]=await sql<RecordRow[]>`select * from cms_records where id=${path[1]} and module=${module}`;if(!row)throw new CmsError('missing','Record niet gevonden.',404);authorize(p,permissionModule(module,row.draft),'read',scope(row));const revisions=await sql`select id,snapshot as data,label,created_at as at from cms_revisions where record_id=${row.id} order by created_at desc limit 30`;return Response.json(path[2]==='revisions'?{items:revisions}:recordOutput(row,revisions));}
+ if(path[1]){const [row]=await sql<RecordRow[]>`select *,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported from cms_records where id=${path[1]} and module=${module}`;if(!row)throw new CmsError('missing','Record niet gevonden.',404);authorize(p,permissionModule(module,row.draft),'read',scope(row));const revisions=await sql`select id,snapshot as data,label,created_at as at from cms_revisions where record_id=${row.id} order by created_at desc limit 30`;return Response.json(path[2]==='revisions'?{items:revisions}:recordOutput(row,revisions));}
  if(!Number.isInteger(limit)||!Number.isInteger(offset))throw new CmsError('pagination','Gebruik geldige paginagrenzen.',422);
- const type=url.searchParams.get('contentType');const rows=await sql<RecordRow[]>`select * from cms_records where module=${module} and ${type?sql`content_type=${type}`:sql`true`} order by updated_at desc,id limit ${limit} offset ${offset}`;
+ const type=url.searchParams.get('contentType');const rows=await sql<RecordRow[]>`select *,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported from cms_records where module=${module} and ${type?sql`content_type=${type}`:sql`true`} order by updated_at desc,id limit ${limit} offset ${offset}`;
  return Response.json({items:rows.filter(r=>has(p,permissionModule(module,r.draft),'read',scope(r))).map(r=>recordOutput(r)),limit,offset});
  }catch(error){return errorResponse(error);}}
 export async function POST(request:Request,{params}:{params:Promise<{path:string[]}>}){const requestId=crypto.randomUUID();let actorId:string|null=null;try{

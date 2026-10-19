@@ -30,7 +30,7 @@ const uniqueIds=<T extends z.ZodTypeAny>(item:T)=>z.array(item).refine(rows=>new
 export const cmsStateSchema=z.object({
   schemaVersion:z.literal(1),
   appearance:z.object({hero:z.custom<HeroCardConfig[]>(validHeroCards).optional(),navigation:z.custom<ClubNavigationItem[]>(validClubNavigation).optional(),heroPhotos:z.custom<HeroPhotoId[]>(validHeroPhotoIds).optional(),agenda:agendaSchema.optional()}).optional(),
-  articles:uniqueIds(articleContent.extend({id,status:statuses,updatedAt:date,scheduledAt:optionalDate,live:articleContent.optional(),revisions:z.array(revision(articleContent)),deletedAt:date.optional(),demo:z.boolean().optional()})),
+  articles:uniqueIds(articleContent.extend({id,imported:z.boolean().optional(),status:statuses,updatedAt:date,scheduledAt:optionalDate,live:articleContent.optional(),revisions:z.array(revision(articleContent)),deletedAt:date.optional(),demo:z.boolean().optional()})),
   pages:uniqueIds(pageContent.extend({id,scheduledAt:optionalDate.optional(),status:statuses,updatedAt:date,live:pageContent.optional(),revisions:z.array(revision(pageContent)),deletedAt:date.optional(),system:z.boolean().optional()})),
   people:uniqueIds(z.object({id,name:text,role:text,group:text,teamId:text,bio:text,mediaId:text,email:text,phone:text,showContact:z.boolean(),published:z.boolean(),order:number,deletedAt:date.optional()})),
   media:uniqueIds(z.object({id,name:text,src:text,blobKey:text.optional(),folderId:text,alt:text,caption:text,credit:text,teamId:text,season:text,published:z.boolean(),featured:z.boolean(),order:number,focusX:number,focusY:number,createdAt:date,deletedAt:date.optional()})),

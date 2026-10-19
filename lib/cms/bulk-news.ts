@@ -1,3 +1,4 @@
+import {newsPublicationCandidate,newsPublicationState} from './import-publication';
 import {articleContent,validateArticle} from './model';
 import type {CmsArticle,CmsCommand,CmsState,CmsUpdate,Permission} from './types';
 
@@ -15,12 +16,12 @@ export async function publishNewsSelection({state,ids,can,update,onProgress,shou
   const batches:CmsArticle[][]=[];
   let batch:CmsArticle[]=[],bytes=100;
   for(const id of new Set(ids)){
-    const article=state.articles.find(item=>item.id===id);
+    const stored=state.articles.find(item=>item.id===id),article=stored?newsPublicationCandidate(stored):undefined;
     const messages=!article?['Dit bericht staat niet meer in het overzicht.']
       :article.contentType!=='news'?['Selecteer een nieuwsbericht.']
       :!can('news',article.teamId)||!can('publish',article.teamId,'news')?['Je hebt geen rechten om dit bericht te publiceren.']
       :typeof article.version!=='number'?['Laad het overzicht opnieuw voordat je publiceert.']
-      :validateArticle(article,state);
+      :validateArticle(article,newsPublicationState(state,article));
     if(messages.length){result.issues.push({id,title:article?.title||'Zonder titel',messages});continue;}
     const {live,revisions,version,...data}=article!;
     const size=new TextEncoder().encode(JSON.stringify({module:'articles',id,expectedVersion:version,action:'publish',data:{...data,status:'published',scheduledAt:''}})).length+1;

@@ -5,6 +5,7 @@ import type { ArticleContent, CmsArticle, ContentStatus, ContentType, StoryForma
 import { contentHref, contentPath, contentTypeLabel, storyFormatLabel } from '@/lib/cms/content';
 import { articleContent, docText, emptySEO, now, slugify, statusLabel, textDoc, uid, validateArticle } from '@/lib/cms/model';
 import {equalContent} from '@/lib/cms/compare';
+import {newsPublicationCandidate,newsPublicationState} from '@/lib/cms/import-publication';
 import {publishNewsSelection,type NewsPublicationResult} from '@/lib/cms/bulk-news';
 import {defaultFeaturedUntil,featuredExpiry,isFeatured} from '@/lib/cms/featured';
 import {planningInput,planningInstant} from '@/lib/cms/planning';
@@ -118,10 +119,10 @@ export function NewsManager({ contentType = 'news' }: {
         notify('Concept en revisie opgeslagen. Een bestaande publicatie blijft behouden.');
     } }
     async function publish() { if (!selected || !publishable)
-        return; cancelAutosave();const problems = validateArticle(selected, state); if (problems.length) {
+        return; cancelAutosave();const publication=newsPublicationCandidate(selected);const problems = validateArticle(publication, newsPublicationState(state,publication)); if (problems.length) {
         setErrors(problems);
         return;
-    } if (await update(d => { const a = d.articles.find(x => x.id === selected.id)!; Object.assign(a,articleContent(selected));a.status='published';a.scheduledAt=''; }, `${contentTypeLabel[selected.contentType]} gepubliceerd: ${selected.title}`,{[selected.id]:{action:'publish'}})) {
+    } if (await update(d => { const a = d.articles.find(x => x.id === selected.id)!; Object.assign(a,articleContent(publication));a.status='published';a.scheduledAt=''; }, `${contentTypeLabel[selected.contentType]} gepubliceerd: ${selected.title}`,{[selected.id]:{action:'publish'}})) {
         editedIds.current.delete(selected.id);
         setErrors([]);
         notify(`Het ${noun} staat op de website.`);
@@ -187,7 +188,7 @@ export function NewsManager({ contentType = 'news' }: {
             <label className="cms-news-bulk-select"><input ref={selectAllRef} type="checkbox" aria-label="Selecteer alle zichtbare nieuwsberichten" checked={allSelected} disabled={!selectable.length||saving} onChange={()=>setBulkIds(allSelected?[]:selectable.map(article=>article.id))}/><span>Alles in dit overzicht selecteren</span></label>
             <span className="cms-news-bulk-count">{bulkIds.length} geselecteerd</span>
             <div className="cms-news-bulk-buttons"><button className="cms-button" disabled={!bulkIds.length||saving} onClick={()=>setBulkIds([])}>Selectie wissen</button><button className="cms-button primary" disabled={!bulkIds.length||saving||!!bulkResult?.stopped} onClick={publishBulk}><Send size={16}/>Selectie publiceren ({bulkIds.length})</button></div>
-            {bulkIds.length>0&&<p>De geselecteerde werkversies komen direct online. Een bestaande planning vervalt.</p>}
+            {bulkIds.length>0&&<p>De geselecteerde werkversies komen direct online. Bijbehorende geïmporteerde foto’s worden meegepubliceerd. Een bestaande planning vervalt.</p>}
         </div>
         {bulkProgress&&<p className="cms-news-bulk-progress" role="status">Bezig met publiceren: {bulkProgress.published} van {bulkProgress.total} nieuwsberichten. Houd deze pagina open.</p>}
         {bulkResult&&<section className="cms-news-bulk-result" aria-label="Resultaat bulkpublicatie">
