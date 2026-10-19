@@ -44,6 +44,7 @@ export function MediaManager({ tab = 'media' }: {
     useEffect(() => { setUploadTeamId(defaultTeam); }, [roleId, defaultTeam]);
     useEffect(() => { setFolderName(state.folders.find(f => f.id === folderId)?.name || ''); }, [folderId, state.folders]);
     const media = state.media.filter(m => !m.deletedAt);
+    const folderPage=usePagination(state.folders);
     const albums = state.albums.filter(a => !a.deletedAt);
     const visibleMedia = media.filter(m => (folderId === 'all' || m.folderId === folderId)
         && (teamFilter === 'all' || m.teamId === teamFilter)
@@ -135,7 +136,8 @@ export function MediaManager({ tab = 'media' }: {
         <h3>Mappen</h3>
         <button className={folderId === 'all' ? 'is-active' : ''} onClick={() => setFolderId('all')}><Images size={16}/> Alle foto’s <span>{media.length}</span></button>
         <button className={folderId === '' ? 'is-active' : ''} onClick={() => setFolderId('')}><Folder size={16}/> Losse bestanden <span>{media.filter(m => !m.folderId).length}</span></button>
-        {state.folders.map(f => <button key={f.id} className={folderId === f.id ? 'is-active' : ''} onClick={() => setFolderId(f.id)}><Folder size={16}/><span className="cms-folder-name">{f.name}</span><span>{media.filter(m => m.folderId === f.id).length}</span></button>)}
+        {folderPage.items.map(f => <button key={f.id} className={folderId === f.id ? 'is-active' : ''} onClick={() => setFolderId(f.id)}><Folder size={16}/><span className="cms-folder-name">{f.name}</span><span>{media.filter(m => m.folderId === f.id).length}</span></button>)}
+        <Pagination label="Mappen" {...folderPage}/>
         {can('media') && <form className="cms-folder-form" onSubmit={e => { e.preventDefault(); createFolder(); }}><label className="cms-field">Nieuwe map<input value={newFolder} onChange={e => setNewFolder(e.target.value)} placeholder="Bijv. Jeugd / seizoen 26–27" maxLength={80}/></label><button className="cms-button" type="submit" disabled={!newFolder.trim()}><FolderPlus size={15}/> Map maken</button></form>}
         {folderId && folderId !== 'all' && can('media') && <div className="cms-folder-edit"><label className="cms-field">Mapnaam<input value={folderName} onChange={e => setFolderName(e.target.value)} maxLength={80}/></label><button className="cms-button" onClick={async () => {
                     const name = folderName.trim();

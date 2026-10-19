@@ -1,6 +1,6 @@
 'use client';
 import {Pagination,usePagination} from './pagination';
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import {Children,cloneElement,isValidElement,type ReactElement, useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Check, ChevronRight, Mail, Plus, Search, ShieldCheck, Trash2, UserRound, UsersRound } from 'lucide-react';
 import { useCMS } from './provider';
 import { now, safeUrl, uid } from '@/lib/cms/model';
@@ -37,7 +37,7 @@ function Field({ label, children, hint }: {
     label: string;
     children: React.ReactNode;
     hint?: string;
-}) { return <label className="cms-field"><span>{label}</span>{children}{hint && <small>{hint}</small>}</label>; }
+}) { return <label className="cms-field"><span>{label}</span>{Children.map(children,child=>isValidElement(child)&&['input','textarea','select'].includes(String(child.type))?cloneElement(child as ReactElement<{'aria-label'?:string}>,{'aria-label':label}):child)}{hint && <small>{hint}</small>}</label>; }
 function CheckField({ label, checked, onChange, disabled = false }: {
     label: string;
     checked: boolean;
