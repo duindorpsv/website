@@ -1,12 +1,14 @@
 # Dagelijks clubbeheer
 
-Log in op /beheer met je persoonlijke account. Inloggen en de authenticator lopen via Supabase Auth. Stel de authenticator kort na het inloggen in via Accountbeveiliging. Neem bij verlies ervan contact op met de beheerder; deze versie geeft geen herstelcodes uit. Rollen zijn acties per module; teamredactie en formulieropvolging zien alleen toegewezen teams/afdelingen/stromen.
+Log in op /beheer met je persoonlijke e-mailadres en de achtcijferige code uit je e-mail. Inloggen loopt via Supabase Auth; ook beheerders gebruiken alleen de e-mailcode. Een beheerder moet je vooraf toegang geven. Rollen zijn acties per module; teamredactie en formulieropvolging zien alleen toegewezen teams/afdelingen/stromen.
 
 Bewaren verandert de werkversie. Publiceren maakt een nieuwe livepublicatie voor alle bezoekers. Revisies herstellen eerst naar een concept. Bij een versieconflict blijft je werk herstelbaar; download niet-opgeslagen werk in Herstel/back-up en vergelijk met de opnieuw geladen serverversie.
 
 Pagina’s: voeg brede of tweekolomsrijen toe. Tekst en widgets zijn onafhankelijke nodes. Gebruik een greep voor slepen, pijlen of Verplaatsen naar… voor toetsenbord/touch. Twee kolommen samenvoegen bewaart eerst links, daarna rechts; undo herstelt de gehele actie. Dupliceren geeft nieuwe structuur-IDs. Preview gebruikt dezelfde weergave en blokkeert formulierverzending.
 
 Nieuws en Verhalen hebben eigen routes/selecties. Column, Interview en Clubverhaal blijven stories. Een type-/slugwijziging verandert de openbare URL pas bij publiceren. Planning legt de gekozen inhoud vast; later bewerken verandert de ingeplande versie niet stilzwijgend.
+
+Nieuws in bulk publiceren: vink in het nieuwsoverzicht de gewenste berichten aan, of kies Alles in dit overzicht selecteren. Zoeken en filters bepalen dit overzicht; bij een ander filter wordt de selectie gewist. Kies Selectie publiceren om de geselecteerde werkversies direct online te zetten. Een bestaande planning vervalt. Alleen berichten waarvoor je publicatierechten hebt zijn selecteerbaar. Onvolledige berichten worden overgeslagen en blijven aangevinkt, met een uitleg en een knop om ze te openen. Grote selecties worden in groepen verwerkt; de voortgang en het resultaat staan in het overzicht. Bij een opslagfout stopt de actie. Laad dan het overzicht opnieuw en controleer de berichten voordat je opnieuw publiceert. Reeds bevestigde publicaties blijven behouden. Houd de pagina tijdens het publiceren open.
 
 Personen, media, albums, documenten en homepage hebben concept/live-versies. Gebruik Concepten publiceren om bewaarde wijzigingen naar gekoppelde pagina’s te brengen. Foto-originelen blijven privé; afgeleiden worden door de worker gemaakt. Voeg alt-tekst/credit toe. Een foto kan in meerdere albums; mapwijzigingen veranderen zijn URL niet.
 

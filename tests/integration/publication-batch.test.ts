@@ -6,6 +6,8 @@ import {mutate,loadState} from '../../lib/server/records';
 import {cmsArticlesForSite} from '../../lib/cms/public-adapters';
 import {heroClubArticles} from '../../lib/clubmuur-articles';
 import {createCmsSeed} from '../../lib/cms/seed';
+import {publishNewsSelection} from '../../lib/cms/bulk-news';
+import type {CmsUpdate} from '../../lib/cms/types';
 import type {Principal} from '../../lib/server/permissions';
 
 assertLocalSupabaseTests();
@@ -51,6 +53,34 @@ test('NEWS05: publish now cancels pending publication and does not keep a future
   assert.equal(saved.draft.publishedAt,saved.live.publishedAt);
   const jobs=await sql`select status from cms_jobs where kind='publish' and payload->>'id'=${article.id}`;
   assert.deepEqual(jobs.map(job=>job.status),['cancelled']);
+});
+
+test('NEWS13: bulk publication commits more than 50 selected news items through the shared mutation flow',async()=>{
+  let {state}=await loadState(false,admin);
+  const articles=Array.from({length:51},()=>({...news(),version:0,featured:false}));
+  state.articles.push(...articles);let calls=0;
+  const update:CmsUpdate=async(recipe,_label,commands)=>{
+    calls++;const draft=structuredClone(state);recipe(draft);
+    const changes=Object.entries(commands!).map(([id,command])=>({module:'articles' as const,id,expectedVersion:command.expectedVersion!,action:'publish' as const,data:draft.articles.find(article=>article.id===id)!}));
+    await mutate(admin,changes,crypto.randomUUID(),crypto.randomUUID());
+    ({state}=await loadState(false,admin));return true;
+  };
+  const result=await publishNewsSelection({state,ids:articles.map(article=>article.id),can:()=>true,update});
+  assert.equal(calls,2);assert.equal(result.published.length,51);assert.deepEqual(result.issues,[]);
+  const rows=await sql`select status,live from cms_records where id in ${sql(result.published)}`;
+  assert.equal(rows.length,51);assert.ok(rows.every(row=>row.status==='published'&&row.live.title));
+});
+
+test('NEWS14: bulk publication rechecks team permissions and rolls back the entire group',async()=>{
+  await sql`insert into cms_teams(id,name) values ('bulk-own-team','Eigen proefteam'),('bulk-other-team','Ander proefteam') on conflict do nothing`;
+  const own={...news(),teamId:'bulk-own-team'},other={...news(),teamId:'bulk-other-team'};
+  const scoped:Principal={...admin,roleId:'editor',teamScoped:true,teams:['bulk-own-team'],grants:[{module:'news',action:'*'}]};
+  const changes=[own,other].map(article=>({module:'articles' as const,id:article.id,expectedVersion:0,action:'publish' as const,data:article}));
+  await assert.rejects(mutate(scoped,changes,crypto.randomUUID(),crypto.randomUUID()),(error:any)=>error.code==='forbidden');
+  assert.equal((await sql`select id from cms_records where id in ${sql([own.id,other.id])}`).length,0);
+  const editor:Principal={...admin,roleId:'editor',grants:[{module:'news',action:'create'},{module:'news',action:'update'}]};
+  await assert.rejects(mutate(editor,changes,crypto.randomUUID(),crypto.randomUUID()),(error:any)=>error.code==='forbidden');
+  assert.equal((await sql`select id from cms_records where id in ${sql([own.id,other.id])}`).length,0);
 });
 
 test('NEWS09: an archive beyond the bootstrap limit still supplies newest news, active pins and cover images',async()=>{

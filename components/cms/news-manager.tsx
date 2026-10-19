@@ -5,6 +5,7 @@ import type { ArticleContent, CmsArticle, ContentStatus, ContentType, StoryForma
 import { contentHref, contentPath, contentTypeLabel, storyFormatLabel } from '@/lib/cms/content';
 import { articleContent, docText, emptySEO, now, slugify, statusLabel, textDoc, uid, validateArticle } from '@/lib/cms/model';
 import {equalContent} from '@/lib/cms/compare';
+import {publishNewsSelection,type NewsPublicationResult} from '@/lib/cms/bulk-news';
 import {defaultFeaturedUntil,featuredExpiry,isFeatured} from '@/lib/cms/featured';
 import {planningInput,planningInstant} from '@/lib/cms/planning';
 import {useNewsClock} from '@/hooks/use-news-clock';
@@ -27,6 +28,12 @@ export function NewsManager({ contentType = 'news' }: {
     const [filter, setFilter] = useState<'all' | ContentStatus>('all');
     const [teamFilter, setTeamFilter] = useState('');
     const [formatFilter, setFormatFilter] = useState<'' | StoryFormat>('');
+    const [bulkIds,setBulkIds]=useState<string[]>([]);
+    const [bulkProgress,setBulkProgress]=useState<{published:number;total:number}|null>(null);
+    const [bulkResult,setBulkResult]=useState<NewsPublicationResult|null>(null);
+    const bulkRunning=useRef(false),bulkMounted=useRef(true),selectAllRef=useRef<HTMLInputElement>(null);
+    useEffect(()=>{bulkMounted.current=true;return()=>{bulkMounted.current=false;};},[]);
+    useEffect(()=>{if(!bulkRunning.current){setBulkIds([]);setBulkResult(null);}},[query,filter,teamFilter,contentType,selectedId]);
     const [preview, setPreview] = useState(false);
     const [inspector, setInspector] = useState<'details' | 'seo' | 'revisions'>('details');
     const [errors, setErrors] = useState<string[]>([]);
@@ -75,6 +82,25 @@ export function NewsManager({ contentType = 'news' }: {
     const teamOptions = state.settings.teams;
     const canCreate = can(contentType==='story'?'stories':'news') || teamOptions.some(t => can(contentType==='story'?'stories':'news', t.id));
     const visible = articles.filter(a => (filter === 'all' || a.status === filter) && (!teamFilter || a.teamId === teamFilter) && (!formatFilter || a.storyFormat === formatFilter) && `${a.title} ${a.author} ${a.category} ${a.tags.join(' ')}`.toLowerCase().includes(query.toLowerCase())).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    const canBulkPublish=(article:CmsArticle)=>can('news',article.teamId)&&can('publish',article.teamId,'news');
+    const selectable=contentType==='news'?visible.filter(canBulkPublish):[];
+    const allSelected=selectable.length>0&&selectable.every(article=>bulkIds.includes(article.id));
+    const bulkBusy=bulkProgress!==null;
+    useEffect(()=>{if(selectAllRef.current)selectAllRef.current.indeterminate=!allSelected&&bulkIds.length>0;},[allSelected,bulkIds]);
+    function toggleBulk(id:string){setBulkIds(current=>current.includes(id)?current.filter(value=>value!==id):[...current,id]);}
+    async function publishBulk(){
+        if(bulkRunning.current||saving||!bulkIds.length)return;
+        bulkRunning.current=true;setBulkResult(null);setBulkProgress({published:0,total:bulkIds.length});
+        try{
+            const result=await publishNewsSelection({state,ids:bulkIds,can,update,
+                onProgress:(published,total)=>{if(bulkMounted.current)setBulkProgress({published,total});},
+                shouldContinue:()=>bulkMounted.current});
+            if(bulkMounted.current){
+                setBulkResult(result);setBulkIds(current=>current.filter(id=>!result.published.includes(id)));
+                notify(`${result.published.length} nieuwsbericht${result.published.length===1?'':'en'} gepubliceerd.${result.issues.length?` ${result.issues.length===1?'1 heeft':`${result.issues.length} hebben`} aandacht nodig; bekijk de uitleg in het overzicht.`:''}`);
+            }
+        }finally{bulkRunning.current=false;if(bulkMounted.current)setBulkProgress(null);}
+    }
     function open(id: string) { setSelectedId(id); setPreview(false); setInspector('details'); setErrors([]); setTrashConfirm(false); editedIds.current.delete(id); }
     async function create() { if (!canCreate)
         return; const stamp = now(); const teamId = can(contentType==='story'?'stories':'news') ? '' : teamOptions.find(t => can(contentType==='story'?'stories':'news', t.id))?.id || ''; const article: CmsArticle = { id: uid('article'), contentType, storyFormat: contentType === 'story' ? 'column' : 'story', title: '', slug: '', intro: '', body: textDoc(['']), coverId: '', author: 'Redactie Duindorp SV', category: state.settings.newsCategories[0] || 'Clubnieuws', tags: [], teamId, season: state.settings.season, seo: emptySEO(), featured: false, publishedAt: '', status: 'draft', updatedAt: stamp, scheduledAt: '', revisions: [] }; if (await update(d => { d.articles.unshift(article); }, `${moduleTitle}concept aangemaakt`))
@@ -149,15 +175,32 @@ export function NewsManager({ contentType = 'news' }: {
     }
     if(importOpen&&contentType==='news'&&canCreate)return <NewsImporter onClose={()=>setImportOpen(false)}/>;
     if (!selected)
-        return <div className="cms-news-manager">
+        return <div className="cms-news-manager" aria-busy={bulkBusy}><fieldset className="cms-news-overview-controls" disabled={bulkBusy}><legend className="cms-sr-only">{moduleTitle}overzicht</legend>
     <div className="cms-news-intro"><div><span className="cms-meta">REDACTIE · {moduleTitle.toUpperCase()}</span><h2>{moduleTitle}</h2><p>{contentType === 'story' ? 'Columns, interviews en persoonlijke verhalen uit de club. Deze hebben een eigen plek, los van het actuele nieuws.' : 'Actueel clubnieuws, wedstrijdverslagen en mededelingen. Columns en andere verhalen beheer je bij Verhalen.'}</p></div><div className="cms-toolbar">{contentType==='news'&&<button className="cms-button" disabled={!canCreate} onClick={()=>setImportOpen(true)}>Nieuws importeren</button>}<button className="cms-button primary" disabled={!canCreate} onClick={create}><Plus size={18}/>{createLabel}</button></div></div>
     <div className="cms-news-summary">{([{ status: 'all', name: allLabel, value: articles.length }, { status: 'draft', name: 'Concepten', value: articles.filter(a => a.status === 'draft').length }, { status: 'review', name: 'Ter beoordeling', value: articles.filter(a => a.status === 'review').length }, { status: 'published', name: 'Gepubliceerd', value: articles.filter(a => a.status === 'published').length }, { status: 'scheduled', name: 'Ingepland', value: articles.filter(a => a.status === 'scheduled').length }] as const).map(item => <button key={item.status} className={filter === item.status ? 'active' : ''} aria-pressed={filter === item.status} onClick={() => setFilter(item.status)}><span>{item.name}</span><strong>{item.value}</strong></button>)}</div>
     <div className="cms-panel"><div className="cms-toolbar cms-news-search"><label className="cms-news-searchbox"><Search size={18}/><input aria-label={`Zoek in ${moduleTitle.toLowerCase()}`} value={query} onChange={e => setQuery(e.target.value)} placeholder="Zoek op titel, auteur, categorie of tag…"/></label>{contentType === 'story' && <select aria-label="Filter op verhaalvorm" value={formatFilter} onChange={e => setFormatFilter(e.target.value as '' | StoryFormat)}><option value="">Alle verhaalvormen</option>{(Object.entries(storyFormatLabel) as [
             StoryFormat,
             string
         ][]).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>}<select aria-label="Filter op team" value={teamFilter} onChange={e => setTeamFilter(e.target.value)}><option value="">Alle teams</option>{teamOptions.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></div>
-    {visible.length ? <div className="cms-news-list">{visible.map(a => { const image = media.find(m => m.id === a.coverId); return <button className="cms-news-item" key={a.id} onClick={() => open(a.id)}><div className="cms-news-thumb">{image?.src ? <img src={image.src} alt=""/> : <Newspaper size={27}/>}</div><div className="cms-news-item-copy"><span>{a.contentType === 'story' ? `${storyFormatLabel[a.storyFormat]} · ` : ''}{a.category}{a.demo ? ' · Voorbeeldbericht' : ''}</span><h3>{a.title || 'Zonder titel'}</h3><p>{a.intro || 'Voeg een korte inleiding toe.'}</p><small>{a.author} · Bewerkt {dateLabel(a.updatedAt)}</small></div><div className="cms-news-item-end"><span className={`cms-news-status ${a.status}`}>{statusLabel[a.status]}</span>{a.live && a.status !== 'published' && <small>Vorige versie staat live{a.live.contentType !== a.contentType ? ` bij ${contentTypeLabel[a.live.contentType]}` : ''}</small>}<ArrowUpRight size={20}/></div></button>; })}</div> : <div className="cms-empty"><Newspaper size={32}/><h3>{contentType === 'story' ? 'Hier begint een nieuw verhaal' : 'Het volgende nieuws begint hier'}</h3><p>{query || filter !== 'all' || teamFilter || formatFilter ? 'Er zijn geen berichten die bij je filters passen.' : contentType === 'story' ? 'Maak een column, interview of clubverhaal.' : 'Schrijf het eerste nieuwsbericht voor de club.'}</p>{(query || filter !== 'all' || teamFilter || formatFilter) ? <button className="cms-button" onClick={() => { setQuery(''); setFilter('all'); setTeamFilter(''); setFormatFilter(''); }}>Filters wissen</button> : <button className="cms-button primary" onClick={create} disabled={!canCreate}>{createLabel}</button>}</div>}</div>
-  </div>;
+    {contentType==='news'&&<>
+        <div className="cms-news-bulk-toolbar">
+            <label className="cms-news-bulk-select"><input ref={selectAllRef} type="checkbox" aria-label="Selecteer alle zichtbare nieuwsberichten" checked={allSelected} disabled={!selectable.length||saving} onChange={()=>setBulkIds(allSelected?[]:selectable.map(article=>article.id))}/><span>Alles in dit overzicht selecteren</span></label>
+            <span className="cms-news-bulk-count">{bulkIds.length} geselecteerd</span>
+            <div className="cms-news-bulk-buttons"><button className="cms-button" disabled={!bulkIds.length||saving} onClick={()=>setBulkIds([])}>Selectie wissen</button><button className="cms-button primary" disabled={!bulkIds.length||saving||!!bulkResult?.stopped} onClick={publishBulk}><Send size={16}/>Selectie publiceren ({bulkIds.length})</button></div>
+            {bulkIds.length>0&&<p>De geselecteerde werkversies komen direct online. Een bestaande planning vervalt.</p>}
+        </div>
+        {bulkProgress&&<p className="cms-news-bulk-progress" role="status">Bezig met publiceren: {bulkProgress.published} van {bulkProgress.total} nieuwsberichten. Houd deze pagina open.</p>}
+        {bulkResult&&<section className="cms-news-bulk-result" aria-label="Resultaat bulkpublicatie">
+            <p role="status">{bulkResult.published.length} nieuwsbericht{bulkResult.published.length===1?'':'en'} gepubliceerd.{bulkResult.issues.length>0&&` ${bulkResult.issues.length===1?'1 heeft':`${bulkResult.issues.length} hebben`} aandacht nodig.`}</p>
+            {bulkResult.issues.length>0&&<details open><summary>Deze berichten hebben aandacht nodig</summary><ul>{bulkResult.issues.map(issue=><li key={issue.id}><strong>{issue.title}</strong><p>{issue.messages.join(' ')}</p>{articles.some(article=>article.id===issue.id)&&<button className="cms-button" onClick={()=>open(issue.id)}>Bericht openen<span className="cms-sr-only">: {issue.title}</span></button>}</li>)}</ul>{bulkResult.stopped&&<button className="cms-button" onClick={async()=>{try{await reload();clearStorageError();setBulkResult(null);}catch{notify('Het overzicht kon niet opnieuw worden geladen. Probeer het opnieuw.');}}}>Overzicht opnieuw laden</button>}</details>}
+        </section>}
+    </>}
+    {visible.length ? <div className="cms-news-list">{visible.map(a => {
+        const image = media.find(m => m.id === a.coverId);
+        const item=<button className="cms-news-item" key={a.id} onClick={() => open(a.id)}><div className="cms-news-thumb">{image?.src ? <img src={image.src} alt=""/> : <Newspaper size={27}/>}</div><div className="cms-news-item-copy"><span>{a.contentType === 'story' ? `${storyFormatLabel[a.storyFormat]} · ` : ''}{a.category}{a.demo ? ' · Voorbeeldbericht' : ''}</span><h3>{a.title || 'Zonder titel'}</h3><p>{a.intro || 'Voeg een korte inleiding toe.'}</p><small>{a.author} · Bewerkt {dateLabel(a.updatedAt)}</small></div><div className="cms-news-item-end"><span className={`cms-news-status ${a.status}`}>{statusLabel[a.status]}</span>{a.live && a.status !== 'published' && <small>Vorige versie staat live{a.live.contentType !== a.contentType ? ` bij ${contentTypeLabel[a.live.contentType]}` : ''}</small>}<ArrowUpRight size={20}/></div></button>;
+        return contentType==='news'?<div className={`cms-news-row${bulkIds.includes(a.id)?' is-selected':''}`} key={a.id}><label className="cms-news-row-select" title={canBulkPublish(a)?'Selecteren voor publicatie':'Je hebt geen publicatierechten voor dit bericht.'}><input type="checkbox" aria-label={`Selecteer nieuwsbericht: ${a.title||'Zonder titel'}`} checked={bulkIds.includes(a.id)} disabled={!canBulkPublish(a)||saving} onChange={()=>toggleBulk(a.id)}/></label>{item}</div>:item;
+    })}</div> : <div className="cms-empty"><Newspaper size={32}/><h3>{contentType === 'story' ? 'Hier begint een nieuw verhaal' : 'Het volgende nieuws begint hier'}</h3><p>{query || filter !== 'all' || teamFilter || formatFilter ? 'Er zijn geen berichten die bij je filters passen.' : contentType === 'story' ? 'Maak een column, interview of clubverhaal.' : 'Schrijf het eerste nieuwsbericht voor de club.'}</p>{(query || filter !== 'all' || teamFilter || formatFilter) ? <button className="cms-button" onClick={() => { setQuery(''); setFilter('all'); setTeamFilter(''); setFormatFilter(''); }}>Filters wissen</button> : <button className="cms-button primary" onClick={create} disabled={!canCreate}>{createLabel}</button>}</div>}</div>
+  </fieldset></div>;
     const cover = media.find(m => m.id === selected.coverId);
     const words = docText(selected.body).trim().split(/\s+/).filter(Boolean).length;
     const categories = [...new Set([...state.settings.newsCategories, selected.category])].filter(Boolean);
