@@ -89,9 +89,9 @@ function ClubSiteContent({section='home',contentPath,headerDesign='clubband',her
   <div id="main-content">{contentPath?<CmsRoutedContent path={path}/>:section==='home'?<main>
    <ClubmuurHero actions={actions} items={items} layout={heroLayout} photo={heroPhoto} preview={heroPreview}/>
    <CmsFeaturedPhotos/>
-   <CmsFeaturedAlbums/>
    <ClubmuurCommunityCards items={items} onOpen={actions.openArticle} articleOpen={!!article}/>
    <CmsFeaturedStories/>
+   <CmsFeaturedAlbums/>
   </main>:section==='nieuws'?<CmsNewsIndex/>:section==='verhalen'?<CmsStoriesIndex/>:section==='teams'?<SportlinkTeamsPage/>:section==='wedstrijden'?<SportlinkMatchesPage/>:<ClubPage actions={actions}/>}</div>
   <Footer openJoin={actions.openJoin}/>
   <ClubmuurMobileNav section={section==='verhalen'?'nieuws':section}/>
