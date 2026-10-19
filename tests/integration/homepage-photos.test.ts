@@ -1,13 +1,16 @@
 import {test,after} from 'node:test';
 import assert from 'node:assert/strict';
+import postgres from 'postgres';
 import {assertLocalSupabaseTests} from '../helpers/supabase-auth';
-import {sqlClient,closeDb} from '../../db';
+import {databaseOptions} from '../../lib/server/database-config';
 import {createCmsSeed} from '../../lib/cms/seed';
 import {applyHomepagePhotoRepair} from '../../lib/server/homepage-photos';
 import {loadState} from '../../lib/server/records';
 
 assertLocalSupabaseTests();
-const sql=sqlClient(),seed=createCmsSeed(),photos=seed.media.filter(photo=>photo.id.startsWith('photo-'));
+const migrationUrl=new URL(process.env.MIGRATION_DATABASE_URL||'postgres://invalid/invalid');
+if(!['127.0.0.1','localhost'].includes(migrationUrl.hostname)||!['/postgres','/duindorp_test'].includes(migrationUrl.pathname))throw new Error('Content upgrade tests require the isolated local migration connection.');
+const sql=postgres(migrationUrl.href,databaseOptions(1)),seed=createCmsSeed(),photos=seed.media.filter(photo=>photo.id.startsWith('photo-'));
 const release='homepage-club-photos-v1';
 
 async function fixture(run:(tx:any)=>Promise<void>){
@@ -67,4 +70,4 @@ test('homepage photo repair leaves other private media, changed files and existi
   assert.ok((await tx`select live from cms_records where id in ${tx([privateId,...photos.slice(1).map(photo=>photo.id)])}`).every((row:any)=>row.live===null));
 }));
 
-after(closeDb);
+after(()=>sql.end({timeout:2}));
