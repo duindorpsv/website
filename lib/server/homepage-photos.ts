@@ -34,8 +34,13 @@ export async function applyHomepagePhotoRepair(tx:any,releaseId=release) {
       continue;
     }
     inspected.push({id:old.id,state:old.deleted_at?'archived':old.live?'publication-flag-missing':'unpublished'});
+    // Restore the last approved snapshot. A later private caption or name must
+    // remain a working version when an archived photo becomes public again.
+    const [history] = old.live ? [] : await tx`select snapshot from cms_publications where record_id=${old.id} and record_version<=${old.version} order by record_version desc,created_at desc limit 1`;
+    const approved = old.live || history?.snapshot || original;
+    if(approved.src!==original.src){inspected.push({id:old.id,state:'approved-source-replaced'});continue;}
     const draft = publishedPhoto(old.draft,original.alt);
-    const live = old.live ? publishedPhoto(old.live,original.alt) : structuredClone(draft);
+    const live = publishedPhoto(approved,original.alt);
     const version = old.version + 1, publication = crypto.randomUUID();
     await tx`insert into cms_revisions(id,record_id,version,snapshot,label) values (${crypto.randomUUID()},${old.id},${old.version},${tx.json(old.draft)},'Voor herstel gekozen homepagefoto') on conflict(record_id,version) do nothing`;
     await tx`insert into cms_publications(id,record_id,record_version,snapshot) values (${publication},${old.id},${version},${tx.json(live)})`;
