@@ -1,0 +1,165 @@
+.page {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px clamp(20px, 4vw, 64px);
+  background: #f0f4f9;
+  color: #142943;
+  color-scheme: light;
+  font-family: 'Manrope', Arial, sans-serif;
+}
+
+.topbar {
+  width: min(1120px, 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.backLink {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #52647b;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.backLink:hover { color: #164ccf; }
+.topbarLabel { color: #60728a; font-size: 10px; font-weight: 700; letter-spacing: .17em; }
+
+.shell {
+  width: min(1120px, 100%);
+  min-height: 720px;
+  display: grid;
+  grid-template-columns: 45% 55%;
+  overflow: hidden;
+  border: 1px solid #dfe6ef;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 70px #173d6810, 0 3px 12px #173d6805;
+}
+
+.clubPanel {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 40px 44px 44px;
+  overflow: hidden;
+  background: #0b2d59;
+  color: #fff;
+}
+
+.clubPhoto, .photoShade { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; }
+.clubPhoto { max-width: none; object-fit: cover; object-position: 39% center; }
+.photoShade { background: linear-gradient(180deg, #062a61d9 0%, #123e6c25 37%, #082851c9 68%, #061d3ff5 100%); }
+.brand { display: inline-flex; align-items: center; gap: 13px; width: fit-content; color: #fff; text-decoration: none; }
+.brand img { width: 54px; height: 62px; object-fit: contain; }
+.brand > span { font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-size: 29px; font-weight: 800; line-height: 1; letter-spacing: .035em; }
+.brand small { display: block; margin-top: 9px; color: #d4e2f6; font-family: 'Manrope', Arial, sans-serif; font-size: 8px; font-weight: 600; letter-spacing: .16em; }
+.clubCopy { padding-top: 100px; }
+.clubEyebrow { display: block; margin-bottom: 19px; color: #dbe6f6; font-size: 9px; font-weight: 800; letter-spacing: .2em; }
+.clubCopy h2 { margin: 0; color: #fff; font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-size: clamp(56px, 5.6vw, 76px); font-weight: 800; line-height: .98; letter-spacing: -.015em; }
+.clubCopy h2 span { color: #f5d875; }
+.clubCopy p { max-width: 260px; margin: 24px 0 0; color: #cbd9ed; font-size: 12px; line-height: 1.8; }
+
+.formPanel { min-width: 0; display: flex; align-items: center; justify-content: center; padding: 54px 64px; }
+.formContent { width: 100%; max-width: 400px; }
+.mailIcon { width: 54px; height: 54px; display: grid; place-items: center; margin-bottom: 24px; border: 1px solid #e0eafa; border-radius: 15px; background: #f0f5ff; color: #2353ad; }
+.eyebrow { margin: 0 0 10px; color: #3a5f96; font-size: 9px; font-weight: 800; line-height: 1.5; letter-spacing: .16em; }
+.title { margin: 0; color: #102846; font-family: 'Manrope', Arial, sans-serif; font-size: 34px; font-weight: 800; line-height: 1.2; letter-spacing: -.045em; }
+.intro { margin: 14px 0 0; color: #617087; font-size: 14px; line-height: 1.8; }
+.steps { display: flex; align-items: center; gap: 28px; list-style: none; margin: 29px 0; padding: 0; }
+.steps li { display: flex; align-items: center; gap: 8px; color: #67768c; font-size: 12px; font-weight: 600; }
+.steps li > span { width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid #e1e6ed; border-radius: 50%; background: #f7f9fb; font-size: 10px; }
+.steps li.activeStep { color: #174990; font-weight: 800; }
+.steps .activeStep > span { border-color: #1b50b5; background: #1b50b5; color: #fff; }
+.steps li.completedStep { color: #607b9d; }
+.steps .completedStep > span { border-color: #d5e3f9; background: #edf4ff; color: #285da9; }
+.recipient { display: flex; align-items: center; gap: 10px; min-width: 0; margin-bottom: 23px; padding: 12px 14px; border: 1px solid #e0e8f4; border-radius: 8px; background: #f7faff; color: #31557e; font-size: 12px; font-weight: 700; }
+.recipient span { min-width: 0; overflow-wrap: anywhere; }
+.form { display: grid; gap: 18px; margin: 0; }
+.field { display: grid; gap: 9px; min-width: 0; }
+.field label { display: block; color: #263b55; font-size: 13px; font-weight: 800; line-height: 1.5; }
+.inputWrap { display: flex; align-items: center; gap: 12px; min-height: 54px; padding: 0 16px; border: 1px solid #cfd9e7; border-radius: 9px; background: #fff; color: #8a9bb2; transition: border-color .15s, box-shadow .15s; }
+.inputWrap:focus-within { border-color: #2b62cb; box-shadow: 0 0 0 3px #2b62cb16; }
+.inputWrap input { width: 100%; min-width: 0; height: 52px; padding: 0; border: 0; outline: none; background: transparent; color: #142943; font-family: inherit; font-size: 14px; }
+.inputWrap input::placeholder { color: #98a4b5; }
+.inputWrap input:focus-visible { outline: none; }
+.codeInput { display: block; width: 100%; min-width: 0; min-height: 72px; padding: 12px 14px 12px 22px; border: 1px solid #cbd9ed; border-radius: 9px; outline: none; background: #f9fbff; color: #173d78; font-family: 'Manrope', Arial, sans-serif; font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.4; letter-spacing: .28em; text-align: center; transition: border-color .15s, box-shadow .15s; }
+.codeInput::placeholder { color: #bbc9dc; font-weight: 500; opacity: 1; }
+.codeInput:focus-visible { outline: none; border-color: #2b62cb; box-shadow: 0 0 0 3px #2b62cb16; }
+.hint { display: flex; align-items: center; gap: 6px; margin: 0; color: #61728a; font-size: 11px; line-height: 1.7; }
+.submitButton { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 53px; padding: 14px 18px; border: 1px solid #1648a4; border-radius: 9px; background: #194eae; color: #fff; box-shadow: 0 4px 10px #194eae14; font-family: inherit; font-size: 14px; font-weight: 800; line-height: 1.5; cursor: pointer; transition: background .15s, box-shadow .15s; }
+.submitButton:hover:not(:disabled) { background: #123f92; box-shadow: 0 5px 16px #194eae25; }
+.submitButton:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+.passwordNote { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 17px 0 0; color: #61728a; font-size: 11px; line-height: 1.7; text-align: center; }
+.codeActions { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 13px; }
+.resendButton, .changeEmailButton { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; max-width: 100%; padding: 8px 6px; border: 0; border-radius: 4px; background: transparent; color: #285894; font-family: inherit; font-size: 11px; font-weight: 700; line-height: 1.6; cursor: pointer; }
+.changeEmailButton { color: #65778e; font-weight: 600; }
+.resendButton:hover:not(:disabled), .changeEmailButton:hover:not(:disabled) { color: #174baf; text-decoration: underline; text-underline-offset: 3px; }
+.resendButton:disabled, .changeEmailButton:disabled { color: #8b98aa; cursor: not-allowed; }
+.accessNote { display: flex; align-items: flex-start; gap: 11px; margin-top: 31px; padding-top: 23px; border-top: 1px solid #e7ecf3; color: #7f8ca0; }
+.accessNote > svg { margin-top: 3px; }
+.accessNote p { margin: 0; color: #61728a; font-size: 11px; line-height: 1.9; }
+.accessNote a { color: #3a5d8c; text-decoration: underline; text-underline-offset: 2px; }
+.footer { margin: 21px 0 0; color: #60718a; font-size: 11px; line-height: 1.7; }
+.footer span { margin: 0 7px; }
+.error { margin: 0; padding: 11px 13px; border: 1px solid #f1cdcf; border-radius: 7px; background: #fff5f5; color: #9a3039; font-size: 12px; line-height: 1.7; }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.page :is(a, button):focus-visible { outline: 3px solid #4c84e9; outline-offset: 4px; }
+.spinner { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 960px) {
+  .clubPanel { padding: 34px 30px 38px; }
+  .formPanel { padding: 42px 38px; }
+  .brand > span { font-size: 25px; }
+  .brand img { width: 46px; height: 54px; }
+  .clubCopy h2 { font-size: 62px; }
+}
+
+@media (max-width: 700px) {
+  .page { justify-content: flex-start; padding: 16px; }
+  .topbar { margin-bottom: 9px; }
+  .topbarLabel { display: none; }
+  .shell { min-height: 0; grid-template-columns: minmax(0, 1fr); border-radius: 15px; }
+  .clubPanel { min-height: 115px; padding: 23px 26px; }
+  .clubPhoto { object-position: 40% 43%; }
+  .photoShade { background: linear-gradient(90deg, #082c61f0, #082c6190 65%, #082c6166); }
+  .brand img { width: 44px; height: 52px; }
+  .brand > span { font-size: 27px; }
+  .clubCopy { display: none; }
+  .formPanel { padding: 32px 28px 30px; }
+  .mailIcon { width: 46px; height: 46px; margin-bottom: 20px; border-radius: 12px; }
+  .title { font-size: 30px; }
+  .intro { margin-top: 12px; }
+  .steps { gap: 24px; margin: 25px 0; }
+  .inputWrap input { font-size: 16px; }
+  .codeInput { min-height: 68px; font-size: 28px; }
+  .resendButton, .changeEmailButton { min-height: 44px; }
+  .accessNote { margin-top: 26px; padding-top: 20px; }
+  .footer { margin-top: 17px; }
+}
+
+@media (max-width: 360px) {
+  .page { padding: 12px; }
+  .formPanel { padding: 28px 20px; }
+  .title { font-size: 28px; }
+  .codeInput { padding-left: 18px; font-size: 25px; letter-spacing: .24em; }
+  .steps { gap: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; }
+  .inputWrap, .codeInput, .submitButton { transition: none; }
+}

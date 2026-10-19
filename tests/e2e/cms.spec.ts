@@ -66,6 +66,41 @@ test('NEWS01 and DATA01: a typed news draft is saved and visible in a second bro
  await page.getByRole('button',{name:'Concept bewaren',exact:true}).click();await expect(page.getByText(/Concept en revisie opgeslagen/)).toBeVisible();
  const other=await browser.newContext();const second=await other.newPage();await login(second);await second.getByRole('button',{name:'Nieuws',exact:true}).click();await expect(second.getByRole('heading',{name:title,exact:true})).toBeVisible();await other.close();
 });
+test('MEDIA01: saving a photo also persists its homepage selection without an unknown ID error',async({page})=>{
+ await login(page);
+ const bootstrap=await page.request.get('/api/cms/bootstrap').then(r=>r.json());
+ const original=bootstrap.state.media.find((item:any)=>item.published&&item.featured&&bootstrap.state.settings.homepagePhotoIds.includes(item.id));
+ expect(original).toBeTruthy();
+ const caption='Fotowijziging '+crypto.randomUUID(),origin=new URL(page.url()).origin;
+ try{
+  await page.goto('/beheer#media');
+  await page.locator('.cms-media-tile').filter({hasText:original.name}).first().click();
+  await page.getByRole('textbox',{name:/^Bijschrift/}).fill(caption);
+  await page.getByLabel('Uitlichten op de fotomuur van de homepage',{exact:true}).uncheck();
+  const saved=page.waitForResponse(r=>r.url().endsWith('/api/cms/mutations')&&r.request().method()==='POST');
+  await page.getByRole('button',{name:'Opslaan',exact:true}).click();
+  const response=await saved;
+  expect(response.request().postDataJSON().changes.map((change:any)=>change.module).sort()).toEqual(['media','settings']);
+  expect(response.status()).toBe(200);
+  await expect(page.getByText('Foto opgeslagen.',{exact:true})).toBeVisible();
+  await page.reload();
+  await page.locator('.cms-media-tile').filter({hasText:original.name}).first().click();
+  await expect(page.getByRole('textbox',{name:/^Bijschrift/})).toHaveValue(caption);
+  await expect(page.getByLabel('Uitlichten op de fotomuur van de homepage',{exact:true})).not.toBeChecked();
+  const persisted=await page.request.get('/api/cms/bootstrap').then(r=>r.json());
+  expect(persisted.state.settings.homepagePhotoIds).not.toContain(original.id);
+  await expect(page.getByText(/Onbekend veld:/)).toHaveCount(0);
+ }finally{
+  // Allow bounded cleanup even if an earlier UI action reached the test timeout.
+  test.setTimeout(test.info().timeout+10000);
+  const current=await page.request.get('/api/cms/bootstrap',{timeout:5000}).then(r=>r.json());
+  const restored=await page.request.post('/api/cms/mutations',{timeout:5000,headers:{Origin:origin},data:{operationId:crypto.randomUUID(),changes:[
+   {module:'media',id:original.id,expectedVersion:current.versions[original.id],action:'save',data:original},
+   {module:'settings',id:'settings',expectedVersion:current.versions.settings,action:'save',data:{...current.state.settings,homepagePhotoIds:bootstrap.state.settings.homepagePhotoIds}},
+  ]}});
+  expect(restored.status()).toBe(200);
+ }
+});
 test('PB05: emulated touch drag can be cancelled without losing nodes at 390 pixels',async({browser})=>{
  const context=await browser.newContext({hasTouch:true,isMobile:true,viewport:{width:390,height:844}}),page=await context.newPage();await login(page);await page.getByRole('button',{name:'Beheermenu openen'}).click();await page.getByRole('button',{name:'Pagina’s',exact:true}).click();
  const created=page.waitForResponse((r:any)=>r.url().endsWith('/api/cms/mutations')&&r.request().method()==='POST'&&r.request().postDataJSON().changes.some((c:any)=>c.expectedVersion===0&&c.id.startsWith('page-')));await page.getByRole('button',{name:'Nieuwe pagina',exact:true}).first().click();const response=await created;const id=Object.keys((await response.json()).versions)[0];await expect(page.locator(`[data-page-id="${id}"] .pb-builder`)).toBeVisible();
