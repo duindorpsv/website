@@ -19,7 +19,7 @@ export type Principal = {
     }[];
     mfa: boolean;
 };
-export async function principal(headers: Headers, options:{allowMfaSetup?:boolean}={}): Promise<Principal> {
+export async function principal(headers: Headers): Promise<Principal> {
     const session = await getAuth().api.getSession({ headers });
     if (!session)
         throw new CmsError('unauthenticated', 'Log in om clubbeheer te openen.', 401);
