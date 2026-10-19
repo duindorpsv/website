@@ -1,4 +1,9 @@
+import {importedNewsContent} from '../cms/import-publication';
+import {agendaSchema} from '../club-agenda';
+import {validHeroPhotoIds} from '../clubmuur-layouts';
+import {currentClubLinks} from '../current-club-links';
 import {syncHomepage,moveChildPaths} from './publication-effects';
+import {heroNewsRows} from './hero-news';
 import { validClubNavigation } from '../clubmuur-navigation';
 import { validHeroCards } from '../clubmuur-config';
 import { parseGroups } from '../narrowcasting-config';
@@ -10,10 +15,11 @@ import { assertLayout, migrateLayout, referencesIn, validateDocument, safeDestin
 import type { CmsState, CmsArticle, CmsPage } from '../cms/types';
 import { CmsError } from './errors';
 import { authorize, has, type Principal } from './permissions';
-export const contentModules = ['articles', 'pages', 'people', 'media', 'folders', 'albums', 'forms', 'documents', 'settings', 'navigation', 'hero', 'narrowcasting', 'patterns'] as const;
+export const contentModules = ['articles', 'pages', 'people', 'media', 'folders', 'albums', 'forms', 'documents', 'settings', 'navigation', 'hero', 'heroPhotos', 'agenda', 'narrowcasting', 'patterns'] as const;
 export type ContentModule = typeof contentModules[number];
 export type RecordRow = {
     id: string;
+    imported?: boolean;
     module: ContentModule;
     version: number;
     draft: Record<string, any>;
@@ -26,25 +32,30 @@ export type RecordRow = {
 };
 export function emptyState(): CmsState { const s = createCmsSeed(); for (const key of ['articles', 'pages', 'people', 'media', 'folders', 'albums', 'departments', 'forms', 'submissions', 'roles', 'members', 'documents', 'redirects', 'audit'] as const)
     s[key] = [] as never; return s; }
-const alias: Record<string, string> = { articles: 'news', albums: 'media', folders: 'media', documents: 'pages', navigation: 'pages', hero: 'pages', narrowcasting: 'pages',patterns:'pages' };
+const alias: Record<string, string> = { articles: 'news', albums: 'media', folders: 'media', documents: 'pages', navigation: 'pages', hero: 'pages', heroPhotos: 'pages', agenda: 'pages', narrowcasting: 'pages',patterns:'pages' };
 export function permissionModule(module: string,data?:Record<string,any>) { return module==='articles'&&data?.contentType==='story'?'stories':alias[module] || module; }
 export function scope(row: RecordRow) { return { teamId: row.team_id || '', departmentId: row.department_id || '', kind: String(row.draft.kind || '') }; }
-export function recordOutput(row: RecordRow, revisions: unknown[] = []) { const data: Record<string, any> = { ...row.draft, id: row.id, version: row.version }; if (['articles', 'pages'].includes(row.module))
+export function recordOutput(row: RecordRow, revisions: unknown[] = []) { const data: Record<string, any> = { ...row.draft, id: row.id, version: row.version, ...(row.module==='articles'?{imported:!!row.imported}:{}) }; if (['articles', 'pages'].includes(row.module))
     Object.assign(data, { status: row.status, scheduledAt: (row as any).scheduled_at || row.draft.scheduledAt || '', updatedAt: new Date(row.updated_at).toISOString(), live: row.live || undefined, revisions });
 else
     Object.assign(data, { published: !!row.live, live: row.live || undefined }); if (row.module === 'media' && String(data.src).startsWith('/api/media/'))
     data.src = `/api/cms/media/${row.id}/file`; if (row.deleted_at)
     Object.assign(data, { deletedAt: row.deleted_at }); return data; }
-export async function loadState(publicOnly = false, p?: Principal,transaction?:any): Promise<{
+export async function loadState(publicOnly = false, p?: Principal,transaction?:any,requiredIds:string[]=[]): Promise<{
     state: CmsState;
     versions: Record<string, number>;
 }> {
     const sql:ReturnType<typeof sqlClient> = transaction||sqlClient(), state = emptyState(), versions: Record<string, number> = {};
-    const rows = await sql<RecordRow[]> `select *, (select run_at from cms_jobs j where j.kind='publish' and j.payload->>'id'=cms_records.id and j.status in ('pending','processing') limit 1) as scheduled_at from cms_records where ${publicOnly ? sql `live is not null and deleted_at is null` : sql `true`} and ${!publicOnly&&p?sql`(module!='media' or id in (select id from cms_records where module='media' order by updated_at desc,id limit 100) or id in (select target_id from cms_references))`:sql`true`} order by case when module in ('settings','navigation','hero') then 0 else 1 end,updated_at desc,id limit 1500`;
-    for (const row of rows) {
+    const rows = await sql<RecordRow[]> `with plans as materialized (select distinct on (payload->>'id') payload->>'id' as record_id,run_at from cms_jobs where kind='publish' and status in ('pending','processing') order by payload->>'id',run_at) select cms_records.*,i.record_id is not null as imported,plans.run_at as scheduled_at from cms_records left join cms_news_import_identities i on i.record_id=cms_records.id left join plans on plans.record_id=cms_records.id where ${publicOnly ? sql `live is not null and deleted_at is null` : sql `true`} and ${!publicOnly&&p?sql`(module!='media' or id in (select id from cms_records where module='media' order by updated_at desc,id limit 100) or id in (select target_id from cms_references))`:sql`true`} order by case when deleted_at is not null then 3 when module in ('settings','navigation','hero','heroPhotos','agenda') then 0 when module!='media' then 1 else 2 end,updated_at desc,id limit 1500`;
+    const requested=requiredIds.length?await sql<RecordRow[]>`select *,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported from cms_records where id in ${sql([...new Set(requiredIds)])}`:[];
+    // Article dependencies must not disappear behind the global bootstrap limit.
+    const refs=[...new Set([...rows.filter(row=>row.module!=='media'&&!row.deleted_at),...requested].flatMap(row=>referencesIn(publicOnly?row.live:row.draft)))].filter(id=>!rows.some(row=>row.id===id)&&!requested.some(row=>row.id===id));
+    const related=refs.length?await sql<RecordRow[]>`select *,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported from cms_records where id in ${sql(refs)} and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`}`:[];
+    const records=[...new Map([...rows,...requested,...related,...(publicOnly?await heroNewsRows(sql):[])].map(row=>[row.id,row])).values()];
+    for (const row of records) {
         const fallbackPublic=!publicOnly&&!!p&&!has(p,permissionModule(row.module,row.draft),'read',scope(row));if(fallbackPublic&&(!row.live||row.deleted_at))continue;
         versions[row.id] = row.version;
-        if (['navigation', 'hero'].includes(row.module)) {
+        if (['navigation', 'hero', 'heroPhotos', 'agenda'].includes(row.module)) {
             state.appearance ||= {};
             (state.appearance as any)[row.module] = (publicOnly||fallbackPublic ? row.live : row.draft)?.items;
             continue;
@@ -73,7 +84,7 @@ export async function loadState(publicOnly = false, p?: Principal,transaction?:a
     state.departments = ds.filter(d => publicOnly || !p || has(p, 'forms', 'read') || p.departments.some(assignment=>assignment.id===String(d.id)&&has(p,'submissions','read',{departmentId:assignment.id,kind:assignment.kind}))).map(d => ({ id: String(d.id), name: String(d.name), description: String(d.description), active: !!d.active, confirmation: String(d.confirmation), emails: publicOnly ? [] : d.emails as string[] }));
     const redirects = await sql `select from_path as "from",to_path as "to" from cms_redirects`;
     state.redirects = redirects.map(r => ({ from: String(r.from).replace(/^\/clubmuur\//, ''), to: String(r.to).replace(/^\/clubmuur\//, '') }));
-    return { state, versions };
+    return { state:publicOnly?currentClubLinks(state,state.redirects):state, versions };
 }
 function pathFor(module: string, data: Record<string, any>): string | null { if (!data.slug)return null; if (module === 'pages')
     return `/clubmuur/${data.slug}`; if (module === 'articles')
@@ -88,6 +99,7 @@ export function validateCandidate(module: ContentModule, value: Record<string, a
     // Settings use a command ID, but their singleton content has no ID field.
     if (module === 'settings')
         delete clean.id;
+    if(module==='articles')delete clean.imported;
     if (module === 'pages' && clean.bodyFormat !== 'page-layout-v2') {
         clean.body = migrateLayout(clean.body, clean.id);
         clean.bodyFormat = 'page-layout-v2';
@@ -101,6 +113,18 @@ export function validateCandidate(module: ContentModule, value: Record<string, a
         assertLayout(clean.body);
     if(clean.slug&&(!/^[a-z0-9]+(?:[-/][a-z0-9]+)*$/.test(clean.slug)||clean.slug.length>240))throw new CmsError('slug','Gebruik een geldig en begrensd pad.',422);
     if(module==='patterns'){if(typeof clean.title!=='string'||!clean.title.trim()||clean.title.length>150)throw new CmsError('pattern-title','Geef het rijpatroon een naam.',422);assertLayout({type:'doc',content:[clean.row]});return clean;}
+    if (module === 'heroPhotos' || module === 'agenda') {
+        delete clean.id;
+        delete clean.published;
+        if (Object.keys(clean).some(key=>key!=='items'))throw new CmsError('unknown-field','Gebruik alleen de items van dit onderdeel.',422);
+        if(module==='heroPhotos'){
+            if(!validHeroPhotoIds(clean.items))throw new CmsError('hero-photos','Selecteer minimaal één geldige spelersfoto.',422);
+            return {items:clean.items};
+        }
+        const result=agendaSchema.safeParse(clean.items);
+        if(!result.success)throw new CmsError('agenda','Controleer titel, datum, tijd en beschrijving van de activiteiten.',422,result.error.issues.map(issue=>({path:issue.path.join('.'),message:issue.message})));
+        return {items:result.data};
+    }
     if (module === 'navigation') {
         if (!validClubNavigation(clean.items))
             throw new CmsError('navigation', 'Controleer namen en bestemmingen van het menu.', 422);
@@ -126,6 +150,7 @@ export function validateCandidate(module: ContentModule, value: Record<string, a
     if(schema?.shape){const allowed=new Set([...Object.keys(schema.shape),'published']);for(const key of Object.keys(check))if(!allowed.has(key))throw new CmsError('unknown-field',`Onbekend veld: ${key}.`,422);}
     const parsed = (schema as any)?.safeParse(check);
     if (parsed && !parsed.success)throw new CmsError('validation','Controleer de ingevulde velden.',422,parsed.error.issues.map((i:any)=>({path:i.path.join('.'),message:i.message})));
+    if(module==='articles')for(const key of ['publishedAt','featuredUntil'])if(clean[key])clean[key]=new Date(clean[key]).toISOString();
     for(const key of ['url','src'])if(clean[key]&&!safeDestination(clean[key]))throw new CmsError('unsafe-url','Gebruik een veilige web- of interne bestemming.',422,{field:key});
     // Keep explicit versioned fields (layout/filters) after the legacy schema check.
     return clean;
@@ -138,6 +163,27 @@ export type Change = {
     data?: Record<string, any>;
     scheduledAt?: string;
 };
+async function prepareImportedMedia(tx:any,p:Principal,changes:Change[],requestId:string){
+    const selected=changes.filter(change=>change.module==='articles'&&change.action==='publish');
+    const imported=new Set<string>(),versions:Record<string,number>={};
+    if(!selected.length)return {imported,versions};
+    const origins=await tx`select i.record_id,i.provenance,r.draft from cms_news_import_identities i join cms_records r on r.id=i.record_id where i.record_id in ${tx(selected.map(change=>change.id))}`;
+    const eligible=new Map<string,string>();
+    for(const origin of origins){
+        imported.add(origin.record_id);
+        const data=selected.find(change=>change.id===origin.record_id)?.data||origin.draft;
+        if(data.contentType!=='news')continue;
+        const refs=new Set(referencesIn(data));
+        for(const asset of origin.provenance?.media||[])if(typeof asset.mediaId==='string'&&refs.has(asset.mediaId))eligible.set(asset.mediaId,data.title);
+    }
+    if(!eligible.size)return {imported,versions};
+    const assets:RecordRow[]=await tx`select * from cms_records where id in ${tx([...eligible.keys()])} and module in ('media','documents') and live is null and deleted_at is null order by id`;
+    if(assets.length){
+        const commands=assets.map((asset:RecordRow)=>({module:asset.module,id:asset.id,expectedVersion:asset.version,action:'publish' as const,data:{...asset.draft,...(asset.module==='media'&&!asset.draft.alt?.trim()?{alt:`Beeld bij: ${eligible.get(asset.id)}`}:{})}}));
+        Object.assign(versions,await mutate(p,commands,crypto.randomUUID(),requestId,tx));
+    }
+    return {imported,versions};
+}
 export async function mutate(p: Principal, changes: Change[], operationId: string, requestId: string, transaction?:any) {
     const sql = sqlClient();
     const perform=async (tx:any) => {
@@ -146,11 +192,15 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
             return operation.response;
         // Serializes route reservations/parent changes and cross-record publication.
         await tx `select pg_advisory_xact_lock(736402)`;
-        const state = (await loadState(false,undefined,tx)).state;
-        const output: Record<string, number> = {};
+        const prepared=await prepareImportedMedia(tx,p,changes,requestId);
+        const required=changes.flatMap(change=>[change.id,...referencesIn(change.data)]);
+        const state = (await loadState(false,undefined,tx,required)).state;
+        const output: Record<string, number> = {...prepared.versions};
+        const homepageChanges: {id:string;before:any;live:any}[] = [];
         for (const change of changes) {
             if (!contentModules.includes(change.module))
                 throw new CmsError('module', 'Onbekende module.');
+            if((change.module==='heroPhotos'&&change.id!=='site-hero-photos')||(change.module==='agenda'&&change.id!=='site-agenda'))throw new CmsError('configuration-id','Ongeldige website-instelling.',422);
             const [old]:RecordRow[] = await tx `select * from cms_records where id=${change.id} for update`;
             if (old && old.module !== change.module)
                 throw new CmsError('module', 'Het record behoort aan een andere module.');
@@ -158,6 +208,7 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
                 throw new CmsError('conflict', 'Deze inhoud is ondertussen gewijzigd. Je werkversie blijft bewaard; laad de serverversie opnieuw.', 409, { id: change.id, expected: change.expectedVersion, actual: old?.version || 0 });
             const module = permissionModule(change.module,old?.draft||change.data), action = change.action === 'publish' || change.action === 'unpublish' || change.action === 'schedule' || change.action === 'cancelSchedule' ? 'publish' : change.action === 'trash' ? 'delete' : old ? 'update' : 'create';
             const candidate = change.data ? validateCandidate(change.module, { ...change.data, id: change.id }) : structuredClone(old?.draft || {});
+            if(prepared.imported.has(change.id)&&candidate.contentType==='news'&&change.action==='publish')Object.assign(candidate,importedNewsContent(candidate as any));
             if(change.module==='pages'){let id=candidate.parentId;const visited=new Set([change.id]);while(id){if(visited.has(id))throw new CmsError('parent-cycle','De paginahiërarchie bevat een kringverwijzing.',422);visited.add(id);const [parent]=await tx`select draft from cms_records where id=${id} and module='pages' and deleted_at is null`;if(!parent)throw new CmsError('parent-missing','Kies een bestaande bovenliggende pagina.',422);id=parent.draft.parentId;}}
             if(candidate.authorId&&!(await tx`select id from cms_records where id=${candidate.authorId} and module='people' and deleted_at is null`).length)throw new CmsError('author','Kies een bestaande persoon als auteur.',422);
             if (!old && !change.data)
@@ -218,6 +269,7 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
                     if (issues.length)
                         throw new CmsError('publication-invalid', 'Publicatie is nog niet mogelijk.', 422, issues);
                     live = change.module === 'articles' ? articleContent(record as unknown as CmsArticle) : pageContent(record as unknown as CmsPage);
+                    if(change.module==='articles'&&change.action==='publish')Object.assign(candidate,live);
                 }
                 else
                     live = { ...candidate, published: true };
@@ -264,7 +316,7 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
                 await tx `insert into cms_redirects(from_path,to_path,record_id) values (${oldPath},${livePath},${change.id}) on conflict(from_path) do update set to_path=excluded.to_path,record_id=excluded.record_id`;
             }
             if(change.action==='publish'&&change.module==='pages')await moveChildPaths(tx,change.id,old?.live,live,p);
-            if(['publish','unpublish','trash'].includes(change.action)&&change.module==='articles')await syncHomepage(tx,change.id,old?.live,live,p.id);
+            if(['publish','unpublish','trash'].includes(change.action)&&change.module==='articles')homepageChanges.push({id:change.id,before:old?.live,live});
             if(change.action==='publish'&&change.module==='articles'&&candidate.contentType==='news'){
                 const [origin]=await tx`select provenance->>'sourceUrl' as url from cms_news_import_identities where record_id=${change.id}`;
                 if(origin?.url){let url:URL|null=null;try{url=new URL(origin.url);}catch{}if(url&&url.hostname.replace(/^www\./,'')==='duindorpsv.nl'&&/^\/1\/\d+\//.test(url.pathname))await tx`insert into cms_redirects(from_path,to_path,record_id) values (${url.pathname},${livePath!},${change.id}) on conflict(from_path) do nothing`;}
@@ -288,6 +340,12 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
             if (change.action === 'schedule')
                 await tx `insert into cms_jobs(id,operation_id,kind,payload,run_at) values (${crypto.randomUUID()},${`${operationId}:${change.id}:schedule`},'publish',${tx.json({ id: change.id, module: change.module, version, actorId: p.id, draft: planned })},${new Date(change.scheduledAt!).toISOString()})`;
             output[change.id] = version;
+        }
+        // Apply derived selections after explicit commands, so a publication cannot
+        // invalidate the settings version supplied in the very same transaction.
+        for(const change of homepageChanges){
+            const version=await syncHomepage(tx,change.id,change.before,change.live,p.id);
+            if(version!==undefined)output.settings=version;
         }
         await tx `insert into cms_operations(id,actor_id,response) values (${operationId},${p.id},${tx.json(output)})`;
         return output;

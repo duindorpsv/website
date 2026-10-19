@@ -56,7 +56,7 @@ export function ClubmuurMobileMenu({open,section,onNavigate,openJoin}:{open:bool
       <a href="/clubmuur/club/accommodatie" className="cm-menu-visit" onClick={onNavigate}><MapPin size={18}/><span><strong>Tot op Houtrust.</strong><small>Houtrustlaan 1 · Den Haag</small></span><ArrowUpRight size={18}/></a>
     </div>
     <footer className="cm-menu-footer">
-      <button type="button" className="cm-menu-join" onClick={openJoin}><span>Word deel van Duindorp<small>Speler, vrijwilliger of supporter.</small></span><span>Lid worden <ArrowRight size={19}/></span></button>
+      <button type="button" className="cm-menu-join" onClick={openJoin}><span>Word deel van Duindorp<small>Word lid of steun de club als sponsor.</small></span><span>Lid worden <ArrowRight size={19}/></span></button>
     </footer>
     </DialogPrimitive.Content>
   </DialogPrimitive.Portal>;

@@ -30,7 +30,7 @@ export async function requestNewsletter(value:unknown,clientKey='server'){
   const leave=new URL('/nieuwsbrief/afmelden',config.APP_BASE_URL);leave.searchParams.set('token',unsubscribe);
   await tx`insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${`newsletter-confirm:${d.operationId}`},'mail',${tx.json({to:[d.email.toLowerCase()],subject:'Duindorp SV — bevestig je nieuwsbriefaanvraag',text:`Bevestig binnen 24 uur: ${confirm.href}\nAfmelden: ${leave.href}`})})`;
  });
- return {status:'confirmation-requested',message:'Je aanvraag is opgeslagen. Bevestig via de e-mail zodra verzending beschikbaar is.'};
+ return {status:'confirmation-requested',message:'Je aanvraag is opgeslagen. Je ontvangt een e-mail om je inschrijving te bevestigen.'};
 }
 export async function confirmNewsletter(token:string){
  if(!/^[0-9a-f]{64}$/.test(token))throw new CmsError('token','Bevestigingslink is ongeldig.',422);

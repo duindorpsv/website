@@ -1,6 +1,6 @@
 import type {SportlinkTeam} from './sportlink-types';
 
-export const trainingSource='https://www.duindorpsv.nl/643/trainingstijden/';
+export const trainingSource='/clubmuur/teams/trainingen';
 export const trainingVerifiedOn='10 oktober 2026';
 export type ClubTrainingSession={day:string;start:string;end:string;field:string};
 export type ClubTrainingRecord={teamLabel:string;sessions:ClubTrainingSession[]};

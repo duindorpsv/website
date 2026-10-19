@@ -31,7 +31,7 @@ const reports: readonly EditorialTeamReport[] = [
     publishedOn: '2026-08-28',
     competitionLabel: 'Walking Football-toernooi · SVV Scheveningen',
     competitionKind: 'toernooi',
-    sourceUrl: 'https://www.duindorpsv.nl/1/452/de-legendes-van-duindorp-sv-walking-football-team-pakken-derde-plaats/',
+    sourceUrl: '/clubmuur/nieuws',
   },
   {
     id: 'dsv-houtwijk-2026-08-20',
@@ -43,7 +43,7 @@ const reports: readonly EditorialTeamReport[] = [
     matchDate: '2026-08-20',
     competitionLabel: 'SV Houtwijk-toernooi',
     competitionKind: 'vriendschappelijk',
-    sourceUrl: 'https://www.duindorpsv.nl/1/446/duindorp-sv-naar-finale-na-zege-op-sv-houtwijk/',
+    sourceUrl: '/clubmuur/nieuws',
   },
   {
     id: 'dsv-dhc-2026-05-19',
@@ -55,7 +55,7 @@ const reports: readonly EditorialTeamReport[] = [
     matchDate: '2026-05-19',
     competitionLabel: 'Haaglanden Voetbal · Halve Maan Cup',
     competitionKind: 'beker',
-    sourceUrl: 'https://www.duindorpsv.nl/1/415/finale-shirts--met-zn-allen-naar-de-finale/',
+    sourceUrl: '/clubmuur/nieuws',
   },
   {
     id: 'dsv-ariston-2026-04-21',
@@ -67,7 +67,7 @@ const reports: readonly EditorialTeamReport[] = [
     matchDate: '2026-04-21',
     competitionLabel: 'Haaglanden Voetbal · Halve Maan Cup',
     competitionKind: 'beker',
-    sourceUrl: 'https://www.duindorpsv.nl/1/403/duindorp-sv-bekert-verder-na-winst-op-ariston80/',
+    sourceUrl: '/clubmuur/nieuws',
   },
 ];
 

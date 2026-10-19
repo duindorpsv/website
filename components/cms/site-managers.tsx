@@ -5,6 +5,7 @@ import { parseCmsState, useCMS } from './provider';
 import { now, safeUrl, uid } from '@/lib/cms/model';
 import { deleteMediaBlob, getMediaBlob, putMediaBlob, validateImageFile } from '@/lib/cms/media-storage';
 import type { CmsDoc, CmsDocument, CmsState } from '@/lib/cms/types';
+import {HeroPhotosManager} from './homepage-content-managers';
 import { HeroEditor } from '@/components/hero-editor';
 import { cmsArticlesForSite } from '@/lib/cms/adapters';
 import { storyFormatLabel } from '@/lib/cms/content';
@@ -34,14 +35,14 @@ function SelectionList({ title, intro, items, selected, onChange, disabled }: {
 export function HomeManager() {
     const { state, update, can, notify } = useCMS();
     const [draft, setDraft] = useState(() => ({ heading: state.settings.homepageHeading, articles: state.settings.homepageArticleIds.filter(id => state.articles.some(a => a.id === id && a.live?.contentType === 'news' && !a.deletedAt)), stories: state.settings.homepageStoryIds.filter(id => state.articles.some(a => a.id === id && a.live?.contentType === 'story' && !a.deletedAt)), photos: [...state.settings.homepagePhotoIds], albums: [...state.settings.homepageAlbumIds] }));
-    const [homeTab, setHomeTab] = useState<'selections' | 'hero'>('selections');
+    const [homeTab, setHomeTab] = useState<'selections' | 'hero' | 'players'>('selections');
     const editable = can('pages') && can('publish');
     const articles = state.articles.filter(a => a.live?.contentType === 'news' && !a.deletedAt).map(a => ({ id: a.id, title: a.live!.title, meta: a.live!.category, src: state.media.find(m => m.id === a.live!.coverId && m.published && !m.deletedAt)?.src }));
     const stories = state.articles.filter(a => a.live?.contentType === 'story' && !a.deletedAt).map(a => ({ id: a.id, title: a.live!.title, meta: `${storyFormatLabel[a.live!.storyFormat]} · ${a.live!.author}`, src: state.media.find(m => m.id === a.live!.coverId && m.published && !m.deletedAt)?.src }));
     const photos = state.media.filter(m => m.published && !m.deletedAt && m.src).map(m => ({ id: m.id, title: m.name, meta: m.caption || m.alt, src: m.src }));
     const albums = state.albums.filter(a => a.published && !a.deletedAt).map(a => ({ id: a.id, title: a.title, meta: `${a.mediaIds.length} foto’s · ${a.season}`, src: state.media.find(m => m.id === a.coverId && m.published && !m.deletedAt)?.src }));
-    return <div className="cms-home-manager"><div className="cms-toolbar"><button className={`cms-button ${homeTab === 'selections' ? 'primary' : ''}`} onClick={() => setHomeTab('selections')}>Uitgelichte inhoud</button><button className={`cms-button ${homeTab === 'hero' ? 'primary' : ''}`} disabled={!editable} onClick={() => setHomeTab('hero')}>Vier vakken bovenaan</button></div>{homeTab === 'hero' ? (editable ? <HeroEditor articles={cmsArticlesForSite(state).filter(a => articles.some(item => item.id === a.id))}/> : <div className="cms-panel">Voor deze instellingen zijn pagina- en publicatierechten nodig.</div>) : <><section className="cms-panel"><div className="cms-section-heading"><div><h3>Jouw club. Jouw voorpagina.</h3><p className="cms-meta">Bepaal wat bezoekers als eerste ontdekken. Alleen gepubliceerde inhoud is beschikbaar.</p></div><a className="cms-button" href="/clubmuur" target="_blank" rel="noreferrer"><ExternalLink size={16}/> Bekijk homepage</a></div><label className="cms-field">Titel boven de fotomuur<input value={draft.heading} disabled={!editable} maxLength={100} onChange={e => setDraft({ ...draft, heading: e.target.value })}/></label></section>
-    <SelectionList title="Uitgelicht nieuws" intro="Deze nieuwsberichten krijgen voorrang bij Nieuws op de homepage. Gebruik de pijlen om de volgorde te bepalen." items={articles} selected={draft.articles} disabled={!editable} onChange={ids => setDraft({ ...draft, articles: ids })}/>
+    return <div className="cms-home-manager"><div className="cms-toolbar"><button className={`cms-button ${homeTab === 'selections' ? 'primary' : ''}`} onClick={() => setHomeTab('selections')}>Uitgelichte inhoud</button><button className={`cms-button ${homeTab === 'hero' ? 'primary' : ''}`} disabled={!editable} onClick={() => setHomeTab('hero')}>Vier vakken bovenaan</button><button className={`cms-button ${homeTab === 'players' ? 'primary' : ''}`} onClick={() => setHomeTab('players')}>Spelersfoto’s</button></div>{homeTab === 'players' ? <HeroPhotosManager/> : homeTab === 'hero' ? (editable ? <HeroEditor articles={cmsArticlesForSite(state).filter(a => articles.some(item => item.id === a.id))}/> : <div className="cms-panel">Voor deze instellingen zijn pagina- en publicatierechten nodig.</div>) : <><section className="cms-panel"><div className="cms-section-heading"><div><h3>Jouw club. Jouw voorpagina.</h3><p className="cms-meta">Bepaal wat bezoekers als eerste ontdekken. Alleen gepubliceerde inhoud is beschikbaar.</p></div><a className="cms-button" href="/clubmuur" target="_blank" rel="noreferrer"><ExternalLink size={16}/> Bekijk homepage</a></div><label className="cms-field">Titel boven de fotomuur<input value={draft.heading} disabled={!editable} maxLength={100} onChange={e => setDraft({ ...draft, heading: e.target.value })}/></label></section>
+    <section className="cms-panel"><h3>Laatste nieuws in de hero</h3><p>De nieuwste gepubliceerde nieuwsberichten verschijnen automatisch. Vink bij Nieuws ‘Uitlichten’ aan om een bericht standaard zeven dagen bovenaan te houden. Daar kun je ook de einddatum aanpassen.</p><a className="cms-button" href="/beheer#nieuws">Nieuws en uitlichten beheren</a></section>
     <SelectionList title="Uitgelichte verhalen" intro="Columns, interviews en clubverhalen krijgen een eigen plek op de homepage. Ze verschijnen niet tussen de nieuwsberichten." items={stories} selected={draft.stories} disabled={!editable} onChange={ids => setDraft({ ...draft, stories: ids })}/>
     <SelectionList title="Fotomuur" intro="Kies de beelden die het clubgevoel laten zien. De volgorde loopt van links naar rechts." items={photos} selected={draft.photos} disabled={!editable} onChange={ids => setDraft({ ...draft, photos: ids })}/>
     <SelectionList title="Albums op de homepage" intro="Laat bezoekers vanuit de homepage verder kijken in deze albums." items={albums} selected={draft.albums} disabled={!editable} onChange={ids => setDraft({ ...draft, albums: ids })}/>
@@ -50,14 +51,13 @@ export function HomeManager() {
                     return notify('Vul een titel voor de fotomuur in.');
                 if (await update(data => {
                     data.settings.homepageHeading = draft.heading.trim();
-                    data.settings.homepageArticleIds = draft.articles.filter(id => data.articles.some(a => a.id === id && !a.deletedAt && a.live?.contentType === 'news'));
                     data.settings.homepageStoryIds = draft.stories.filter(id => data.articles.some(a => a.id === id && !a.deletedAt && a.live?.contentType === 'story'));
                     data.settings.homepagePhotoIds = draft.photos.filter(id => photos.some(m => m.id === id));
                     data.settings.homepageAlbumIds = draft.albums.filter(id => albums.some(a => a.id === id));
                     for (const m of data.media)
                         m.featured = data.settings.homepagePhotoIds.includes(m.id);
                     for (const article of data.articles) {
-                        if (!article.live || article.deletedAt)
+                        if (!article.live || article.deletedAt || article.live.contentType === 'news')
                             continue;
                         const featured = (article.live.contentType === 'story' ? data.settings.homepageStoryIds : data.settings.homepageArticleIds).includes(article.id);
                         if (article.status === 'published')

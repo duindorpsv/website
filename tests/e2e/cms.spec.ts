@@ -24,9 +24,17 @@ test('real login, row/column builder and one-step undo/redo',async({page})=>{
  await page.getByRole('button',{name:'Bewaren',exact:true}).first().click();expect((await saved).status()).toBe(200);
  await page.screenshot({path:'.runtime/screenshots/builder.png',fullPage:true});
 });
+test('owner can open and manage stories from the CMS',async({page})=>{
+ await login(page);const bootstrap=await (await page.request.get('/api/cms/bootstrap')).json();
+ expect(bootstrap.state.roles[0].permissions).toContain('stories');
+ await page.getByRole('button',{name:'Verhalen & columns',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Verhalen & columns',exact:true})).toBeVisible();
+ await expect(page.getByRole('textbox',{name:'Zoek in verhalen',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Nieuw verhaal',exact:true}).first()).toBeEnabled();
+});
 test('public pages remain usable at 320, 390, 768 and 1440 pixels',async({page})=>{for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});await page.goto('/clubmuur/club/ons-verhaal');const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);expect(overflow).toBe(false);}await page.screenshot({path:'.runtime/screenshots/history-1440.png',fullPage:true});});
 
-test('FORM01: public contact commits before acknowledging receipt',async({page,request})=>{await page.goto('/clubmuur/club/contact');await page.getByLabel('Naam *',{exact:true}).fill('Synthetische browserproef');await page.getByLabel('E-mailadres *',{exact:true}).fill('e2e-'+crypto.randomUUID()+'@example.invalid');await page.getByLabel('Bericht *',{exact:true}).fill('Controle van betrouwbare formulierontvangst.');const received=page.waitForResponse(r=>r.url().includes('/api/forms/contact/submissions'));await page.getByRole('button',{name:'Versturen',exact:true}).click();expect((await received).status()).toBe(201);await expect(page.getByText('Je inzending is ontvangen en opgeslagen. De club verwerkt deze verder.')).toBeVisible();});
+test('FORM01: public contact commits before acknowledging receipt',async({page,request})=>{await page.goto('/clubmuur/club/contact');await page.getByLabel('Naam *',{exact:true}).fill('Synthetische browserproef');await page.getByLabel('E-mailadres *',{exact:true}).fill('e2e-'+crypto.randomUUID()+'@example.invalid');await page.getByLabel('Bericht *',{exact:true}).fill('Controle van betrouwbare formulierontvangst.');const received=page.waitForResponse(r=>r.url().includes('/api/forms/contact/submissions'));await page.getByRole('button',{name:'Versturen',exact:true}).click();const receipt=await received;expect(receipt.status()).toBe(201);expect((await receipt.json()).id).toBeTruthy();await expect(page.getByRole('status').filter({hasText:'Je bericht is ontvangen'})).toBeVisible();});
 test('NEWSLETTER: subscribers and subjects are managed in the CMS without an external list',async({page,request})=>{
  const email='cms-newsletter-'+crypto.randomUUID()+'@example.invalid';
  expect((await request.get('/api/cms/newsletter')).status()).toBe(401);

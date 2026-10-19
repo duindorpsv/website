@@ -28,16 +28,24 @@ export const heroPhotos = [
   {id:'16-een-vereniging',name:'Eén vereniging · spelers en staf',kind:'trio',layouts:['02','04','08'],width:1536,height:1024,series:'v18'},
 ] as const;
 export type HeroPhotoId = typeof heroPhotos[number]['id'];
+export const defaultHeroPhotoIds:HeroPhotoId[]=heroPhotos.map(photo=>photo.id);
+export function validHeroPhotoIds(value:unknown):value is HeroPhotoId[] {
+  return Array.isArray(value)&&value.length>0&&value.length<=heroPhotos.length&&new Set(value).size===value.length&&value.every(id=>defaultHeroPhotoIds.includes(id));
+}
+export function heroPhotoSource(photo:typeof heroPhotos[number]) {
+  return `/assets/clubmuur-portraits-${'series' in photo?photo.series:'v14'}/${photo.id}-640.webp`;
+}
 
-export function photosForLayout(layout:HeroLayout) {
-  return heroPhotos.filter(photo=>(photo.layouts as readonly string[]).includes(layout));
+export function photosForLayout(layout:HeroLayout,enabled:readonly string[]=defaultHeroPhotoIds) {
+  return heroPhotos.filter(photo=>enabled.includes(photo.id)&&(photo.layouts as readonly string[]).includes(layout));
 }
-export function resolveHeroPhoto(value:unknown,layout:HeroLayout):HeroPhotoId|undefined {
-  return photosForLayout(layout).find(photo=>photo.id===value)?.id;
+export function resolveHeroPhoto(value:unknown,layout:HeroLayout,enabled:readonly string[]=defaultHeroPhotoIds):HeroPhotoId|undefined {
+  return photosForLayout(layout,enabled).find(photo=>photo.id===value)?.id;
 }
-export function pickHeroPhoto(layout:HeroLayout,saved:unknown,random=Math.random()):HeroPhotoId {
-  const available=photosForLayout(layout);
-  return resolveHeroPhoto(saved,layout)??available[Math.min(available.length-1,Math.max(0,Math.floor(random*available.length)))].id;
+export function pickHeroPhoto(layout:HeroLayout,saved:unknown,random=Math.random(),enabled:readonly string[]=defaultHeroPhotoIds):HeroPhotoId {
+  const available=photosForLayout(layout,enabled);
+  if(!available.length)throw new Error('Geen geselecteerde spelersfoto voor deze indeling.');
+  return resolveHeroPhoto(saved,layout,enabled)??available[Math.min(available.length-1,Math.max(0,Math.floor(random*available.length)))].id;
 }
 
 export function resolveHeroLayout(value:unknown):HeroLayout|undefined {
@@ -45,6 +53,8 @@ export function resolveHeroLayout(value:unknown):HeroLayout|undefined {
 }
 
 /** A presentation-only visit preference; no identity or analytics are stored. */
-export function pickHeroLayout(saved:unknown,random=Math.random()):HeroLayout {
-  return resolveHeroLayout(saved)??heroLayouts[Math.min(heroLayouts.length-1,Math.max(0,Math.floor(random*heroLayouts.length)))].id;
+export function pickHeroLayout(saved:unknown,random=Math.random(),enabled:readonly string[]=defaultHeroPhotoIds):HeroLayout {
+  const available=heroLayouts.filter(layout=>photosForLayout(layout.id,enabled).length);
+  if(!available.length)throw new Error('Selecteer minimaal één spelersfoto.');
+  return available.find(layout=>layout.id===saved)?.id??available[Math.min(available.length-1,Math.max(0,Math.floor(random*available.length)))].id;
 }
