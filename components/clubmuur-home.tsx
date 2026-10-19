@@ -14,6 +14,7 @@ import {ClubmuurCompetition} from './clubmuur-competition';
 import {ClubmuurLiveMatch} from './clubmuur-live-match';
 import {ClubmuurHeroMatch} from './clubmuur-hero-match';
 import {ClubmuurNewsTile} from './clubmuur-news-tile';
+import {ClubmuurNewsline} from './clubmuur-newsline';
 import {heroPhotos,HERO_VISIT_COOKIE,HERO_PHOTO_COOKIE,HERO_VISIT_SECONDS,type HeroLayout,type HeroPhotoId} from '@/lib/clubmuur-layouts';
 export {ClubmuurHeader} from './clubmuur-header';
 import {type Article,type Team} from '@/lib/club-data';
@@ -21,7 +22,6 @@ import {type Article,type Team} from '@/lib/club-data';
 type Actions={openArticle:(a:Article)=>void;openTeam:(t:Team)=>void;openJoin:()=>void;openMatch:()=>void};
 
 export function ClubmuurHero({actions,items,layout='01',photo='01-trots',preview=false}:{actions:Actions;items:Article[];layout?:HeroLayout;photo?:HeroPhotoId;preview?:boolean}){
-  const openStory=(id:string,event:React.MouseEvent<HTMLAnchorElement>)=>{const article=items.find(a=>a.id===id);if(article){event.preventDefault();actions.openArticle(article);}};
   const cards=useHeroCards();
   const scene=useRef<HTMLDivElement>(null);
   const portrait=heroPhotos.find(item=>item.id===photo)!;
@@ -71,10 +71,7 @@ export function ClubmuurHero({actions,items,layout='01',photo='01-trots',preview
     </div>
     <ClubmuurSponsors/>
     <ClubmuurCompetition/>
-    <div className="cm-newsline" id="clubmuur-nieuws">
-      {items.slice(0,2).map(item=><a key={item.id} href="/clubmuur/nieuws" onClick={event=>openStory(item.id,event)}><div className="cm-newsline-photo"><img src={item.image} alt="" width={200} height={200}/></div><div><span>{item.category}</span><h3>{item.title}</h3><p>{item.intro}</p></div><span className="cm-circle"><Plus size={17}/></span></a>)}
-      <a href="/clubmuur/teams"><div className="cm-newsline-photo"><img src="/assets/team.png" alt="Duindorp SV spelers" width={200} height={200}/></div><div><span>TEAMS</span><h3>Van jeugd tot<br/>Walking Football</h3><p>Voor iedereen die van voetbal houdt.</p></div><span className="cm-circle"><Plus size={17}/></span></a>
-    </div>
+    <ClubmuurNewsline items={items} onOpen={actions.openArticle}/>
   </div>;
 }
 
