@@ -8,7 +8,7 @@ export function usePageState(total:number,resetKey=''){
  const pageCount=Math.max(1,Math.ceil(total/pageSize)),page=Math.min(requestedPage,pageCount);
  useEffect(()=>setPage(1),[resetKey]);
  useEffect(()=>{if(requestedPage>pageCount)setPage(pageCount);},[requestedPage,pageCount]);
- return {total,page,pageSize,pageCount,onPageChange:(next:number)=>setPage(Math.min(pageCount,Math.max(1,next))),onPageSizeChange:(size:number)=>{if(pageSizes.includes(size as 25|50|100)){setPageSize(size);setPage(1);}}};
+ return {total,page,pageSize,pageCount,onPageChange:(next:number)=>{if(Number.isSafeInteger(next)&&next>0)setPage(next);},onPageSizeChange:(size:number)=>{if(pageSizes.includes(size as 25|50|100)){setPageSize(size);setPage(1);}}};
 }
 export function usePagination<T>(items:readonly T[],resetKey=''){
  const state=usePageState(items.length,resetKey);
