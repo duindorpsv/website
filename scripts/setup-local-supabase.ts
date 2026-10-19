@@ -11,7 +11,8 @@ const values={SUPABASE_URL:api,SUPABASE_PUBLISHABLE_KEY:setting('PUBLISHABLE_KEY
   MIGRATION_DATABASE_URL:database,APP_DATABASE_PASSWORD:randomBytes(24).toString('hex'),
   S3_ENDPOINT:api+'/storage/v1/s3',S3_REGION:'local',S3_BUCKET:'duindorp-test',
   S3_ACCESS_KEY_ID:setting('S3_PROTOCOL_ACCESS_KEY_ID'),S3_SECRET_ACCESS_KEY:setting('S3_PROTOCOL_ACCESS_KEY_SECRET','S3_PROTOCOL_SECRET_ACCESS_KEY'),
-  SUPABASE_LOCAL_TESTS:'true',MEDIA_DRIVER:'s3',DATABASE_URL:''};
+  SUPABASE_LOCAL_TESTS:'true',MEDIA_DRIVER:'s3',DATABASE_URL:'',
+  TEST_MAIL_API_URL:'http://127.0.0.1:62623',RESEND_API_KEY:'synthetic-ci-resend-key',MAIL_FROM:'club@example.invalid'};
 const runtime=new URL(database);runtime.username='duindorp_app';runtime.password=values.APP_DATABASE_PASSWORD;values.DATABASE_URL=runtime.href;
 const client=createClient(api,adminKey,{auth:{persistSession:false,autoRefreshToken:false}});
 const bucket=await client.storage.getBucket(values.S3_BUCKET);

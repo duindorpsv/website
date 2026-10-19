@@ -8,6 +8,7 @@ const message = z.object({
   to: z.array(z.string().email()).min(1).max(1000),
   subject: z.string().min(1).max(998).regex(/^[^\r\n]+$/),
   text: z.string().min(1),
+  html: z.string().min(1).max(200000).optional(),
   messageId: z.string().min(1).max(254).regex(/^[^\r\n]+$/),
   replyTo: z.string().email().optional(),
 });
@@ -27,10 +28,17 @@ export async function sendMail(input: z.infer<typeof message>) {
   const operation = createHash('sha256').update(config.APP_ENV+'\0'+data.data.messageId).digest('hex');
   // Keep addresses private, and use batches of at most 100 independent emails.
   // Stable operation keys also deduplicate partial retries within Resend's 24h window.
+  let endpoint='https://api.resend.com';
+  if(config.TEST_MAIL_API_URL){
+    const test=new URL(config.TEST_MAIL_API_URL);
+    if(config.APP_ENV!=='test'||!['127.0.0.1','localhost'].includes(test.hostname)||test.protocol!=='http:'||test.username||test.password||test.pathname!=='/'||test.search||test.hash)throw new CmsError('mail-unconfigured','De testmailserver is alleen lokaal in tests toegestaan.',503);
+    endpoint=test.origin;
+  }
   for (let at=0; at<to.length; at+=100) {
     const messages = to.slice(at,at+100).map(email=>({
       from: `Duindorp SV <${config.MAIL_FROM}>`, to: [email],
       subject: data.data.subject, text: data.data.text,
+      ...(data.data.html?{html:data.data.html}:{}),
       ...(data.data.replyTo ? {reply_to: data.data.replyTo} : {}),
       tags: [{name:'cms_operation',value:operation}],
     }));
@@ -38,7 +46,7 @@ export async function sendMail(input: z.infer<typeof message>) {
     let response: Response;
     let accepted: unknown;
     try {
-      response = await fetch('https://api.resend.com/emails'+(batch?'/batch':''), {
+      response = await fetch(endpoint+'/emails'+(batch?'/batch':''), {
         method: 'POST', redirect: 'error',
         headers: {'Authorization': `Bearer ${config.RESEND_API_KEY}`, 'Content-Type': 'application/json',
           'Idempotency-Key': `cms/${operation}/${at/100}`},

@@ -1,5 +1,5 @@
 import postgres from 'postgres';
-import {assertLocalSupabaseTests,authPost,authCookies,totp} from '../helpers/supabase-auth';
+import {assertLocalSupabaseTests} from '../helpers/supabase-auth';
 import {test,after} from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
