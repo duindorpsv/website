@@ -107,6 +107,8 @@ Na de hostcorrectie: open de workflow voor de **nieuwste `main`-commit** en kies
 
 De wrapper controleert de bron en het digest, maakt een externe backup, past migraties en databaseprovisioning toe en controleert web en worker. Een fout stopt de uitrol. `sudo: a password is required` betekent dat stap 3 nog niet klopt. Een geslaagde build alleen betekent niet dat de app is gedeployd.
 
+Blijft de database-inrichting wachten, gebruik dan de handmatige GitHub-workflow **Production database diagnostics** op `main`. Die gebruikt de bestaande production-credentials en toont uitsluitend technische status, aantallen, wachttijden en blokkerende verbindingen. SQL-teksten, persoonsgegevens en credentials worden niet gelogd. Standaard is dit alleen-lezen. Met `provision` wordt expliciet dezelfde inrichting van het runtime-account als tijdens een deployment herhaald. `reset_stalled_pids` accepteert uitsluitend specifieke applicatie-PIDs uit de diagnose: alleen actieve queries of open transacties van `duindorp_app` ouder dan tien minuten worden beëindigd, met rollback en een auditregistratie. Gebruik deze optie alleen voor aantoonbaar vastgelopen verbindingen. Beide herstelopties worden met deployments geserialiseerd. De inrichting laat bestaande correcte RLS-policies staan, herstelt ontbrekende of afwijkende policies in een transactie en begrenst lock-wachttijden tot vijf seconden. Fouten bevatten een vaste stapnaam en een veilige foutcode.
+
 Bij een nieuwe site worden de gecontroleerde startgegevens uit de repository aangemaakt. Dat is geen automatische overdracht van elders bewerkte content; zie de aanvulling hieronder als die moet worden bewaard.
 
 ## 6. Eerste beheerder maken en testen — jij

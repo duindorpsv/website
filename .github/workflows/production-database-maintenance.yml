@@ -1,0 +1,47 @@
+name: Production database diagnostics
+on:
+  workflow_dispatch:
+    inputs:
+      provision:
+        description: Repeat the existing deployment database grants and policies after inspection
+        type: boolean
+        default: false
+      reset_stalled_pids:
+        description: Explicit comma-separated application PIDs from diagnostics; only queries or transactions older than ten minutes qualify
+        type: string
+        default: ''
+permissions:
+  contents: read
+concurrency:
+  group: ${{ (inputs.provision || inputs.reset_stalled_pids != '') && 'duindorp-production' || 'duindorp-production-diagnostics' }}
+  cancel-in-progress: false
+jobs:
+  inspect:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: .node-version
+      - run: |
+          corepack enable
+          corepack prepare pnpm@11.25.0 --activate
+          pnpm install --frozen-lockfile
+      - name: Inspect database health and blocking connections without personal data
+        env:
+          APP_ENV: production
+          MIGRATION_DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
+          DATABASE_CA_CERT_B64: ${{ vars.SUPABASE_DB_CA_CERT_B64 }}
+          RESET_STALLED_PIDS: ${{ inputs.reset_stalled_pids }}
+        run: pnpm exec tsx scripts/inspect-production-database.ts
+      - name: Repeat the existing database provisioning step
+        if: inputs.provision
+        env:
+          APP_ENV: production
+          MIGRATION_DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
+          APP_DATABASE_PASSWORD: ${{ secrets.APP_DATABASE_PASSWORD }}
+          DATABASE_CA_CERT_B64: ${{ vars.SUPABASE_DB_CA_CERT_B64 }}
+        run: pnpm exec tsx scripts/provision-database.ts
