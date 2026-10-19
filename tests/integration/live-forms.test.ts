@@ -15,11 +15,14 @@ const sql=sqlClient();
 const adult={firstName:'Synthetische',lastName:'Aanmelding',birthDate:'2000-01-01',email:'adult@example.invalid',phone:'0612345678',street:'Teststraat',houseNumber:'1 A',postalCode:'1234 AB',city:'Den Haag',otherClub:'Nee'};
 
 test('FORM07: deployment content upgrade preserves drafts and history, fixes old links and is applied once',async()=>{
-  const id='launch-media-'+crypto.randomUUID(),publication=crypto.randomUUID();
+  const id='launch-media-'+crypto.randomUUID(),publication=crypto.randomUUID(),revision=crypto.randomUUID();
   const old={id,name:'Foto',alt:'Gegenereerd sfeerbeeld van supporters',credit:'Gegenereerd sfeerbeeld · te vervangen door eigen clubfoto',caption:'Live bijschrift',src:'/assets/terrace.webp'};
   await sql`insert into cms_records(id,module,title,draft,live) values (${id},'media','Foto',${sql.json({...old,caption:'Nog niet gepubliceerd'})},${sql.json(old)})`;
   await sql`insert into cms_publications(id,record_id,record_version,snapshot) values (${publication},${id},1,${sql.json(old)})`;
   await sql`update cms_records set live_id=${publication} where id=${id}`;
+  // Normal CMS edits already have an immutable revision at the current version.
+  const previousDraft={...old,caption:'Nog niet gepubliceerd'};
+  await sql`insert into cms_revisions(id,record_id,version,snapshot,label) values (${revision},${id},1,${sql.json(previousDraft)},'Bestaande redactierevisie')`;
   const pageId='launch-page-'+crypto.randomUUID(),page={title:'Bestaande inhoud',body:{type:'doc',content:[{type:'paragraph',content:[{type:'text',text:'Inhoud van de club',marks:[{type:'link',attrs:{href:'https://www.duindorpsv.nl/705/inschrijven/'}}]}]},{type:'paragraph',content:[{type:'text',text:retiredLaunchCopy[0]}]}]}};
   await sql`insert into cms_records(id,module,title,draft,live) values (${pageId},'pages',${page.title},${sql.json(page)},${sql.json(page)})`;
   const [contact]=await sql`select live from cms_records where id='contact'`;
@@ -30,6 +33,8 @@ test('FORM07: deployment content upgrade preserves drafts and history, fixes old
     assert.equal(updated.draft.caption,'Nog niet gepubliceerd');assert.equal(updated.live.caption,'Live bijschrift');
     assert.equal(updated.live.credit,'');assert.equal(updated.live.alt,'Supporters');
     assert.equal((await sql`select snapshot from cms_publications where id=${publication}`)[0].snapshot.credit,old.credit);
+    assert.deepEqual((await sql`select snapshot from cms_revisions where id=${revision}`)[0].snapshot,previousDraft);
+    assert.equal((await sql`select id from cms_revisions where record_id=${id} and version=1`).length,1);
     const [changed]=await sql`select live from cms_records where id=${pageId}`;
     assert.equal(changed.live.body.content.length,1);assert.equal(changed.live.body.content[0].content[0].marks[0].attrs.href,'/clubmuur/club/lidmaatschap#inschrijven');
     const [current]=await sql`select draft,live from cms_records where id='contact'`;
