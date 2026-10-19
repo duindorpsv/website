@@ -1,5 +1,6 @@
 import {test,after} from 'node:test';
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import {serializeCookieHeader} from '@supabase/ssr';
 import {assertLocalSupabaseTests,authPost,authCookies,emailCodeFixture,loginEmail} from '../helpers/supabase-auth';
 import {sqlClient,closeDb} from '../../db';
@@ -77,4 +78,13 @@ test('OTP08: an email-only administrator can authorize in production without an 
  try{process.env.APP_ENV='production';const p=await principal(headers);assert.equal(p.id,u.id);assert.equal(p.mfa,false);authorize(p,'pages','publish');}finally{process.env.APP_ENV=previous;}
  await sql`update cms_auth_email_sessions set created_at=now()-interval '13 hours' where user_id=${u.id}`;
  assert.equal(await getAuth().api.getSession({headers}),null);
+});
+
+test('OTP09: the stored code digest requires the server secret; a wrong key cannot consume or verify the challenge',async()=>{
+ const u=await user(),f=await emailCodeFixture(u.email),[pending]=await sql`select nonce_hash,code_hash from cms_auth_login_challenges where user_id=${u.id}`;
+ const unkeyed=createHash('sha256').update(pending.nonce_hash+'\0'+f.code).digest('hex');assert.ok(pending.code_hash!==unkeyed);
+ const secret=process.env.SUPABASE_SECRET_KEY;
+ try{process.env.SUPABASE_SECRET_KEY='synthetic-unrelated-server-key';assert.equal((await authPost('email-code/verify',{email:u.email,code:f.code},f.cookie)).status,401);}
+ finally{process.env.SUPABASE_SECRET_KEY=secret;}
+ assert.equal((await authPost('email-code/verify',{email:u.email,code:f.code},f.cookie)).status,200);
 });

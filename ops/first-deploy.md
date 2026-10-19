@@ -15,7 +15,7 @@ Open het eigen Duindorp-project in Supabase.
 - Authentication → URL Configuration → Site URL: `https://duindorpsv.nl`.
 - Een authenticator is voor deze app niet nodig. De applicatie biedt geen MFA-enrollment of wachtwoordlogin aan.
 
-De app vraagt de code aan bij Supabase en controleert haar bij Supabase. De aanvullende applicatiecontrole bindt de code aan de browser, staat maximaal vijf pogingen toe, verloopt na tien minuten en accepteert iedere code één keer. Alleen sessies uit deze inlogflow krijgen CMS-toegang. Een los Supabase-account zonder actieve CMS-rol geeft geen toegang.
+De app vraagt de code aan bij Supabase en controleert haar bij Supabase. De aanvullende applicatiecontrole bewaart alleen een met het bestaande servergeheim beveiligde codehash, bindt de code aan de browser, staat maximaal vijf pogingen toe, verloopt na tien minuten en accepteert iedere code één keer. Alleen sessies uit deze inlogflow krijgen CMS-toegang. Een los Supabase-account zonder actieve CMS-rol geeft geen toegang.
 
 **Geen SMTP instellen en geen template in Supabase plakken.** De HTML-template met clublogo, clubkleuren en tekstversie staat in `lib/server/auth-mail.ts`. De worker verstuurt haar met Resend. Bij zes cijfers stopt de worker met foutcode `auth-otp-configuration`; verander dan de bovenstaande Supabase-instelling.
 

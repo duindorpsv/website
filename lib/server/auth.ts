@@ -1,4 +1,4 @@
-import {createHash,randomBytes,timingSafeEqual} from 'node:crypto';
+import {createHash,createHmac,randomBytes,timingSafeEqual} from 'node:crypto';
 import {parseCookieHeader,serializeCookieHeader} from '@supabase/ssr';
 import type {SupabaseClient} from '@supabase/supabase-js';
 import {z} from 'zod';
@@ -10,6 +10,7 @@ import {sendMail} from './mail';
 import {loginCodeMail,accountAccessMail} from './auth-mail';
 const fail=()=>new CmsError('authentication-failed','De inlogcode is ongeldig of verlopen. Vraag zo nodig een nieuwe code aan.',401);
 const hash=(value:string)=>createHash('sha256').update(value).digest('hex');
+const codeDigest=(nonceHash:string,code:string)=>{const key=process.env.SUPABASE_SECRET_KEY;if(!key)throw new CmsError('auth-unavailable','Inloggen is tijdelijk niet beschikbaar.',503);return createHmac('sha256',key).update('duindorp-email-code\0'+nonceHash+'\0'+code).digest('hex');};
 const uuid=z.string().uuid(),emailInput=z.string().trim().toLowerCase().email().max(254),cookieName='duindorp-login';
 async function verified(client:SupabaseClient){
  const user=await client.auth.getUser();if(user.error||!user.data.user)return null;
@@ -52,7 +53,7 @@ export async function deliverEmailCode(input:{email:string;nonceHash:string},mes
  if(provider.error||provider.data.user?.email?.toLowerCase()!==input.email)throw new CmsError('auth-identity','De inlogmail kon niet worden voorbereid.',503);
  const generated=await admin.auth.admin.generateLink({type:'magiclink',email:input.email}),code=generated.data.properties?.email_otp;
  if(generated.error||!code||!/^\d{8}$/.test(code))throw new CmsError('auth-otp-configuration','Stel in Supabase de e-mailcode in op acht cijfers.',503);
- const changed=await sql`update cms_auth_login_challenges set code_hash=${hash(input.nonceHash+'\0'+code)} where nonce_hash=${input.nonceHash} and expires_at>now() and attempts<5 returning user_id`;
+ const changed=await sql`update cms_auth_login_challenges set code_hash=${codeDigest(input.nonceHash,code)} where nonce_hash=${input.nonceHash} and expires_at>now() and attempts<5 returning user_id`;
  if(!changed.length)return;
  await sendMail({to:[input.email],...loginCodeMail(input.email,code),messageId});
 }
@@ -97,7 +98,7 @@ async function handler(request:Request){
    await rate('auth:email-verify:'+hash(email),30,900);
    const nonce=parseCookieHeader(request.headers.get('cookie')||'').find(c=>c.name===cookieName)?.value;
    if(!nonce||!/^[a-f0-9]{64}$/.test(nonce))throw fail();
-   const nonceHash=hash(nonce),codeHash=hash(nonceHash+'\0'+code);
+   const nonceHash=hash(nonce),codeHash=codeDigest(nonceHash,code);
    const [pending]=await sql`with attempted as (update cms_auth_login_challenges set attempts=attempts+1 where nonce_hash=${nonceHash} and expires_at>now() and attempts<5 returning *) select a.*,u.supabase_user_id from attempted a join auth_user u on u.id=a.user_id join cms_memberships m on m.user_id=u.id where lower(u.email)=${email} and m.active=true and coalesce(u.banned,false)=false`;
    if(!pending||!timingSafeEqual(Buffer.from(pending.code_hash,'hex'),Buffer.from(codeHash,'hex')))throw fail();
    const consumed=await sql`delete from cms_auth_login_challenges where nonce_hash=${nonceHash} and code_hash=${codeHash} and expires_at>now() returning user_id`;
