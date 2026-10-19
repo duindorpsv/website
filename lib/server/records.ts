@@ -1,4 +1,5 @@
 import {syncHomepage,moveChildPaths} from './publication-effects';
+import {heroNewsRows} from './hero-news';
 import { validClubNavigation } from '../clubmuur-navigation';
 import { validHeroCards } from '../clubmuur-config';
 import { parseGroups } from '../narrowcasting-config';
@@ -41,7 +42,8 @@ export async function loadState(publicOnly = false, p?: Principal,transaction?:a
 }> {
     const sql:ReturnType<typeof sqlClient> = transaction||sqlClient(), state = emptyState(), versions: Record<string, number> = {};
     const rows = await sql<RecordRow[]> `select *, (select run_at from cms_jobs j where j.kind='publish' and j.payload->>'id'=cms_records.id and j.status in ('pending','processing') limit 1) as scheduled_at from cms_records where ${publicOnly ? sql `live is not null and deleted_at is null` : sql `true`} and ${!publicOnly&&p?sql`(module!='media' or id in (select id from cms_records where module='media' order by updated_at desc,id limit 100) or id in (select target_id from cms_references))`:sql`true`} order by case when module in ('settings','navigation','hero') then 0 else 1 end,updated_at desc,id limit 1500`;
-    for (const row of rows) {
+    const records=publicOnly?[...new Map([...rows,...await heroNewsRows(sql)].map(row=>[row.id,row])).values()]:rows;
+    for (const row of records) {
         const fallbackPublic=!publicOnly&&!!p&&!has(p,permissionModule(row.module,row.draft),'read',scope(row));if(fallbackPublic&&(!row.live||row.deleted_at))continue;
         versions[row.id] = row.version;
         if (['navigation', 'hero'].includes(row.module)) {
@@ -126,6 +128,7 @@ export function validateCandidate(module: ContentModule, value: Record<string, a
     if(schema?.shape){const allowed=new Set([...Object.keys(schema.shape),'published']);for(const key of Object.keys(check))if(!allowed.has(key))throw new CmsError('unknown-field',`Onbekend veld: ${key}.`,422);}
     const parsed = (schema as any)?.safeParse(check);
     if (parsed && !parsed.success)throw new CmsError('validation','Controleer de ingevulde velden.',422,parsed.error.issues.map((i:any)=>({path:i.path.join('.'),message:i.message})));
+    if(module==='articles')for(const key of ['publishedAt','featuredUntil'])if(clean[key])clean[key]=new Date(clean[key]).toISOString();
     for(const key of ['url','src'])if(clean[key]&&!safeDestination(clean[key]))throw new CmsError('unsafe-url','Gebruik een veilige web- of interne bestemming.',422,{field:key});
     // Keep explicit versioned fields (layout/filters) after the legacy schema check.
     return clean;
@@ -148,6 +151,7 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
         await tx `select pg_advisory_xact_lock(736402)`;
         const state = (await loadState(false,undefined,tx)).state;
         const output: Record<string, number> = {};
+        const homepageChanges: {id:string;before:any;live:any}[] = [];
         for (const change of changes) {
             if (!contentModules.includes(change.module))
                 throw new CmsError('module', 'Onbekende module.');
@@ -218,6 +222,7 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
                     if (issues.length)
                         throw new CmsError('publication-invalid', 'Publicatie is nog niet mogelijk.', 422, issues);
                     live = change.module === 'articles' ? articleContent(record as unknown as CmsArticle) : pageContent(record as unknown as CmsPage);
+                    if(change.module==='articles'&&change.action==='publish')Object.assign(candidate,live);
                 }
                 else
                     live = { ...candidate, published: true };
@@ -264,7 +269,7 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
                 await tx `insert into cms_redirects(from_path,to_path,record_id) values (${oldPath},${livePath},${change.id}) on conflict(from_path) do update set to_path=excluded.to_path,record_id=excluded.record_id`;
             }
             if(change.action==='publish'&&change.module==='pages')await moveChildPaths(tx,change.id,old?.live,live,p);
-            if(['publish','unpublish','trash'].includes(change.action)&&change.module==='articles')await syncHomepage(tx,change.id,old?.live,live,p.id);
+            if(['publish','unpublish','trash'].includes(change.action)&&change.module==='articles')homepageChanges.push({id:change.id,before:old?.live,live});
             if(change.action==='publish'&&change.module==='articles'&&candidate.contentType==='news'){
                 const [origin]=await tx`select provenance->>'sourceUrl' as url from cms_news_import_identities where record_id=${change.id}`;
                 if(origin?.url){let url:URL|null=null;try{url=new URL(origin.url);}catch{}if(url&&url.hostname.replace(/^www\./,'')==='duindorpsv.nl'&&/^\/1\/\d+\//.test(url.pathname))await tx`insert into cms_redirects(from_path,to_path,record_id) values (${url.pathname},${livePath!},${change.id}) on conflict(from_path) do nothing`;}
@@ -288,6 +293,12 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
             if (change.action === 'schedule')
                 await tx `insert into cms_jobs(id,operation_id,kind,payload,run_at) values (${crypto.randomUUID()},${`${operationId}:${change.id}:schedule`},'publish',${tx.json({ id: change.id, module: change.module, version, actorId: p.id, draft: planned })},${new Date(change.scheduledAt!).toISOString()})`;
             output[change.id] = version;
+        }
+        // Apply derived selections after explicit commands, so a publication cannot
+        // invalidate the settings version supplied in the very same transaction.
+        for(const change of homepageChanges){
+            const version=await syncHomepage(tx,change.id,change.before,change.live,p.id);
+            if(version!==undefined)output.settings=version;
         }
         await tx `insert into cms_operations(id,actor_id,response) values (${operationId},${p.id},${tx.json(output)})`;
         return output;

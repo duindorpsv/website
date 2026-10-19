@@ -53,7 +53,6 @@ function ClubSiteContent({section='home',contentPath,headerDesign='clubband',her
  const {state,ready}=useCMS();
  const items=useDemoArticles();
  const path=resolveCmsPath(state,contentPath||section);
- const homepageItems=state.settings.homepageArticleIds.map(id=>items.find(item=>item.id===id)).filter((item):item is Article=>!!item);
  const [article,setArticle]=useState<Article|null>(null);
  const [team,setTeam]=useState<Team|null>(null);
  const [match,setMatch]=useState(false);
@@ -88,7 +87,7 @@ function ClubSiteContent({section='home',contentPath,headerDesign='clubband',her
   <a className="skip-link" href="#main-content">Naar de inhoud</a>
   <ClubmuurHeader variant={headerDesign} section={section==='verhalen'?'nieuws':section} openJoin={actions.openJoin}/>
   <div id="main-content">{contentPath?<CmsRoutedContent path={path}/>:section==='home'?<main>
-   <ClubmuurHero actions={actions} items={homepageItems} layout={heroLayout} photo={heroPhoto} preview={heroPreview}/>
+   <ClubmuurHero actions={actions} items={items} layout={heroLayout} photo={heroPhoto} preview={heroPreview}/>
    <CmsFeaturedPhotos/>
    <CmsFeaturedAlbums/>
    <ClubmuurCommunityCards items={items} onOpen={actions.openArticle} articleOpen={!!article}/>

@@ -8,7 +8,7 @@ export function cmsArticlesForSite(state:CmsState,contentType:ContentType='news'
   const cover=state.media.find(media=>media.id===live.coverId&&media.published&&!media.deletedAt);
   const text=docText(live.body);
   const date=new Date(live.publishedAt);
-  return {id:article.id,title:live.title,category:live.category,intro:live.intro,image:cover?.src||'/assets/crest-close.webp',date:Number.isNaN(date.getTime())?'':new Intl.DateTimeFormat('nl-NL',{day:'numeric',month:'long',year:'numeric'}).format(date),minutes:Math.max(1,Math.ceil(text.trim().split(/\s+/).length/200)),body:text.split('\n').filter(Boolean)};
+  return {id:article.id,publishedAt:live.publishedAt,featured:live.featured,featuredUntil:live.featuredUntil,title:live.title,category:live.category,intro:live.intro,image:cover?.src||'/assets/crest-close.webp',date:Number.isNaN(date.getTime())?'':new Intl.DateTimeFormat('nl-NL',{day:'numeric',month:'long',year:'numeric'}).format(date),minutes:Math.max(1,Math.ceil(text.trim().split(/\s+/).length/200)),body:text.split('\n').filter(Boolean)};
  });
 }
 

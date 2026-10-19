@@ -6,7 +6,7 @@ export type SEO = {title:string;description:string;noIndex:boolean};
 export type Revision<T> = {id:string;at:string;label:string;data:T};
 export type ContentType = 'news'|'story';
 export type StoryFormat = 'column'|'interview'|'story';
-export type ArticleContent = {contentType:ContentType;storyFormat:StoryFormat;title:string;slug:string;intro:string;body:CmsDoc;coverId:string;authorId?:string;author:string;category:string;tags:string[];teamId:string;season:string;seo:SEO;featured:boolean;publishedAt:string};
+export type ArticleContent = {contentType:ContentType;storyFormat:StoryFormat;title:string;slug:string;intro:string;body:CmsDoc;coverId:string;authorId?:string;author:string;category:string;tags:string[];teamId:string;season:string;seo:SEO;featured:boolean;featuredUntil?:string;publishedAt:string};
 export type CmsArticle = ArticleContent & {id:string;version?:number;status:ContentStatus;updatedAt:string;scheduledAt:string;live?:ArticleContent;revisions:Revision<ArticleContent>[];deletedAt?:string;demo?:boolean};
 export type PageContent = {bodyFormat?:'legacy-tiptap-v1'|'page-layout-v2';title:string;slug:string;intro:string;body:CmsDoc;parentId:string;menuGroup:string;menuVisible:boolean;order:number;seo:SEO;useBuilder:boolean};
 export type CmsPage = PageContent & {id:string;version?:number;scheduledAt?:string;status:ContentStatus;updatedAt:string;live?:PageContent;revisions:Revision<PageContent>[];deletedAt?:string;system?:boolean};
@@ -30,4 +30,5 @@ export type CmsSettings = {clubName:string;siteDescription:string;contactEmail:s
 export type CmsAudit = {id:string;at:string;action:string;role:string};
 export type CmsRedirect = {from:string;to:string};
 export type CmsState = {appearance?:{hero?:import('../clubmuur-config').HeroCardConfig[];navigation?:import('../clubmuur-navigation').ClubNavigationItem[]};schemaVersion:1;articles:CmsArticle[];pages:CmsPage[];people:CmsPerson[];media:CmsMedia[];folders:CmsFolder[];albums:CmsAlbum[];departments:CmsDepartment[];forms:CmsForm[];submissions:CmsSubmission[];roles:CmsRole[];members:CmsMember[];documents:CmsDocument[];settings:CmsSettings;redirects:CmsRedirect[];audit:CmsAudit[]};
-export type CmsUpdate = (recipe:(draft:CmsState)=>void,action?:string)=>Promise<boolean>;
+export type CmsCommand = {action:'save'|'publish'|'unpublish'|'trash'|'restore'|'schedule'|'cancelSchedule';scheduledAt?:string;expectedVersion?:number};
+export type CmsUpdate = (recipe:(draft:CmsState)=>void,action?:string,commands?:Record<string,CmsCommand>)=>Promise<boolean>;

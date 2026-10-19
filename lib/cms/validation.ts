@@ -19,7 +19,7 @@ const doc:z.ZodType<unknown>=z.lazy(()=>z.object({
   if(node.type==='cmsWidget'&&(!widgetKinds.includes(String(node.attrs?.kind))||!widget.safeParse(node.attrs?.data).success))context.addIssue({code:'custom',message:'Ongeldig paginablok'});
 }));
 const body=doc.refine(value=>!!value&&typeof value==='object'&&'type'in value&&value.type==='doc','De editorinhoud moet een document zijn');
-const articleContent=z.object({contentType:z.enum(['news','story']).default('news'),storyFormat:z.enum(['column','interview','story']).default('story'),title:text,slug:text,intro:text,body,coverId:text,authorId:text.optional(),author:text,category:text,tags:z.array(text),teamId:text,season:text,seo,featured:z.boolean(),publishedAt:optionalDate});
+const articleContent=z.object({contentType:z.enum(['news','story']).default('news'),storyFormat:z.enum(['column','interview','story']).default('story'),title:text,slug:text,intro:text,body,coverId:text,authorId:text.optional(),author:text,category:text,tags:z.array(text),teamId:text,season:text,seo,featured:z.boolean(),featuredUntil:optionalDate.optional(),publishedAt:optionalDate});
 const pageContent=z.object({bodyFormat:z.enum(['legacy-tiptap-v1','page-layout-v2']).optional(),title:text,slug:text,intro:text,body,parentId:text,menuGroup:text,menuVisible:z.boolean(),order:number,seo,useBuilder:z.boolean()});
 const revision=<T extends z.ZodTypeAny>(data:T)=>z.object({id,at:date,label:text,data});
 const uniqueIds=<T extends z.ZodTypeAny>(item:T)=>z.array(item).refine(rows=>new Set(rows.map(row=>(row as {id:string}).id)).size===rows.length,'Dubbele identifiers');

@@ -4,6 +4,9 @@ import {useEffect, useId, useMemo, useRef, useState, type CSSProperties} from 'r
 import {ArrowUpRight, ArrowRight, Pause, Play} from 'lucide-react';
 import type {Article} from '@/lib/club-data';
 import type {HeroCardConfig} from '@/lib/clubmuur-config';
+import {heroClubArticles} from '@/lib/clubmuur-articles';
+import {useNewsClock} from '@/hooks/use-news-clock';
+import {featuredExpiry} from '@/lib/cms/featured';
 
 const ROTATION_MS = 8000;
 const ROW_GAP = 5;
@@ -13,7 +16,9 @@ export function ClubmuurNewsTile({card, items, onOpen}: {
   items: Article[];
   onOpen: (article: Article) => void;
 }) {
-  const latest = useMemo(() => items.slice(0, 3), [items]);
+  const nextExpiry=Math.min(...items.filter(item=>item.featured).map(featuredExpiry).filter(time=>time>Date.now()));
+  const now=useNewsClock(nextExpiry);
+  const latest = useMemo(() => heroClubArticles(items,now).slice(0, 3), [items,now]);
   const [capacity, setCapacity] = useState({rowHeight: 60, lines: 2, compact: false});
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
