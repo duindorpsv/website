@@ -33,14 +33,29 @@ class HostSetupTests(unittest.TestCase):
         expected = "/srv/duindorpsv/staging/docker"
         info = dict(SecurityOptions=["name=seccomp,profile=builtin", "name=rootless", "name=cgroupns"],
                     CgroupDriver="systemd", CgroupVersion="2", DockerRootDir=expected,
-                    MemoryLimit=True, PidsLimit=True, CPUCfsQuota=True, CPUCfsPeriod=True)
+                    MemoryLimit=True, PidsLimit=True, CpuCfsQuota=True, CpuCfsPeriod=True)
         host_check.validate_engine(info, expected)
         invalid_values = dict(SecurityOptions=["name=seccomp"], CgroupDriver="none",
                               CgroupVersion="1", DockerRootDir="/srv/duindorpsv/production/docker",
-                              MemoryLimit=False, PidsLimit=False, CPUCfsQuota=False, CPUCfsPeriod=False)
+                              MemoryLimit=False, PidsLimit=False, CpuCfsQuota=False, CpuCfsPeriod=False)
         for key, value in invalid_values.items():
             with self.subTest(key=key), self.assertRaises(ValueError):
                 host_check.validate_engine({**info, key: value}, expected)
+
+    def test_missing_or_non_boolean_docker_capabilities_are_rejected(self):
+        expected = "/srv/duindorpsv/production/docker"
+        info = dict(SecurityOptions=["name=rootless"], CgroupDriver="systemd",
+                    CgroupVersion="2", DockerRootDir=expected, MemoryLimit=True,
+                    PidsLimit=True, CpuCfsQuota=True, CpuCfsPeriod=True)
+        for capability in ("MemoryLimit", "PidsLimit", "CpuCfsQuota", "CpuCfsPeriod"):
+            missing = {key: value for key, value in info.items() if key != capability}
+            with self.subTest(capability=capability, value="missing"):
+                with self.assertRaisesRegex(ValueError, capability):
+                    host_check.validate_engine(missing, expected)
+            for value in (None, False, 1, "true"):
+                with self.subTest(capability=capability, value=value):
+                    with self.assertRaisesRegex(ValueError, capability):
+                        host_check.validate_engine({**info, capability: value}, expected)
 
     def test_accepts_only_expected_target_port_and_https_origin(self):
         with self.assertRaises(ValueError):

@@ -54,6 +54,8 @@ Kies één vrije interne webpoort. Hieronder is **62600 een voorbeeld**; gebruik
 sudo bash ops/scripts/install-host.sh production 62600 https://duindorpsv.nl --check
 ```
 
+Meldt een oudere checkout `Missing Docker resource support: CPUCfsQuota` (met `CPU` in hoofdletters)? Haal eerst de nieuwste broncode op met `git pull --ff-only` en herhaal de controle. Oudere versies lazen de Docker-velden met verkeerde hoofdletters. De huidige controle blijft vereisen dat geheugen-, proces- en CPU-limieten werkelijk beschikbaar zijn; verander hiervoor niet de Docker-installatie of de controles.
+
 Als deze controle slaagt, installeer:
 
 ```bash
