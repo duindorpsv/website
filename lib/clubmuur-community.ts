@@ -8,12 +8,8 @@ export type ClubCommunityEvent = {
   description: string;
 };
 
-// Editorial placeholders. Replace with CMS records before using as a real agenda.
-export const clubCommunityEvents: ClubCommunityEvent[] = [
-  { id: 'clubmiddag', title: 'Clubmiddag op Houtrust', day: '17', month: 'OKT', category: 'Samen aan tafel', date: '2026-10-17', description: 'Even blijven hangen na het voetbal. Een drankje, een goed gesprek en alle ruimte om elkaar te ontmoeten. Van de jongste jeugd tot de vaste gezichten langs de lijn.' },
-  { id: 'clubdag', title: 'Samen aan de slag', day: '24', month: 'OKT', category: 'Voor onze club', date: '2026-10-24', description: 'Samen maken we Houtrust weer een beetje mooier. Kleine klussen, een gezamenlijke koffiepauze en het plezier van iets doen voor je club.' },
-  { id: 'walking', title: 'Walking Football', day: '27', month: 'OKT', category: 'Blijf in beweging', date: '2026-10-27', description: 'Voetballen op je eigen tempo, met aandacht voor bewegen en ontmoeten. Ontdek hoe leuk het is om samen op het veld te staan.' },
-];
+// Only confirmed club activities belong in the public agenda.
+export const clubCommunityEvents: ClubCommunityEvent[] = [];
 
 export type ClubCommunityRole = { id: string; title: string; duration: string; description: string };
 
@@ -57,11 +53,11 @@ export function communityEventCalendar(event: ClubCommunityEvent) {
   nextDay.setUTCDate(nextDay.getUTCDate() + 1);
   const end = nextDay.toISOString().slice(0, 10).replaceAll('-', '');
   return [
-    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Duindorp SV//Voorbeeldagenda//NL', 'CALSCALE:GREGORIAN',
-    'BEGIN:VEVENT', `UID:voorbeeld-${event.id}-${event.date}@duindorpsv.nl`,
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Duindorp SV//Clubagenda//NL', 'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT', `UID:activiteit-${event.id}-${event.date}@duindorpsv.nl`,
     'DTSTAMP:20261010T000000Z', `DTSTART;VALUE=DATE:${event.date.replaceAll('-', '')}`, `DTEND;VALUE=DATE:${end}`,
-    `SUMMARY:${escapeCalendarText(`[VOORBEELD] ${event.title}`)}`,
-    `DESCRIPTION:${escapeCalendarText('Voorbeeld uit het websiteprototype. Dit is geen bevestigde activiteit. ' + event.description)}`,
-    'LOCATION:Houtrust - Duindorp SV', 'STATUS:TENTATIVE', 'TRANSP:TRANSPARENT', 'END:VEVENT', 'END:VCALENDAR', '',
+    `SUMMARY:${escapeCalendarText(event.title)}`,
+    `DESCRIPTION:${escapeCalendarText(event.description)}`,
+    'LOCATION:Houtrust - Duindorp SV', 'STATUS:CONFIRMED', 'TRANSP:TRANSPARENT', 'END:VEVENT', 'END:VCALENDAR', '',
   ].map(foldCalendarLine).join('\r\n');
 }

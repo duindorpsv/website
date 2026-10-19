@@ -1,3 +1,4 @@
+import {currentClubLinks} from '../current-club-links';
 import {syncHomepage,moveChildPaths} from './publication-effects';
 import {heroNewsRows} from './hero-news';
 import { validClubNavigation } from '../clubmuur-navigation';
@@ -75,7 +76,7 @@ export async function loadState(publicOnly = false, p?: Principal,transaction?:a
     state.departments = ds.filter(d => publicOnly || !p || has(p, 'forms', 'read') || p.departments.some(assignment=>assignment.id===String(d.id)&&has(p,'submissions','read',{departmentId:assignment.id,kind:assignment.kind}))).map(d => ({ id: String(d.id), name: String(d.name), description: String(d.description), active: !!d.active, confirmation: String(d.confirmation), emails: publicOnly ? [] : d.emails as string[] }));
     const redirects = await sql `select from_path as "from",to_path as "to" from cms_redirects`;
     state.redirects = redirects.map(r => ({ from: String(r.from).replace(/^\/clubmuur\//, ''), to: String(r.to).replace(/^\/clubmuur\//, '') }));
-    return { state, versions };
+    return { state:publicOnly?currentClubLinks(state,state.redirects):state, versions };
 }
 function pathFor(module: string, data: Record<string, any>): string | null { if (!data.slug)return null; if (module === 'pages')
     return `/clubmuur/${data.slug}`; if (module === 'articles')

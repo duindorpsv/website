@@ -24,7 +24,7 @@ function saveCalendar(event: ClubCommunityEvent) {
   const url = URL.createObjectURL(new Blob([communityEventCalendar(event)], { type: 'text/calendar;charset=utf-8' }));
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = `duindorp-voorbeeld-${event.id}.ics`;
+  anchor.download = `duindorp-activiteit-${event.id}.ics`;
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
@@ -51,14 +51,14 @@ export function ClubmuurCommunityCards({ items, onOpen, articleOpen = false }: {
       <ClubmuurNewsFeed items={items} onOpen={onOpen} articleOpen={articleOpen || !!event} />
       <article className="cm-community-card cm-community-agenda" aria-labelledby="cm-community-agenda-title">
         <header className="cm-community-card-head"><div className="cm-community-eyebrow"><span>OP DE AGENDA</span><CalendarDays size={18} aria-hidden="true" /></div><h2 id="cm-community-agenda-title">Binnenkort.</h2><p>Een plek om samen te komen.</p></header>
-        <div className="cm-community-events">{clubCommunityEvents.map(item => <button type="button" key={item.id} onClick={event => { dialogTriggerRef.current = event.currentTarget; setEvent(item); }} className="cm-community-event" aria-label={`Bekijk ${item.title}, ${item.day} oktober`}><span className="cm-community-date" aria-hidden="true"><strong>{item.day}</strong><small>{item.month}</small></span><span className="cm-community-event-copy"><small>{item.category}</small><strong>{item.title}</strong></span><ArrowUpRight size={18} aria-hidden="true" /></button>)}</div>
-        <footer className="cm-community-card-foot"><span className="cm-community-footnote"><span />Voorbeeldagenda</span><span className="cm-community-month">OKTOBER ’26</span></footer>
+        <div className="cm-community-events">{!clubCommunityEvents.length&&<p className="cm-community-empty">Er staan op dit moment geen activiteiten in de agenda.</p>}{clubCommunityEvents.map(item => <button type="button" key={item.id} onClick={event => { dialogTriggerRef.current = event.currentTarget; setEvent(item); }} className="cm-community-event" aria-label={`Bekijk ${item.title}, ${item.day} oktober`}><span className="cm-community-date" aria-hidden="true"><strong>{item.day}</strong><small>{item.month}</small></span><span className="cm-community-event-copy"><small>{item.category}</small><strong>{item.title}</strong></span><ArrowUpRight size={18} aria-hidden="true" /></button>)}</div>
+        <footer className="cm-community-card-foot"><span className="cm-community-footnote"><span />Clubagenda</span></footer>
       </article>
 
     </div>
 
     <CommunityDialog open={!!event} onOpenChange={open => { if (!open) setEvent(null); }} title={event?.title ?? 'Clubactiviteit'} description="Een moment voor onze club. En voor elkaar." returnFocus={dialogTriggerRef}>
-      {event && <><div className="cm-community-dialog-meta"><span><CalendarDays size={16} />{event.day} oktober 2026</span><span><MapPin size={16} />Houtrust</span></div><p className="cm-community-dialog-copy">{event.description}</p><div className="cm-community-demo-note"><Sparkles size={16} /><p><strong>Voorbeeldagenda</strong>Deze activiteit laat zien hoe de clubagenda werkt. Datum en invulling zijn nog niet bevestigd.</p></div><button type="button" className="cm-community-dialog-primary" onClick={() => saveCalendar(event)}><CalendarPlus size={17} />Zet voorbeeld in mijn agenda<ArrowRight size={17} /></button><small className="cm-community-dialog-hint">Download een agendabestand (.ics). Dit is geen aanmelding.</small></>}
+      {event && <><div className="cm-community-dialog-meta"><span><CalendarDays size={16} />{event.day} oktober 2026</span><span><MapPin size={16} />Houtrust</span></div><p className="cm-community-dialog-copy">{event.description}</p><button type="button" className="cm-community-dialog-primary" onClick={() => saveCalendar(event)}><CalendarPlus size={17} />Zet in mijn agenda<ArrowRight size={17} /></button><small className="cm-community-dialog-hint">Download een agendabestand (.ics). Dit is geen aanmelding.</small></>}
     </CommunityDialog>
 
   </section>;
