@@ -20,8 +20,13 @@ test('real login, row/column builder and one-step undo/redo',async({page})=>{
  await page.keyboard.type(text);await expect(content).toHaveText(text);
  await page.getByRole('button',{name:'Ongedaan maken',exact:true}).click();await expect(content).toHaveText('');
  const redo=page.getByRole('button',{name:'Opnieuw',exact:true});await expect(redo).toBeEnabled();await redo.click();await expect(content).toHaveText(text);
- const saved=page.waitForResponse((r:any)=>r.url().endsWith('/api/cms/mutations')&&r.request().method()==='POST');
- await page.getByRole('button',{name:'Bewaren',exact:true}).first().click();expect((await saved).status()).toBe(200);
+ await content.locator('p').click();await page.keyboard.press('Home');await page.keyboard.press('Shift+End');
+ await page.getByRole('button',{name:'Onderstrepen',exact:true}).click();await expect(content.locator('u')).toHaveText(text);
+ await page.getByRole('button',{name:'Centreren',exact:true}).click();await expect(content.locator('p')).toHaveCSS('text-align','center');
+ await page.getByRole('button',{name:'Bewaren',exact:true}).first().click();
+ await expect.poll(async()=>JSON.stringify((await page.request.get('/api/cms/pages/'+createdId).then(response=>response.json())).body)).toContain('underline');
+ await expect.poll(async()=>JSON.stringify((await page.request.get('/api/cms/pages/'+createdId).then(response=>response.json())).body)).toContain('center');
+
  await page.screenshot({path:'.runtime/screenshots/builder.png',fullPage:true});
 });
 test('owner can open and manage stories from the CMS',async({page})=>{

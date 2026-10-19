@@ -17,7 +17,7 @@ export function FormDefinitions({onResults}:{onResults:(form:CmsForm)=>void}){
  async function save(publication:boolean){
   if(!form)return;
   if(publication){const errors=formDefinitionErrors(form);if(errors.length){setMessage(errors.join(' '));return;}}
-  setBusy(true);try{const ok=await update(next=>{const index=next.forms.findIndex(item=>item.id===form.id);if(index<0)next.forms.push(form);else next.forms[index]=form;},publication?'Formulier gepubliceerd':'Formulierconcept bewaard',publication?{[form.id]:{action:'publish'}}:undefined);if(ok)setMessage(publication?'Het formulier is gepubliceerd. Kies het in het formulierblok van je pagina.':'Concept bewaard. Publiceer wanneer het formulier klaar is.');}finally{setBusy(false);}
+  setBusy(true);try{const ok=await update(next=>{const index=next.forms.findIndex(item=>item.id===form.id);if(index<0)next.forms.push(form);else next.forms[index]=form;},publication?'Formulier gepubliceerd':'Formulierconcept bewaard',publication?{[form.id]:{action:'publish'}}:undefined);if(ok){if(publication)setForm(current=>current?.id===form.id?{...current,published:true}:current);setMessage(publication?'Het formulier is gepubliceerd. Kies het in het formulierblok van je pagina.':'Concept bewaard. Publiceer wanneer het formulier klaar is.');}}finally{setBusy(false);}
  }
  const matches=state.forms.filter(item=>`${item.name} ${formKindLabels[item.kind].plural}`.toLocaleLowerCase('nl').includes(query.toLocaleLowerCase('nl')));
  const pagination=usePagination(matches,query);

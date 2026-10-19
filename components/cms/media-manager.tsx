@@ -24,7 +24,7 @@ export function mediaReferences(state: CmsState, id: string): string[] {
 export function MediaManager({ tab = 'media' }: {
     tab?: 'media' | 'albums';
 }) {
-    const { state,loadMoreMedia, update, can, roleId, notify, reload } = useCMS();
+    const { state,loadMoreMedia,mediaLoading, update, can, roleId, notify, reload } = useCMS();
     const [activeTab, setActiveTab] = useState(tab);
     const [query, setQuery] = useState('');
     const [folderId, setFolderId] = useState('all');
@@ -115,7 +115,7 @@ export function MediaManager({ tab = 'media' }: {
         if (await update(draft => { draft.albums.push(album); }, 'Album aangemaakt'))
             setSelectedAlbumId(id);
     }
-    return <div className="cms-media-workspace"><button className="cms-button" onClick={()=>void loadMoreMedia()}>Meer foto’s laden</button>
+    return <div className="cms-media-workspace"><button className="cms-button" disabled={mediaLoading} onClick={()=>void loadMoreMedia()}>{mediaLoading?'Mediabibliotheek laden…':'Mediabibliotheek vernieuwen'}</button>
     <div className="cms-toolbar cms-media-toolbar">
       <div className="cms-media-tabs" role="tablist" aria-label="Mediabeheer">
         <button className={activeTab === 'media' ? 'is-active' : ''} role="tab" aria-selected={activeTab === 'media'} onClick={() => { setActiveTab('media'); setQuery(''); }}><Images size={17}/> Mediabibliotheek <span>{media.length}</span></button>
