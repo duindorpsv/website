@@ -1,8 +1,8 @@
-import postgres from 'postgres';
+import {loginWithEmailCode} from './login-fixture';
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 const owner=JSON.parse(readFileSync('.runtime/e2e-account.json','utf8'));
-async function login(page:any){await page.goto('/beheer/login');await page.getByLabel('E-mailadres',{exact:true}).fill(owner.email);await page.getByLabel('Wachtwoord',{exact:true}).fill(owner.password);await page.getByRole('button',{name:'Inloggen',exact:true}).click();await expect(page.getByText('Gedeeld CMS',{exact:true})).toBeVisible();}
+async function login(page:any){await loginWithEmailCode(page,owner.email);}
 test('AUTH01 and SEO: unauthenticated APIs reject access, public history is rendered without JS',async({request,browser})=>{expect((await request.get('/api/cms/bootstrap')).status()).toBe(401);const response=await request.get('/beheer',{maxRedirects:0});expect([307,308]).toContain(response.status());const context=await browser.newContext({javaScriptEnabled:false});const page=await context.newPage();await page.goto('/clubmuur/club/ons-verhaal');await expect(page.getByRole('heading',{name:/verhaal/i}).first()).toBeVisible();expect(await page.locator('body').innerText()).toContain('1950');await context.close();expect((await request.get('/clubmuur/club/missing-e2e-page')).status()).toBe(404);});
 test('real login, row/column builder and one-step undo/redo',async({page})=>{
  await login(page);await page.getByRole('button',{name:'Pagina’s',exact:true}).click();
@@ -85,22 +85,15 @@ test('PB06 and SEO01: the published two-column renderer stacks in order without 
  await expect(visitor).toHaveTitle(/Publicatietest/);await publicContext.close();
 });
 
-test('AUTH10: invitation activation renders the correct server form and signs in through Supabase',async({page,browser})=>{
- const database=new URL(process.env.DATABASE_URL||'postgres://invalid/invalid');
- if(process.env.APP_ENV!=='test'||process.env.SUPABASE_LOCAL_TESTS!=='true'||database.hostname!=='127.0.0.1')throw new Error('Activatieproef vereist de geïsoleerde lokale Supabase-teststack.');
- const email='activation-e2e-'+crypto.randomUUID()+'@example.invalid',password=crypto.randomUUID()+crypto.randomUUID();
+test('AUTH10: invited users sign in using an eight-digit code without a password or authenticator',async({page,browser})=>{
+ const email='activation-e2e-'+crypto.randomUUID()+'@example.invalid';
  await login(page);const invited=await page.request.post('/api/cms/users',{headers:{Origin:new URL(page.url()).origin},data:{name:'Browseractivatie',email,roleId:'editor',teamIds:[],departments:[]}});expect(invited.status()).toBe(200);
- const fixture=postgres(process.env.DATABASE_URL!,{max:1,prepare:false});let path:string;
- try{const [mail]=await fixture`select payload from cms_jobs where kind='mail' and payload->'to' @> ${fixture.json([email])}::jsonb order by created_at desc limit 1`;expect(!!mail).toBe(true);const link=new URL(String(mail.payload.text).split('via ')[1]);path=link.pathname+link.search;}finally{await fixture.end();}
- const withoutJs=await browser.newContext({javaScriptEnabled:false});
- try{const server=await withoutJs.newPage(),response=await server.goto(path!);expect(response?.headers()['referrer-policy']).toBe('no-referrer');await expect(server.getByLabel('Nieuw wachtwoord',{exact:true})).toBeVisible();}finally{await withoutJs.close();}
  const context=await browser.newContext();
  try{
-  const activation=await context.newPage(),errors:string[]=[];activation.on('pageerror',error=>errors.push(error.message));
-  await activation.goto(path!);await expect(activation.getByRole('heading',{name:'Wachtwoord instellen',exact:true})).toBeVisible();await activation.getByLabel('Nieuw wachtwoord',{exact:true}).fill(password);
-  const completed=activation.waitForResponse(response=>response.url().endsWith('/api/auth/reset-password')&&response.request().method()==='POST');await activation.getByRole('button',{name:'Wachtwoord bewaren',exact:true}).click();expect((await completed).status()).toBe(200);
-  await expect(activation.getByRole('status')).toHaveText('Wachtwoord ingesteld. Je kunt nu inloggen.');expect(new URL(activation.url()).search).toBe('');
-  await activation.getByRole('link',{name:'Naar inloggen',exact:true}).click();await activation.getByLabel('E-mailadres',{exact:true}).fill(email);await activation.getByLabel('Wachtwoord',{exact:true}).fill(password);await activation.getByRole('button',{name:'Inloggen',exact:true}).click();await expect(activation.getByText('Gedeeld CMS',{exact:true})).toBeVisible();
-  expect(errors.filter(message=>/hydration|Minified React error #418/i.test(message))).toEqual([]);
+  const invitedPage=await context.newPage();await invitedPage.goto('/beheer/login');
+  await expect(invitedPage.getByLabel('Wachtwoord',{exact:true})).toHaveCount(0);
+  await invitedPage.screenshot({path:'.runtime/screenshots/email-code-login.png'});
+  await loginWithEmailCode(invitedPage,email);await invitedPage.reload();await expect(invitedPage.getByText('Gedeeld CMS',{exact:true})).toBeVisible();
+  expect((await invitedPage.request.post('/api/auth/sign-in/email',{headers:{Origin:new URL(invitedPage.url()).origin},data:{email,password:'unused'}})).status()).toBe(404);
  }finally{await context.close();}
 });

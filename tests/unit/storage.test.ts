@@ -3,7 +3,7 @@ import {afterEach,beforeEach,test} from 'node:test';
 import {S3Client,HeadBucketCommand,GetBucketAclCommand,GetBucketPolicyCommand} from '@aws-sdk/client-s3';
 import {storageReady} from '../../lib/server/storage';
 
-const settings={APP_ENV:'production',APP_BASE_URL:'https://club.example.org',DATABASE_URL:'postgres://synthetic@localhost/unused',DATABASE_CA_CERT_B64:'synthetic-ca',SUPABASE_URL:'https://abcdefghijklmnopqrst.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_synthetic',SUPABASE_SECRET_KEY:'sb_secret_synthetic',MEDIA_DRIVER:'s3',S3_ENDPOINT:'https://fsn1.your-objectstorage.com',S3_REGION:'fsn1',S3_BUCKET:'synthetic-private',S3_ACCESS_KEY_ID:'synthetic',S3_SECRET_ACCESS_KEY:'synthetic',RESEND_API_KEY:'synthetic',MAIL_FROM:'club@example.org',TEST_MAIL_TO:''};
+const settings={TEST_MAIL_API_URL:'',APP_ENV:'production',APP_BASE_URL:'https://club.example.org',DATABASE_URL:'postgres://synthetic@localhost/unused',DATABASE_CA_CERT_B64:'synthetic-ca',SUPABASE_URL:'https://abcdefghijklmnopqrst.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_synthetic',SUPABASE_SECRET_KEY:'sb_secret_synthetic',MEDIA_DRIVER:'s3',S3_ENDPOINT:'https://fsn1.your-objectstorage.com',S3_REGION:'fsn1',S3_BUCKET:'synthetic-private',S3_ACCESS_KEY_ID:'synthetic',S3_SECRET_ACCESS_KEY:'synthetic',RESEND_API_KEY:'synthetic',MAIL_FROM:'club@example.org',TEST_MAIL_TO:''};
 const privateAcl={Grants:[{Grantee:{Type:'CanonicalUser',ID:'synthetic-owner'},Permission:'FULL_CONTROL'}]};
 let previous:Record<string,string|undefined>;
 beforeEach(()=>{previous=Object.fromEntries(Object.keys(settings).map(key=>[key,process.env[key]]));Object.assign(process.env,settings);});

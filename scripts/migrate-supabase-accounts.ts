@@ -19,7 +19,7 @@ try{
    if(result.error||!result.data.user)throw new Error('Supabase-accountmigratie vereist controle voor CMS-id '+profile.id);
    const updated=await sql`update auth_user set supabase_user_id=${result.data.user.id}::uuid,two_factor_enabled=false,updated_at=now() where id=${profile.id} and supabase_user_id is null returning id`;
    if(updated.length!==1){await admin.auth.admin.deleteUser(result.data.user.id);throw new Error('CMS-profiel is ondertussen gewijzigd.');}
-   if(flags.has('--queue-activation'))await getAuth().api.requestPasswordReset({body:{email:profile.email}});
+   if(flags.has('--queue-activation'))await getAuth().api.notifyAccountAccess({body:{email:profile.email}});
    migrated++;
   }
   console.log(JSON.stringify({migratedAccounts:migrated,excludedTestAccounts,activationQueued:flags.has('--queue-activation')}));

@@ -34,6 +34,16 @@ jobs:
           npx --yes supabase@2.121.0 start --exclude realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor > .runtime/supabase-start.log 2>&1
           npx --yes supabase@2.121.0 status --output json > .runtime/supabase-status.json
           pnpm exec tsx scripts/setup-local-supabase.ts
+      - name: Start local Resend API verification sink
+        run: |
+          umask 077
+          node scripts/test-mail-server.mjs > .runtime/mail-sink.log 2>&1 &
+          echo "$!" > .runtime/mail-sink.pid
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent "$TEST_MAIL_API_URL/health" >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent "$TEST_MAIL_API_URL/health" >/dev/null
       - run: pnpm test && pnpm typecheck
       - run: pnpm db:migrate && pnpm exec tsx scripts/provision-database.ts && pnpm db:seed && pnpm test:integration
       - name: Verify actual Supabase database backup
@@ -52,11 +62,11 @@ jobs:
           node --input-type=module <<'JS'
           import {writeFileSync} from 'node:fs';
           const values={};
-          for(const key of ['APP_ENV','APP_BASE_URL','DATABASE_URL','SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','SUPABASE_SECRET_KEY','MEDIA_DRIVER','S3_ENDPOINT','S3_REGION','S3_BUCKET','S3_ACCESS_KEY_ID','S3_SECRET_ACCESS_KEY','TEST_MAIL_TO']) values[key]=process.env[key];
+          for(const key of ['APP_ENV','APP_BASE_URL','DATABASE_URL','SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','SUPABASE_SECRET_KEY','MEDIA_DRIVER','S3_ENDPOINT','S3_REGION','S3_BUCKET','S3_ACCESS_KEY_ID','S3_SECRET_ACCESS_KEY','TEST_MAIL_TO','TEST_MAIL_API_URL','RESEND_API_KEY','MAIL_FROM']) values[key]=process.env[key];
           values.RELEASE_DIGEST='ci-image';
           writeFileSync('.runtime/image.env',Object.entries(values).map(([key,value])=>key+'='+value).join('\n')+'\n',{mode:0o600});
           JS
-          pnpm exec tsx -e 'import {sqlClient,closeDb} from "./db/index.ts";void(async()=>{await sqlClient()`delete from cms_heartbeats`;await closeDb();})();'
+          pnpm exec tsx -e 'import {sqlClient,closeDb} from "./db/index.ts";void(async()=>{if(process.env.APP_ENV!=="test"||process.env.SUPABASE_LOCAL_TESTS!=="true")throw new Error("Isolated fixtures only");await sqlClient()`delete from cms_jobs`;await sqlClient()`delete from cms_heartbeats`;await closeDb();})();'
           docker run -d --name duindorp-ci-worker --memory=512m --network host --env-file .runtime/image.env --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges duindorp-ci worker
           docker run -d --name duindorp-ci-web --memory=768m --network host --env-file .runtime/image.env --read-only --tmpfs /tmp --tmpfs /app/.next/cache:uid=1000,gid=1000 --cap-drop ALL --security-opt no-new-privileges duindorp-ci
           pnpm exec playwright install --with-deps chromium --only-shell
@@ -78,6 +88,7 @@ jobs:
           docker logs duindorp-ci-web > .runtime/web.log 2>&1 || true
           docker logs duindorp-ci-worker > .runtime/worker.log 2>&1 || true
           docker rm -f duindorp-ci-web duindorp-ci-worker >/dev/null 2>&1 || true
+          if test -f .runtime/mail-sink.pid; then kill "$(cat .runtime/mail-sink.pid)" 2>/dev/null || true; fi
           npx --yes supabase@2.121.0 stop --no-backup >/dev/null 2>&1 || true
       - if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

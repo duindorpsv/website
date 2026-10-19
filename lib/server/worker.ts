@@ -1,3 +1,4 @@
+import {deliverEmailCode} from './auth';
 import {syncHomepage,moveChildPaths} from './publication-effects';
 import {has,type Principal} from './permissions';
 import {permissionModule} from './records';
@@ -29,6 +30,8 @@ export async function runOnce(workerId = crypto.randomUUID()) {
         else if(['newsletter-provider','newsletter-unsubscribe'].includes(job.kind)){await settleLegacyNewsletterJob(job.payload.id);}
         else if (job.kind === 'image')
             await processImage(job.payload.id);
+        else if (job.kind === 'auth-code-mail')
+            await deliverEmailCode(job.payload, `<${job.operation_id}@duindorp.invalid>`);
         else if (job.kind === 'mail')
             await sendMail({ ...job.payload, messageId: `<${job.operation_id}@duindorp.invalid>` });
         else if (job.kind === 'submission-mail') {
@@ -57,7 +60,6 @@ export async function runOnce(workerId = crypto.randomUUID()) {
                 if(!member)throw new Error('Publicatierechten zijn ingetrokken.');
                 const teams=await tx`select team_id from cms_user_teams where user_id=${job.payload.actorId}`,grants=await tx`select module,action from cms_grants where role_id=${member.role_id}`;
                 const actor={name:'Worker actor',email:'',mfa:!!member.two_factor_enabled,id:job.payload.actorId,roleId:member.role_id,teamScoped:member.team_scoped,teams:teams.map(t=>t.team_id),departments:[],grants:grants.map(g=>({module:String(g.module),action:String(g.action)}))} as Principal;
-                if(actor.roleId==='admin'&&env().APP_ENV==='production'&&!actor.mfa)throw new Error('Tweede factor is niet actief.');
                 if(!has(actor,permissionModule(record.module,frozen),'publish',{teamId:frozen.teamId||'',departmentId:frozen.departmentId||''})||!has(actor,permissionModule(record.module,record.draft),'publish',{teamId:record.team_id||'',departmentId:record.department_id||''}))throw new Error('Publicatierechten zijn ingetrokken.');
                 const currentJob = await tx `select status,lease_owner from cms_jobs where id=${job.id}`;
                 if (currentJob[0]?.status !== 'processing'||currentJob[0]?.lease_owner!==workerId)
@@ -106,7 +108,7 @@ export async function retain() { const sql = sqlClient(); await sql.begin(async 
     await tx `delete from cms_jobs where payload->>'submissionId'=${row.id}`;
     await tx `delete from cms_submissions where id=${row.id}`;
     await tx `insert into cms_audit(id,action,record_id,request_id) values (${crypto.randomUUID()},'retention-delete',${row.id},${crypto.randomUUID()})`;
-} }); await sql `delete from cms_rate_limits where expires_at<now()`; await cleanExpiredNews(); }
+} }); await sql `delete from cms_rate_limits where expires_at<now()`; await sql`delete from cms_jobs where kind='auth-code-mail' and status in ('done','failed','cancelled') and created_at<now()-interval '1 day'`; await sql`delete from cms_auth_login_challenges where expires_at<now()`; await sql`delete from cms_auth_email_sessions where created_at<now()-interval '12 hours'`; await cleanExpiredNews(); }
 export async function cleanOrphans(){
     const sql=sqlClient(),objects=await sql`select storage_key,variants from cms_media_objects`;
     const kept=new Set<string>();for(const object of objects){kept.add(object.storage_key);for(const variant of object.variants||[])kept.add(variant.key);}

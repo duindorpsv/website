@@ -83,3 +83,10 @@ Het echte Duindorp Supabase-project is nog niet aangewezen; in de gekoppelde acc
 Op verzoek van de eigenaar blijven bestanden in de bestaande Hetzner S3-bucket; Supabase verzorgt uitsluitend database en Auth/MFA. De productieconfiguratie controleert het Hetzner-regioadres zonder bucketpad. Readiness controleert bucket-ACL/policy en weigert publieke toegang of onleesbare permissies. De lokale CI gebruikt Supabase Storage uitsluitend als S3-testadapter; dit is geen productieprovidervereiste.
 
 Het openbare database-CA-certificaat is met succesvolle hostnaam-/ketencontrole tegen de aangewezen Supabase-database geverifieerd en in GitHub Environment production ingesteld. De bestaande S3-secrets blijven behouden. De externe Restic-backup gebruikt een gereserveerde prefix wanneer dezelfde bucket wordt gebruikt; eerdere backups worden uitgesloten van de mediakopie. Lokale unit-, type- en opscontroles zijn geslaagd; de volledige container-/browsercontrole en echte productieoplevering volgen via de bestaande workflow.
+
+
+## 19 oktober 2026 — uitsluitend achtcijferige e-mailcodes
+
+De eigenaar kiest expliciet uitsluitend e-mailcodes, ook voor beheerders. De wachtwoord-/authenticatorflow is vervangen door Supabase-OTP van acht cijfers, gebonden aan een browsernonce, maximaal tien minuten geldig en met vijf pogingen. Alleen expliciet gekoppelde actieve CMS-accounts krijgen toegang. De native Supabase-code gaat via een workerjob naar Resend in een Duindorp SV HTML-template met tekstversie; de ruwe code wordt niet in jobs of logs opgeslagen. Een lokale sessieregistratie voorkomt toegang via los aangemaakte provider-sessies. Accountwijzigingen trekken ook lopende codes en sessies in.
+
+De eerste-deploymenthandleiding bevat nu één stappenlijst voor Supabase, opslag/Resend, de VPS-installatie, DNS/HTTPS, de nieuwste GitHub-release en het maken van de eerste CMS-beheerder. De handelingen op de productiehost blijven bij de eigenaar. De eerdere run stopte vóór app-uitrol op ontbrekende sudo-toestemming; er wordt geen geslaagde live deployment geclaimd. De cloud-OTP-lengte moet door de projecteigenaar op 8 worden gezet.

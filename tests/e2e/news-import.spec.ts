@@ -1,3 +1,4 @@
+import {loginWithEmailCode} from './login-fixture';
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 import {mkdir,stat,unlink} from 'node:fs/promises';
@@ -8,7 +9,7 @@ import {runtimeMemory} from '../helpers/news-memory';
 import {writeFile} from 'node:fs/promises';
 test.use({actionTimeout:15000});
 const owner=JSON.parse(readFileSync('.runtime/e2e-account.json','utf8'));
-async function login(page:any){await page.goto('/beheer/login');await page.getByLabel('E-mailadres',{exact:true}).fill(owner.email);await page.getByLabel('Wachtwoord',{exact:true}).fill(owner.password);await page.getByRole('button',{name:'Inloggen',exact:true}).click();await expect(page.getByText('Gedeeld CMS',{exact:true})).toBeVisible({timeout:30000});await expect(page.getByText('Serveropslag',{exact:true})).toBeVisible({timeout:30000});}
+async function login(page:any){await loginWithEmailCode(page,owner.email);}
 test.afterEach(async({page})=>{const id=new URL(page.url()).searchParams.get('newsImport');if(id)await page.request.delete('/api/cms/news-imports/'+id,{headers:{Origin:new URL(page.url()).origin}}).catch(()=>{});});
 const article=(prefix:string,i:number)=>({sourceId:`${prefix}-${i}`,title:`Browserarchief ${String(i).padStart(2,'0')}`,sourceUrl:`https://www.duindorpsv.nl/1/${10000+i}/browser/`,publishedAt:i%2?'2016-01-23T12:00:00+01:00':'2017-07-23T12:00:00+02:00',lead:'Oorspronkelijke inleiding '+i,bodyHtml:`<p>Oorspronkelijke inleiding ${i}</p><h2>Historisch bericht</h2><p>Bruikbare inhoud ${i}</p>`,status:'pending',media:[],warnings:[]});
 test('news import: explicit selection survives search/year/page, preview modal keyboard, default draft, editor provenance and mobile',async({page,request})=>{

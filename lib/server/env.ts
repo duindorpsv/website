@@ -9,6 +9,7 @@ const config=z.object({
   S3_BUCKET:z.string().optional(), S3_ACCESS_KEY_ID:z.string().optional(),S3_SECRET_ACCESS_KEY:z.string().optional(),
   RESEND_API_KEY:z.string().regex(/^[^\s]+$/).optional().or(z.literal('')),
   MAIL_FROM:z.string().email().optional().or(z.literal('')),TEST_MAIL_TO:z.string().email().optional().or(z.literal('')),
+  TEST_MAIL_API_URL:z.string().url().optional().or(z.literal('')),
   SPORTLINK_CLIENT_ID:z.string().optional(),
 });
 export function env(){
@@ -20,6 +21,7 @@ export function env(){
   if(value.APP_ENV==='production'&&!value.DATABASE_CA_CERT_B64)throw new Error('Productie vereist DATABASE_CA_CERT_B64 voor gecontroleerde TLS.');
   if(value.APP_ENV==='production'&&value.MEDIA_DRIVER!=='s3')throw new Error('Productie vereist duurzame S3-opslag.');
   if(value.APP_ENV==='production'&&value.TEST_MAIL_TO)throw new Error('TEST_MAIL_TO moet leeg zijn in productie.');
+  if(value.APP_ENV!=='test'&&value.TEST_MAIL_API_URL)throw new Error('Een testmailserver is uitsluitend in tests toegestaan.');
   if(value.APP_ENV==='production'&&(!value.RESEND_API_KEY||!value.MAIL_FROM))throw new Error('Productie vereist RESEND_API_KEY en MAIL_FROM.');
   if(value.MEDIA_DRIVER==='s3'&&(!value.S3_BUCKET||!value.S3_ACCESS_KEY_ID||!value.S3_SECRET_ACCESS_KEY))throw new Error('S3-configuratie ontbreekt.');
   return value;
