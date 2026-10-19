@@ -27,6 +27,7 @@ async function fixture(run:(tx:any)=>Promise<void>){
 
 test('homepage photo repair restores the four selected album photos, preserves history and runs only once',async()=>fixture(async tx=>{
   const photo=photos[0],revision=crypto.randomUUID();
+  await tx`update cms_records set draft=draft || ${tx.json({alt:'Gegenereerd sfeerbeeld van supporters',credit:'Gegenereerd sfeerbeeld · te vervangen door eigen clubfoto'})} where id=${photo.id}`;
   const [before]=await tx`select draft from cms_records where id=${photo.id}`;
   await tx`insert into cms_revisions(id,record_id,version,snapshot,label) values (${revision},${photo.id},10,${tx.json(before.draft)},'Bestaande redactierevisie')`;
   await tx`update cms_records set deleted_at=now(),status='archived' where id=${photos[3].id}`;
@@ -36,6 +37,8 @@ test('homepage photo repair restores the four selected album photos, preserves h
   assert.equal(state.media.filter(media=>photos.some(photo=>photo.id===media.id)&&media.published).length,4);
   assert.deepEqual(state.settings.homepagePhotoIds,seed.settings.homepagePhotoIds);
   assert.deepEqual(state.albums.find(album=>album.id==='album-clubleven')?.mediaIds,photos.map(photo=>photo.id));
+  assert.equal(state.media.find(media=>media.id===photo.id)?.alt,'Supporters');
+  assert.equal(state.media.find(media=>media.id===photo.id)?.credit,'');
   for(const photo of photos){
     const [row]=await tx`select r.*,p.snapshot from cms_records r join cms_publications p on p.id=r.live_id where r.id=${photo.id}`;
     assert.equal(row.status,'published');assert.equal(row.deleted_at,null);assert.equal(row.version,11);

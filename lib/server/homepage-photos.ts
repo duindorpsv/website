@@ -2,6 +2,14 @@ import {createCmsSeed} from '../cms/seed';
 
 const release = 'homepage-club-photos-v1';
 
+function publishedPhoto(photo:any,fallbackAlt:string) {
+  // Archived originals did not receive the earlier cleanup of retired labels.
+  const sourceAlt = photo.alt || fallbackAlt;
+  const alt = /^gegenereerd sfeerbeeld/i.test(sourceAlt) ? sourceAlt.replace(/^gegenereerd sfeerbeeld[: ]*(?:van )?/i,'').replace(/^./,(first:string)=>first.toUpperCase()) : sourceAlt;
+  const credit = /^gegenereerd sfeerbeeld|^voorbeeldbeeld$/i.test(photo.credit || '') ? '' : photo.credit || '';
+  return {...photo,published:true,alt,credit};
+}
+
 /** One-time repair of the original club photos still selected in both public areas. */
 export async function applyHomepagePhotoRepair(tx:any) {
   await tx`set local lock_timeout='5s'`;
@@ -26,8 +34,8 @@ export async function applyHomepagePhotoRepair(tx:any) {
       continue;
     }
     inspected.push({id:old.id,state:old.deleted_at?'archived':old.live?'publication-flag-missing':'unpublished'});
-    const draft = {...old.draft,published:true,alt:old.draft.alt || original.alt};
-    const live = old.live ? {...old.live,published:true} : structuredClone(draft);
+    const draft = publishedPhoto(old.draft,original.alt);
+    const live = old.live ? publishedPhoto(old.live,original.alt) : structuredClone(draft);
     const version = old.version + 1, publication = crypto.randomUUID();
     await tx`insert into cms_revisions(id,record_id,version,snapshot,label) values (${crypto.randomUUID()},${old.id},${old.version},${tx.json(old.draft)},'Voor herstel gekozen homepagefoto') on conflict(record_id,version) do nothing`;
     await tx`insert into cms_publications(id,record_id,record_version,snapshot) values (${publication},${old.id},${version},${tx.json(live)})`;
