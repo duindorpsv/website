@@ -27,7 +27,7 @@ export async function applyLaunchContent(tx:any){
   async function write(old:any,draft:any,live:any,module:string,id:string){
     if(old&&equalContent(old.draft,draft)&&equalContent(old.live,live))return;
     const version=(old?.version||0)+1;
-    if(old)await tx`insert into cms_revisions(id,record_id,version,snapshot,label) values (${crypto.randomUUID()},${id},${old.version},${tx.json(old.draft)},'Voor update websiteformulieren')`;
+    if(old)await tx`insert into cms_revisions(id,record_id,version,snapshot,label) values (${crypto.randomUUID()},${id},${old.version},${tx.json(old.draft)},'Voor update websiteformulieren') on conflict(record_id,version) do nothing`;
     await tx`insert into cms_records(id,module,title,department_id,status,version,draft,live) values (${id},${module},${draft.name||draft.title||old?.title||''},${draft.departmentId||null},${old?.status||'published'},${version},${tx.json(draft)},${live?tx.json(live):null})
       on conflict(id) do update set title=excluded.title,department_id=excluded.department_id,version=excluded.version,draft=excluded.draft,live=excluded.live,updated_at=now()`;
     if(live){const publication=crypto.randomUUID();await tx`insert into cms_publications(id,record_id,record_version,snapshot) values (${publication},${id},${version},${tx.json(live)})`;await tx`update cms_records set live_id=${publication} where id=${id}`;}
