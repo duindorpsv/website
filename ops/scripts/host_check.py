@@ -54,7 +54,8 @@ def validate_engine(info, data_root):
     require(info.get("CgroupDriver") == "systemd"
             and str(info.get("CgroupVersion")) == "2", "Require systemd and cgroup v2")
     require(info.get("DockerRootDir") == str(data_root), "Unexpected Docker data root")
-    for capability in ("MemoryLimit", "PidsLimit", "CPUCfsQuota", "CPUCfsPeriod"):
+    # docker info serializes these two Go fields as CpuCfs*, not CPUCfs*.
+    for capability in ("MemoryLimit", "PidsLimit", "CpuCfsQuota", "CpuCfsPeriod"):
         require(info.get(capability) is True, "Missing Docker resource support: " + capability)
 
 
