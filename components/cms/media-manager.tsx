@@ -124,7 +124,7 @@ export function MediaManager({ tab = 'media' }: {
       </div>
       <label className="cms-media-search"><Search size={17}/><input aria-label={activeTab === 'media' ? 'Zoek foto’s' : 'Zoek albums'} placeholder={activeTab === 'media' ? 'Zoek foto’s…' : 'Zoek albums…'} value={query} onChange={e => setQuery(e.target.value)}/></label>
     </div>
-    <div className="cms-panel cms-media-intro"><div><strong>{activeTab === 'media' ? 'Alle beelden. Eén vertrouwde plek.' : 'Herinneringen om te delen.'}</strong><p>{activeTab === 'media' ? 'Orden je bestanden in mappen, koppel ze aan teams en kies welke foto’s op de site mogen verschijnen.' : 'Maak openbare albums uit je mediabibliotheek. Een foto kan in meerdere albums staan.'}</p></div><span className="cms-status">Lokale conceptomgeving</span></div>
+    <div className="cms-panel cms-media-intro"><div><strong>{activeTab === 'media' ? 'Alle beelden. Eén vertrouwde plek.' : 'Herinneringen om te delen.'}</strong><p>{activeTab === 'media' ? 'Orden je bestanden in mappen, koppel ze aan teams en kies welke foto’s op de site mogen verschijnen.' : 'Maak openbare albums uit je mediabibliotheek. Een foto kan in meerdere albums staan.'}</p></div><span className="cms-status">Gedeelde mediabibliotheek</span></div>
     <div className="cms-toolbar cms-media-filters">
       <label className="cms-field">Team<select value={teamFilter} onChange={e => setTeamFilter(e.target.value)}><option value="all">Alle teams</option><option value="">Club algemeen</option>{state.settings.teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
       <label className="cms-field">Nieuw materiaal voor<select value={uploadTeamId} onChange={e => setUploadTeamId(e.target.value)} disabled={!anyMediaPermission}><option value="" disabled={!can('media')}>Club algemeen</option>{allowedTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
@@ -159,7 +159,7 @@ export function MediaManager({ tab = 'media' }: {
             setDropActive(true); }} onDragLeave={() => setDropActive(false)} onDrop={e => { e.preventDefault(); setDropActive(false); void upload(e.dataTransfer.files); }}>
           <Upload size={25}/><div><strong>{uploading ? 'Foto’s worden opgeslagen…' : 'Sleep je foto’s hierheen'}</strong><p>JPG, PNG, WebP, AVIF of GIF · maximaal 8 MB per foto</p></div><button className="cms-button" disabled={uploading || !can('media', uploadTeamId)} onClick={() => input.current?.click()}><ImagePlus size={16}/>{uploading ? 'Bezig…' : 'Bestanden kiezen'}</button><input hidden ref={input} type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" multiple onChange={e => void upload(e.target.files)}/>
         </div>
-        <p className="cms-meta">Uploads worden in deze browser bewaard. Gedeelde opslag wordt op de VPS aangesloten.</p>
+        <p className="cms-meta">Uploads worden in de gedeelde mediabibliotheek opgeslagen.</p>
         {visibleMedia.length ? <div className="cms-media-grid">{mediaPage.items.map(m => <button key={m.id} className={`cms-media-tile ${selectedId === m.id ? 'is-selected' : ''}`} onClick={() => setSelectedId(m.id)} aria-pressed={selectedId === m.id}>
           <div className="cms-media-thumb">{m.src ? <img src={m.src} alt={m.alt || m.name} style={{ objectPosition: `${m.focusX}% ${m.focusY}%` }}/> : <Images size={28}/>}<span className={`cms-photo-badge ${m.published ? 'published' : ''}`}>{m.published ? 'Gepubliceerd' : 'Concept'}</span>{m.featured && <span className="cms-featured-star" aria-label="Uitgelicht"><Star size={14} fill="currentColor"/></span>}</div>
           <strong>{m.name}</strong><span className="cms-meta">{m.alt || 'Alt-tekst ontbreekt'}</span>
@@ -232,7 +232,7 @@ function MediaDetails({ media, onClose }: {
       <label className="cms-check"><input type="checkbox" checked={draft.featured} disabled={!publicationRights || !draft.published} onChange={e => patch({ featured: e.target.checked })}/> Uitlichten op de fotomuur van de homepage</label>
     </fieldset>
     {!!references.length && <div className="cms-media-usage"><strong>In gebruik</strong>{references.map(ref => <span key={ref}>{ref}</span>)}</div>}
-    {media.published && <p className="cms-meta">Opgeslagen wijzigingen zijn direct zichtbaar op deze lokale site.</p>}
+    {media.published && <p className="cms-meta">Gepubliceerde wijzigingen zijn direct zichtbaar op de website.</p>}
     <div className="cms-toolbar"><button className="cms-button primary" disabled={!contentEditable || !dirty} onClick={save}><Check size={16}/>{dirty ? 'Opslaan' : 'Opgeslagen'}</button><button className="cms-button danger" disabled={!editable} onClick={async () => {
             if (references.length)
                 return notify(`Verwijderen kan nog niet. In gebruik bij: ${references.join(', ')}.`);
