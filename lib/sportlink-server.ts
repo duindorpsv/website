@@ -1,3 +1,4 @@
+import {verifiedSportlinkCatalog} from './server/sportlink-identity';
 import {sportlinkStore, type SportlinkStatement} from './server/sportlink-store';
 import {normalizeSportlink} from './sportlink-normalize';
 import type {SportlinkSnapshot,SportlinkSide} from './sportlink-types';
@@ -19,7 +20,7 @@ async function article(name:string,params:Record<string,string>={}){
 
 async function downloadSnapshot():Promise<SportlinkSnapshot>{
  const {settings}=await readSportlinkSettings();
- const teams=await article('teams',{competitieperiode:'ALLES'});
+ const catalog=await verifiedSportlinkCatalog(settings,false,false),teams=catalog.rows;
  if(!teams.length)throw new Error('Sportlink leverde op dit moment geen teams.');
  const selection=normalizeSportlink({teams,standings:[],leagueResults:[],leagueFixtures:[],clubResults:[],clubFixtures:[]});
  const pool=selection.competition?.id;
@@ -30,14 +31,13 @@ async function downloadSnapshot():Promise<SportlinkSnapshot>{
   article('uitslagen',{weekoffset:String(-Math.ceil(settings.resultsDays/7)),aantaldagen:String(settings.resultsDays),aantalregels:'500',sorteervolgorde:'datum-omgekeerd'}),
   article('programma',{weekoffset:'0',aantaldagen:String(settings.programmeDays),aantalregels:'500'}),
  ]);
- return normalizeSportlink({teams,standings,leagueResults,leagueFixtures,clubResults,clubFixtures});
+ return normalizeSportlink({verifiedClubCode:catalog.clubCode,teams,standings,leagueResults,leagueFixtures,clubResults,clubFixtures});
 }
 
 async function persist(data:SportlinkSnapshot){
  const db=sportlinkStore;
  if(!db)throw new Error('De competitiegegevens zijn nog niet beschikbaar.');
- const catalogManaged=(await readSportlinkSettings()).configured;
- const statements:SportlinkStatement[]=catalogManaged?[]:[db.prepare('UPDATE sportlink_teams SET active = 0')];
+ const statements:SportlinkStatement[]=[];
  // Bounded batches limit statement size. Multi-row inserts also
  // keep a large club import well below its per-invocation query limit.
  const appendUpserts=(table:string,columns:string[],rows:(string|number|null)[][],conflict:string)=>{
@@ -48,10 +48,6 @@ async function persist(data:SportlinkSnapshot){
    statements.push(db.prepare(`INSERT INTO ${table} (${columns.join(',')}) VALUES ${chunk.map(()=>placeholders).join(',')} ${conflict}`).bind(...chunk.flat()));
   }
  };
- if(!catalogManaged)appendUpserts('sportlink_teams',
-  ['id','team_code','local_team_code','name','category','gender','sport','day','competitions_json','active','updated_at'],
-  data.teams.map(team=>[team.id,team.teamCode,team.localTeamCode,team.name,team.category,team.gender,team.sport,team.day,JSON.stringify(team.competitions),1,data.updatedAt]),
-  'ON CONFLICT(id) DO UPDATE SET name=excluded.name,category=excluded.category,gender=excluded.gender,sport=excluded.sport,day=excluded.day,competitions_json=excluded.competitions_json,active=1,updated_at=excluded.updated_at');
  const clubs=new Map<string,SportlinkSide>();
  const matches=new Map([...data.results,...data.fixtures,...data.previousRound.matches,...data.nextRound.matches].map(match=>[match.id,match]));
  for(const match of matches.values()){

@@ -1,3 +1,4 @@
+import {verifiedSportlinkCatalog} from './sportlink-identity';
 import {sqlClient} from '../../db';
 import {SPORTLINK_DATASETS,nextSportlinkRun,type SportlinkDataset,type SportlinkSettings} from '../cms/sportlink-settings';
 import {normalizeSportlink} from '../sportlink-normalize';
@@ -25,7 +26,8 @@ export async function sportlinkStatus(actor:Principal){
  const fields=[...new Set<string>(matches.map((match:any)=>match.field).filter(Boolean))].map(name=>({name}));
  const changingRooms=[...new Set<string>(matches.flatMap((match:any)=>Object.values(match.changingRooms||{})).filter(Boolean))].map(name=>({name}));
  const unresolved=JSON.parse(assignmentRows.find(row=>row.cache_key==='sportlink-planning-review-v1')?.payload_json||'{"items":[]}').items;
- return {...config,actorId:undefined,canManage:has(actor,'settings','manage')&&!actor.teamScoped,credentialConfigured:!!process.env.SPORTLINK_CLIENT_ID,automaticActive:config.configured&&config.settings.enabled&&!!process.env.SPORTLINK_CLIENT_ID,datasets,teams,fields,changingRooms,unresolved};
+ const verifiedRows=await sql`select payload_json from sportlink_cache where cache_key=${'sportlink-verified-teams-v1:'+config.settings.clubCode}`;const verifiedIds:string[]=verifiedRows[0]?.payload_json?JSON.parse(verifiedRows[0].payload_json).ids:[];
+ return {...config,legacyTeams:teams.filter(team=>!verifiedIds.includes(team.id)).map(team=>({id:team.id,name:team.name})),actorId:undefined,canManage:has(actor,'settings','manage')&&!actor.teamScoped,credentialConfigured:!!process.env.SPORTLINK_CLIENT_ID,automaticActive:config.configured&&!!config.settings.clubCode&&config.settings.enabled&&!!process.env.SPORTLINK_CLIENT_ID,datasets,teams:teams.filter(team=>verifiedIds.includes(team.id)),fields,changingRooms,unresolved};
 }
 export async function rescheduleSportlink(settings:SportlinkSettings){
  const sql=sqlClient();await sql.begin(async tx=>{for(const dataset of SPORTLINK_DATASETS){const [row]=await tx`select payload_json from sportlink_cache where cache_key=${stateKey(dataset)} for update`;if(!row?.payload_json)continue;const previous:SportlinkSyncState=JSON.parse(row.payload_json);if(previous.lastSuccessAt)await setSyncState(dataset,{nextRunAt:new Date(nextSportlinkRun(settings.schedules[dataset],new Date(previous.lastSuccessAt))).toISOString()},tx);}});
@@ -48,7 +50,7 @@ export async function queueSportlinkSync(actor:Principal,dataset:SportlinkDatase
 }
 /** Durable due times; no dependency on a visitor opening the website. */
 export async function scheduleSportlinkSync(){
- const config=await readSportlinkSettings();if(!config.configured||!config.settings.enabled||!config.actorId||!process.env.SPORTLINK_CLIENT_ID)return;
+ const config=await readSportlinkSettings();if(!config.configured||!config.settings.clubCode||!config.settings.enabled||!config.actorId||!process.env.SPORTLINK_CLIENT_ID)return;
  const actor=await actorPrincipal(config.actorId);authorizeSportlinkManage(actor);const sql=sqlClient();
  for(const dataset of SPORTLINK_DATASETS){if(!config.settings.schedules[dataset].enabled)continue;
   const [row]=await sql`select payload_json from sportlink_cache where cache_key=${stateKey(dataset)}`,state:SportlinkSyncState=row?.payload_json?JSON.parse(row.payload_json):{status:'never'};
@@ -57,10 +59,7 @@ export async function scheduleSportlinkSync(){
  }
 }
 async function teams(settings:SportlinkSettings,force=false){
- const data=await cachedSportlinkArticle('teams',{competitieperiode:'ALLES'},{settings,force,dataset:'teams'});if(data.stale)throw new SportlinkSourceError('De teamlijst is tijdelijk niet beschikbaar.');
- if(!Array.isArray(data.value))throw new SportlinkSourceError('Sportlink leverde geen geldige teams.');
- const snapshot=normalizeSportlink({teams:data.value,standings:[],leagueResults:[],leagueFixtures:[],clubResults:[],clubFixtures:[]});if(!snapshot.teams.length)throw new SportlinkSourceError('Een lege teamresponse wordt niet als verwijderlijst verwerkt.');
- return {rows:data.value,teams:snapshot.teams,updatedAt:data.updatedAt};
+ return verifiedSportlinkCatalog(settings,force);
 }
 export type SportlinkPersonCandidate={sourceId:string;name:string;role:string;teamId:string};
 async function personCandidates(settings:SportlinkSettings):Promise<{items:SportlinkPersonCandidate[];failures:number;observed:number}>{
@@ -102,16 +101,14 @@ export async function processSportlinkSync(payload:{dataset:SportlinkDataset;act
  const counts:Record<string,number>={};let failures=0;
  try{
   if(dataset==='teams'){
-   const catalog=await teams(settings,true);counts.active=catalog.teams.length;
-   await sql.begin(async tx=>{await tx`update sportlink_teams set active=0`;for(const team of catalog.teams)await tx`insert into sportlink_teams(id,team_code,local_team_code,name,category,gender,sport,day,competitions_json,active,updated_at) values (${team.id},${team.teamCode},${team.localTeamCode},${team.name},${team.category},${team.gender},${team.sport},${team.day},${JSON.stringify(team.competitions)},1,${Date.now()}) on conflict(id) do update set name=excluded.name,team_code=excluded.team_code,local_team_code=excluded.local_team_code,category=excluded.category,gender=excluded.gender,sport=excluded.sport,day=excluded.day,active=1,competitions_json=excluded.competitions_json,updated_at=excluded.updated_at`;
+   const catalog=await teams(settings,true);counts.active=catalog.teams.length;counts.skipped=catalog.conflicts.length;
+   await sql.begin(async tx=>{const [previous]=await tx`select payload_json from sportlink_cache where cache_key=${'sportlink-verified-teams-v1:'+catalog.clubCode}`;const ids:string[]=previous?.payload_json?JSON.parse(previous.payload_json).ids:[];if(ids.length)await tx`update sportlink_teams set active=0 where id in ${tx(ids)}`;for(const team of catalog.teams)await tx`insert into sportlink_teams(id,team_code,local_team_code,name,category,gender,sport,day,competitions_json,active,updated_at) values (${team.id},${team.teamCode},${team.localTeamCode},${team.name},${team.category},${team.gender},${team.sport},${team.day},${JSON.stringify(team.competitions)},1,${Date.now()}) on conflict(id) do update set name=excluded.name,team_code=excluded.team_code,local_team_code=excluded.local_team_code,category=excluded.category,gender=excluded.gender,sport=excluded.sport,day=excluded.day,active=1,competitions_json=excluded.competitions_json,updated_at=excluded.updated_at`;
+    await tx`insert into sportlink_cache(cache_key,payload_json,updated_at,expires_at,refresh_after) values (${'sportlink-verified-teams-v1:'+catalog.clubCode},${JSON.stringify({ids:catalog.teams.map(team=>team.id)})},${Date.now()},0,0) on conflict(cache_key) do update set payload_json=excluded.payload_json,updated_at=excluded.updated_at`;
     await tx`update sportlink_cache set expires_at=0 where cache_key='club-competition-v1' or cache_key like 'team-catalog-v1:%'`;});
   }else if(dataset==='matches'||dataset==='assignments'){
-   const catalog=await teams(settings),days=dataset==='assignments'?settings.assignmentDays:settings.programmeDays;
-   const raw=await cachedSportlinkArticle('programma',{weekoffset:'0',aantaldagen:String(days),aantalregels:'500'},{settings,force:true,dataset});if(raw.stale||!Array.isArray(raw.value))throw new SportlinkSourceError('Het programma is tijdelijk niet beschikbaar.');
-   const snapshot=normalizeSportlink({teams:catalog.rows,standings:[],leagueResults:[],leagueFixtures:[],clubResults:[],clubFixtures:raw.value});counts.received=snapshot.fixtures.length;
-   const {syncSportlinkMatches}=await import('./sportlink-planning');const result=await syncSportlinkMatches(actor,snapshot.fixtures,settings,jobId);Object.assign(counts,result);
-   await sql`insert into sportlink_cache(cache_key,payload_json,updated_at,expires_at,refresh_after) values ('sportlink-assignments-v1',${JSON.stringify({matches:snapshot.fixtures})},${Date.now()},${nextSportlinkRun(settings.schedules.assignments)},0) on conflict(cache_key) do update set payload_json=excluded.payload_json,updated_at=excluded.updated_at,expires_at=excluded.expires_at`;
-   await sql`update sportlink_cache set expires_at=0 where cache_key='club-competition-v1'`;
+   if(!settings.clubCode)throw new SportlinkSourceError('Bevestig eerst de geautoriseerde clubidentiteit.');const days=dataset==='assignments'?settings.assignmentDays:settings.programmeDays;
+   const raw=await cachedSportlinkArticle('programma',{weekoffset:'0',aantaldagen:String(days),aantalregels:'500',thuis:'JA',uit:'JA',eigenwedstrijden:'JA'},{settings,force:true,dataset});if(raw.stale||!Array.isArray(raw.value))throw new SportlinkSourceError('Het programma is tijdelijk niet beschikbaar.');
+   Object.assign(counts,(await (await import('./planning-revision')).planningSyncStatus()).counts||{});
   }else{
    const catalog=await teams(settings),selected=catalog.teams.filter(team=>!settings.teamIds.length||settings.teamIds.includes(team.id));
    const prefixes=dataset==='players'?['team-roster-v1:']:dataset==='teamInfo'?['team-photo-v1:']:dataset==='results'?['team-results-v1:','team-pool-results-v1:']:['team-pool-standing-v1:'];

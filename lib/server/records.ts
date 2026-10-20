@@ -1,3 +1,4 @@
+import {bumpPlanningRevision} from './planning-revision';
 import {committeeSchema,locationSchema,activitySchema,addPlanningDays} from '../cms/planning';
 import {heroSliderSchema} from '../cms/hero-slider';
 import {sportlinkSettingsSchema} from '../cms/sportlink-settings';
@@ -404,6 +405,7 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
                     await tx `insert into cms_album_media(album_id,media_id,position) values (${change.id},${id},${i})`;
             }
             await syncPlanningIndexes(tx,change.module,change.id,candidate,!!deletedAt);
+            if(['activities','locations','committees','sportlinkSettings'].includes(change.module))await bumpPlanningRevision(tx);
             if(change.module==='activities'&&change.action==='publish'&&candidate.public){const mappings=await tx`select source_id,legacy_id,report from cms_planning_legacy where activity_id=${change.id} or report->'activityIds' ? ${change.id}`;for(const mapping of mappings){const ids=mapping.report.activityIds||[change.id];const [count]=await tx`select count(*)::int as n from cms_records where id in ${tx(ids)} and live is not null and coalesce((live->>'public')::boolean,false)=true`;if(count.n===ids.length)await tx`update cms_planning_legacy set report=report || '{"activatedPublic":true}'::jsonb where source_id=${mapping.source_id} and legacy_id=${mapping.legacy_id}`;}}
             await tx `insert into cms_audit(id,actor_id,action,record_id,request_id) values (${crypto.randomUUID()},${p.id},${change.action},${change.id},${requestId})`;
             if (['publish', 'unpublish', 'trash'].includes(change.action)||sourcePublication)
