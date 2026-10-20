@@ -29,7 +29,8 @@ test('custom-only hero portraits publish actual library references, survive relo
  await write([command({items:[portrait.id],portraits:[portrait]},v++)]);
  let current=(await loadState(true)).state;
  assert.deepEqual(current.appearance?.heroPhotos,[portrait.id]);assert.deepEqual(current.appearance?.heroPortraits,[portrait]);
- const backup=(await loadState(false,admin)).state;backup.roles=createCmsSeed().roles;
+ // Content snapshots omit identity records; complete the backup fixture with its existing test administrator.
+ const backup=(await loadState(false,admin)).state;backup.roles=createCmsSeed().roles;backup.members=[{id:actorId,name:admin.name,email:admin.email,roleId:'admin',teamIds:[],active:true}];
  assert.ok(parseCmsState(JSON.stringify(backup)),'backups and bootstrap parse custom portrait IDs with their descriptors');
  const selection=getHeroSelection(current.appearance,current.media),layout=pickHeroLayout('01',0,selection.enabled,selection.catalog);
  assert.ok(['02','08'].includes(layout));assert.equal(pickHeroPhoto(layout,'01-trots',0,selection.enabled,selection.catalog),portrait.id);
