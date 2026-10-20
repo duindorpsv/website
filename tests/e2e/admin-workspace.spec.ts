@@ -16,7 +16,7 @@ test('trash restores the selected server version as an unpublished working copy'
  const saved=page.waitForResponse(response=>response.url().endsWith('/api/cms/mutations')&&response.request().method()==='POST'&&response.request().postDataJSON().changes.some((change:any)=>change.id===id&&change.action==='restore'));
  await page.getByRole('button',{name:'Herstellen als concept',exact:true}).click();
  const restored=await saved;expect(restored.status(),await restored.text()).toBe(200);expect(restored.request().postDataJSON().changes.find((change:any)=>change.id===id).expectedVersion).toBe(trashedVersion);
- await expect(page.getByRole('status').filter({hasText:'Inhoud hersteld als concept.'})).toBeVisible();
+ await expect(page.getByRole('status').filter({hasText:'Inhoud hersteld als concept. Publiceer wanneer de inhoud klaar is.'})).toBeVisible();
  const record=await page.request.get('/api/cms/articles/'+id).then(response=>response.json());expect(record.title).toBe(title);expect(record.status).toBe('draft');expect(record.live).toBeFalsy();expect(record.deletedAt).toBeFalsy();
  expect((await page.request.get('/clubmuur/nieuws/'+slug)).status()).toBe(404);
 });
