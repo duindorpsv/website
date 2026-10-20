@@ -1,0 +1,4663 @@
+{
+  "algorithm": "exact RGB; no antialias masking; all raw mismatches retained",
+  "comparisons": [
+    {
+      "reference": "prototype-F0-activity-source-1440-panel.png",
+      "candidate": "candidate-F0-activity-source-1440-panel.png",
+      "referenceSize": {
+        "width": 760,
+        "height": 952
+      },
+      "candidateSize": {
+        "width": 760,
+        "height": 952
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 12265,
+      "totalPixels": 723520,
+      "maxChannelDelta": 248,
+      "bbox": [
+        68,
+        2,
+        759,
+        942
+      ],
+      "diffFile": "diff/F0-activity-source-1440-panel.png",
+      "overlayFile": "overlay/F0-activity-source-1440-panel.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-activity-source-1440.png",
+      "candidate": "candidate-F0-activity-source-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 320679,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 248,
+      "bbox": [
+        8,
+        12,
+        1412,
+        999
+      ],
+      "diffFile": "diff/F0-activity-source-1440.png",
+      "overlayFile": "overlay/F0-activity-source-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-activity-source-390-panel.png",
+      "candidate": "candidate-F0-activity-source-390-panel.png",
+      "referenceSize": {
+        "width": 370,
+        "height": 824
+      },
+      "candidateSize": {
+        "width": 370,
+        "height": 824
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 93820,
+      "totalPixels": 304880,
+      "maxChannelDelta": 247,
+      "bbox": [
+        0,
+        0,
+        369,
+        823
+      ],
+      "diffFile": "diff/F0-activity-source-390-panel.png",
+      "overlayFile": "overlay/F0-activity-source-390-panel.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-activity-source-390.png",
+      "candidate": "candidate-F0-activity-source-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 104818,
+      "totalPixels": 329160,
+      "maxChannelDelta": 247,
+      "bbox": [
+        0,
+        0,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-activity-source-390.png",
+      "overlayFile": "overlay/F0-activity-source-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-agenda-filter-empty-1440.png",
+      "candidate": "candidate-F0-agenda-filter-empty-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 403636,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 248,
+      "bbox": [
+        18,
+        20,
+        1407,
+        999
+      ],
+      "diffFile": "diff/F0-agenda-filter-empty-1440.png",
+      "overlayFile": "overlay/F0-agenda-filter-empty-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-agenda-filter-empty-390.png",
+      "candidate": "candidate-F0-agenda-filter-empty-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 9930,
+      "totalPixels": 329160,
+      "maxChannelDelta": 230,
+      "bbox": [
+        11,
+        21,
+        378,
+        843
+      ],
+      "diffFile": "diff/F0-agenda-filter-empty-390.png",
+      "overlayFile": "overlay/F0-agenda-filter-empty-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-booking-day-24oct-1440.png",
+      "candidate": "candidate-F0-booking-day-24oct-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 500749,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 255,
+      "bbox": [
+        18,
+        20,
+        1404,
+        999
+      ],
+      "diffFile": "diff/F0-booking-day-24oct-1440.png",
+      "overlayFile": "overlay/F0-booking-day-24oct-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-booking-day-24oct-390.png",
+      "candidate": "candidate-F0-booking-day-24oct-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 168481,
+      "totalPixels": 329160,
+      "maxChannelDelta": 255,
+      "bbox": [
+        13,
+        13,
+        376,
+        843
+      ],
+      "diffFile": "diff/F0-booking-day-24oct-390.png",
+      "overlayFile": "overlay/F0-booking-day-24oct-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-albums-1440.png",
+      "candidate": "candidate-F0-headers-albums-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 401737,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 255,
+      "bbox": [
+        18,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-albums-1440.png",
+      "overlayFile": "overlay/F0-headers-albums-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-albums-390.png",
+      "candidate": "candidate-F0-headers-albums-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 153891,
+      "totalPixels": 329160,
+      "maxChannelDelta": 248,
+      "bbox": [
+        15,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-albums-390.png",
+      "overlayFile": "overlay/F0-headers-albums-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-commissies-1440.png",
+      "candidate": "candidate-F0-headers-commissies-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 335129,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-commissies-1440.png",
+      "overlayFile": "overlay/F0-headers-commissies-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-commissies-390.png",
+      "candidate": "candidate-F0-headers-commissies-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 147467,
+      "totalPixels": 329160,
+      "maxChannelDelta": 244,
+      "bbox": [
+        14,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-commissies-390.png",
+      "overlayFile": "overlay/F0-headers-commissies-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-documenten-1440.png",
+      "candidate": "candidate-F0-headers-documenten-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 477380,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-documenten-1440.png",
+      "overlayFile": "overlay/F0-headers-documenten-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-documenten-390.png",
+      "candidate": "candidate-F0-headers-documenten-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 137475,
+      "totalPixels": 329160,
+      "maxChannelDelta": 244,
+      "bbox": [
+        15,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-documenten-390.png",
+      "overlayFile": "overlay/F0-headers-documenten-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-formulieren-1440.png",
+      "candidate": "candidate-F0-headers-formulieren-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 440725,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 244,
+      "bbox": [
+        29,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-formulieren-1440.png",
+      "overlayFile": "overlay/F0-headers-formulieren-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-formulieren-390.png",
+      "candidate": "candidate-F0-headers-formulieren-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 182946,
+      "totalPixels": 329160,
+      "maxChannelDelta": 244,
+      "bbox": [
+        15,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-formulieren-390.png",
+      "overlayFile": "overlay/F0-headers-formulieren-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-herstel-1440.png",
+      "candidate": "candidate-F0-headers-herstel-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 453165,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 252,
+      "bbox": [
+        18,
+        20,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F0-headers-herstel-1440.png",
+      "overlayFile": "overlay/F0-headers-herstel-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-herstel-390.png",
+      "candidate": "candidate-F0-headers-herstel-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 170616,
+      "totalPixels": 329160,
+      "maxChannelDelta": 252,
+      "bbox": [
+        15,
+        13,
+        374,
+        843
+      ],
+      "diffFile": "diff/F0-headers-herstel-390.png",
+      "overlayFile": "overlay/F0-headers-herstel-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-homepage-1440.png",
+      "candidate": "candidate-F0-headers-homepage-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 479800,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 255,
+      "bbox": [
+        18,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-homepage-1440.png",
+      "overlayFile": "overlay/F0-headers-homepage-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-homepage-390.png",
+      "candidate": "candidate-F0-headers-homepage-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 109242,
+      "totalPixels": 329160,
+      "maxChannelDelta": 255,
+      "bbox": [
+        15,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-homepage-390.png",
+      "overlayFile": "overlay/F0-headers-homepage-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-instellingen-1440.png",
+      "candidate": "candidate-F0-headers-instellingen-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 359823,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 244,
+      "bbox": [
+        29,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-instellingen-1440.png",
+      "overlayFile": "overlay/F0-headers-instellingen-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-instellingen-390.png",
+      "candidate": "candidate-F0-headers-instellingen-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 109097,
+      "totalPixels": 329160,
+      "maxChannelDelta": 244,
+      "bbox": [
+        15,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-instellingen-390.png",
+      "overlayFile": "overlay/F0-headers-instellingen-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-jaaragenda-1440.png",
+      "candidate": "candidate-F0-headers-jaaragenda-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 448858,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 248,
+      "bbox": [
+        18,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-jaaragenda-1440.png",
+      "overlayFile": "overlay/F0-headers-jaaragenda-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-jaaragenda-390.png",
+      "candidate": "candidate-F0-headers-jaaragenda-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 194719,
+      "totalPixels": 329160,
+      "maxChannelDelta": 248,
+      "bbox": [
+        10,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-jaaragenda-390.png",
+      "overlayFile": "overlay/F0-headers-jaaragenda-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-locaties-1440.png",
+      "candidate": "candidate-F0-headers-locaties-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 570968,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-locaties-1440.png",
+      "overlayFile": "overlay/F0-headers-locaties-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-locaties-390.png",
+      "candidate": "candidate-F0-headers-locaties-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 175082,
+      "totalPixels": 329160,
+      "maxChannelDelta": 244,
+      "bbox": [
+        15,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-locaties-390.png",
+      "overlayFile": "overlay/F0-headers-locaties-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-media-1440.png",
+      "candidate": "candidate-F0-headers-media-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 608341,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 255,
+      "bbox": [
+        18,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-media-1440.png",
+      "overlayFile": "overlay/F0-headers-media-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-media-390.png",
+      "candidate": "candidate-F0-headers-media-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 155569,
+      "totalPixels": 329160,
+      "maxChannelDelta": 249,
+      "bbox": [
+        15,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-media-390.png",
+      "overlayFile": "overlay/F0-headers-media-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-navigatie-1440.png",
+      "candidate": "candidate-F0-headers-navigatie-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 502217,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 253,
+      "bbox": [
+        18,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-navigatie-1440.png",
+      "overlayFile": "overlay/F0-headers-navigatie-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-navigatie-390.png",
+      "candidate": "candidate-F0-headers-navigatie-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 166423,
+      "totalPixels": 329160,
+      "maxChannelDelta": 253,
+      "bbox": [
+        15,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-navigatie-390.png",
+      "overlayFile": "overlay/F0-headers-navigatie-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-nieuws-1440.png",
+      "candidate": "candidate-F0-headers-nieuws-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 350782,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 255,
+      "bbox": [
+        29,
+        20,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F0-headers-nieuws-1440.png",
+      "overlayFile": "overlay/F0-headers-nieuws-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-nieuws-390.png",
+      "candidate": "candidate-F0-headers-nieuws-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 98781,
+      "totalPixels": 329160,
+      "maxChannelDelta": 255,
+      "bbox": [
+        15,
+        13,
+        374,
+        843
+      ],
+      "diffFile": "diff/F0-headers-nieuws-390.png",
+      "overlayFile": "overlay/F0-headers-nieuws-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-overzicht-1440.png",
+      "candidate": "candidate-F0-headers-overzicht-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 707516,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 255,
+      "bbox": [
+        29,
+        20,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F0-headers-overzicht-1440.png",
+      "overlayFile": "overlay/F0-headers-overzicht-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-overzicht-390.png",
+      "candidate": "candidate-F0-headers-overzicht-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 208621,
+      "totalPixels": 329160,
+      "maxChannelDelta": 244,
+      "bbox": [
+        15,
+        13,
+        374,
+        843
+      ],
+      "diffFile": "diff/F0-headers-overzicht-390.png",
+      "overlayFile": "overlay/F0-headers-overzicht-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-paginas-1440.png",
+      "candidate": "candidate-F0-headers-paginas-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 414075,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 249,
+      "bbox": [
+        29,
+        20,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F0-headers-paginas-1440.png",
+      "overlayFile": "overlay/F0-headers-paginas-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-paginas-390.png",
+      "candidate": "candidate-F0-headers-paginas-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 100329,
+      "totalPixels": 329160,
+      "maxChannelDelta": 253,
+      "bbox": [
+        15,
+        13,
+        374,
+        839
+      ],
+      "diffFile": "diff/F0-headers-paginas-390.png",
+      "overlayFile": "overlay/F0-headers-paginas-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-personen-1440.png",
+      "candidate": "candidate-F0-headers-personen-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 372191,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-personen-1440.png",
+      "overlayFile": "overlay/F0-headers-personen-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-personen-390.png",
+      "candidate": "candidate-F0-headers-personen-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 149943,
+      "totalPixels": 329160,
+      "maxChannelDelta": 244,
+      "bbox": [
+        15,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-personen-390.png",
+      "overlayFile": "overlay/F0-headers-personen-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-reserveringen-1440.png",
+      "candidate": "candidate-F0-headers-reserveringen-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 515720,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 255,
+      "bbox": [
+        18,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-reserveringen-1440.png",
+      "overlayFile": "overlay/F0-headers-reserveringen-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-reserveringen-390.png",
+      "candidate": "candidate-F0-headers-reserveringen-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 177391,
+      "totalPixels": 329160,
+      "maxChannelDelta": 255,
+      "bbox": [
+        16,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-reserveringen-390.png",
+      "overlayFile": "overlay/F0-headers-reserveringen-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-rollen-1440.png",
+      "candidate": "candidate-F0-headers-rollen-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 414393,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 254,
+      "bbox": [
+        29,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-rollen-1440.png",
+      "overlayFile": "overlay/F0-headers-rollen-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-rollen-390.png",
+      "candidate": "candidate-F0-headers-rollen-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 140081,
+      "totalPixels": 329160,
+      "maxChannelDelta": 253,
+      "bbox": [
+        15,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-rollen-390.png",
+      "overlayFile": "overlay/F0-headers-rollen-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-trainingen-1440.png",
+      "candidate": "candidate-F0-headers-trainingen-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 379670,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 248,
+      "bbox": [
+        18,
+        20,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F0-headers-trainingen-1440.png",
+      "overlayFile": "overlay/F0-headers-trainingen-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-trainingen-390.png",
+      "candidate": "candidate-F0-headers-trainingen-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 169023,
+      "totalPixels": 329160,
+      "maxChannelDelta": 248,
+      "bbox": [
+        15,
+        13,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-headers-trainingen-390.png",
+      "overlayFile": "overlay/F0-headers-trainingen-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-verhalen-1440.png",
+      "candidate": "candidate-F0-headers-verhalen-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 750784,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 249,
+      "bbox": [
+        29,
+        20,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F0-headers-verhalen-1440.png",
+      "overlayFile": "overlay/F0-headers-verhalen-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-headers-verhalen-390.png",
+      "candidate": "candidate-F0-headers-verhalen-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 209880,
+      "totalPixels": 329160,
+      "maxChannelDelta": 249,
+      "bbox": [
+        15,
+        13,
+        374,
+        843
+      ],
+      "diffFile": "diff/F0-headers-verhalen-390.png",
+      "overlayFile": "overlay/F0-headers-verhalen-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-1440.png",
+      "candidate": "candidate-F0-public-agenda-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 13356,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 252,
+      "bbox": [
+        998,
+        430,
+        1381,
+        583
+      ],
+      "diffFile": "diff/F0-public-agenda-1440.png",
+      "overlayFile": "overlay/F0-public-agenda-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-390.png",
+      "candidate": "candidate-F0-public-agenda-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 73455,
+      "totalPixels": 329160,
+      "maxChannelDelta": 253,
+      "bbox": [
+        11,
+        0,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-public-agenda-390.png",
+      "overlayFile": "overlay/F0-public-agenda-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-detail-1440.png",
+      "candidate": "candidate-F0-public-agenda-detail-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 36004,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 28,
+      "bbox": [
+        1000,
+        413,
+        1393,
+        600
+      ],
+      "diffFile": "diff/F0-public-agenda-detail-1440.png",
+      "overlayFile": "overlay/F0-public-agenda-detail-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-detail-390.png",
+      "candidate": "candidate-F0-public-agenda-detail-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 67073,
+      "totalPixels": 329160,
+      "maxChannelDelta": 19,
+      "bbox": [
+        8,
+        0,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-public-agenda-detail-390.png",
+      "overlayFile": "overlay/F0-public-agenda-detail-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-detail-panel-1440.png",
+      "candidate": "candidate-F0-public-agenda-detail-panel-1440.png",
+      "referenceSize": {
+        "width": 560,
+        "height": 442
+      },
+      "candidateSize": {
+        "width": 560,
+        "height": 442
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 247520,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "diff/F0-public-agenda-detail-panel-1440.png",
+      "overlayFile": "overlay/F0-public-agenda-detail-panel-1440.png",
+      "verdict": "exact"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-detail-panel-390.png",
+      "candidate": "candidate-F0-public-agenda-detail-panel-390.png",
+      "referenceSize": {
+        "width": 358,
+        "height": 458
+      },
+      "candidateSize": {
+        "width": 358,
+        "height": 458
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 69,
+      "totalPixels": 163964,
+      "maxChannelDelta": 1,
+      "bbox": [
+        3,
+        0,
+        357,
+        14
+      ],
+      "diffFile": "diff/F0-public-agenda-detail-panel-390.png",
+      "overlayFile": "overlay/F0-public-agenda-detail-panel-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-empty-1440.png",
+      "candidate": "candidate-F0-public-agenda-empty-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "diff/F0-public-agenda-empty-1440.png",
+      "overlayFile": "overlay/F0-public-agenda-empty-1440.png",
+      "verdict": "exact"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-empty-390.png",
+      "candidate": "candidate-F0-public-agenda-empty-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 329160,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "diff/F0-public-agenda-empty-390.png",
+      "overlayFile": "overlay/F0-public-agenda-empty-390.png",
+      "verdict": "exact"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-empty-panel-1440.png",
+      "candidate": "candidate-F0-public-agenda-empty-panel-1440.png",
+      "referenceSize": {
+        "width": 445,
+        "height": 585
+      },
+      "candidateSize": {
+        "width": 445,
+        "height": 585
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 260325,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "diff/F0-public-agenda-empty-panel-1440.png",
+      "overlayFile": "overlay/F0-public-agenda-empty-panel-1440.png",
+      "verdict": "exact"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-empty-panel-390.png",
+      "candidate": "candidate-F0-public-agenda-empty-panel-390.png",
+      "referenceSize": {
+        "width": 342,
+        "height": 480
+      },
+      "candidateSize": {
+        "width": 342,
+        "height": 480
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 164160,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "diff/F0-public-agenda-empty-panel-390.png",
+      "overlayFile": "overlay/F0-public-agenda-empty-panel-390.png",
+      "verdict": "exact"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-panel-1440.png",
+      "candidate": "candidate-F0-public-agenda-panel-1440.png",
+      "referenceSize": {
+        "width": 445,
+        "height": 585
+      },
+      "candidateSize": {
+        "width": 445,
+        "height": 585
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 13356,
+      "totalPixels": 260325,
+      "maxChannelDelta": 252,
+      "bbox": [
+        31,
+        366,
+        414,
+        519
+      ],
+      "diffFile": "diff/F0-public-agenda-panel-1440.png",
+      "overlayFile": "overlay/F0-public-agenda-panel-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-panel-390.png",
+      "candidate": "candidate-F0-public-agenda-panel-390.png",
+      "referenceSize": {
+        "width": 342,
+        "height": 692
+      },
+      "candidateSize": {
+        "width": 342,
+        "height": 667
+      },
+      "widthDelta": 0,
+      "heightDelta": -25,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-withdrawn-1440.png",
+      "candidate": "candidate-F0-public-agenda-withdrawn-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 24741,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 252,
+      "bbox": [
+        998,
+        248,
+        1381,
+        583
+      ],
+      "diffFile": "diff/F0-public-agenda-withdrawn-1440.png",
+      "overlayFile": "overlay/F0-public-agenda-withdrawn-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-withdrawn-390.png",
+      "candidate": "candidate-F0-public-agenda-withdrawn-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 69755,
+      "totalPixels": 329160,
+      "maxChannelDelta": 253,
+      "bbox": [
+        11,
+        0,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-public-agenda-withdrawn-390.png",
+      "overlayFile": "overlay/F0-public-agenda-withdrawn-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-withdrawn-panel-1440.png",
+      "candidate": "candidate-F0-public-agenda-withdrawn-panel-1440.png",
+      "referenceSize": {
+        "width": 445,
+        "height": 585
+      },
+      "candidateSize": {
+        "width": 445,
+        "height": 585
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 24741,
+      "totalPixels": 260325,
+      "maxChannelDelta": 252,
+      "bbox": [
+        31,
+        184,
+        414,
+        519
+      ],
+      "diffFile": "diff/F0-public-agenda-withdrawn-panel-1440.png",
+      "overlayFile": "overlay/F0-public-agenda-withdrawn-panel-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-public-agenda-withdrawn-panel-390.png",
+      "candidate": "candidate-F0-public-agenda-withdrawn-panel-390.png",
+      "referenceSize": {
+        "width": 342,
+        "height": 692
+      },
+      "candidateSize": {
+        "width": 342,
+        "height": 667
+      },
+      "widthDelta": 0,
+      "heightDelta": -25,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F0-training-create-publish-optin-1440.png",
+      "candidate": "candidate-F0-training-create-publish-optin-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 274669,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 255,
+      "bbox": [
+        7,
+        14,
+        1412,
+        999
+      ],
+      "diffFile": "diff/F0-training-create-publish-optin-1440.png",
+      "overlayFile": "overlay/F0-training-create-publish-optin-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-training-create-publish-optin-390.png",
+      "candidate": "candidate-F0-training-create-publish-optin-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 21013,
+      "totalPixels": 329160,
+      "maxChannelDelta": 255,
+      "bbox": [
+        5,
+        7,
+        380,
+        843
+      ],
+      "diffFile": "diff/F0-training-create-publish-optin-390.png",
+      "overlayFile": "overlay/F0-training-create-publish-optin-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-training-delete-one-1440-panel.png",
+      "candidate": "candidate-F0-training-delete-one-1440-panel.png",
+      "referenceSize": {
+        "width": 480,
+        "height": 532
+      },
+      "candidateSize": {
+        "width": 480,
+        "height": 532
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 2213,
+      "totalPixels": 255360,
+      "maxChannelDelta": 150,
+      "bbox": [
+        0,
+        387,
+        433,
+        531
+      ],
+      "diffFile": "diff/F0-training-delete-one-1440-panel.png",
+      "overlayFile": "overlay/F0-training-delete-one-1440-panel.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-training-delete-one-1440.png",
+      "candidate": "candidate-F0-training-delete-one-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 415299,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 150,
+      "bbox": [
+        7,
+        14,
+        1412,
+        999
+      ],
+      "diffFile": "diff/F0-training-delete-one-1440.png",
+      "overlayFile": "overlay/F0-training-delete-one-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-training-delete-one-390-panel.png",
+      "candidate": "candidate-F0-training-delete-one-390-panel.png",
+      "referenceSize": {
+        "width": 366,
+        "height": 564
+      },
+      "candidateSize": {
+        "width": 366,
+        "height": 564
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 2724,
+      "totalPixels": 206424,
+      "maxChannelDelta": 150,
+      "bbox": [
+        0,
+        0,
+        363,
+        563
+      ],
+      "diffFile": "diff/F0-training-delete-one-390-panel.png",
+      "overlayFile": "overlay/F0-training-delete-one-390-panel.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-training-delete-one-390.png",
+      "candidate": "candidate-F0-training-delete-one-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 73775,
+      "totalPixels": 329160,
+      "maxChannelDelta": 150,
+      "bbox": [
+        0,
+        0,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-training-delete-one-390.png",
+      "overlayFile": "overlay/F0-training-delete-one-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-training-delete-series-1440-panel.png",
+      "candidate": "candidate-F0-training-delete-series-1440-panel.png",
+      "referenceSize": {
+        "width": 480,
+        "height": 532
+      },
+      "candidateSize": {
+        "width": 480,
+        "height": 552
+      },
+      "widthDelta": 0,
+      "heightDelta": 20,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F0-training-delete-series-1440.png",
+      "candidate": "candidate-F0-training-delete-series-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 573587,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 237,
+      "bbox": [
+        7,
+        14,
+        1412,
+        999
+      ],
+      "diffFile": "diff/F0-training-delete-series-1440.png",
+      "overlayFile": "overlay/F0-training-delete-series-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-training-delete-series-390-panel.png",
+      "candidate": "candidate-F0-training-delete-series-390-panel.png",
+      "referenceSize": {
+        "width": 366,
+        "height": 564
+      },
+      "candidateSize": {
+        "width": 366,
+        "height": 584
+      },
+      "widthDelta": 0,
+      "heightDelta": 20,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F0-training-delete-series-390.png",
+      "candidate": "candidate-F0-training-delete-series-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 158649,
+      "totalPixels": 329160,
+      "maxChannelDelta": 237,
+      "bbox": [
+        0,
+        0,
+        389,
+        843
+      ],
+      "diffFile": "diff/F0-training-delete-series-390.png",
+      "overlayFile": "overlay/F0-training-delete-series-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-training-publication-optin-1440.png",
+      "candidate": "candidate-F0-training-publication-optin-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 278144,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 255,
+      "bbox": [
+        7,
+        14,
+        1412,
+        999
+      ],
+      "diffFile": "diff/F0-training-publication-optin-1440.png",
+      "overlayFile": "overlay/F0-training-publication-optin-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F0-training-publication-optin-390.png",
+      "candidate": "candidate-F0-training-publication-optin-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 88831,
+      "totalPixels": 329160,
+      "maxChannelDelta": 248,
+      "bbox": [
+        5,
+        7,
+        380,
+        843
+      ],
+      "diffFile": "diff/F0-training-publication-optin-390.png",
+      "overlayFile": "overlay/F0-training-publication-optin-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-next-100-1440-panel.png",
+      "candidate": "candidate-F1-101-people-next-100-1440-panel.png",
+      "referenceSize": {
+        "width": 1104,
+        "height": 471
+      },
+      "candidateSize": {
+        "width": 1104,
+        "height": 371
+      },
+      "widthDelta": 0,
+      "heightDelta": -100,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-next-100-1440.png",
+      "candidate": "candidate-F1-101-people-next-100-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 287574,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        20,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F1-101-people-next-100-1440.png",
+      "overlayFile": "overlay/F1-101-people-next-100-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-next-100-390-panel.png",
+      "candidate": "candidate-F1-101-people-next-100-390-panel.png",
+      "referenceSize": {
+        "width": 358,
+        "height": 809
+      },
+      "candidateSize": {
+        "width": 358,
+        "height": 618
+      },
+      "widthDelta": 0,
+      "heightDelta": -191,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-next-100-390.png",
+      "candidate": "candidate-F1-101-people-next-100-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 119534,
+      "totalPixels": 329160,
+      "maxChannelDelta": 244,
+      "bbox": [
+        15,
+        0,
+        373,
+        819
+      ],
+      "diffFile": "diff/F1-101-people-next-100-390.png",
+      "overlayFile": "overlay/F1-101-people-next-100-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-next-25-1440-panel.png",
+      "candidate": "candidate-F1-101-people-next-25-1440-panel.png",
+      "referenceSize": {
+        "width": 1104,
+        "height": 2247
+      },
+      "candidateSize": {
+        "width": 1104,
+        "height": 2147
+      },
+      "widthDelta": 0,
+      "heightDelta": -100,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-next-25-1440.png",
+      "candidate": "candidate-F1-101-people-next-25-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 242352,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        0,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F1-101-people-next-25-1440.png",
+      "overlayFile": "overlay/F1-101-people-next-25-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-next-25-390-panel.png",
+      "candidate": "candidate-F1-101-people-next-25-390-panel.png",
+      "referenceSize": {
+        "width": 358,
+        "height": 4970
+      },
+      "candidateSize": {
+        "width": 358,
+        "height": 4780
+      },
+      "widthDelta": 0,
+      "heightDelta": -190,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-next-25-390.png",
+      "candidate": "candidate-F1-101-people-next-25-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 69903,
+      "totalPixels": 329160,
+      "maxChannelDelta": 235,
+      "bbox": [
+        15,
+        9,
+        373,
+        819
+      ],
+      "diffFile": "diff/F1-101-people-next-25-390.png",
+      "overlayFile": "overlay/F1-101-people-next-25-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-next-50-1440-panel.png",
+      "candidate": "candidate-F1-101-people-next-50-1440-panel.png",
+      "referenceSize": {
+        "width": 1104,
+        "height": 4097
+      },
+      "candidateSize": {
+        "width": 1104,
+        "height": 3997
+      },
+      "widthDelta": 0,
+      "heightDelta": -100,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-next-50-1440.png",
+      "candidate": "candidate-F1-101-people-next-50-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 242600,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        0,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F1-101-people-next-50-1440.png",
+      "overlayFile": "overlay/F1-101-people-next-50-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-next-50-390-panel.png",
+      "candidate": "candidate-F1-101-people-next-50-390-panel.png",
+      "referenceSize": {
+        "width": 358,
+        "height": 9310
+      },
+      "candidateSize": {
+        "width": 358,
+        "height": 9119
+      },
+      "widthDelta": 0,
+      "heightDelta": -191,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-next-50-390.png",
+      "candidate": "candidate-F1-101-people-next-50-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 77709,
+      "totalPixels": 329160,
+      "maxChannelDelta": 224,
+      "bbox": [
+        15,
+        0,
+        373,
+        818
+      ],
+      "diffFile": "diff/F1-101-people-next-50-390.png",
+      "overlayFile": "overlay/F1-101-people-next-50-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-size-100-1440-panel.png",
+      "candidate": "candidate-F1-101-people-size-100-1440-panel.png",
+      "referenceSize": {
+        "width": 1104,
+        "height": 7798
+      },
+      "candidateSize": {
+        "width": 1104,
+        "height": 7698
+      },
+      "widthDelta": 0,
+      "heightDelta": -100,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-size-100-1440.png",
+      "candidate": "candidate-F1-101-people-size-100-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 259174,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        0,
+        1400,
+        999
+      ],
+      "diffFile": "diff/F1-101-people-size-100-1440.png",
+      "overlayFile": "overlay/F1-101-people-size-100-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-size-100-390-panel.png",
+      "candidate": "candidate-F1-101-people-size-100-390-panel.png",
+      "referenceSize": {
+        "width": 358,
+        "height": 18082
+      },
+      "candidateSize": {
+        "width": 358,
+        "height": 17891
+      },
+      "widthDelta": 0,
+      "heightDelta": -191,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-size-100-390.png",
+      "candidate": "candidate-F1-101-people-size-100-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 22936,
+      "totalPixels": 329160,
+      "maxChannelDelta": 202,
+      "bbox": [
+        17,
+        0,
+        372,
+        828
+      ],
+      "diffFile": "diff/F1-101-people-size-100-390.png",
+      "overlayFile": "overlay/F1-101-people-size-100-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-size-25-1440-panel.png",
+      "candidate": "candidate-F1-101-people-size-25-1440-panel.png",
+      "referenceSize": {
+        "width": 1104,
+        "height": 2248
+      },
+      "candidateSize": {
+        "width": 1104,
+        "height": 2148
+      },
+      "widthDelta": 0,
+      "heightDelta": -100,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-size-25-1440.png",
+      "candidate": "candidate-F1-101-people-size-25-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 355517,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        20,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F1-101-people-size-25-1440.png",
+      "overlayFile": "overlay/F1-101-people-size-25-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-size-25-390-panel.png",
+      "candidate": "candidate-F1-101-people-size-25-390-panel.png",
+      "referenceSize": {
+        "width": 358,
+        "height": 5064
+      },
+      "candidateSize": {
+        "width": 358,
+        "height": 4873
+      },
+      "widthDelta": 0,
+      "heightDelta": -191,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-size-25-390.png",
+      "candidate": "candidate-F1-101-people-size-25-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 131997,
+      "totalPixels": 329160,
+      "maxChannelDelta": 244,
+      "bbox": [
+        15,
+        13,
+        374,
+        843
+      ],
+      "diffFile": "diff/F1-101-people-size-25-390.png",
+      "overlayFile": "overlay/F1-101-people-size-25-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-size-50-1440-panel.png",
+      "candidate": "candidate-F1-101-people-size-50-1440-panel.png",
+      "referenceSize": {
+        "width": 1104,
+        "height": 4098
+      },
+      "candidateSize": {
+        "width": 1104,
+        "height": 3998
+      },
+      "widthDelta": 0,
+      "heightDelta": -100,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-size-50-1440.png",
+      "candidate": "candidate-F1-101-people-size-50-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 259000,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        0,
+        1400,
+        999
+      ],
+      "diffFile": "diff/F1-101-people-size-50-1440.png",
+      "overlayFile": "overlay/F1-101-people-size-50-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-size-50-390-panel.png",
+      "candidate": "candidate-F1-101-people-size-50-390-panel.png",
+      "referenceSize": {
+        "width": 358,
+        "height": 9403
+      },
+      "candidateSize": {
+        "width": 358,
+        "height": 9212
+      },
+      "widthDelta": 0,
+      "heightDelta": -191,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F1-101-people-size-50-390.png",
+      "candidate": "candidate-F1-101-people-size-50-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 68946,
+      "totalPixels": 329160,
+      "maxChannelDelta": 202,
+      "bbox": [
+        16,
+        0,
+        373,
+        843
+      ],
+      "diffFile": "diff/F1-101-people-size-50-390.png",
+      "overlayFile": "overlay/F1-101-people-size-50-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-26-people-first-1440.png",
+      "candidate": "candidate-F1-26-people-first-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 355517,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        20,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F1-26-people-first-1440.png",
+      "overlayFile": "overlay/F1-26-people-first-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-26-people-next-1440.png",
+      "candidate": "candidate-F1-26-people-next-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 287388,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        20,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F1-26-people-next-1440.png",
+      "overlayFile": "overlay/F1-26-people-next-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-51-people-first-1440.png",
+      "candidate": "candidate-F1-51-people-first-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 355517,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        20,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F1-51-people-first-1440.png",
+      "overlayFile": "overlay/F1-51-people-first-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F1-51-people-next-1440.png",
+      "candidate": "candidate-F1-51-people-next-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 242305,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        0,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F1-51-people-next-1440.png",
+      "overlayFile": "overlay/F1-51-people-next-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F2-agenda-year-tablet-1024-panel.png",
+      "candidate": "candidate-F2-agenda-year-tablet-1024-panel.png",
+      "referenceSize": {
+        "width": 744,
+        "height": 1492
+      },
+      "candidateSize": {
+        "width": 744,
+        "height": 1395
+      },
+      "widthDelta": 0,
+      "heightDelta": -97,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F2-agenda-year-tablet-1024.png",
+      "candidate": "candidate-F2-agenda-year-tablet-1024.png",
+      "referenceSize": {
+        "width": 1024,
+        "height": 900
+      },
+      "candidateSize": {
+        "width": 1024,
+        "height": 900
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 254588,
+      "totalPixels": 921600,
+      "maxChannelDelta": 248,
+      "bbox": [
+        13,
+        10,
+        1005,
+        899
+      ],
+      "diffFile": "diff/F2-agenda-year-tablet-1024.png",
+      "overlayFile": "overlay/F2-agenda-year-tablet-1024.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F2-committee-empty-inactive-two-roles-1024-panel.png",
+      "candidate": "candidate-F2-committee-empty-inactive-two-roles-1024-panel.png",
+      "referenceSize": {
+        "width": 744,
+        "height": 1489
+      },
+      "candidateSize": {
+        "width": 744,
+        "height": 1390
+      },
+      "widthDelta": 0,
+      "heightDelta": -99,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F2-committee-empty-inactive-two-roles-1024.png",
+      "candidate": "candidate-F2-committee-empty-inactive-two-roles-1024.png",
+      "referenceSize": {
+        "width": 1024,
+        "height": 900
+      },
+      "candidateSize": {
+        "width": 1024,
+        "height": 900
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 215869,
+      "totalPixels": 921600,
+      "maxChannelDelta": 246,
+      "bbox": [
+        13,
+        20,
+        1001,
+        899
+      ],
+      "diffFile": "diff/F2-committee-empty-inactive-two-roles-1024.png",
+      "overlayFile": "overlay/F2-committee-empty-inactive-two-roles-1024.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F2-committee-empty-inactive-two-roles-1440.png",
+      "candidate": "candidate-F2-committee-empty-inactive-two-roles-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 330206,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        20,
+        1403,
+        999
+      ],
+      "diffFile": "diff/F2-committee-empty-inactive-two-roles-1440.png",
+      "overlayFile": "overlay/F2-committee-empty-inactive-two-roles-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F2-committee-empty-inactive-two-roles-390.png",
+      "candidate": "candidate-F2-committee-empty-inactive-two-roles-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 128720,
+      "totalPixels": 329160,
+      "maxChannelDelta": 244,
+      "bbox": [
+        14,
+        13,
+        375,
+        843
+      ],
+      "diffFile": "diff/F2-committee-empty-inactive-two-roles-390.png",
+      "overlayFile": "overlay/F2-committee-empty-inactive-two-roles-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F2-committee-roles-edit-1024-panel.png",
+      "candidate": "candidate-F2-committee-roles-edit-1024-panel.png",
+      "referenceSize": {
+        "width": 830,
+        "height": 858
+      },
+      "candidateSize": {
+        "width": 830,
+        "height": 858
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 35226,
+      "totalPixels": 712140,
+      "maxChannelDelta": 244,
+      "bbox": [
+        29,
+        10,
+        829,
+        857
+      ],
+      "diffFile": "diff/F2-committee-roles-edit-1024-panel.png",
+      "overlayFile": "overlay/F2-committee-roles-edit-1024-panel.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F2-committee-roles-edit-1024.png",
+      "candidate": "candidate-F2-committee-roles-edit-1024.png",
+      "referenceSize": {
+        "width": 1024,
+        "height": 900
+      },
+      "candidateSize": {
+        "width": 1024,
+        "height": 900
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 72419,
+      "totalPixels": 921600,
+      "maxChannelDelta": 244,
+      "bbox": [
+        13,
+        10,
+        1001,
+        894
+      ],
+      "diffFile": "diff/F2-committee-roles-edit-1024.png",
+      "overlayFile": "overlay/F2-committee-roles-edit-1024.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F2-committee-roles-edit-1440.png",
+      "candidate": "candidate-F2-committee-roles-edit-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 154651,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        20,
+        1403,
+        999
+      ],
+      "diffFile": "diff/F2-committee-roles-edit-1440.png",
+      "overlayFile": "overlay/F2-committee-roles-edit-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F2-committee-roles-edit-390.png",
+      "candidate": "candidate-F2-committee-roles-edit-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 19750,
+      "totalPixels": 329160,
+      "maxChannelDelta": 244,
+      "bbox": [
+        29,
+        465,
+        360,
+        843
+      ],
+      "diffFile": "diff/F2-committee-roles-edit-390.png",
+      "overlayFile": "overlay/F2-committee-roles-edit-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F3-booking-hierarchy-1440-panel.png",
+      "candidate": "candidate-F3-booking-hierarchy-1440-panel.png",
+      "referenceSize": {
+        "width": 1104,
+        "height": 1433
+      },
+      "candidateSize": {
+        "width": 1104,
+        "height": 1320
+      },
+      "widthDelta": 0,
+      "heightDelta": -113,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F3-booking-hierarchy-1440.png",
+      "candidate": "candidate-F3-booking-hierarchy-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 501349,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 255,
+      "bbox": [
+        18,
+        20,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F3-booking-hierarchy-1440.png",
+      "overlayFile": "overlay/F3-booking-hierarchy-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F3-booking-hierarchy-390-panel.png",
+      "candidate": "candidate-F3-booking-hierarchy-390-panel.png",
+      "referenceSize": {
+        "width": 358,
+        "height": 1678
+      },
+      "candidateSize": {
+        "width": 358,
+        "height": 1488
+      },
+      "widthDelta": 0,
+      "heightDelta": -190,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F3-booking-hierarchy-390.png",
+      "candidate": "candidate-F3-booking-hierarchy-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 169108,
+      "totalPixels": 329160,
+      "maxChannelDelta": 255,
+      "bbox": [
+        16,
+        13,
+        374,
+        843
+      ],
+      "diffFile": "diff/F3-booking-hierarchy-390.png",
+      "overlayFile": "overlay/F3-booking-hierarchy-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F3-location-edit-half-field-1440.png",
+      "candidate": "candidate-F3-location-edit-half-field-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 358113,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 245,
+      "bbox": [
+        8,
+        0,
+        1401,
+        999
+      ],
+      "diffFile": "diff/F3-location-edit-half-field-1440.png",
+      "overlayFile": "overlay/F3-location-edit-half-field-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F3-location-edit-half-field-390.png",
+      "candidate": "candidate-F3-location-edit-half-field-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 3704,
+      "totalPixels": 329160,
+      "maxChannelDelta": 131,
+      "bbox": [
+        15,
+        562,
+        374,
+        802
+      ],
+      "diffFile": "diff/F3-location-edit-half-field-390.png",
+      "overlayFile": "overlay/F3-location-edit-half-field-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F3-training-conflict-1440-panel.png",
+      "candidate": "candidate-F3-training-conflict-1440-panel.png",
+      "referenceSize": {
+        "width": 1040,
+        "height": 960
+      },
+      "candidateSize": {
+        "width": 1040,
+        "height": 960
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 43959,
+      "totalPixels": 998400,
+      "maxChannelDelta": 255,
+      "bbox": [
+        26,
+        0,
+        1039,
+        959
+      ],
+      "diffFile": "diff/F3-training-conflict-1440-panel.png",
+      "overlayFile": "overlay/F3-training-conflict-1440-panel.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F3-training-conflict-1440.png",
+      "candidate": "candidate-F3-training-conflict-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 256846,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 255,
+      "bbox": [
+        7,
+        0,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F3-training-conflict-1440.png",
+      "overlayFile": "overlay/F3-training-conflict-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F3-training-conflict-390-panel.png",
+      "candidate": "candidate-F3-training-conflict-390-panel.png",
+      "referenceSize": {
+        "width": 366,
+        "height": 820
+      },
+      "candidateSize": {
+        "width": 366,
+        "height": 820
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 18667,
+      "totalPixels": 300120,
+      "maxChannelDelta": 255,
+      "bbox": [
+        0,
+        0,
+        365,
+        804
+      ],
+      "diffFile": "diff/F3-training-conflict-390-panel.png",
+      "overlayFile": "overlay/F3-training-conflict-390-panel.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F3-training-conflict-390.png",
+      "candidate": "candidate-F3-training-conflict-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 28458,
+      "totalPixels": 329160,
+      "maxChannelDelta": 255,
+      "bbox": [
+        0,
+        0,
+        389,
+        843
+      ],
+      "diffFile": "diff/F3-training-conflict-390.png",
+      "overlayFile": "overlay/F3-training-conflict-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F3-whole-half-conflict-1440-panel.png",
+      "candidate": "candidate-F3-whole-half-conflict-1440-panel.png",
+      "referenceSize": {
+        "width": 760,
+        "height": 952
+      },
+      "candidateSize": {
+        "width": 760,
+        "height": 952
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 109,
+      "totalPixels": 723520,
+      "maxChannelDelta": 56,
+      "bbox": [
+        0,
+        0,
+        759,
+        509
+      ],
+      "diffFile": "diff/F3-whole-half-conflict-1440-panel.png",
+      "overlayFile": "overlay/F3-whole-half-conflict-1440-panel.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F3-whole-half-conflict-1440.png",
+      "candidate": "candidate-F3-whole-half-conflict-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 332006,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 129,
+      "bbox": [
+        8,
+        0,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F3-whole-half-conflict-1440.png",
+      "overlayFile": "overlay/F3-whole-half-conflict-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F3-whole-half-conflict-390-panel.png",
+      "candidate": "candidate-F3-whole-half-conflict-390-panel.png",
+      "referenceSize": {
+        "width": 370,
+        "height": 824
+      },
+      "candidateSize": {
+        "width": 370,
+        "height": 824
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 71,
+      "totalPixels": 304880,
+      "maxChannelDelta": 40,
+      "bbox": [
+        0,
+        0,
+        369,
+        823
+      ],
+      "diffFile": "diff/F3-whole-half-conflict-390-panel.png",
+      "overlayFile": "overlay/F3-whole-half-conflict-390-panel.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F3-whole-half-conflict-390.png",
+      "candidate": "candidate-F3-whole-half-conflict-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 8327,
+      "totalPixels": 329160,
+      "maxChannelDelta": 88,
+      "bbox": [
+        0,
+        0,
+        389,
+        843
+      ],
+      "diffFile": "diff/F3-whole-half-conflict-390.png",
+      "overlayFile": "overlay/F3-whole-half-conflict-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F4-agenda-empty-1440-panel.png",
+      "candidate": "candidate-F4-agenda-empty-1440-panel.png",
+      "referenceSize": {
+        "width": 1104,
+        "height": 988
+      },
+      "candidateSize": {
+        "width": 1104,
+        "height": 870
+      },
+      "widthDelta": 0,
+      "heightDelta": -118,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F4-agenda-empty-1440.png",
+      "candidate": "candidate-F4-agenda-empty-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 402170,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 248,
+      "bbox": [
+        18,
+        20,
+        1407,
+        999
+      ],
+      "diffFile": "diff/F4-agenda-empty-1440.png",
+      "overlayFile": "overlay/F4-agenda-empty-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F4-agenda-empty-390-panel.png",
+      "candidate": "candidate-F4-agenda-empty-390-panel.png",
+      "referenceSize": {
+        "width": 358,
+        "height": 1320
+      },
+      "candidateSize": {
+        "width": 358,
+        "height": 1143
+      },
+      "widthDelta": 0,
+      "heightDelta": -177,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F4-agenda-empty-390.png",
+      "candidate": "candidate-F4-agenda-empty-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 180891,
+      "totalPixels": 329160,
+      "maxChannelDelta": 248,
+      "bbox": [
+        10,
+        13,
+        378,
+        835
+      ],
+      "diffFile": "diff/F4-agenda-empty-390.png",
+      "overlayFile": "overlay/F4-agenda-empty-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F5-agenda-only-changing-no-field-1440-panel.png",
+      "candidate": "candidate-F5-agenda-only-changing-no-field-1440-panel.png",
+      "referenceSize": {
+        "width": 1104,
+        "height": 988
+      },
+      "candidateSize": {
+        "width": 1104,
+        "height": 870
+      },
+      "widthDelta": 0,
+      "heightDelta": -118,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F5-agenda-only-changing-no-field-1440.png",
+      "candidate": "candidate-F5-agenda-only-changing-no-field-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 457389,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 248,
+      "bbox": [
+        18,
+        20,
+        1407,
+        999
+      ],
+      "diffFile": "diff/F5-agenda-only-changing-no-field-1440.png",
+      "overlayFile": "overlay/F5-agenda-only-changing-no-field-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F5-agenda-only-changing-no-field-390-panel.png",
+      "candidate": "candidate-F5-agenda-only-changing-no-field-390-panel.png",
+      "referenceSize": {
+        "width": 358,
+        "height": 1286
+      },
+      "candidateSize": {
+        "width": 358,
+        "height": 1109
+      },
+      "widthDelta": 0,
+      "heightDelta": -177,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F5-agenda-only-changing-no-field-390.png",
+      "candidate": "candidate-F5-agenda-only-changing-no-field-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 181095,
+      "totalPixels": 329160,
+      "maxChannelDelta": 248,
+      "bbox": [
+        10,
+        13,
+        378,
+        838
+      ],
+      "diffFile": "diff/F5-agenda-only-changing-no-field-390.png",
+      "overlayFile": "overlay/F5-agenda-only-changing-no-field-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F5-mapping-missing-fields-1440-panel.png",
+      "candidate": "candidate-F5-mapping-missing-fields-1440-panel.png",
+      "referenceSize": {
+        "width": 1104,
+        "height": 956
+      },
+      "candidateSize": {
+        "width": 1104,
+        "height": 821
+      },
+      "widthDelta": 0,
+      "heightDelta": -135,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F5-mapping-missing-fields-1440.png",
+      "candidate": "candidate-F5-mapping-missing-fields-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 468541,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 246,
+      "bbox": [
+        18,
+        0,
+        1439,
+        999
+      ],
+      "diffFile": "diff/F5-mapping-missing-fields-1440.png",
+      "overlayFile": "overlay/F5-mapping-missing-fields-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "prototype-F5-mapping-missing-fields-390-panel.png",
+      "candidate": "candidate-F5-mapping-missing-fields-390-panel.png",
+      "referenceSize": {
+        "width": 358,
+        "height": 1337
+      },
+      "candidateSize": {
+        "width": 358,
+        "height": 1146
+      },
+      "widthDelta": 0,
+      "heightDelta": -191,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": null,
+      "totalPixels": null,
+      "maxChannelDelta": null,
+      "bbox": null,
+      "diffFile": null,
+      "overlayFile": null,
+      "verdict": "dimensions-differ-review"
+    },
+    {
+      "reference": "prototype-F5-mapping-missing-fields-390.png",
+      "candidate": "candidate-F5-mapping-missing-fields-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 270219,
+      "totalPixels": 329160,
+      "maxChannelDelta": 244,
+      "bbox": [
+        15,
+        0,
+        373,
+        843
+      ],
+      "diffFile": "diff/F5-mapping-missing-fields-390.png",
+      "overlayFile": "overlay/F5-mapping-missing-fields-390.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "picker-boundaries/prototype-F6-accent-search-1440.png",
+      "candidate": "picker-boundaries/candidate-F6-accent-search-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "picker-boundaries/diff/F6-accent-search-1440.png",
+      "overlayFile": "picker-boundaries/overlay/F6-accent-search-1440.png",
+      "verdict": "exact"
+    },
+    {
+      "reference": "picker-boundaries/prototype-F6-accent-search-390.png",
+      "candidate": "picker-boundaries/candidate-F6-accent-search-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 329160,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "picker-boundaries/diff/F6-accent-search-390.png",
+      "overlayFile": "picker-boundaries/overlay/F6-accent-search-390.png",
+      "verdict": "exact"
+    },
+    {
+      "reference": "picker-boundaries/prototype-F6-bottom-open-1440.png",
+      "candidate": "picker-boundaries/candidate-F6-bottom-open-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 28,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 2,
+      "bbox": [
+        393,
+        602,
+        506,
+        629
+      ],
+      "diffFile": "picker-boundaries/diff/F6-bottom-open-1440.png",
+      "overlayFile": "picker-boundaries/overlay/F6-bottom-open-1440.png",
+      "verdict": "intentional-or-renderphase-review"
+    },
+    {
+      "reference": "picker-boundaries/prototype-F6-bottom-open-390.png",
+      "candidate": "picker-boundaries/candidate-F6-bottom-open-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 329160,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "picker-boundaries/diff/F6-bottom-open-390.png",
+      "overlayFile": "picker-boundaries/overlay/F6-bottom-open-390.png",
+      "verdict": "exact"
+    },
+    {
+      "reference": "picker-boundaries/prototype-F6-disabled-option-1440.png",
+      "candidate": "picker-boundaries/candidate-F6-disabled-option-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "picker-boundaries/diff/F6-disabled-option-1440.png",
+      "overlayFile": "picker-boundaries/overlay/F6-disabled-option-1440.png",
+      "verdict": "exact"
+    },
+    {
+      "reference": "picker-boundaries/prototype-F6-disabled-option-390.png",
+      "candidate": "picker-boundaries/candidate-F6-disabled-option-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 329160,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "picker-boundaries/diff/F6-disabled-option-390.png",
+      "overlayFile": "picker-boundaries/overlay/F6-disabled-option-390.png",
+      "verdict": "exact"
+    },
+    {
+      "reference": "picker-boundaries/prototype-F6-many-chips-1440.png",
+      "candidate": "picker-boundaries/candidate-F6-many-chips-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "picker-boundaries/diff/F6-many-chips-1440.png",
+      "overlayFile": "picker-boundaries/overlay/F6-many-chips-1440.png",
+      "verdict": "exact"
+    },
+    {
+      "reference": "picker-boundaries/prototype-F6-many-chips-390.png",
+      "candidate": "picker-boundaries/candidate-F6-many-chips-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 329160,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "picker-boundaries/diff/F6-many-chips-390.png",
+      "overlayFile": "picker-boundaries/overlay/F6-many-chips-390.png",
+      "verdict": "exact"
+    },
+    {
+      "reference": "picker-boundaries/prototype-F6-no-results-1440.png",
+      "candidate": "picker-boundaries/candidate-F6-no-results-1440.png",
+      "referenceSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "candidateSize": {
+        "width": 1440,
+        "height": 1000
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 1440000,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "picker-boundaries/diff/F6-no-results-1440.png",
+      "overlayFile": "picker-boundaries/overlay/F6-no-results-1440.png",
+      "verdict": "exact"
+    },
+    {
+      "reference": "picker-boundaries/prototype-F6-no-results-390.png",
+      "candidate": "picker-boundaries/candidate-F6-no-results-390.png",
+      "referenceSize": {
+        "width": 390,
+        "height": 844
+      },
+      "candidateSize": {
+        "width": 390,
+        "height": 844
+      },
+      "widthDelta": 0,
+      "heightDelta": 0,
+      "algorithm": "exact RGB, no AA mask or percentage acceptance threshold",
+      "changedPixels": 0,
+      "totalPixels": 329160,
+      "maxChannelDelta": 0,
+      "bbox": null,
+      "diffFile": "picker-boundaries/diff/F6-no-results-390.png",
+      "overlayFile": "picker-boundaries/overlay/F6-no-results-390.png",
+      "verdict": "exact"
+    }
+  ],
+  "geometry": [
+    {
+      "name": "people-size-25",
+      "fixture": "F1-101",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 298,
+        "y": 265.84375,
+        "width": 1104,
+        "height": 2246.65625
+      },
+      "candidate": {
+        "x": 298,
+        "y": 265.84375,
+        "width": 1104,
+        "height": 2146.96875
+      },
+      "widthDelta": 0,
+      "heightDelta": -99.6875
+    },
+    {
+      "name": "people-next-25",
+      "fixture": "F1-101",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 298,
+        "y": -1316.15625,
+        "width": 1104,
+        "height": 2245.46875
+      },
+      "candidate": {
+        "x": 298,
+        "y": -1313.15625,
+        "width": 1104,
+        "height": 2145.78125
+      },
+      "widthDelta": 0,
+      "heightDelta": -99.6875
+    },
+    {
+      "name": "people-size-50",
+      "fixture": "F1-101",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 298,
+        "y": -1245.15625,
+        "width": 1104,
+        "height": 4096.65625
+      },
+      "candidate": {
+        "x": 298,
+        "y": -1146.15625,
+        "width": 1104,
+        "height": 3996.96875
+      },
+      "widthDelta": 0,
+      "heightDelta": -99.6875
+    },
+    {
+      "name": "people-next-50",
+      "fixture": "F1-101",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 298,
+        "y": -3166.15625,
+        "width": 1104,
+        "height": 4095.46875
+      },
+      "candidate": {
+        "x": 298,
+        "y": -3163.15625,
+        "width": 1104,
+        "height": 3995.78125
+      },
+      "widthDelta": 0,
+      "heightDelta": -99.6875
+    },
+    {
+      "name": "people-size-100",
+      "fixture": "F1-101",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 298,
+        "y": -3095.15625,
+        "width": 1104,
+        "height": 7796.65625
+      },
+      "candidate": {
+        "x": 298,
+        "y": -2996.15625,
+        "width": 1104,
+        "height": 7696.96875
+      },
+      "widthDelta": 0,
+      "heightDelta": -99.6875
+    },
+    {
+      "name": "people-next-100",
+      "fixture": "F1-101",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 298,
+        "y": 265.84375,
+        "width": 1104,
+        "height": 469.46875
+      },
+      "candidate": {
+        "x": 298,
+        "y": 265.84375,
+        "width": 1104,
+        "height": 369.78125
+      },
+      "widthDelta": 0,
+      "heightDelta": -99.6875
+    },
+    {
+      "name": "agenda-empty",
+      "fixture": "F4",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 298,
+        "y": 265.84375,
+        "width": 1104,
+        "height": 986.59375
+      },
+      "candidate": {
+        "x": 298,
+        "y": 265.84375,
+        "width": 1104,
+        "height": 868.984375
+      },
+      "widthDelta": 0,
+      "heightDelta": -117.609375
+    },
+    {
+      "name": "agenda-only-changing-no-field",
+      "fixture": "F5",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 298,
+        "y": 265.84375,
+        "width": 1104,
+        "height": 986.59375
+      },
+      "candidate": {
+        "x": 298,
+        "y": 265.84375,
+        "width": 1104,
+        "height": 868.984375
+      },
+      "widthDelta": 0,
+      "heightDelta": -117.609375
+    },
+    {
+      "name": "mapping-missing-fields",
+      "fixture": "F5",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 298,
+        "y": 119.84375,
+        "width": 1104,
+        "height": 954.890625
+      },
+      "candidate": {
+        "x": 298,
+        "y": 265.84375,
+        "width": 1104,
+        "height": 819.609375
+      },
+      "widthDelta": 0,
+      "heightDelta": -135.28125
+    },
+    {
+      "name": "activity-source",
+      "fixture": "F0",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 340,
+        "y": 24,
+        "width": 760,
+        "height": 952
+      },
+      "candidate": {
+        "x": 340,
+        "y": 24,
+        "width": 760,
+        "height": 952
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "training-delete-one",
+      "fixture": "F0",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 480,
+        "y": 234.0625,
+        "width": 480,
+        "height": 531.859375
+      },
+      "candidate": {
+        "x": 480,
+        "y": 234.0625,
+        "width": 480,
+        "height": 531.859375
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "training-delete-series",
+      "fixture": "F0",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 480,
+        "y": 234.0625,
+        "width": 480,
+        "height": 531.859375
+      },
+      "candidate": {
+        "x": 480,
+        "y": 224.171875,
+        "width": 480,
+        "height": 551.65625
+      },
+      "widthDelta": 0,
+      "heightDelta": 19.796875
+    },
+    {
+      "name": "booking-hierarchy",
+      "fixture": "F3",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 298,
+        "y": 265.84375,
+        "width": 1104,
+        "height": 1431.640625
+      },
+      "candidate": {
+        "x": 298,
+        "y": 265.84375,
+        "width": 1104,
+        "height": 1318.75
+      },
+      "widthDelta": 0,
+      "heightDelta": -112.890625
+    },
+    {
+      "name": "whole-half-conflict",
+      "fixture": "F3",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 340,
+        "y": 24,
+        "width": 760,
+        "height": 952
+      },
+      "candidate": {
+        "x": 340,
+        "y": 24,
+        "width": 760,
+        "height": 952
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "training-conflict",
+      "fixture": "F3",
+      "width": 1440,
+      "key": "panelBox",
+      "source": {
+        "x": 200,
+        "y": 20,
+        "width": 1040,
+        "height": 960
+      },
+      "candidate": {
+        "x": 200,
+        "y": 20,
+        "width": 1040,
+        "height": 960
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "people-size-25",
+      "fixture": "F1-101",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 16,
+        "y": 252.34375,
+        "width": 358,
+        "height": 5062.671875
+      },
+      "candidate": {
+        "x": 16,
+        "y": 275.265625,
+        "width": 358,
+        "height": 4871.890625
+      },
+      "widthDelta": 0,
+      "heightDelta": -190.78125
+    },
+    {
+      "name": "people-next-25",
+      "fixture": "F1-101",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 16,
+        "y": -4194.65625,
+        "width": 358,
+        "height": 4969.609375
+      },
+      "candidate": {
+        "x": 16,
+        "y": -4086.734375,
+        "width": 358,
+        "height": 4778.828125
+      },
+      "widthDelta": 0,
+      "heightDelta": -190.78125
+    },
+    {
+      "name": "people-size-50",
+      "fixture": "F1-101",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 16,
+        "y": -4125.65625,
+        "width": 358,
+        "height": 9402.125
+      },
+      "candidate": {
+        "x": 16,
+        "y": -8366.734375,
+        "width": 358,
+        "height": 9211.34375
+      },
+      "widthDelta": 0,
+      "heightDelta": -190.78125
+    },
+    {
+      "name": "people-next-50",
+      "fixture": "F1-101",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 16,
+        "y": -8534.65625,
+        "width": 358,
+        "height": 9309.0625
+      },
+      "candidate": {
+        "x": 16,
+        "y": -8366.734375,
+        "width": 358,
+        "height": 9118.28125
+      },
+      "widthDelta": 0,
+      "heightDelta": -190.78125
+    },
+    {
+      "name": "people-size-100",
+      "fixture": "F1-101",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 16,
+        "y": -17236.65625,
+        "width": 358,
+        "height": 18081.03125
+      },
+      "candidate": {
+        "x": 16,
+        "y": -17046.734375,
+        "width": 358,
+        "height": 17890.25
+      },
+      "widthDelta": 0,
+      "heightDelta": -190.78125
+    },
+    {
+      "name": "people-next-100",
+      "fixture": "F1-101",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 16,
+        "y": -33.65625,
+        "width": 358,
+        "height": 808.140625
+      },
+      "candidate": {
+        "x": 16,
+        "y": 75.265625,
+        "width": 358,
+        "height": 617.359375
+      },
+      "widthDelta": 0,
+      "heightDelta": -190.78125
+    },
+    {
+      "name": "agenda-empty",
+      "fixture": "F4",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 16,
+        "y": 252.34375,
+        "width": 358,
+        "height": 1319.28125
+      },
+      "candidate": {
+        "x": 16,
+        "y": 275.265625,
+        "width": 358,
+        "height": 1142.5625
+      },
+      "widthDelta": 0,
+      "heightDelta": -176.71875
+    },
+    {
+      "name": "agenda-only-changing-no-field",
+      "fixture": "F5",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 16,
+        "y": 252.34375,
+        "width": 358,
+        "height": 1285.171875
+      },
+      "candidate": {
+        "x": 16,
+        "y": 275.265625,
+        "width": 358,
+        "height": 1108.453125
+      },
+      "widthDelta": 0,
+      "heightDelta": -176.71875
+    },
+    {
+      "name": "mapping-missing-fields",
+      "fixture": "F5",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 16,
+        "y": 90.34375,
+        "width": 358,
+        "height": 1336.46875
+      },
+      "candidate": {
+        "x": 16,
+        "y": 90.265625,
+        "width": 358,
+        "height": 1145.1875
+      },
+      "widthDelta": 0,
+      "heightDelta": -191.28125
+    },
+    {
+      "name": "activity-source",
+      "fixture": "F0",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 10,
+        "y": 10,
+        "width": 370,
+        "height": 824
+      },
+      "candidate": {
+        "x": 10,
+        "y": 10,
+        "width": 370,
+        "height": 824
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "training-delete-one",
+      "fixture": "F0",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 12,
+        "y": 140.53125,
+        "width": 366,
+        "height": 562.9375
+      },
+      "candidate": {
+        "x": 12,
+        "y": 140.53125,
+        "width": 366,
+        "height": 562.9375
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "training-delete-series",
+      "fixture": "F0",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 12,
+        "y": 140.53125,
+        "width": 366,
+        "height": 562.9375
+      },
+      "candidate": {
+        "x": 12,
+        "y": 130.625,
+        "width": 366,
+        "height": 582.734375
+      },
+      "widthDelta": 0,
+      "heightDelta": 19.796875
+    },
+    {
+      "name": "booking-hierarchy",
+      "fixture": "F3",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 16,
+        "y": 252.34375,
+        "width": 358,
+        "height": 1677.234375
+      },
+      "candidate": {
+        "x": 16,
+        "y": 275.265625,
+        "width": 358,
+        "height": 1486.75
+      },
+      "widthDelta": 0,
+      "heightDelta": -190.484375
+    },
+    {
+      "name": "whole-half-conflict",
+      "fixture": "F3",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 10,
+        "y": 10,
+        "width": 370,
+        "height": 824
+      },
+      "candidate": {
+        "x": 10,
+        "y": 10,
+        "width": 370,
+        "height": 824
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "training-conflict",
+      "fixture": "F3",
+      "width": 390,
+      "key": "panelBox",
+      "source": {
+        "x": 12,
+        "y": 12,
+        "width": 366,
+        "height": 820
+      },
+      "candidate": {
+        "x": 12,
+        "y": 12,
+        "width": 366,
+        "height": 820
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "committee-empty-inactive-two-roles",
+      "fixture": "F2",
+      "width": 1024,
+      "key": "panelBox",
+      "source": {
+        "x": 256,
+        "y": 251.796875,
+        "width": 744,
+        "height": 1488.140625
+      },
+      "candidate": {
+        "x": 256,
+        "y": 251.796875,
+        "width": 744,
+        "height": 1388.453125
+      },
+      "widthDelta": 0,
+      "heightDelta": -99.6875
+    },
+    {
+      "name": "committee-roles-edit",
+      "fixture": "F2",
+      "width": 1024,
+      "key": "panelBox",
+      "source": {
+        "x": 97,
+        "y": 21,
+        "width": 830,
+        "height": 858
+      },
+      "candidate": {
+        "x": 97,
+        "y": 21,
+        "width": 830,
+        "height": 858
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "agenda-year-tablet",
+      "fixture": "F2",
+      "width": 1024,
+      "key": "panelBox",
+      "source": {
+        "x": 256,
+        "y": 119.796875,
+        "width": 744,
+        "height": 1491.046875
+      },
+      "candidate": {
+        "x": 256,
+        "y": 119.796875,
+        "width": 744,
+        "height": 1393.65625
+      },
+      "widthDelta": 0,
+      "heightDelta": -97.390625
+    },
+    {
+      "name": "public-agenda",
+      "fixture": "F0",
+      "width": 1440,
+      "key": "agendaBox",
+      "source": {
+        "x": 967.9375,
+        "y": 64.796875,
+        "width": 444.0625,
+        "height": 584
+      },
+      "candidate": {
+        "x": 967.9375,
+        "y": 64.796875,
+        "width": 444.0625,
+        "height": 584
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "public-agenda-detail",
+      "fixture": "F0",
+      "width": 1440,
+      "key": "agendaBox",
+      "source": {
+        "x": 967.9375,
+        "y": 64.796875,
+        "width": 444.0625,
+        "height": 584
+      },
+      "candidate": {
+        "x": 967.9375,
+        "y": 64.796875,
+        "width": 444.0625,
+        "height": 584
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "public-agenda-detail",
+      "fixture": "F0",
+      "width": 1440,
+      "key": "dialogBox",
+      "source": {
+        "x": 440,
+        "y": 279.015625,
+        "width": 560,
+        "height": 441.96875
+      },
+      "candidate": {
+        "x": 440,
+        "y": 279.015625,
+        "width": 560,
+        "height": 441.96875
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "public-agenda-withdrawn",
+      "fixture": "F0",
+      "width": 1440,
+      "key": "agendaBox",
+      "source": {
+        "x": 967.9375,
+        "y": 64.796875,
+        "width": 444.0625,
+        "height": 584
+      },
+      "candidate": {
+        "x": 967.9375,
+        "y": 64.796875,
+        "width": 444.0625,
+        "height": 584
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "public-agenda-empty",
+      "fixture": "F0",
+      "width": 1440,
+      "key": "agendaBox",
+      "source": {
+        "x": 967.9375,
+        "y": 64.796875,
+        "width": 444.0625,
+        "height": 584
+      },
+      "candidate": {
+        "x": 967.9375,
+        "y": 64.796875,
+        "width": 444.0625,
+        "height": 584
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "public-agenda",
+      "fixture": "F0",
+      "width": 390,
+      "key": "agendaBox",
+      "source": {
+        "x": 24,
+        "y": 154,
+        "width": 342,
+        "height": 691.390625
+      },
+      "candidate": {
+        "x": 24,
+        "y": 178,
+        "width": 342,
+        "height": 666.875
+      },
+      "widthDelta": 0,
+      "heightDelta": -24.515625
+    },
+    {
+      "name": "public-agenda-detail",
+      "fixture": "F0",
+      "width": 390,
+      "key": "agendaBox",
+      "source": {
+        "x": 24,
+        "y": 154,
+        "width": 342,
+        "height": 691.390625
+      },
+      "candidate": {
+        "x": 24,
+        "y": 178,
+        "width": 342,
+        "height": 666.875
+      },
+      "widthDelta": 0,
+      "heightDelta": -24.515625
+    },
+    {
+      "name": "public-agenda-detail",
+      "fixture": "F0",
+      "width": 390,
+      "key": "dialogBox",
+      "source": {
+        "x": 16,
+        "y": 193.046875,
+        "width": 358,
+        "height": 457.90625
+      },
+      "candidate": {
+        "x": 16,
+        "y": 193.046875,
+        "width": 358,
+        "height": 457.90625
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    },
+    {
+      "name": "public-agenda-withdrawn",
+      "fixture": "F0",
+      "width": 390,
+      "key": "agendaBox",
+      "source": {
+        "x": 24,
+        "y": 154,
+        "width": 342,
+        "height": 691.390625
+      },
+      "candidate": {
+        "x": 24,
+        "y": 178,
+        "width": 342,
+        "height": 666.875
+      },
+      "widthDelta": 0,
+      "heightDelta": -24.515625
+    },
+    {
+      "name": "public-agenda-empty",
+      "fixture": "F0",
+      "width": 390,
+      "key": "agendaBox",
+      "source": {
+        "x": 24,
+        "y": 320,
+        "width": 342,
+        "height": 480
+      },
+      "candidate": {
+        "x": 24,
+        "y": 320,
+        "width": 342,
+        "height": 480
+      },
+      "widthDelta": 0,
+      "heightDelta": 0
+    }
+  ]
+}

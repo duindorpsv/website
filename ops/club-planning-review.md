@@ -13,7 +13,7 @@ De gecontroleerde productiebasis is `618321bdec131d00bd443fdde4c855a6bfb4846c`, 
 | F03: velden en ruimtes | `cms/locations-manager.tsx`, `lib/server/planning.ts`; echte parentrelaties, unieke bronmapping en servercontrole van wijzigingen. |
 | F04: centrale planning | `cms/planning-board.tsx`, `lib/server/planning.ts`, bestaande `records.ts`; agenda en reserveringen lezen dezelfde activiteiten. |
 | F05: trainingen | `cms/training-manager.tsx`, `planning/series` en `planning/migration`; concrete reeks, voorvertoning, atomair opslaan en individuele uitzonderingen. |
-| F06: publieke uitvoer | Publieke planning-/ICS-routes, `records.ts`, `public-content.tsx`; expliciete publicatie en beperkte openbare DTO’s. |
+| F06: publieke uitvoer | Publieke planning-/ICS-routes, `records.ts`, `public-content.tsx` en `clubmuur-community-cards.tsx`; maximaal vijf agenda-items, echte tijden/locatie, expliciete publicatie en beperkte openbare DTO’s. |
 | F07: compacte keuzes | `cms/multi-select.tsx/.css`, gericht geïntegreerd in huidige `AccountsManager` en `WidgetInspector`, planning en trainingen. |
 | F08: achtergrondslider | `cms/hero-slider-manager.tsx/.css`, `lib/cms/hero-slider.ts`, bestaande homepage/backgroundrenderer. Spelersportretten en vier hero-vakken blijven zelfstandig. |
 | Aanvullend Sportlink-verzoek | `cms/sportlink-settings-manager.tsx`, `lib/server/sportlink-*`, private CMS-routes en bestaande worker/cache. Zie [Sportlink beheren](sportlink.md). |
@@ -36,7 +36,7 @@ Sportlink houdt gezag over wedstrijddatum, tijd, status, veld en kleedkamers. Ex
 
 | Controle | Uitkomst |
 | --- | --- |
-| `pnpm test` lokaal | 183 geslaagd, 1 bestaande skip, 0 mislukt |
+| `pnpm test` lokaal | 185 geslaagd, 1 bestaande skip, 0 mislukt |
 | `pnpm typecheck` lokaal | Geslaagd |
 | `pnpm build` lokaal | Geslaagd, inclusief nieuwe CMS- en publieke routes |
 | Operationele Python-tests | 29 geslaagd |
@@ -47,6 +47,10 @@ Sportlink houdt gezag over wedstrijddatum, tijd, status, veld en kleedkamers. Ex
 Visueel bewijs en de matrix staan in [het reviewpakket](../design/club-planning-2026-10-20/README.md). Zie [de slidervergelijking](hero-slider-review.md) en [het frontendrapport](../design/prototype-planning-frontend-review-2026-10-20.md). De sliderpanelen hebben 47 gecontroleerde vergelijkingen met nul afwijkende pixels; de CMS-shell valt buiten die uitspraak. Voor de planning zijn daarnaast 46 uitgelijnde inhoudspanelen gemeten: gelijke DOM-breedte en -hoogte, met de verschuiving door de verwijderde dubbele kop afzonderlijk gerapporteerd. Bewuste verschillen zijn de vereiste enkele kop, echte concept-/publicatiebediening, paginatie en bestaande productiebeperkingen. Een algemene claim dat iedere pixel van de volledige applicatie identiek is, wordt niet gedaan.
 
 De officiële Sportlink-artikeldefinities en parameters zijn onderzocht. Werkelijke clubcredentials waren in de ontwikkelsessie niet beschikbaar. De implementatie is gecontroleerd met synthetische providerresponses en echte repositorytransacties; een volledige live ledenimport is niet bewezen. De openbare teambron is geen volledige ledenadministratie. Import accepteert alleen werkelijk beschikbare stabiele relatiecodes en biedt daarnaast gecontroleerde CSV-voorbereiding. Er worden geen accounts of uitnodigingen aangemaakt.
+
+De publieke agenda behoudt de beoordeelde legacy-inhoud totdat die is overgenomen, en vult deze aan vanuit de centrale publicaties zonder dubbelen. Detail en ICS gebruiken dezelfde centrale activiteit. Een geopend detail controleert de publieke serverversie bij openen, focus en iedere dertig seconden; intrekken sluit het venster bij die controle. Tijdelijke verbindingsfouten vervangen geen goedgekeurde gegevens. De oude agendacompatibiliteit verzint geen eindtijd of locatie. De expliciete openbare keuze bij een nieuwe trainingsreeks publiceert alle momenten atomair en vereist afzonderlijke publicatierechten.
+
+Het [aanvullende acceptatierapport](../design/prototype-planning-supplement-review-2026-10-20.md) registreert de volledige scenariomatrix, alle twintig huidige beheerkoppen, 26/51/101 personen, rol- en rechtengevallen, veldhiërarchie, dropdownranden en publieke agenda met intrekking. De echte SQL-grenscontrole gebruikt daarnaast 1.510 andere records en 1.051 personen: het personenregister blijft volledig en teambeperkte planners zien geen privégegevens van andere boekingen. De bewijspakketten en het metadata-erratum staan in het reviewpakket.
 
 ## Beheer, toekomstige release en rollback
 

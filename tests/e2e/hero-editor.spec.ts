@@ -10,7 +10,7 @@ test('hero editor loads saved content, protects concurrent publications and expl
  async function version(){return (await page.request.get('/api/cms/bootstrap').then(response=>response.json())).versions['site-hero']||0;}
  async function publish(items:typeof defaultHeroCards,expectedVersion:number){return page.request.post('/api/cms/mutations',{headers:{Origin:origin},data:{operationId:crypto.randomUUID(),changes:[{module:'hero',id:'site-hero',expectedVersion,action:'publish',data:{items}}]}});}
  try{
-  await page.getByRole('button',{name:'Homepage',exact:true}).click();await page.getByRole('button',{name:'Vier vakken bovenaan',exact:true}).click();
+  await page.getByRole('button',{name:'Homepage',exact:true}).click();await page.getByRole('tab',{name:'Hero-vakken',exact:true}).click();
   const title=page.getByRole('textbox',{name:'Nieuws · volle hoogte: titel',exact:true}),second=page.getByRole('textbox',{name:'Uitgelicht naast de spelers: titel',exact:true});
   await expect(title).toHaveValue(before[0].title);await title.fill('Lokale hero-kop');
   const winner=before.map((card:any,index:number)=>index===1?{...card,title:'Kop van een collega'}:card),other=await publish(winner,await version());expect(other.status(),await other.text()).toBe(200);
@@ -31,7 +31,7 @@ test('each hero tile can link to every published page, including a custom page o
  const version=async()=>(await page.request.get('/api/cms/bootstrap').then(response=>response.json())).versions['site-hero']||0;
  try{
   await page.reload();
-  await page.getByRole('button',{name:'Homepage',exact:true}).click();await page.getByRole('button',{name:'Vier vakken bovenaan',exact:true}).click();
+  await page.getByRole('button',{name:'Homepage',exact:true}).click();await page.getByRole('tab',{name:'Hero-vakken',exact:true}).click();
   const slots=['Nieuws · volle hoogte','Uitgelicht naast de spelers','Rechtsboven','Rechtsonder'],targets=['club/bestuur','club/contact','teams/trainingen',slug];
   for(let index=0;index<slots.length;index++){
    await page.getByRole('combobox',{name:slots[index]+': inhoud',exact:true}).selectOption('page');
@@ -41,7 +41,7 @@ test('each hero tile can link to every published page, including a custom page o
    await destination.selectOption(targets[index]);
   }
   const saved=page.waitForResponse(response=>response.url().endsWith('/api/cms/mutations')&&response.request().method()==='POST');await page.getByRole('button',{name:'Vier vakken opslaan',exact:true}).click();expect((await saved).status()).toBe(200);
-  await page.reload();await page.getByRole('button',{name:'Vier vakken bovenaan',exact:true}).click();
+  await page.reload();await page.getByRole('tab',{name:'Hero-vakken',exact:true}).click();
   for(let index=0;index<slots.length;index++)await expect(page.getByRole('combobox',{name:slots[index]+': bestemming',exact:true})).toHaveValue(targets[index]);
   await page.goto('/clubmuur?hero=01');
   for(let index=0;index<targets.length;index++)await expect(page.locator(`a[data-slot-id="${defaultHeroCards[index].id}"]`)).toHaveAttribute('href','/clubmuur/'+targets[index]);

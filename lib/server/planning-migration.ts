@@ -41,7 +41,7 @@ export async function migrateLegacyPlanning(p:Principal,input:PlanningMigrationI
    wasPublic=!!approved;privateChanges=!!approved&&!equalContent(approved,session);
   }
   activityAuthorization(p,'create',activity);
-  const {state}=await loadState(false,undefined,tx),preview=planningPreview(state,activity,input.source==='training'?input.until:undefined,input.weekdays);
+  const {state}=await loadState(false,undefined,tx),preview=planningPreview(state,activity,input.source==='training'?input.until:undefined,input.weekdays,p);
   if(input.mode==='preview')return {...preview,wasPublic,privateChanges};
   if(!preview.count||preview.conflicts.length)throw new CmsError('migration-conflict','De overname is niet opgeslagen. Los eerst de ontbrekende gegevens en reserveringsconflicten op.',409,preview.conflicts);
   const publish=wasPublic&&activity.public&&!privateChanges;

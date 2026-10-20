@@ -1,0 +1,51 @@
+{
+  "capturedAt": "2026-10-20T15:35:53.716Z",
+  "browser": "153.0.8010.12",
+  "playwright": "1.63.0",
+  "node": "v24.18.0",
+  "platform": "linux",
+  "arch": "x64",
+  "os": {
+    "type": "Linux",
+    "release": "6.8.0-147-generic",
+    "platform": "linux"
+  },
+  "dpr": 1,
+  "locale": "nl-NL",
+  "timezone": "Europe/Amsterdam",
+  "clock": "2026-10-20T10:00:00Z",
+  "reducedMotion": "reduce",
+  "prototypeSha": "fcb53aaf1dc28779700e69e7b46e7bb0417e8da5",
+  "productionBaseSha": "618321b",
+  "candidateHead": "2bd4db1acd8de164abc4db15d3deef2adc5a7d0a",
+  "candidateDiffSha256": "80ee11bab632ac23099e9859b9c0da71e98b716ca4fabe7c3da69a556fab9bfb",
+  "cssBuildMode": "Actual React source with its layout CSS and Tailwind base CSS via esbuild; no new generated Tailwind utilities",
+  "rawDiffAlgorithm": "exactRGB, include every channel difference, no percentage pass threshold",
+  "sourceFonts": [
+    {
+      "family": "Manrope",
+      "weight": "400",
+      "verify": "document.fonts.load explicitly in final F2/F8/F9 frames; actual FontFace status in each styleEvidence"
+    },
+    {
+      "family": "Manrope",
+      "weight": "500",
+      "verify": "document.fonts.load explicitly in final F2/F8/F9 frames; actual FontFace status in each styleEvidence"
+    },
+    {
+      "family": "Manrope",
+      "weight": "600",
+      "verify": "document.fonts.load explicitly in final F2/F8/F9 frames; actual FontFace status in each styleEvidence"
+    },
+    {
+      "family": "Manrope",
+      "weight": "700",
+      "verify": "document.fonts.load explicitly in final F2/F8/F9 frames; actual FontFace status in each styleEvidence"
+    },
+    {
+      "family": "Manrope",
+      "weight": "800",
+      "verify": "document.fonts.load explicitly in final F2/F8/F9 frames; actual FontFace status in each styleEvidence"
+    }
+  ]
+}

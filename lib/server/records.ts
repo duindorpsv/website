@@ -50,6 +50,14 @@ else
     Object.assign(data, { published: !!row.live, live: row.live || undefined }); if (row.module === 'media' && String(data.src).startsWith('/api/media/'))
     data.src = `/api/cms/media/${row.id}/file`; if (row.deleted_at)
     Object.assign(data, { deletedAt: row.deleted_at }); return data; }
+// Read the complete register independently from the mixed-content bootstrap.
+// Each query remains bounded; stable IDs allow subsequent import batches to be
+// found without imposing another silent total cap on the people collection.
+async function peopleRecords(sql:any,publicOnly:boolean):Promise<RecordRow[]>{
+ const records:RecordRow[]=[];let cursor='';
+ while(true){const batch:RecordRow[]=await sql`select * from cms_records where module='people' and id>${cursor} and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`} order by id limit 1000`;records.push(...batch);if(batch.length<1000)return records;cursor=batch[batch.length-1].id;}
+}
+function locationChoice(row:RecordRow){const value=row.draft;return {id:row.id,name:value.name,type:value.type,capacity:value.capacity,active:value.active,color:value.color,parentId:value.parentId||'',description:'',sportlinkFieldName:'',published:false,...(row.deleted_at?{deletedAt:new Date(row.deleted_at).toISOString()}: {})};}
 export async function loadState(publicOnly = false, p?: Principal,transaction?:any,requiredIds:string[]=[]): Promise<{
     state: CmsState;
     versions: Record<string, number>;
@@ -58,14 +66,15 @@ export async function loadState(publicOnly = false, p?: Principal,transaction?:a
     const rows = await sql<RecordRow[]> `with plans as materialized (select distinct on (payload->>'id') payload->>'id' as record_id,run_at from cms_jobs where kind='publish' and status in ('pending','processing') order by payload->>'id',run_at) select cms_records.*,i.record_id is not null as imported,plans.run_at as scheduled_at from cms_records left join cms_news_import_identities i on i.record_id=cms_records.id left join plans on plans.record_id=cms_records.id where ${publicOnly ? sql `live is not null and deleted_at is null` : sql `true`} and ${!publicOnly&&p?sql`(module!='media' or id in (select id from cms_records where module='media' order by updated_at desc,id limit 100) or id in (select target_id from cms_references))`:sql`true`} order by case when deleted_at is not null then 3 when module in ('settings','navigation','hero','heroPhotos','agenda','training') then 0 when module!='media' then 1 else 2 end,updated_at desc,id limit 1500`;
     const requested=requiredIds.length?await sql<RecordRow[]>`select *,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported from cms_records where id in ${sql([...new Set(requiredIds)])}`:[];
     const planningRows=await sql<RecordRow[]>`select * from cms_records where module in ('committees','locations','activities') and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`} order by updated_at desc,id limit 22000`;
-    const memberIds=[...new Set<string>(planningRows.filter(row=>row.module==='committees').flatMap(row=>(publicOnly?row.live:row.draft)?.members?.map((member:any)=>member.personId)||[]))].filter(id=>!rows.some(row=>row.id===id));
-    const planningPeople=memberIds.length?await sql<RecordRow[]>`select * from cms_records where id in ${sql(memberIds)} and module='people' and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`}`:[];
-    // Dependencies of planning members must survive the global bootstrap limit too.
-    const refs=[...new Set([...rows.filter(row=>row.module!=='media'&&!row.deleted_at),...planningRows,...planningPeople,...requested].flatMap(row=>referencesIn(publicOnly?row.live:row.draft)))].filter(id=>!rows.some(row=>row.id===id)&&!requested.some(row=>row.id===id));
+    const peopleRows=await peopleRecords(sql,publicOnly);
+    // People and planning dependencies must survive the mixed-content bootstrap limit too.
+    const refs=[...new Set([...rows.filter(row=>row.module!=='media'&&!row.deleted_at),...planningRows,...peopleRows,...requested].flatMap(row=>referencesIn(publicOnly?row.live:row.draft)))].filter(id=>!rows.some(row=>row.id===id)&&!requested.some(row=>row.id===id));
     const related=refs.length?await sql<RecordRow[]>`select *,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported from cms_records where id in ${sql(refs)} and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`}`:[];
-    const records=[...new Map([...rows,...requested,...related,...planningRows,...planningPeople,...(publicOnly?await heroNewsRows(sql):[])].map(row=>[row.id,row])).values()];
+    const records=[...new Map([...rows,...requested,...related,...planningRows,...peopleRows,...(publicOnly?await heroNewsRows(sql):[])].map(row=>[row.id,row])).values()];
     const planningPublicLocations=publicOnly?(await sql`select id,draft->>'name' as name from cms_records where module='locations' and deleted_at is null`):[];
+    const locationChoices=!!p&&!publicOnly&&(p.teamScoped?p.teams.some(teamId=>has(p,'pages','read',{teamId})):has(p,'pages','read'));
     for (const row of records) {
+        if(row.module==='locations'&&locationChoices&&!has(p!,'settings','read',scope(row))){state.planning.locations.push(locationChoice(row));versions[row.id]=row.version;continue;}
         const fallbackPublic=!publicOnly&&!!p&&!has(p,permissionModule(row.module,row.draft),'read',scope(row));if(fallbackPublic&&(!row.live||row.deleted_at))continue;
         versions[row.id] = row.version;
         if(row.module==='sportlinkSettings')continue;

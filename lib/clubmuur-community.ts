@@ -1,6 +1,16 @@
-import {planningInstant} from './cms/planning';
+import {getPublicActivities,planningInstant} from './cms/planning';
 import type {ClubAgendaEvent} from './club-agenda';
-export type ClubCommunityEvent=ClubAgendaEvent;
+import {upcomingAgenda} from './club-agenda';
+import type {CmsActivity,CmsState} from './cms/types';
+export type ClubCommunityEvent=ClubAgendaEvent&{endTime?:string;location?:string;type?:CmsActivity['type'];central?:boolean;occurrence?:'earlier'|'later'|'reject'};
+
+/** Public server projections remain authoritative; legacy agenda stays until reviewed migration. */
+export function publicCommunityEvents(state:CmsState,now=Date.now()):ClubCommunityEvent[]{
+ const central=getPublicActivities(state).map(item=>({id:item.id,title:item.title,date:item.date,time:item.startTime,endTime:item.endTime,description:item.description,location:item.location,type:item.type,occurrence:item.occurrence,central:true}));
+ const centralIds=new Set(state.planning.activities.map(item=>item.id));
+ const legacy=(state.appearance?.agenda||[]).filter(item=>!centralIds.has(item.id));
+ return upcomingAgenda<ClubCommunityEvent>([...legacy,...central],now).slice(0,5);
+}
 
 export type ClubCommunityRole = { id: string; title: string; duration: string; description: string };
 
@@ -40,14 +50,15 @@ function foldCalendarLine(value: string) {
 }
 
 export function communityEventCalendar(event: ClubCommunityEvent) {
-  const start=planningInstant(`${event.date}T${event.time}`,'earlier').replaceAll('-','').replaceAll(':','');
+  const instant=(time:string)=>planningInstant(`${event.date}T${time}`,event.occurrence||'earlier').replaceAll('-','').replaceAll(':','');
+  const start=instant(event.time);
   const stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
   return [
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Duindorp SV//Clubagenda//NL', 'CALSCALE:GREGORIAN',
     'BEGIN:VEVENT', `UID:activiteit-${event.id}@duindorpsv.nl`,
-    `DTSTAMP:${stamp}`, `DTSTART:${start}`,
+    `DTSTAMP:${stamp}`, `DTSTART:${start}`,...(event.endTime?[`DTEND:${instant(event.endTime)}`]:[]),
     `SUMMARY:${escapeCalendarText(event.title)}`,
     `DESCRIPTION:${escapeCalendarText(event.description)}`,
-    'LOCATION:Houtrust - Duindorp SV', 'STATUS:CONFIRMED', 'TRANSP:TRANSPARENT', 'END:VEVENT', 'END:VCALENDAR', '',
+    ...(event.location?[`LOCATION:${escapeCalendarText(event.location)}`]:[]), 'STATUS:CONFIRMED', 'TRANSP:TRANSPARENT', 'END:VEVENT', 'END:VCALENDAR', '',
   ].map(foldCalendarLine).join('\r\n');
 }

@@ -52,6 +52,27 @@ Bewuste productieverschillen buiten de identieke panelen:
 - Uploads gebruiken de bestaande serverlimiet van 8 MB en ondersteunen JPG, PNG, WebP en AVIF. Het prototype bood ook GIF aan; de bestaande productieverwerking ondersteunt dat formaat niet.
 - De previewtekst benoemt expliciet dat alleen publicatie de homepage verandert. De oorspronkelijke panelengeometrie blijft gelijk op alle gecontroleerde breedtes.
 
+## Aanvullende publieke hero-still, F7
+
+De publieke renderer is afzonderlijk met de echte prototype- en productieproviders vergeleken op 1440×1000 en 390×844. Het nieuwe bewijs staat in `/dev/shm/duindorpsv-public-hero-still-IB2leK/`: `manifest.json`, `review.md`, `SHA256SUMS`, vaste fixture/scenario’s, volledige viewportbeelden, hero-crops, ruwe verschilbeelden en overlays. Het eerdere F08-editorarchief is intact gebleven.
+
+De drie toestanden zijn standaardinstellingen, een gewijzigde volgorde met één uitgeschakelde dia en een eigen gepubliceerde achtergrond op plek 1 met focus 30/70, en een bewust lege slider. Alle beelden gebruiken dezelfde zichtbare inhoud, assets en fontbytes, Chromium, nl-NL, Europe/Amsterdam, klok 20 oktober 2026 12:00+02, DPR 1, zoom 100% en verminderde beweging. Layout `01` en spelersfoto `01-trots` zijn vastgezet en gecontroleerd.
+
+| Breedte | Toestand | Alle afwijkende pixels, RGB-delta > 0 | Maximale kanaaldelta | Geometrie |
+| --- | --- | --- | --- | --- |
+| 1440 | Standaard | 4 / 1.313.280 | 4 | Exact gelijk |
+| 1440 | Eigen foto, volgorde, focus | 4 / 1.313.280 | 4 | Exact gelijk |
+| 1440 | Leeg | 4 / 1.313.280 | 4 | Exact gelijk |
+| 390 | Standaard | 67 / 275.340 | 22 | Exact gelijk |
+| 390 | Eigen foto, volgorde, focus | 0 / 275.340 | 0 | Exact gelijk |
+| 390 | Leeg | 0 / 275.340 | 0 | Exact gelijk |
+
+Iedere niet-nul kleurafwijking telt mee, inclusief antialiasing. `diff-raw-*` en `diff-*` tonen alle verschillen; overlays gebruiken de volledige beelden. De oudere diagnose met delta > 2 blijft afzonderlijk bewaard onder `diff-delta2-*` en is niet de primaire telling. Er zijn geen regio’s gemaskeerd of beelden verschoven.
+
+De vier desktopverschillen liggen in één 2×2 gebied op de afgeronde nieuwskaartrand; de 67 mobiele standaardverschillen liggen langs de afgeronde wedstrijdkaartranden. Dit is beperkte gedocumenteerde raster-/antialiasvariatie. Er zijn geen verschillen in geometrie, tekstomloop, bronbestand of uitsnede; het volledige frame wordt niet als een byte-identieke pixelmatch geclaimd.
+
+Desktop meet het hero-frame 1440×912 op x0/y88 en de achtergrond 1440×836. Mobiel gebruikt de oorspronkelijke `.cm-first-screen` `display:contents`; de zichtbare frame-union van achtergrond, kop, speler, wedstrijd en band is 390×705,984375 op x0/y72. De mobiele achtergrond is 390×647,984375. De native wrappergeometrie en alle afzonderlijke boundingboxes zijn geregistreerd, zonder CSS-override. De standaardfocus is desktop 50/50 en mobiel 50/0; het eigen beeld gebruikt 30/70. Leeg blijft zonder beeld/fallback. Er waren geen JavaScriptfouten of horizontale overloop.
+
 ## Functionele verificatie
 
 `pnpm exec tsx --test tests/unit/hero-slider.test.ts`: **4 tests geslaagd**. De tests controleren standaarden en aanwezige responsive assets, alle schema- en bewegingsgrenzen, unieke bronselectie, lege/uitgeschakelde selecties en onveilige of verkeerde media-URL’s.
@@ -62,7 +83,7 @@ De runtimecontrole gebruikt ook normale beweging en een bestuurde klok. Gecontro
 
 De repositorylogica is tevens op de expliciet geïsoleerde tijdelijke PostgreSQL-database gecontroleerd: **geslaagd**. Dit omvat echte transacties voor draft/live, paginarechten zonder publicatierecht, weigering van privémedia bij publicatie, opgeslagen live-mediareferenties, versies, singleton-ID, weigering van ruwe blob/src-invoer, lege publicaties en behoud van de bibliotheekfoto bij sliderverwijdering. Dit is geen Supabase Auth-test en de bestaande Supabase-testguard is niet gewijzigd of omzeild.
 
-Voor de volledige omgeving zijn [de integratietest](../tests/integration/hero-slider.test.ts) en [de browser-E2E-test](../tests/e2e/hero-slider.spec.ts) toegevoegd. De E2E-test gebruikt de bestaande e-mailcode-login, echte uploadverwerking, herladen en controle van publieke server-HTML. Deze twee suites moeten in de bestaande lokale Supabase/CI-omgeving draaien; zij zijn in deze reviewharness niet als geslaagd aangemerkt.
+Voor de volledige omgeving zijn [de integratietest](../tests/integration/hero-slider.test.ts) en [de browser-E2E-test](../tests/e2e/hero-slider.spec.ts) toegevoegd. De E2E-test gebruikt de bestaande e-mailcode-login, echte uploadverwerking, herladen en controle van publieke server-HTML. Deze controles draaien in de bestaande lokale Supabase/CI-omgeving; de afzonderlijke lokale browserharness vervangt die verificatie niet. De integratiefixture rolt alle wijzigingen terug en is ook met een aanwezige, afwezige en zacht verwijderde singleton gecontroleerd. Raadpleeg voor het actuele resultaat van de volledige suite en de geteste commit de [checks van PR 22](https://github.com/duindorpsv/website/pull/22/checks).
 
 ## Korte beheerinstructie
 

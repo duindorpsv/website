@@ -1,6 +1,7 @@
 import {loginWithEmailCode} from './login-fixture';
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
+import type {Editor} from '@tiptap/core';
 const owner=JSON.parse(readFileSync('.runtime/e2e-account.json','utf8'));
 async function login(page:any){await loginWithEmailCode(page,owner.email);}
 test('AUTH01 and SEO: unauthenticated APIs reject access, public history is rendered without JS',async({request,browser})=>{expect((await request.get('/api/cms/bootstrap')).status()).toBe(401);const response=await request.get('/beheer',{maxRedirects:0});expect([307,308]).toContain(response.status());const context=await browser.newContext({javaScriptEnabled:false});const page=await context.newPage();await page.goto('/clubmuur/club/ons-verhaal');await expect(page.getByRole('heading',{name:/verhaal/i}).first()).toBeVisible();expect(await page.locator('body').innerText()).toContain('1950');await context.close();expect((await request.get('/clubmuur/club/missing-e2e-page')).status()).toBe(404);});
@@ -21,6 +22,12 @@ test('real login, row/column builder and one-step undo/redo',async({page})=>{
  await page.getByRole('button',{name:'Ongedaan maken',exact:true}).click();await expect(content).toHaveText('');
  const redo=page.getByRole('button',{name:'Opnieuw',exact:true});await expect(redo).toBeEnabled();await redo.click();await expect(content).toHaveText(text);
  await content.locator('p').click();await page.keyboard.press('Home');await page.keyboard.press('Shift+End');
+ // Native keyboard selection reaches the DOM before ProseMirror processes the
+ // selectionchange event. Verify the selected range before moving focus away.
+ await expect.poll(()=>page.locator('.ProseMirror').evaluate(element=>{
+  const {state}=(element as HTMLElement&{editor:Editor}).editor;
+  return state.doc.textBetween(state.selection.from,state.selection.to,'');
+ })).toBe(text);
  await page.getByRole('button',{name:'Onderstrepen',exact:true}).click();await expect(content.locator('u')).toHaveText(text);
  await page.getByRole('button',{name:'Centreren',exact:true}).click();await expect(content.locator('p')).toHaveCSS('text-align','center');
  await page.getByRole('button',{name:'Bewaren',exact:true}).first().click();

@@ -15,7 +15,7 @@ export type ClubAgendaEvent=z.infer<typeof agendaEventSchema>;
 export const agendaSchema=z.array(agendaEventSchema).max(500).refine(items=>new Set(items.map(item=>item.id)).size===items.length,'Activiteiten moeten een unieke ID hebben.');
 export const emptyAgenda:ClubAgendaEvent[]=[];
 
-export function upcomingAgenda(items:ClubAgendaEvent[],now=Date.now()) {
+export function upcomingAgenda<T extends ClubAgendaEvent>(items:T[],now=Date.now()):T[] {
   const today=new Intl.DateTimeFormat('en-CA',{timeZone:planningZone,year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
   return items.filter(item=>item.date>=today).slice().sort((a,b)=>`${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`)||a.id.localeCompare(b.id));
 }

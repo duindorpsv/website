@@ -29,7 +29,7 @@ Automatische reservering van eigen velden en kleedkamers gebeurt uitsluitend bij
 
 ## Personen importeren
 
-De officiële Club.Dataservice beschrijft `team-indeling` met een `relatiecode`. De import accepteert uitsluitend werkelijk beschikbare, niet-afgeschermde personen met zo’n stabiele code. De publieke beeld-/rosterhash is nooit een ledenidentiteit. Bekijk bij **Personen → Sportlink-import** de gevonden rijen, kies bewust personen en importeer maximaal vijftig tegelijk. Bestaande en verwijderde bronkoppelingen worden herkend. Nieuwe personen zijn concepten zonder openbaar contact, account of uitnodiging.
+De officiële Club.Dataservice beschrijft `team-indeling` met een `relatiecode`. De import accepteert uitsluitend werkelijk beschikbare, niet-afgeschermde personen met zo’n stabiele code. De publieke beeld-/rosterhash is nooit een ledenidentiteit. Bekijk bij **Personen → Sportlink-import** de gevonden rijen, kies bewust personen en importeer de selectie. Het CMS verwerkt grotere selecties in deelbatches van maximaal vijftig en bewaart de voortgang bij een herpoging. Bestaande en verwijderde bronkoppelingen worden herkend. Nieuwe personen zijn concepten zonder openbaar contact, account of uitnodiging.
 
 Deze openbare teambron is geen volledige ledenadministratie. Wanneer Sportlink geen toegestane stabiele broncodes levert, gebruik de CSV-voorbereiding met een bevoegde export. Een ontbrekende koppeling krijgt een concrete melding en wordt niet als succesvolle ledenimport getoond. Openbare profielen bevatten geen accountkoppeling of ledennummer; contactgegevens vereisen afzonderlijke toestemming in het CMS.
 

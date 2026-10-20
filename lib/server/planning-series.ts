@@ -1,9 +1,29 @@
 import {z} from 'zod';
 import {sqlClient} from '../../db';
-import {mutate} from './records';
-import {activityAuthorization} from './planning';
+import {mutate,loadState} from './records';
+import {activitySchema} from '../cms/planning';
+import {activityAuthorization,planningPreview} from './planning';
 import {CmsError} from './errors';
 import type {Principal} from './permissions';
+
+export const planningSeriesSchema=z.object({mode:z.enum(['preview','apply']),activity:activitySchema,until:z.string(),weekdays:z.array(z.number().int().min(0).max(6)).min(1),operationId:z.string().uuid()}).strict();
+export async function createPlanningSeries(p:Principal,input:z.infer<typeof planningSeriesSchema>,transaction?:any){
+ activityAuthorization(p,'create',input.activity);
+ // The explicit public choice publishes every occurrence; it needs its own
+ // server-side permission check before the batch writes any record.
+ if(input.activity.public)activityAuthorization(p,'publish',input.activity);
+ if(input.activity.source!=='manual')throw new CmsError('source-locked','Een trainingsreeks wordt handmatig beheerd.',422);
+ const perform=async(tx:any)=>{
+  await tx`select pg_advisory_xact_lock(736402)`;
+  const {state}=await loadState(false,undefined,tx),preview=planningPreview(state,input.activity,input.until,input.weekdays,p);
+  if(input.mode==='preview')return preview;
+  if(preview.conflicts.length)throw new CmsError('series-conflict','De trainingsreeks is niet opgeslagen. Los eerst alle conflicten op.',409,preview.conflicts);
+  const changes=preview.activities.map(activity=>({module:'activities' as const,id:activity.id,expectedVersion:0,action:input.activity.public?'publish' as const:'save' as const,data:activity}));
+  const versions=await mutate(p,changes,input.operationId,crypto.randomUUID(),tx);
+  return {...preview,...versions};
+ };
+ return transaction?perform(transaction):sqlClient().begin(perform);
+}
 
 export const deletePlanningSeriesSchema=z.object({seriesId:z.string().min(1).max(150),expectedVersions:z.record(z.number().int().positive()).refine(value=>Object.keys(value).length>0&&Object.keys(value).length<=1000,'Kies een reeks met maximaal 1000 momenten.'),operationId:z.string().uuid()}).strict();
 export async function deletePlanningSeries(p:Principal,input:z.infer<typeof deletePlanningSeriesSchema>,transaction?:any){
