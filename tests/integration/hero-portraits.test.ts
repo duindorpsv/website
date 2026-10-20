@@ -6,6 +6,7 @@ import {loadState,mutate} from '../../lib/server/records';
 import {defaultHeroPhotoIds,pickHeroLayout,pickHeroPhoto} from '../../lib/clubmuur-layouts';
 import {getHeroSelection,type HeroPortrait} from '../../lib/cms/hero-portraits';
 import {parseCmsState} from '../../lib/cms/validation';
+import {createCmsSeed} from '../../lib/cms/seed';
 import type {Principal} from '../../lib/server/permissions';
 
 assertLocalSupabaseTests();
@@ -28,7 +29,8 @@ test('custom-only hero portraits publish actual library references, survive relo
  await write([command({items:[portrait.id],portraits:[portrait]},v++)]);
  let current=(await loadState(true)).state;
  assert.deepEqual(current.appearance?.heroPhotos,[portrait.id]);assert.deepEqual(current.appearance?.heroPortraits,[portrait]);
- assert.ok(parseCmsState(JSON.stringify((await loadState(false,admin)).state)),'backups and bootstrap parse custom portrait IDs with their descriptors');
+ const backup=(await loadState(false,admin)).state;backup.roles=createCmsSeed().roles;
+ assert.ok(parseCmsState(JSON.stringify(backup)),'backups and bootstrap parse custom portrait IDs with their descriptors');
  const selection=getHeroSelection(current.appearance,current.media),layout=pickHeroLayout('01',0,selection.enabled,selection.catalog);
  assert.ok(['02','08'].includes(layout));assert.equal(pickHeroPhoto(layout,'01-trots',0,selection.enabled,selection.catalog),portrait.id);
  await write([command({items:[portrait.id],portraits:[{...portrait,name:'Private werknaam',kind:'walking'}]},v++,'save')]);
@@ -50,6 +52,7 @@ after(async()=>{
   await write([{...command({...previous,portraits:previous.portraits||[]},await version()),action:before.live?'publish':'unpublish'}]);
   await write([command({...before.draft,portraits:before.draft.portraits||[]},await version(),'save')]);
  }else await write([command({items:defaultHeroPhotoIds,portraits:[]},await version())]);
- await sql`delete from cms_records where id in ${sql([mediaId,privateId])}`;
+ const media=await sql`select id,version from cms_records where id in ${sql([mediaId,privateId])} and deleted_at is null`;
+ for(const row of media)await write([{module:'media',id:row.id,expectedVersion:row.version,action:'trash'}]);
  await closeDb();
 });
