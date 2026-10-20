@@ -99,14 +99,20 @@ export async function syncSportlinkMatches(actor:Principal,matches:SportlinkMatc
   const plans:{candidate:CmsActivity;old:any}[]=[];
   for(const entry of prepared){const {match,evidence}=entry,side=verifiedMatchSide(match,catalog.teams,catalog.clubCode)!,title=match.home.name+' – '+match.away.name;
    const sourceId=catalog.clubCode+':'+match.id,id='sportlink-match-'+sourceId;
-   const [old]=await tx`select * from cms_records where module='activities' and (id=${id} or draft->>'sourceId'=${sourceId}) limit 1 for update`;
+   const [old]=await tx`select * from cms_records where module='activities' and (id=${id} or draft->>'source'='sportlink' and draft->>'sourceId'=${sourceId}) order by (id=${id}) desc limit 1 for update`;
+   if(old&&(old.draft.source!=='sportlink'||old.draft.sourceId!==sourceId||old.draft.sourceData?.provider!=='sportlink'||old.draft.sourceData?.clubId!==catalog.clubCode||old.draft.sourceData?.matchId!==match.id)){counts.skipped++;unresolved.push({matchId:match.id,title,reason:'Conflicterende bestaande activiteitidentiteit. Het handmatige of anders gekoppelde record blijft behouden.'});continue;}
    if(old?.deleted_at||Math.max(old?.draft.sourceData?.observedAt||0,sourceWater[match.id]||0)>=observedAt){counts.unchanged++;continue;}
    const info=record(record(entry.detail).wedstrijdinformatie),changing=record(record(entry.detail).kleedkamers);
-   const duration=entry.duration||old?.draft.sourceData?.durationMinutes||null;
+   const cancelled=/afgelast|vervallen|geannuleerd|cancelled/i.test(match.status);
+   let duration=entry.duration||old?.draft.sourceData?.durationMinutes||null;
+   // An explicit cancellation must also free legacy bookings whose metadata predates durationMinutes.
+   const previousDuration=old?Temporal.PlainTime.from(old.draft.endTime).since(Temporal.PlainTime.from(old.draft.startTime)).total('minutes'):0;
+   if(!duration&&cancelled&&previousDuration>0&&previousDuration<=600)duration=previousDuration;
    const fieldName=Object.hasOwn(info,'veldnaam')?text(info.veldnaam):match.field||'',rooms={home:Object.hasOwn(changing,'thuis')?text(changing.thuis):match.changingRooms?.home||'',away:Object.hasOwn(changing,'uit')?text(changing.uit):match.changingRooms?.away||'',official:Object.hasOwn(changing,'official')?text(changing.official):match.changingRooms?.official||''};
    const review=(reason:string)=>unresolved.push({matchId:match.id,title,fieldName,reason,accommodation:evidence.label,sourceFingerprint:evidence.fingerprint||undefined});
    if(!duration){counts.skipped++;review('Bron niet beschikbaar: een bevestigde wedstrijdduur ontbreekt. Bestaande tijden en boekingen blijven behouden.');continue;}
-   const start=Temporal.Instant.from(match.kickoff).toZonedDateTimeISO('Europe/Amsterdam'),end=start.add({minutes:duration});
+   let start=Temporal.Instant.from(match.kickoff).toZonedDateTimeISO('Europe/Amsterdam'),end=start.add({minutes:duration});
+   if(cancelled&&old&&start.toPlainDate().toString()!==end.toPlainDate().toString()){start=Temporal.Instant.from(planningInstant(old.draft.date+'T'+old.draft.startTime,old.draft.occurrence||'reject')).toZonedDateTimeISO('Europe/Amsterdam');end=Temporal.Instant.from(planningInstant(old.draft.date+'T'+old.draft.endTime,old.draft.occurrence||'reject')).toZonedDateTimeISO('Europe/Amsterdam');duration=previousDuration;review('Bronannulering verwerkt; alle boekingen zijn vrijgegeven. Het nieuwe bronmoment loopt over middernacht; het vorige bevestigde tijdvak blijft als historie staan.');}
    if(start.toPlainDate().toString()!==end.toPlainDate().toString()){counts.skipped++;review('Een wedstrijd over middernacht vereist beoordeling; er is niets verplaatst.');continue;}
    const park=settings.ownPark,confirmation=settings.parkConfirmations.find(row=>row.matchId===match.id);
    const verified=side==='home'&&!!park&&!!evidence.fingerprint&&confirmation?.accommodationId===park.id&&confirmation.sourceFingerprint===evidence.fingerprint;
@@ -126,7 +132,6 @@ export async function syncSportlinkMatches(actor:Principal,matches:SportlinkMatc
    const own=catalog.teams.find(team=>team.teamCode===match[side].id)!;
    const mappedTeams=settings.teamMappings.filter(row=>row.teamId===own.id).map(row=>row.cmsTeamId),previousTeams=new Set<string>(old?.draft.sourceData?.teamIds||[]);
    const teamIds=[...new Set<string>([...(old?.draft.teamIds||[]).filter((teamId:string)=>!previousTeams.has(teamId)),...mappedTeams])];
-   const cancelled=/afgelast|vervallen|geannuleerd|cancelled/i.test(match.status);
    const sourceData={provider:'sportlink' as const,clubId:catalog.clubCode,matchId:match.id,fieldName,locationIds:cancelled?[]:[...new Set(desired)],teamIds:mappedTeams,side,venue:evidence.label||match.venue,accommodationVerified:verified,...(verified?{accommodationId:park!.id}:{}),observedAt,durationMinutes:duration,batchRevision,lastSyncedAt:stamp};
    const candidate:CmsActivity={...(old?.draft||{}),id:old?.id||id,title,type:'match',date:start.toPlainDate().toString(),startTime:start.toPlainTime().toString({smallestUnit:'minute'}),endTime:end.toPlainTime().toString({smallestUnit:'minute'}),locationIds:[...new Set([...sourceData.locationIds,...extras])],personIds:old?.draft.personIds||[],committeeIds:old?.draft.committeeIds||[],teamIds,public:old?.draft.public||false,description:old?.draft.description||'',status:cancelled?'cancelled':'planned',source:'sportlink',sourceId,sourceData};
    plans.push({candidate,old});sourceWater[match.id]=observedAt;
