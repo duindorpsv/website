@@ -1,4 +1,5 @@
 'use client';
+import {heroPageHref} from '@/lib/cms/hero-pages';
 import {siteText} from '@/lib/cms/site-copy';
 
 import {useEffect,useRef} from 'react';
@@ -88,7 +89,7 @@ function HeroTile({card,actions,items,featured=false}:{card:HeroCardConfig;actio
  const photoClass=card.image.includes('portrait')?'cm-portrait':card.image.includes('team.png')?'cm-volunteers':'';
  const content=split?<><div className={`cm-walking-photo ${card.image.includes('walking')?'is-walking':''}`}><img src={card.image} alt=""/></div><div className="cm-walking-copy"><span className="cm-walking-kicker">{card.kicker}</span><h3>{card.title}</h3><p>{card.description}</p><span className="cm-circle"><Plus size={18}/></span></div></>:<><img src={card.image} alt=""/><span className="cm-card-kicker">{card.kicker}</span><div className="cm-story-label"><h3>{card.title}</h3><span className="cm-circle"><Plus size={19}/></span></div></>;
  const className=split?'cm-walking':`cm-story ${photoClass}`;
- if(card.kind==='page')return <a data-slot-id={card.id} className={className} href={`/clubmuur/${card.target}`}>{content}</a>;
+ if(card.kind==='page')return <a data-slot-id={card.id} className={className} href={heroPageHref(card.target,state.redirects)}>{content}</a>;
  if(card.kind==='team')return <a data-slot-id={card.id} className={className} href={heroTeamHref(card.target,data?.teams||[],data?.firstTeam)}>{content}</a>;
  const article=state.articles.find(item=>item.id===card.target&&!item.deletedAt&&item.live);
  return <a data-slot-id={card.id} className={className} href={article?.live?contentHref(article.live):'/clubmuur/nieuws'}>{content}</a>;

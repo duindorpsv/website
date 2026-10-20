@@ -5,9 +5,17 @@ export function assertMailFixture(){
  const database=new URL(process.env.DATABASE_URL||'http://invalid'),api=new URL(process.env.SUPABASE_URL||'http://invalid');
  if(process.env.APP_ENV!=='test'||process.env.SUPABASE_LOCAL_TESTS!=='true'||database.hostname!=='127.0.0.1'||api.hostname!=='127.0.0.1')throw new Error('Email fixtures require isolated localhost Supabase');
 }
-export async function clearEmailCooldown(email:string){
+async function clearEmailLimits(email:string,prefixes:string[]){
  assertMailFixture();const sql=postgres(process.env.DATABASE_URL!,{max:1,prepare:false});
- try{await sql`delete from cms_rate_limits where key=${'auth:email-send:'+createHash('sha256').update(email.toLowerCase()).digest('hex')}`;}finally{await sql.end();}
+ const digest=createHash('sha256').update(email.toLowerCase()).digest('hex');
+ try{await sql`delete from cms_rate_limits where key in ${sql(prefixes.map(prefix=>prefix+digest))}`;}finally{await sql.end();}
+}
+export async function clearEmailCooldown(email:string){
+ await clearEmailLimits(email,['auth:email-send:']);
+}
+/** Each isolated browser test starts with its own synthetic account login budget. */
+export async function clearBrowserLoginLimits(email:string){
+ await clearEmailLimits(email,['auth:email-send:','auth:email-verify:']);
 }
 export async function capturedEmailCode(email:string,after=0){
  assertMailFixture();

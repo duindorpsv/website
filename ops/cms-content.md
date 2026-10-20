@@ -2,7 +2,7 @@
 
 Log in op `/beheer` met je persoonlijke e-mailcode. Bewaren slaat een werkversie op; publiceren maakt wijzigingen zichtbaar voor bezoekers.
 
-- **Home → Vier vakken bovenaan:** kies de inhoud en de afbeelding van elk vak. Met **Kiezen uit mediabibliotheek** selecteer je een gepubliceerde foto, ook bij het nieuws- of wedstrijdvak.
+- **Home → Vier vakken bovenaan:** kies de inhoud en de afbeelding van elk vak. Bij **Inhoud → Pagina** kun je alle gepubliceerde CMS-pagina’s als bestemming kiezen, ook eigen pagina’s die niet in het menu staan. Met **Kiezen uit mediabibliotheek** selecteer je een gepubliceerde foto, ook bij het nieuws- of wedstrijdvak.
 - **Home → Spelersfoto’s:** vink de spelersbeelden aan die bovenaan mogen verschijnen. Met **Foto toevoegen** kies je een gepubliceerde afbeelding uit de bibliotheek of upload je een nieuw portret. Geef een naam en kies één persoon, twee personen, drie personen of een groep. Klik **Foto aan selectie toevoegen** en daarna **Selectie publiceren**. Eigen portretten kun je later bewerken of uit de selectie verwijderen.
 - **Home → Uitgelichte inhoud:** selecteer verhalen, fotomuurbeelden en albums. De pijlen ordenen de volledige selectie, ook over meerdere pagina’s.
 - **Home → Website-teksten:** pas de vaste teksten van de homepage, nieuws-, verhalen-, team- en wedstrijdpagina’s en de voettekst aan. Ook de sponsorstrook met logo’s, namen, websites en volgorde staat hier.

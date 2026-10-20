@@ -6,18 +6,20 @@ import {useHeroCards} from '@/hooks/use-club';
 import {useCMS} from './cms/provider';
 import {MediaPicker} from './cms/media-picker';
 import {teams,type Article} from '@/lib/club-data';
-import {defaultHeroCards,heroImages,heroPages,heroPositions,validHeroCards,type HeroCardConfig,type HeroCardKind} from '@/lib/clubmuur-config';
+import {defaultHeroCards,heroImages,heroPositions,validHeroCards,type HeroCardConfig,type HeroCardKind} from '@/lib/clubmuur-config';
 import styles from './hero-editor.module.css';
+import {heroPageOptions,resolveHeroPage} from '@/lib/cms/hero-pages';
 const pageTemplate:HeroCardConfig={id:'top-left',kind:'page',target:'club',title:'Onze club',kicker:'MEER DAN EEN CLUB',description:'',image:'/assets/clubmuur-portrait.webp',layout:'photo'};
 export function HeroEditor({articles}:{articles:Article[]}){
- const {reload,recordVersion,ready,can}=useCMS(),cards=useHeroCards();
+ const {state,reload,recordVersion,ready,can}=useCMS(),cards=useHeroCards(),pages=heroPageOptions(state.pages);
+ const pageTarget=(card:HeroCardConfig)=>resolveHeroPage(card.target,state.redirects);
  const [draft,setDraft]=useState(cards),[notice,setNotice]=useState(''),[reset,setReset]=useState(false),[busy,setBusy]=useState(false),[failed,setFailed]=useState(false);
  const version=useRef(recordVersion('site-hero')),lock=useRef(false),edited=useRef(false),cardsKey=JSON.stringify(cards),dirty=cardsKey!==JSON.stringify(draft);
  useEffect(()=>{if(!edited.current){setDraft(cards);version.current=recordVersion('site-hero');}},[cardsKey,recordVersion]);
  const editable=ready&&can('pages')&&can('publish',undefined,'pages');
  const update=(i:number,patch:Partial<HeroCardConfig>)=>{edited.current=true;setDraft(current=>current.map((card,index)=>index===i?{...card,...patch}:card));setNotice('');setFailed(false);};
  const changeKind=(i:number,kind:HeroCardKind)=>{const sample=kind==='article'?{...pageTemplate,kind,target:articles[0]?.id||'',title:articles[0]?.title.slice(0,64)||'Nieuwsbericht'}:defaultHeroCards.find(card=>card.kind===kind)??pageTemplate;update(i,{...sample,id:draft[i].id});};
- const targetExists=(card:HeroCardConfig)=>card.kind==='match'||card.kind==='news'||card.kind==='page'||(card.kind==='team'?teams:articles).some(item=>item.id===card.target);
+ const targetExists=(card:HeroCardConfig)=>card.kind==='match'||card.kind==='news'||(card.kind==='page'?pages.some(page=>page.value===pageTarget(card)):(card.kind==='team'?teams:articles).some(item=>item.id===card.target));
  const canSave=validHeroCards(draft)&&draft.every(targetExists);
  async function save(next:HeroCardConfig[]){
   if(lock.current||!editable)return;lock.current=true;setBusy(true);setNotice('');setFailed(false);
@@ -35,7 +37,8 @@ export function HeroEditor({articles}:{articles:Article[]}){
    <fieldset className={styles.fieldset} disabled={!editable||busy}><legend className={styles.srOnly}>Vier vakken bovenaan bewerken</legend><div className={`hero-editor-grid ${styles.grid}`}>{draft.map((card,index)=><section className={`cms-panel hero-slot-editor ${styles.slot}`} key={card.id}>
     <div className={`hero-slot-heading ${styles.slotHeading}`}><span>{String(index+1).padStart(2,'0')}</span><div><small>Plek op de homepage</small><h2>{heroPositions[index]}</h2></div></div>
     <label className="cms-field">Inhoud<select aria-label={`${heroPositions[index]}: inhoud`} value={card.kind} onChange={event=>changeKind(index,event.target.value as HeroCardKind)}><option value="page">Pagina</option><option value="article">Nieuwsbericht</option><option value="news">Laatste drie nieuwsberichten</option><option value="team">Teamwidget</option><option value="match">Volgende wedstrijd</option></select></label>
-    {card.kind!=='match'&&card.kind!=='news'&&<label className="cms-field">{card.kind==='page'?'Pagina':card.kind==='article'?'Nieuwsbericht':'Team'}<select aria-label={`${heroPositions[index]}: bestemming`} value={card.target} onChange={event=>update(index,{target:event.target.value})}>{!targetExists(card)&&<option value={card.target}>Niet meer beschikbaar</option>}{(card.kind==='page'?heroPages:card.kind==='article'?articles.map(article=>({value:article.id,label:article.title})):teams.map(team=>({value:team.id,label:team.name}))).map(target=><option value={target.value} key={target.value}>{target.label}</option>)}</select></label>}
+    {card.kind!=='match'&&card.kind!=='news'&&<label className="cms-field">{card.kind==='page'?'Pagina':card.kind==='article'?'Nieuwsbericht':'Team'}<select aria-label={`${heroPositions[index]}: bestemming`} value={card.kind==='page'?pageTarget(card):card.target} onChange={event=>update(index,{target:event.target.value})}>{!targetExists(card)&&<option value={card.kind==='page'?pageTarget(card):card.target}>Niet meer beschikbaar</option>}{(card.kind==='page'?pages:card.kind==='article'?articles.map(article=>({value:article.id,label:article.title})):teams.map(team=>({value:team.id,label:team.name}))).map(target=><option value={target.value} key={target.value}>{target.label}</option>)}</select></label>}
+    {card.kind==='page'&&<p className={styles.hint}>Kies uit alle gepubliceerde pagina’s, ook pagina’s die niet in het menu staan. Publiceer een nieuwe pagina eerst bij Pagina’s.</p>}
     {card.kind==='news'&&<p className={styles.hint}>Toont automatisch de nieuwste nieuwsberichten, met actieve uitgelichte berichten bovenaan. Bezoekers kunnen de wisseling pauzeren.</p>}
     {card.kind==='match'&&<p className={styles.hint}>De volgende wedstrijd en actuele wedstrijdgegevens worden automatisch bijgewerkt.</p>}
     <label className="cms-field">Titel<textarea aria-label={`${heroPositions[index]}: titel`} required maxLength={64} rows={2} value={card.title} onChange={event=>update(index,{title:event.target.value})}/></label>
