@@ -1,3 +1,4 @@
+import {clubContentPaths,clubContentTitles} from './clubmuur-page-routes';
 export const headerDesigns = [
  {id:'signatuur',number:'01',name:'Signatuur',slogan:'MEER DAN EEN CLUB',description:'Wit, open navigatie en één rustige horizontale lijn.'},
  {id:'clubblauw',number:'02',name:'Clubblauw',slogan:'ONZE CLUB. ONZE TROTS.',description:'Diep clubblauw, witte typografie en een helder clubembleem.'},
@@ -20,7 +21,8 @@ export const heroImages=[
  {value:'/assets/kit.png',label:'Clubtenue'},
  {value:'/assets/crest-close.webp',label:'Clubembleem'},
 ];
-export const heroPages=[{value:'club',label:'De club'},{value:'club/vrijwilligers',label:'Vrijwilligers'},{value:'nieuws',label:'Nieuws'},{value:'teams',label:'Teams'},{value:'wedstrijden',label:'Wedstrijden'}];
+export const heroPages=[{value:'',label:'Homepage'},...['nieuws','verhalen','teams','wedstrijden',...clubContentPaths.filter(path=>!['media/club-tv','wedstrijden/oefenwedstrijd'].includes(path))].map(value=>({value,label:clubContentTitles[value]}))];
+export function isHeroPageTarget(value:unknown):value is string{return typeof value==='string'&&value.length<=240&&(value===''||/^[a-z0-9]+(?:[-/][a-z0-9]+)*$/.test(value));}
 export const defaultHeroCards:HeroCardConfig[]=[
  {id:'top-left',kind:'news',target:'latest',title:'Laatste nieuws.',kicker:'VAN DE CLUB',description:'',image:'/assets/clubmuur-portrait.webp',layout:'photo'},
  {id:'top-right',kind:'match',target:'next',title:'Volgende wedstrijd',kicker:'THUIS',description:'',image:'/assets/team.png',layout:'photo'},
@@ -28,5 +30,5 @@ export const defaultHeroCards:HeroCardConfig[]=[
  {id:'bottom-right',kind:'team',target:'walking',title:'Walking\nFootball',kicker:'EEN LEVEN LANG',description:'Voetbalplezier\nvoor iedereen',image:'/assets/clubmuur-walking.jpg',layout:'split'},
 ];
 export function validHeroCards(value:unknown):value is HeroCardConfig[]{
- return Array.isArray(value)&&value.length===4&&value.every((c,i)=>c&&c.id===defaultHeroCards[i].id&&['page','article','team','match','news'].includes(c.kind)&&['photo','split'].includes(c.layout)&&['target','title','kicker','description','image'].every(k=>typeof c[k]==='string')&&c.title.trim().length>0&&c.title.length<=64&&c.kicker.length<=40&&c.description.length<=100&&(c.imageId?typeof c.imageId==='string'&&c.imageId.length<=160&&/^(https?:\/\/|\/(?!\/))/i.test(c.image)&&!/[\u0000-\u0020\\]/.test(c.image):heroImages.some(im=>im.value===c.image))&&(['article','team'].includes(c.kind)||c.kind==='match'&&c.target==='next'||c.kind==='news'&&c.target==='latest'||c.kind==='page'&&heroPages.some(p=>p.value===c.target)));
+ return Array.isArray(value)&&value.length===4&&value.every((c,i)=>c&&c.id===defaultHeroCards[i].id&&['page','article','team','match','news'].includes(c.kind)&&['photo','split'].includes(c.layout)&&['target','title','kicker','description','image'].every(k=>typeof c[k]==='string')&&c.title.trim().length>0&&c.title.length<=64&&c.kicker.length<=40&&c.description.length<=100&&(c.imageId?typeof c.imageId==='string'&&c.imageId.length<=160&&/^(https?:\/\/|\/(?!\/))/i.test(c.image)&&!/[\u0000-\u0020\\]/.test(c.image):heroImages.some(im=>im.value===c.image))&&(['article','team'].includes(c.kind)||c.kind==='match'&&c.target==='next'||c.kind==='news'&&c.target==='latest'||c.kind==='page'&&isHeroPageTarget(c.target)));
 }

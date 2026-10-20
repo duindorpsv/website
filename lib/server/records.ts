@@ -1,3 +1,4 @@
+import {heroPageOptions,resolveHeroPage} from '../cms/hero-pages';
 import {equalContent} from '../cms/compare';
 import {importedNewsContent} from '../cms/import-publication';
 import {formDefinitionErrors} from '../cms/form-definition';
@@ -252,6 +253,18 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
             if (change.action === 'schedule' && !['articles','pages'].includes(change.module)) throw new CmsError('schedule-module','Alleen pagina’s en artikelen kunnen worden ingepland.',422);
             let planned: Record<string,any> | null = null;
             if (change.action === 'publish' || change.action === 'schedule') {
+                if(change.module==='hero'){
+                    const targets=[...new Set<string>(candidate.items.filter((card:any)=>card.kind==='page').map((card:any)=>resolveHeroPage(card.target,state.redirects)))];
+                    if(targets.length){
+                        const rows=await tx`select draft->>'slug' as slug,live,deleted_at from cms_records where module='pages' and (draft->>'slug' in ${tx(targets)} or live->>'slug' in ${tx(targets)})`;
+                        const available=new Set(heroPageOptions(rows.map((row:any)=>({slug:row.slug,live:row.live,deletedAt:row.deleted_at}))).map(page=>page.value));
+                        for(const card of candidate.items)if(card.kind==='page'){
+                            const target=resolveHeroPage(card.target,state.redirects);
+                            if(!available.has(target))throw new CmsError('hero-destination','Publiceer eerst de bestemmingspagina van ‘'+card.title+'’.',422);
+                            card.target=target;
+                        }
+                    }
+                }
                 if(change.module==='navigation'){const known=new Set(['/clubmuur',...clubNavigationDestinations.map(item=>item.href.split(/[?#]/)[0]),...state.pages.filter(page=>page.live&&!page.deletedAt).map(page=>'/clubmuur/'+page.live!.slug)]);for(const group of candidate.items.filter((group:any)=>group.enabled!==false))for(const link of [group,...group.children||[]])if(link.enabled!==false&&!known.has(link.href.split(/[?#]/)[0]))throw new CmsError('navigation-destination','Publiceer eerst de bestemmingspagina van ‘'+link.label+'’.',422);}
                 if(change.module==='forms'){const issues=formDefinitionErrors(candidate as any);const [department]=await tx`select id from cms_departments where id=${candidate.departmentId} and active=true`;if(!department)issues.push('Kies een actieve afdeling met ontvangers.');if(issues.length)throw new CmsError('form-definition','Controleer de formulierinstellingen.',422,issues);}
                 if (change.module === 'media') {

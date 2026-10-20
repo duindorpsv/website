@@ -12,7 +12,7 @@ export function cmsArticlesForSite(state:CmsState,contentType:ContentType='news'
  });
 }
 
-export function resolveCmsPath(state:CmsState,path:string):string{
+export function resolveCmsPath(state:Pick<CmsState,'redirects'>,path:string):string{
  let current=path;const visited=new Set<string>();
  while(!visited.has(current)){
   visited.add(current);
