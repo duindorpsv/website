@@ -1,5 +1,6 @@
 'use client';
 import {Pagination,usePagination} from './pagination';
+import {useCmsPageHeader} from './page-header';
 import {MediaPicker} from './media-picker';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowUpRight, Check, Clock, Copy, Eye, FileText, History, ImagePlus, Newspaper, Plus, Save, Search, Send, Trash2 } from 'lucide-react';
@@ -177,10 +178,11 @@ export function NewsManager({ contentType = 'news' }: {
         const url=URL.createObjectURL(new Blob([JSON.stringify(selected,null,2)],{type:'application/json'}));
         const link=document.createElement('a');link.href=url;link.download=`nieuws-werkversie-${selected.id}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     }
+    const pageHeader=useCmsPageHeader({actions:!selected&&!importOpen?<div className="cms-toolbar">{contentType==='news'&&<button className="cms-button" disabled={!canCreate} onClick={()=>setImportOpen(true)}>Nieuws importeren</button>}<button className="cms-button primary" disabled={!canCreate} onClick={create}><Plus size={18}/>{createLabel}</button></div>:null});
     if(importOpen&&contentType==='news'&&canCreate)return <NewsImporter onClose={()=>setImportOpen(false)}/>;
     if (!selected)
         return <div className="cms-news-manager" aria-busy={bulkBusy}><fieldset className="cms-news-overview-controls" disabled={bulkBusy}><legend className="cms-sr-only">{moduleTitle}overzicht</legend>
-    <div className="cms-news-intro"><div><span className="cms-meta">REDACTIE · {moduleTitle.toUpperCase()}</span><h2>{moduleTitle}</h2><p>{contentType === 'story' ? 'Columns, interviews en persoonlijke verhalen uit de club. Deze hebben een eigen plek, los van het actuele nieuws.' : 'Actueel clubnieuws, wedstrijdverslagen en mededelingen. Columns en andere verhalen beheer je bij Verhalen.'}</p></div><div className="cms-toolbar">{contentType==='news'&&<button className="cms-button" disabled={!canCreate} onClick={()=>setImportOpen(true)}>Nieuws importeren</button>}<button className="cms-button primary" disabled={!canCreate} onClick={create}><Plus size={18}/>{createLabel}</button></div></div>
+    {pageHeader}
     <div className="cms-news-summary">{([{ status: 'all', name: allLabel, value: articles.length }, { status: 'draft', name: 'Concepten', value: articles.filter(a => a.status === 'draft').length }, { status: 'review', name: 'Ter beoordeling', value: articles.filter(a => a.status === 'review').length }, { status: 'published', name: 'Gepubliceerd', value: articles.filter(a => a.status === 'published').length }, { status: 'scheduled', name: 'Ingepland', value: articles.filter(a => a.status === 'scheduled').length }] as const).map(item => <button key={item.status} className={filter === item.status ? 'active' : ''} aria-pressed={filter === item.status} onClick={() => setFilter(item.status)}><span>{item.name}</span><strong>{item.value}</strong></button>)}</div>
     <div className="cms-panel"><div className="cms-toolbar cms-news-search"><label className="cms-news-searchbox"><Search size={18}/><input aria-label={`Zoek in ${moduleTitle.toLowerCase()}`} value={query} onChange={e => setQuery(e.target.value)} placeholder="Zoek op titel, auteur, categorie of tag…"/></label>{contentType === 'story' && <select aria-label="Filter op verhaalvorm" value={formatFilter} onChange={e => setFormatFilter(e.target.value as '' | StoryFormat)}><option value="">Alle verhaalvormen</option>{(Object.entries(storyFormatLabel) as [
             StoryFormat,

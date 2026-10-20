@@ -1,0 +1,1885 @@
+{
+  "fixture": "F7",
+  "sourceCommit": "fcb53aaf1dc28779700e69e7b46e7bb0417e8da5",
+  "targetCommit": "2bd4db1acd8de164abc4db15d3deef2adc5a7d0a",
+  "clock": "2026-10-20T10:00:00Z",
+  "locale": "nl-NL",
+  "timezone": "Europe/Amsterdam",
+  "dpr": 1,
+  "zoom": "100%",
+  "motion": "reduce",
+  "providers": "Unmodified actual prototype CmsProvider via localStorage fixture; unmodified actual production CmsProvider via initialState/public-preview props. Actual SportlinkProvider reads identical local synthetic provider response.",
+  "fixtureSha256": "441eb8b119eeaf8d749e0ea00b80f2e9804b1216a20689c0ca15317ef8973c40",
+  "scenarioHashes": {
+    "defaults": "4be689e0e6a1ea7f2948b62a039d5d237e89fadcd6daf640c73f857195757bd9",
+    "custom": "3f92aba81f9c2629a4d659c031d97bf30e42ca100ac4942c450c6ba5675cfa56",
+    "empty": "8cfffaeb9f3867bd80676898f5d3ba5f705559759e7f9cfb4162a9fa92e8d485"
+  },
+  "captures": [
+    {
+      "mode": "baseline",
+      "scenario": "defaults",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "frame": {
+        "x": 0,
+        "y": 88,
+        "width": 1440,
+        "height": 912
+      },
+      "geometry": {
+        ".cm-first-screen": {
+          "x": 0,
+          "y": 88,
+          "width": 1440,
+          "height": 912
+        },
+        ".cm-player": {
+          "x": 19.078125,
+          "y": 104,
+          "width": 372.6875,
+          "height": 822
+        },
+        ".cm-headline": {
+          "x": 409.765625,
+          "y": 104,
+          "width": 992.078125,
+          "height": 159.1875
+        },
+        ".cm-hero-fixture": {
+          "x": 409.765625,
+          "y": 400,
+          "width": 301.234375,
+          "height": 500
+        },
+        ".cm-tile-grid": {
+          "x": 729,
+          "y": 400,
+          "width": 672.84375,
+          "height": 500
+        },
+        ".cm-background": {
+          "x": 0,
+          "y": 88,
+          "width": 1440,
+          "height": 836
+        },
+        ".cm-together": {
+          "x": 0,
+          "y": 924,
+          "width": 1440,
+          "height": 76
+        },
+        ".cm-scene-controls": {
+          "x": 1302.84375,
+          "y": 899,
+          "width": 99,
+          "height": 24
+        }
+      },
+      "portrait": "http://127.0.0.1:62690/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "background": "http://127.0.0.1:62690/assets/clubmuur-brush-v25/houtrust-wide-1672.avif",
+      "backgroundFocus": "50% 50%",
+      "headingFont": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "bodyFont": "Manrope, Arial, sans-serif",
+      "manropeLoaded": true,
+      "overflow": false,
+      "cookies": "duindorp-hero-visit=01; duindorp-hero-photo-v1=01-trots"
+    },
+    {
+      "mode": "baseline",
+      "scenario": "custom",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "frame": {
+        "x": 0,
+        "y": 88,
+        "width": 1440,
+        "height": 912
+      },
+      "geometry": {
+        ".cm-first-screen": {
+          "x": 0,
+          "y": 88,
+          "width": 1440,
+          "height": 912
+        },
+        ".cm-player": {
+          "x": 19.078125,
+          "y": 104,
+          "width": 372.6875,
+          "height": 822
+        },
+        ".cm-headline": {
+          "x": 409.765625,
+          "y": 104,
+          "width": 992.078125,
+          "height": 159.1875
+        },
+        ".cm-hero-fixture": {
+          "x": 409.765625,
+          "y": 400,
+          "width": 301.234375,
+          "height": 500
+        },
+        ".cm-tile-grid": {
+          "x": 729,
+          "y": 400,
+          "width": 672.84375,
+          "height": 500
+        },
+        ".cm-background": {
+          "x": 0,
+          "y": 88,
+          "width": 1440,
+          "height": 836
+        },
+        ".cm-together": {
+          "x": 0,
+          "y": 924,
+          "width": 1440,
+          "height": 76
+        },
+        ".cm-scene-controls": {
+          "x": 1302.84375,
+          "y": 899,
+          "width": 99,
+          "height": 24
+        }
+      },
+      "portrait": "http://127.0.0.1:62690/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "background": "http://127.0.0.1:62690/assets/clubmuur-brush-v25/de-wijk-wide-1672.webp",
+      "backgroundFocus": "30% 70%",
+      "headingFont": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "bodyFont": "Manrope, Arial, sans-serif",
+      "manropeLoaded": true,
+      "overflow": false,
+      "cookies": "duindorp-hero-visit=01; duindorp-hero-photo-v1=01-trots"
+    },
+    {
+      "mode": "baseline",
+      "scenario": "empty",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "frame": {
+        "x": 0,
+        "y": 88,
+        "width": 1440,
+        "height": 912
+      },
+      "geometry": {
+        ".cm-first-screen": {
+          "x": 0,
+          "y": 88,
+          "width": 1440,
+          "height": 912
+        },
+        ".cm-player": {
+          "x": 19.078125,
+          "y": 104,
+          "width": 372.6875,
+          "height": 822
+        },
+        ".cm-headline": {
+          "x": 409.765625,
+          "y": 104,
+          "width": 992.078125,
+          "height": 159.1875
+        },
+        ".cm-hero-fixture": {
+          "x": 409.765625,
+          "y": 400,
+          "width": 301.234375,
+          "height": 500
+        },
+        ".cm-tile-grid": {
+          "x": 729,
+          "y": 400,
+          "width": 672.84375,
+          "height": 500
+        },
+        ".cm-background": {
+          "x": 0,
+          "y": 88,
+          "width": 1440,
+          "height": 836
+        },
+        ".cm-together": {
+          "x": 0,
+          "y": 924,
+          "width": 1440,
+          "height": 76
+        },
+        ".cm-scene-controls": null
+      },
+      "portrait": "http://127.0.0.1:62690/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "background": null,
+      "backgroundFocus": null,
+      "headingFont": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "bodyFont": "Manrope, Arial, sans-serif",
+      "manropeLoaded": true,
+      "overflow": false,
+      "cookies": "duindorp-hero-visit=01; duindorp-hero-photo-v1=01-trots"
+    },
+    {
+      "mode": "baseline",
+      "scenario": "defaults",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "width": 390,
+        "height": 705.984375
+      },
+      "geometry": {
+        ".cm-first-screen": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        ".cm-player": {
+          "x": 58.5,
+          "y": 215.46875,
+          "width": 273,
+          "height": 312.515625
+        },
+        ".cm-headline": {
+          "x": 0,
+          "y": 72,
+          "width": 390,
+          "height": 143.46875
+        },
+        ".cm-hero-fixture": {
+          "x": 18,
+          "y": 471.984375,
+          "width": 354,
+          "height": 208
+        },
+        ".cm-tile-grid": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        ".cm-background": {
+          "x": 0,
+          "y": 72,
+          "width": 390,
+          "height": 647.984375
+        },
+        ".cm-together": {
+          "x": 0,
+          "y": 719.984375,
+          "width": 390,
+          "height": 58
+        },
+        ".cm-scene-controls": {
+          "x": 269,
+          "y": 687.984375,
+          "width": 99,
+          "height": 24
+        }
+      },
+      "portrait": "http://127.0.0.1:62690/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "background": "http://127.0.0.1:62690/assets/clubmuur-brush-v25/houtrust-portrait-480.avif",
+      "backgroundFocus": "50% 0%",
+      "headingFont": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "bodyFont": "Manrope, Arial, sans-serif",
+      "manropeLoaded": true,
+      "overflow": false,
+      "cookies": "duindorp-hero-visit=01; duindorp-hero-photo-v1=01-trots"
+    },
+    {
+      "mode": "baseline",
+      "scenario": "custom",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "width": 390,
+        "height": 705.984375
+      },
+      "geometry": {
+        ".cm-first-screen": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        ".cm-player": {
+          "x": 58.5,
+          "y": 215.46875,
+          "width": 273,
+          "height": 312.515625
+        },
+        ".cm-headline": {
+          "x": 0,
+          "y": 72,
+          "width": 390,
+          "height": 143.46875
+        },
+        ".cm-hero-fixture": {
+          "x": 18,
+          "y": 471.984375,
+          "width": 354,
+          "height": 208
+        },
+        ".cm-tile-grid": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        ".cm-background": {
+          "x": 0,
+          "y": 72,
+          "width": 390,
+          "height": 647.984375
+        },
+        ".cm-together": {
+          "x": 0,
+          "y": 719.984375,
+          "width": 390,
+          "height": 58
+        },
+        ".cm-scene-controls": {
+          "x": 269,
+          "y": 687.984375,
+          "width": 99,
+          "height": 24
+        }
+      },
+      "portrait": "http://127.0.0.1:62690/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "background": "http://127.0.0.1:62690/assets/clubmuur-brush-v25/de-wijk-wide-1672.webp",
+      "backgroundFocus": "30% 70%",
+      "headingFont": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "bodyFont": "Manrope, Arial, sans-serif",
+      "manropeLoaded": true,
+      "overflow": false,
+      "cookies": "duindorp-hero-visit=01; duindorp-hero-photo-v1=01-trots"
+    },
+    {
+      "mode": "baseline",
+      "scenario": "empty",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "width": 390,
+        "height": 705.984375
+      },
+      "geometry": {
+        ".cm-first-screen": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        ".cm-player": {
+          "x": 58.5,
+          "y": 215.46875,
+          "width": 273,
+          "height": 312.515625
+        },
+        ".cm-headline": {
+          "x": 0,
+          "y": 72,
+          "width": 390,
+          "height": 143.46875
+        },
+        ".cm-hero-fixture": {
+          "x": 18,
+          "y": 471.984375,
+          "width": 354,
+          "height": 208
+        },
+        ".cm-tile-grid": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        ".cm-background": {
+          "x": 0,
+          "y": 72,
+          "width": 390,
+          "height": 647.984375
+        },
+        ".cm-together": {
+          "x": 0,
+          "y": 719.984375,
+          "width": 390,
+          "height": 58
+        },
+        ".cm-scene-controls": null
+      },
+      "portrait": "http://127.0.0.1:62690/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "background": null,
+      "backgroundFocus": null,
+      "headingFont": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "bodyFont": "Manrope, Arial, sans-serif",
+      "manropeLoaded": true,
+      "overflow": false,
+      "cookies": "duindorp-hero-visit=01; duindorp-hero-photo-v1=01-trots"
+    },
+    {
+      "mode": "candidate",
+      "scenario": "defaults",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "frame": {
+        "x": 0,
+        "y": 88,
+        "width": 1440,
+        "height": 912
+      },
+      "geometry": {
+        ".cm-first-screen": {
+          "x": 0,
+          "y": 88,
+          "width": 1440,
+          "height": 912
+        },
+        ".cm-player": {
+          "x": 19.078125,
+          "y": 104,
+          "width": 372.6875,
+          "height": 822
+        },
+        ".cm-headline": {
+          "x": 409.765625,
+          "y": 104,
+          "width": 992.078125,
+          "height": 159.1875
+        },
+        ".cm-hero-fixture": {
+          "x": 409.765625,
+          "y": 400,
+          "width": 301.234375,
+          "height": 500
+        },
+        ".cm-tile-grid": {
+          "x": 729,
+          "y": 400,
+          "width": 672.84375,
+          "height": 500
+        },
+        ".cm-background": {
+          "x": 0,
+          "y": 88,
+          "width": 1440,
+          "height": 836
+        },
+        ".cm-together": {
+          "x": 0,
+          "y": 924,
+          "width": 1440,
+          "height": 76
+        },
+        ".cm-scene-controls": {
+          "x": 1302.84375,
+          "y": 899,
+          "width": 99,
+          "height": 24
+        }
+      },
+      "portrait": "http://127.0.0.1:62691/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "background": "http://127.0.0.1:62691/assets/clubmuur-brush-v25/houtrust-wide-1672.avif",
+      "backgroundFocus": "50% 50%",
+      "headingFont": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "bodyFont": "Manrope, Arial, sans-serif",
+      "manropeLoaded": true,
+      "overflow": false,
+      "cookies": "duindorp-hero-visit=01; duindorp-hero-photo-v1=01-trots"
+    },
+    {
+      "mode": "candidate",
+      "scenario": "custom",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "frame": {
+        "x": 0,
+        "y": 88,
+        "width": 1440,
+        "height": 912
+      },
+      "geometry": {
+        ".cm-first-screen": {
+          "x": 0,
+          "y": 88,
+          "width": 1440,
+          "height": 912
+        },
+        ".cm-player": {
+          "x": 19.078125,
+          "y": 104,
+          "width": 372.6875,
+          "height": 822
+        },
+        ".cm-headline": {
+          "x": 409.765625,
+          "y": 104,
+          "width": 992.078125,
+          "height": 159.1875
+        },
+        ".cm-hero-fixture": {
+          "x": 409.765625,
+          "y": 400,
+          "width": 301.234375,
+          "height": 500
+        },
+        ".cm-tile-grid": {
+          "x": 729,
+          "y": 400,
+          "width": 672.84375,
+          "height": 500
+        },
+        ".cm-background": {
+          "x": 0,
+          "y": 88,
+          "width": 1440,
+          "height": 836
+        },
+        ".cm-together": {
+          "x": 0,
+          "y": 924,
+          "width": 1440,
+          "height": 76
+        },
+        ".cm-scene-controls": {
+          "x": 1302.84375,
+          "y": 899,
+          "width": 99,
+          "height": 24
+        }
+      },
+      "portrait": "http://127.0.0.1:62691/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "background": "http://127.0.0.1:62691/assets/clubmuur-brush-v25/de-wijk-wide-1672.webp",
+      "backgroundFocus": "30% 70%",
+      "headingFont": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "bodyFont": "Manrope, Arial, sans-serif",
+      "manropeLoaded": true,
+      "overflow": false,
+      "cookies": "duindorp-hero-visit=01; duindorp-hero-photo-v1=01-trots"
+    },
+    {
+      "mode": "candidate",
+      "scenario": "empty",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "frame": {
+        "x": 0,
+        "y": 88,
+        "width": 1440,
+        "height": 912
+      },
+      "geometry": {
+        ".cm-first-screen": {
+          "x": 0,
+          "y": 88,
+          "width": 1440,
+          "height": 912
+        },
+        ".cm-player": {
+          "x": 19.078125,
+          "y": 104,
+          "width": 372.6875,
+          "height": 822
+        },
+        ".cm-headline": {
+          "x": 409.765625,
+          "y": 104,
+          "width": 992.078125,
+          "height": 159.1875
+        },
+        ".cm-hero-fixture": {
+          "x": 409.765625,
+          "y": 400,
+          "width": 301.234375,
+          "height": 500
+        },
+        ".cm-tile-grid": {
+          "x": 729,
+          "y": 400,
+          "width": 672.84375,
+          "height": 500
+        },
+        ".cm-background": {
+          "x": 0,
+          "y": 88,
+          "width": 1440,
+          "height": 836
+        },
+        ".cm-together": {
+          "x": 0,
+          "y": 924,
+          "width": 1440,
+          "height": 76
+        },
+        ".cm-scene-controls": null
+      },
+      "portrait": "http://127.0.0.1:62691/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "background": null,
+      "backgroundFocus": null,
+      "headingFont": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "bodyFont": "Manrope, Arial, sans-serif",
+      "manropeLoaded": true,
+      "overflow": false,
+      "cookies": "duindorp-hero-visit=01; duindorp-hero-photo-v1=01-trots"
+    },
+    {
+      "mode": "candidate",
+      "scenario": "defaults",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "width": 390,
+        "height": 705.984375
+      },
+      "geometry": {
+        ".cm-first-screen": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        ".cm-player": {
+          "x": 58.5,
+          "y": 215.46875,
+          "width": 273,
+          "height": 312.515625
+        },
+        ".cm-headline": {
+          "x": 0,
+          "y": 72,
+          "width": 390,
+          "height": 143.46875
+        },
+        ".cm-hero-fixture": {
+          "x": 18,
+          "y": 471.984375,
+          "width": 354,
+          "height": 208
+        },
+        ".cm-tile-grid": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        ".cm-background": {
+          "x": 0,
+          "y": 72,
+          "width": 390,
+          "height": 647.984375
+        },
+        ".cm-together": {
+          "x": 0,
+          "y": 719.984375,
+          "width": 390,
+          "height": 58
+        },
+        ".cm-scene-controls": {
+          "x": 269,
+          "y": 687.984375,
+          "width": 99,
+          "height": 24
+        }
+      },
+      "portrait": "http://127.0.0.1:62691/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "background": "http://127.0.0.1:62691/assets/clubmuur-brush-v25/houtrust-portrait-480.avif",
+      "backgroundFocus": "50% 0%",
+      "headingFont": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "bodyFont": "Manrope, Arial, sans-serif",
+      "manropeLoaded": true,
+      "overflow": false,
+      "cookies": "duindorp-hero-visit=01; duindorp-hero-photo-v1=01-trots"
+    },
+    {
+      "mode": "candidate",
+      "scenario": "custom",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "width": 390,
+        "height": 705.984375
+      },
+      "geometry": {
+        ".cm-first-screen": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        ".cm-player": {
+          "x": 58.5,
+          "y": 215.46875,
+          "width": 273,
+          "height": 312.515625
+        },
+        ".cm-headline": {
+          "x": 0,
+          "y": 72,
+          "width": 390,
+          "height": 143.46875
+        },
+        ".cm-hero-fixture": {
+          "x": 18,
+          "y": 471.984375,
+          "width": 354,
+          "height": 208
+        },
+        ".cm-tile-grid": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        ".cm-background": {
+          "x": 0,
+          "y": 72,
+          "width": 390,
+          "height": 647.984375
+        },
+        ".cm-together": {
+          "x": 0,
+          "y": 719.984375,
+          "width": 390,
+          "height": 58
+        },
+        ".cm-scene-controls": {
+          "x": 269,
+          "y": 687.984375,
+          "width": 99,
+          "height": 24
+        }
+      },
+      "portrait": "http://127.0.0.1:62691/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "background": "http://127.0.0.1:62691/assets/clubmuur-brush-v25/de-wijk-wide-1672.webp",
+      "backgroundFocus": "30% 70%",
+      "headingFont": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "bodyFont": "Manrope, Arial, sans-serif",
+      "manropeLoaded": true,
+      "overflow": false,
+      "cookies": "duindorp-hero-visit=01; duindorp-hero-photo-v1=01-trots"
+    },
+    {
+      "mode": "candidate",
+      "scenario": "empty",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "width": 390,
+        "height": 705.984375
+      },
+      "geometry": {
+        ".cm-first-screen": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        ".cm-player": {
+          "x": 58.5,
+          "y": 215.46875,
+          "width": 273,
+          "height": 312.515625
+        },
+        ".cm-headline": {
+          "x": 0,
+          "y": 72,
+          "width": 390,
+          "height": 143.46875
+        },
+        ".cm-hero-fixture": {
+          "x": 18,
+          "y": 471.984375,
+          "width": 354,
+          "height": 208
+        },
+        ".cm-tile-grid": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        ".cm-background": {
+          "x": 0,
+          "y": 72,
+          "width": 390,
+          "height": 647.984375
+        },
+        ".cm-together": {
+          "x": 0,
+          "y": 719.984375,
+          "width": 390,
+          "height": 58
+        },
+        ".cm-scene-controls": null
+      },
+      "portrait": "http://127.0.0.1:62691/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "background": null,
+      "backgroundFocus": null,
+      "headingFont": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "bodyFont": "Manrope, Arial, sans-serif",
+      "manropeLoaded": true,
+      "overflow": false,
+      "cookies": "duindorp-hero-visit=01; duindorp-hero-photo-v1=01-trots"
+    }
+  ],
+  "differences": [
+    {
+      "width": 1440,
+      "scenario": "defaults",
+      "changedPixels": 4,
+      "maxChannelDifference": 4,
+      "pixels": 1313280,
+      "geometry": {
+        ".cm-first-screen": {
+          "baseline": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 912
+          },
+          "candidate": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 912
+          },
+          "equal": true
+        },
+        ".cm-player": {
+          "baseline": {
+            "x": 19.078125,
+            "y": 104,
+            "width": 372.6875,
+            "height": 822
+          },
+          "candidate": {
+            "x": 19.078125,
+            "y": 104,
+            "width": 372.6875,
+            "height": 822
+          },
+          "equal": true
+        },
+        ".cm-headline": {
+          "baseline": {
+            "x": 409.765625,
+            "y": 104,
+            "width": 992.078125,
+            "height": 159.1875
+          },
+          "candidate": {
+            "x": 409.765625,
+            "y": 104,
+            "width": 992.078125,
+            "height": 159.1875
+          },
+          "equal": true
+        },
+        ".cm-hero-fixture": {
+          "baseline": {
+            "x": 409.765625,
+            "y": 400,
+            "width": 301.234375,
+            "height": 500
+          },
+          "candidate": {
+            "x": 409.765625,
+            "y": 400,
+            "width": 301.234375,
+            "height": 500
+          },
+          "equal": true
+        },
+        ".cm-tile-grid": {
+          "baseline": {
+            "x": 729,
+            "y": 400,
+            "width": 672.84375,
+            "height": 500
+          },
+          "candidate": {
+            "x": 729,
+            "y": 400,
+            "width": 672.84375,
+            "height": 500
+          },
+          "equal": true
+        },
+        ".cm-background": {
+          "baseline": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 836
+          },
+          "candidate": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 836
+          },
+          "equal": true
+        },
+        ".cm-together": {
+          "baseline": {
+            "x": 0,
+            "y": 924,
+            "width": 1440,
+            "height": 76
+          },
+          "candidate": {
+            "x": 0,
+            "y": 924,
+            "width": 1440,
+            "height": 76
+          },
+          "equal": true
+        },
+        ".cm-scene-controls": {
+          "baseline": {
+            "x": 1302.84375,
+            "y": 899,
+            "width": 99,
+            "height": 24
+          },
+          "candidate": {
+            "x": 1302.84375,
+            "y": 899,
+            "width": 99,
+            "height": 24
+          },
+          "equal": true
+        }
+      },
+      "rgbThreshold": 0,
+      "pixelsAboveDelta2": 1,
+      "differenceBoundingBox": {
+        "left": 746,
+        "top": 688,
+        "right": 747,
+        "bottom": 689
+      }
+    },
+    {
+      "width": 1440,
+      "scenario": "custom",
+      "changedPixels": 4,
+      "maxChannelDifference": 4,
+      "pixels": 1313280,
+      "geometry": {
+        ".cm-first-screen": {
+          "baseline": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 912
+          },
+          "candidate": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 912
+          },
+          "equal": true
+        },
+        ".cm-player": {
+          "baseline": {
+            "x": 19.078125,
+            "y": 104,
+            "width": 372.6875,
+            "height": 822
+          },
+          "candidate": {
+            "x": 19.078125,
+            "y": 104,
+            "width": 372.6875,
+            "height": 822
+          },
+          "equal": true
+        },
+        ".cm-headline": {
+          "baseline": {
+            "x": 409.765625,
+            "y": 104,
+            "width": 992.078125,
+            "height": 159.1875
+          },
+          "candidate": {
+            "x": 409.765625,
+            "y": 104,
+            "width": 992.078125,
+            "height": 159.1875
+          },
+          "equal": true
+        },
+        ".cm-hero-fixture": {
+          "baseline": {
+            "x": 409.765625,
+            "y": 400,
+            "width": 301.234375,
+            "height": 500
+          },
+          "candidate": {
+            "x": 409.765625,
+            "y": 400,
+            "width": 301.234375,
+            "height": 500
+          },
+          "equal": true
+        },
+        ".cm-tile-grid": {
+          "baseline": {
+            "x": 729,
+            "y": 400,
+            "width": 672.84375,
+            "height": 500
+          },
+          "candidate": {
+            "x": 729,
+            "y": 400,
+            "width": 672.84375,
+            "height": 500
+          },
+          "equal": true
+        },
+        ".cm-background": {
+          "baseline": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 836
+          },
+          "candidate": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 836
+          },
+          "equal": true
+        },
+        ".cm-together": {
+          "baseline": {
+            "x": 0,
+            "y": 924,
+            "width": 1440,
+            "height": 76
+          },
+          "candidate": {
+            "x": 0,
+            "y": 924,
+            "width": 1440,
+            "height": 76
+          },
+          "equal": true
+        },
+        ".cm-scene-controls": {
+          "baseline": {
+            "x": 1302.84375,
+            "y": 899,
+            "width": 99,
+            "height": 24
+          },
+          "candidate": {
+            "x": 1302.84375,
+            "y": 899,
+            "width": 99,
+            "height": 24
+          },
+          "equal": true
+        }
+      },
+      "rgbThreshold": 0,
+      "pixelsAboveDelta2": 1,
+      "differenceBoundingBox": {
+        "left": 746,
+        "top": 688,
+        "right": 747,
+        "bottom": 689
+      }
+    },
+    {
+      "width": 1440,
+      "scenario": "empty",
+      "changedPixels": 4,
+      "maxChannelDifference": 4,
+      "pixels": 1313280,
+      "geometry": {
+        ".cm-first-screen": {
+          "baseline": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 912
+          },
+          "candidate": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 912
+          },
+          "equal": true
+        },
+        ".cm-player": {
+          "baseline": {
+            "x": 19.078125,
+            "y": 104,
+            "width": 372.6875,
+            "height": 822
+          },
+          "candidate": {
+            "x": 19.078125,
+            "y": 104,
+            "width": 372.6875,
+            "height": 822
+          },
+          "equal": true
+        },
+        ".cm-headline": {
+          "baseline": {
+            "x": 409.765625,
+            "y": 104,
+            "width": 992.078125,
+            "height": 159.1875
+          },
+          "candidate": {
+            "x": 409.765625,
+            "y": 104,
+            "width": 992.078125,
+            "height": 159.1875
+          },
+          "equal": true
+        },
+        ".cm-hero-fixture": {
+          "baseline": {
+            "x": 409.765625,
+            "y": 400,
+            "width": 301.234375,
+            "height": 500
+          },
+          "candidate": {
+            "x": 409.765625,
+            "y": 400,
+            "width": 301.234375,
+            "height": 500
+          },
+          "equal": true
+        },
+        ".cm-tile-grid": {
+          "baseline": {
+            "x": 729,
+            "y": 400,
+            "width": 672.84375,
+            "height": 500
+          },
+          "candidate": {
+            "x": 729,
+            "y": 400,
+            "width": 672.84375,
+            "height": 500
+          },
+          "equal": true
+        },
+        ".cm-background": {
+          "baseline": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 836
+          },
+          "candidate": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 836
+          },
+          "equal": true
+        },
+        ".cm-together": {
+          "baseline": {
+            "x": 0,
+            "y": 924,
+            "width": 1440,
+            "height": 76
+          },
+          "candidate": {
+            "x": 0,
+            "y": 924,
+            "width": 1440,
+            "height": 76
+          },
+          "equal": true
+        },
+        ".cm-scene-controls": {
+          "baseline": null,
+          "candidate": null,
+          "equal": true
+        }
+      },
+      "rgbThreshold": 0,
+      "pixelsAboveDelta2": 1,
+      "differenceBoundingBox": {
+        "left": 746,
+        "top": 688,
+        "right": 747,
+        "bottom": 689
+      }
+    },
+    {
+      "width": 390,
+      "scenario": "defaults",
+      "changedPixels": 67,
+      "maxChannelDifference": 22,
+      "pixels": 274950,
+      "geometry": {
+        ".cm-first-screen": {
+          "baseline": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "candidate": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "equal": true
+        },
+        ".cm-player": {
+          "baseline": {
+            "x": 58.5,
+            "y": 215.46875,
+            "width": 273,
+            "height": 312.515625
+          },
+          "candidate": {
+            "x": 58.5,
+            "y": 215.46875,
+            "width": 273,
+            "height": 312.515625
+          },
+          "equal": true
+        },
+        ".cm-headline": {
+          "baseline": {
+            "x": 0,
+            "y": 72,
+            "width": 390,
+            "height": 143.46875
+          },
+          "candidate": {
+            "x": 0,
+            "y": 72,
+            "width": 390,
+            "height": 143.46875
+          },
+          "equal": true
+        },
+        ".cm-hero-fixture": {
+          "baseline": {
+            "x": 18,
+            "y": 471.984375,
+            "width": 354,
+            "height": 208
+          },
+          "candidate": {
+            "x": 18,
+            "y": 471.984375,
+            "width": 354,
+            "height": 208
+          },
+          "equal": true
+        },
+        ".cm-tile-grid": {
+          "baseline": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "candidate": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "equal": true
+        },
+        ".cm-background": {
+          "baseline": {
+            "x": 0,
+            "y": 72,
+            "width": 390,
+            "height": 647.984375
+          },
+          "candidate": {
+            "x": 0,
+            "y": 72,
+            "width": 390,
+            "height": 647.984375
+          },
+          "equal": true
+        },
+        ".cm-together": {
+          "baseline": {
+            "x": 0,
+            "y": 719.984375,
+            "width": 390,
+            "height": 58
+          },
+          "candidate": {
+            "x": 0,
+            "y": 719.984375,
+            "width": 390,
+            "height": 58
+          },
+          "equal": true
+        },
+        ".cm-scene-controls": {
+          "baseline": {
+            "x": 269,
+            "y": 687.984375,
+            "width": 99,
+            "height": 24
+          },
+          "candidate": {
+            "x": 269,
+            "y": 687.984375,
+            "width": 99,
+            "height": 24
+          },
+          "equal": true
+        }
+      },
+      "rgbThreshold": 0,
+      "pixelsAboveDelta2": 27,
+      "differenceBoundingBox": {
+        "left": 19,
+        "top": 402,
+        "right": 370,
+        "bottom": 606
+      }
+    },
+    {
+      "width": 390,
+      "scenario": "custom",
+      "changedPixels": 0,
+      "maxChannelDifference": 0,
+      "pixels": 274950,
+      "geometry": {
+        ".cm-first-screen": {
+          "baseline": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "candidate": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "equal": true
+        },
+        ".cm-player": {
+          "baseline": {
+            "x": 58.5,
+            "y": 215.46875,
+            "width": 273,
+            "height": 312.515625
+          },
+          "candidate": {
+            "x": 58.5,
+            "y": 215.46875,
+            "width": 273,
+            "height": 312.515625
+          },
+          "equal": true
+        },
+        ".cm-headline": {
+          "baseline": {
+            "x": 0,
+            "y": 72,
+            "width": 390,
+            "height": 143.46875
+          },
+          "candidate": {
+            "x": 0,
+            "y": 72,
+            "width": 390,
+            "height": 143.46875
+          },
+          "equal": true
+        },
+        ".cm-hero-fixture": {
+          "baseline": {
+            "x": 18,
+            "y": 471.984375,
+            "width": 354,
+            "height": 208
+          },
+          "candidate": {
+            "x": 18,
+            "y": 471.984375,
+            "width": 354,
+            "height": 208
+          },
+          "equal": true
+        },
+        ".cm-tile-grid": {
+          "baseline": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "candidate": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "equal": true
+        },
+        ".cm-background": {
+          "baseline": {
+            "x": 0,
+            "y": 72,
+            "width": 390,
+            "height": 647.984375
+          },
+          "candidate": {
+            "x": 0,
+            "y": 72,
+            "width": 390,
+            "height": 647.984375
+          },
+          "equal": true
+        },
+        ".cm-together": {
+          "baseline": {
+            "x": 0,
+            "y": 719.984375,
+            "width": 390,
+            "height": 58
+          },
+          "candidate": {
+            "x": 0,
+            "y": 719.984375,
+            "width": 390,
+            "height": 58
+          },
+          "equal": true
+        },
+        ".cm-scene-controls": {
+          "baseline": {
+            "x": 269,
+            "y": 687.984375,
+            "width": 99,
+            "height": 24
+          },
+          "candidate": {
+            "x": 269,
+            "y": 687.984375,
+            "width": 99,
+            "height": 24
+          },
+          "equal": true
+        }
+      },
+      "rgbThreshold": 0,
+      "pixelsAboveDelta2": 0,
+      "differenceBoundingBox": null
+    },
+    {
+      "width": 390,
+      "scenario": "empty",
+      "changedPixels": 0,
+      "maxChannelDifference": 0,
+      "pixels": 274950,
+      "geometry": {
+        ".cm-first-screen": {
+          "baseline": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "candidate": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "equal": true
+        },
+        ".cm-player": {
+          "baseline": {
+            "x": 58.5,
+            "y": 215.46875,
+            "width": 273,
+            "height": 312.515625
+          },
+          "candidate": {
+            "x": 58.5,
+            "y": 215.46875,
+            "width": 273,
+            "height": 312.515625
+          },
+          "equal": true
+        },
+        ".cm-headline": {
+          "baseline": {
+            "x": 0,
+            "y": 72,
+            "width": 390,
+            "height": 143.46875
+          },
+          "candidate": {
+            "x": 0,
+            "y": 72,
+            "width": 390,
+            "height": 143.46875
+          },
+          "equal": true
+        },
+        ".cm-hero-fixture": {
+          "baseline": {
+            "x": 18,
+            "y": 471.984375,
+            "width": 354,
+            "height": 208
+          },
+          "candidate": {
+            "x": 18,
+            "y": 471.984375,
+            "width": 354,
+            "height": 208
+          },
+          "equal": true
+        },
+        ".cm-tile-grid": {
+          "baseline": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "candidate": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "equal": true
+        },
+        ".cm-background": {
+          "baseline": {
+            "x": 0,
+            "y": 72,
+            "width": 390,
+            "height": 647.984375
+          },
+          "candidate": {
+            "x": 0,
+            "y": 72,
+            "width": 390,
+            "height": 647.984375
+          },
+          "equal": true
+        },
+        ".cm-together": {
+          "baseline": {
+            "x": 0,
+            "y": 719.984375,
+            "width": 390,
+            "height": 58
+          },
+          "candidate": {
+            "x": 0,
+            "y": 719.984375,
+            "width": 390,
+            "height": 58
+          },
+          "equal": true
+        },
+        ".cm-scene-controls": {
+          "baseline": null,
+          "candidate": null,
+          "equal": true
+        }
+      },
+      "rgbThreshold": 0,
+      "pixelsAboveDelta2": 0,
+      "differenceBoundingBox": null
+    }
+  ],
+  "browser": "153.0.8010.12",
+  "assets": [
+    {
+      "key": "baseline:/assets/clubmuur-wall.webp",
+      "sha256": "fccf75c498bc84ea4c8d3febafa1645e065be047f470ba66671cfb6a51517310"
+    },
+    {
+      "key": "baseline:/assets/clubmuur-lettering.webp",
+      "sha256": "c4bf31d7c6331f76f6e4db9bbac59052a01ad9c6f6ae3abe497925f90e15bf32"
+    },
+    {
+      "key": "baseline:/assets/type-distress.svg",
+      "sha256": "eebad54e89c5bccd0854f9db7c0a39549709454386271acea7263d06386c5107"
+    },
+    {
+      "key": "baseline:/assets/clubmuur-brush-v25/section-houtrust-1600.webp",
+      "sha256": "80685223d885de4530e6eda9e4a6add92a0cae75dbb19922b3a454d62eb906c0"
+    },
+    {
+      "key": "baseline:/assets/logo.png",
+      "sha256": "832c642ea9735b87452a6508ae5525f4f87fe528408efc58ad0f86f1a456a930"
+    },
+    {
+      "key": "baseline:/assets/team.png",
+      "sha256": "18d8317164e7239a986cb1e285a08f961ae9184962f27158abafeee52c8da74f"
+    },
+    {
+      "key": "baseline:/assets/clubmuur-walking.jpg",
+      "sha256": "9eba6c7faefed59dd730526be773cb86f6d15fde58fd436eaaf1c52d7d5ecc0d"
+    },
+    {
+      "key": "baseline:/assets/sponsors/bnu.svg",
+      "sha256": "44f2ccd12438bcfb292e1283ecac9ef7f5758d4cb77b14e65835260181285504"
+    },
+    {
+      "key": "baseline:/assets/sponsors/kwaliteit-kozijnen-holland.svg",
+      "sha256": "9eac38ab31bae0373a516e88724a246841c14a3efa5bfc61ca40b2537b224f68"
+    },
+    {
+      "key": "baseline:/assets/sponsors/deelman-daktechniek.svg",
+      "sha256": "555ca80ae9e1b9e60cf9179092ac0201e4adaf4032b0d53be979dc6d328e23b1"
+    },
+    {
+      "key": "baseline:/fonts/club-font-2.ttf",
+      "sha256": "73bc9e17231e9073780d3c81574c7253cecd5645c93544df1a935054b39a364f"
+    },
+    {
+      "key": "baseline:/fonts/club-font-8.ttf",
+      "sha256": "b8f802f05b322a7345805f5b89f8bb976604cc719a91530918d5ce3c47160950"
+    },
+    {
+      "key": "baseline:/fonts/club-font-4.ttf",
+      "sha256": "a13d9b41b0a471ce58f0e46d377fa3cc76615e4632c3b15eb397caadf7a13f0a"
+    },
+    {
+      "key": "baseline:/fonts/club-font-1.ttf",
+      "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7"
+    },
+    {
+      "key": "baseline:/fonts/club-font-6.ttf",
+      "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce"
+    },
+    {
+      "key": "baseline:/fonts/club-font-3.ttf",
+      "sha256": "0ec6b3cca2df54f108f8dc239597e0eab386343a230afad8a0f445c7d21c3e77"
+    },
+    {
+      "key": "baseline:/fonts/club-font-7.ttf",
+      "sha256": "b9584e099e0e7f1e1e914c3037aabb9010c50346a3ce8df5eeeeecc0563044d8"
+    },
+    {
+      "key": "baseline:/fonts/club-font-5.ttf",
+      "sha256": "f433e5d333be1128d8ec8a28b8aadd0314d10e14e4105406076666bc830fc15d"
+    },
+    {
+      "key": "baseline:/assets/sponsors/dg-webservices.svg",
+      "sha256": "dbe2716900d7137fe74250b2ef0708d668fdc8596161c07474006aed56d1c031"
+    },
+    {
+      "key": "baseline:/assets/sponsors/rw-repair.png",
+      "sha256": "2698a951c6f595bdc3b08cd0ec891575b3122d891cd0b783a8e22515080f866d"
+    },
+    {
+      "key": "baseline:/assets/sponsors/proto-tegelzetbedrijf.svg",
+      "sha256": "337a0308cef2a2b7b68d89d0f2afcb789467aaaaf7651803e92e8a4e04321d01"
+    },
+    {
+      "key": "baseline:/assets/kit-campaign.png",
+      "sha256": "a954b03eda8b6ef84078425419cd81b49d73df34e98c47608839e37e64a63ff6"
+    },
+    {
+      "key": "baseline:/assets/floodlight.webp",
+      "sha256": "c62c1d5c6d48e4182d225e2d902c295aac7cc05c13a54186756da0b1810268bc"
+    },
+    {
+      "key": "baseline:/assets/clubmuur-brush-v25/houtrust-wide-1672.avif",
+      "sha256": "30c0891ef6335c8015a21be0207dc0ac0171f8eb34551864db6a4af854bc785d"
+    },
+    {
+      "key": "baseline:/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "sha256": "f9a6793ef5088d65f8b0ff39cd42192f27863e41c515eab7efc8e205494f26ef"
+    },
+    {
+      "key": "baseline:/assets/clubmuur-brush-v25/de-wijk-wide-1672.webp",
+      "sha256": "d7198cf38780978b142c15c6cbc33f196afe1d77016582495438daf903c4234e"
+    },
+    {
+      "key": "baseline:/assets/clubmuur-brush-v25/houtrust-portrait-480.avif",
+      "sha256": "0b1ea120904c0afc511660dcfc978f4ffe4000bb15a09042879687ae0cb0e939"
+    },
+    {
+      "key": "candidate:/assets/clubmuur-wall.webp",
+      "sha256": "fccf75c498bc84ea4c8d3febafa1645e065be047f470ba66671cfb6a51517310"
+    },
+    {
+      "key": "candidate:/assets/clubmuur-lettering.webp",
+      "sha256": "c4bf31d7c6331f76f6e4db9bbac59052a01ad9c6f6ae3abe497925f90e15bf32"
+    },
+    {
+      "key": "candidate:/assets/type-distress.svg",
+      "sha256": "eebad54e89c5bccd0854f9db7c0a39549709454386271acea7263d06386c5107"
+    },
+    {
+      "key": "candidate:/assets/clubmuur-brush-v25/section-houtrust-1600.webp",
+      "sha256": "80685223d885de4530e6eda9e4a6add92a0cae75dbb19922b3a454d62eb906c0"
+    },
+    {
+      "key": "candidate:/assets/logo.png",
+      "sha256": "832c642ea9735b87452a6508ae5525f4f87fe528408efc58ad0f86f1a456a930"
+    },
+    {
+      "key": "candidate:/assets/clubmuur-brush-v25/houtrust-wide-1672.avif",
+      "sha256": "30c0891ef6335c8015a21be0207dc0ac0171f8eb34551864db6a4af854bc785d"
+    },
+    {
+      "key": "candidate:/assets/clubmuur-portraits-v14/01-trots-640.webp",
+      "sha256": "f9a6793ef5088d65f8b0ff39cd42192f27863e41c515eab7efc8e205494f26ef"
+    },
+    {
+      "key": "candidate:/assets/team.png",
+      "sha256": "18d8317164e7239a986cb1e285a08f961ae9184962f27158abafeee52c8da74f"
+    },
+    {
+      "key": "candidate:/assets/clubmuur-walking.jpg",
+      "sha256": "9eba6c7faefed59dd730526be773cb86f6d15fde58fd436eaaf1c52d7d5ecc0d"
+    },
+    {
+      "key": "candidate:/assets/sponsors/bnu.svg",
+      "sha256": "44f2ccd12438bcfb292e1283ecac9ef7f5758d4cb77b14e65835260181285504"
+    },
+    {
+      "key": "candidate:/fonts/club-font-2.ttf",
+      "sha256": "73bc9e17231e9073780d3c81574c7253cecd5645c93544df1a935054b39a364f"
+    },
+    {
+      "key": "candidate:/fonts/club-font-8.ttf",
+      "sha256": "b8f802f05b322a7345805f5b89f8bb976604cc719a91530918d5ce3c47160950"
+    },
+    {
+      "key": "candidate:/fonts/club-font-4.ttf",
+      "sha256": "a13d9b41b0a471ce58f0e46d377fa3cc76615e4632c3b15eb397caadf7a13f0a"
+    },
+    {
+      "key": "candidate:/fonts/club-font-1.ttf",
+      "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7"
+    },
+    {
+      "key": "candidate:/fonts/club-font-6.ttf",
+      "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce"
+    },
+    {
+      "key": "candidate:/fonts/club-font-3.ttf",
+      "sha256": "0ec6b3cca2df54f108f8dc239597e0eab386343a230afad8a0f445c7d21c3e77"
+    },
+    {
+      "key": "candidate:/fonts/club-font-7.ttf",
+      "sha256": "b9584e099e0e7f1e1e914c3037aabb9010c50346a3ce8df5eeeeecc0563044d8"
+    },
+    {
+      "key": "candidate:/fonts/club-font-5.ttf",
+      "sha256": "f433e5d333be1128d8ec8a28b8aadd0314d10e14e4105406076666bc830fc15d"
+    },
+    {
+      "key": "candidate:/assets/kit-campaign.png",
+      "sha256": "a954b03eda8b6ef84078425419cd81b49d73df34e98c47608839e37e64a63ff6"
+    },
+    {
+      "key": "candidate:/assets/floodlight.webp",
+      "sha256": "c62c1d5c6d48e4182d225e2d902c295aac7cc05c13a54186756da0b1810268bc"
+    },
+    {
+      "key": "candidate:/assets/sponsors/kwaliteit-kozijnen-holland.svg",
+      "sha256": "9eac38ab31bae0373a516e88724a246841c14a3efa5bfc61ca40b2537b224f68"
+    },
+    {
+      "key": "candidate:/assets/sponsors/deelman-daktechniek.svg",
+      "sha256": "555ca80ae9e1b9e60cf9179092ac0201e4adaf4032b0d53be979dc6d328e23b1"
+    },
+    {
+      "key": "candidate:/assets/sponsors/dg-webservices.svg",
+      "sha256": "dbe2716900d7137fe74250b2ef0708d668fdc8596161c07474006aed56d1c031"
+    },
+    {
+      "key": "candidate:/assets/sponsors/rw-repair.png",
+      "sha256": "2698a951c6f595bdc3b08cd0ec891575b3122d891cd0b783a8e22515080f866d"
+    },
+    {
+      "key": "candidate:/assets/sponsors/proto-tegelzetbedrijf.svg",
+      "sha256": "337a0308cef2a2b7b68d89d0f2afcb789467aaaaf7651803e92e8a4e04321d01"
+    },
+    {
+      "key": "candidate:/assets/clubmuur-brush-v25/de-wijk-wide-1672.webp",
+      "sha256": "d7198cf38780978b142c15c6cbc33f196afe1d77016582495438daf903c4234e"
+    },
+    {
+      "key": "candidate:/assets/clubmuur-brush-v25/houtrust-portrait-480.avif",
+      "sha256": "0b1ea120904c0afc511660dcfc978f4ffe4000bb15a09042879687ae0cb0e939"
+    }
+  ],
+  "mobileFrameNote": "At <=999px the native .cm-first-screen, .cm-wall and .cm-composition use display:contents. The mobile image is the exact visible union of .cm-background/.cm-headline/.cm-player/.cm-hero-fixture/.cm-together through the band, with no style changes; native zero-size wrapper and logical tile-grid geometry are retained in the manifest.",
+  "review": "All frame and constituent geometry identical. Counting every RGB delta>0: desktop each4 pixels (max delta4) in a2x2 rounded news-card edge; mobile defaults67 pixels (max delta22) only along rounded featured-match edges; mobile custom/empty exactly0. No threshold exclusion, masking, geometric alignment adjustment or baseline replacement.",
+  "sourceAssetParity": true,
+  "diffPolicy": "Raw RGB pixels: every nonzero channel delta counts; includeAA true, no masks or geometric alignment adjustment. diff-raw-* and diff-* show every difference; overlays always show the complete unthresholded source/current image pair. The earlier >2 diagnostics are separately preserved as diff-delta2-*.",
+  "reproduce": [
+    "node harness.mjs",
+    "node raw-differences.mjs"
+  ]
+}

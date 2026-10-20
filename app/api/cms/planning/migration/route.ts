@@ -1,0 +1,7 @@
+import {sqlClient} from '@/db';
+import {planningMigrationReport} from '@/lib/server/planning';
+import {planningMigrationSchema,migrateLegacyPlanning} from '@/lib/server/planning-migration';
+import {principal,verifyOrigin,authorize,has} from '@/lib/server/permissions';
+import {bodyJson,errorResponse} from '@/lib/server/errors';
+export async function GET(request:Request){try{const p=await principal(request.headers);authorize(p,'pages','read');const sql=sqlClient(),rows=await sql`select id,version,draft,live from cms_records where id in ('site-agenda','site-training')`,people=await sql`select id,draft from cms_records where module='people' and deleted_at is null`;const report=planningMigrationReport(rows,people.filter(row=>has(p,'people','read',{teamId:row.draft.teamId||''})).map(row=>({...row.draft,id:row.id}))),mapped=await sql`select source_id,legacy_id,activity_id from cms_planning_legacy`;for(const key of ['agenda','training'] as const)for(const item of report[key].items){const match=mapped.find(row=>row.source_id===(key==='agenda'?'site-agenda':'site-training')&&row.legacy_id===item.legacyId);item.migrated=!!match;item.activityId=match?.activity_id;}return Response.json(report,{headers:{'Cache-Control':'no-store'}});}catch(error){return errorResponse(error);}}
+export async function POST(request:Request){try{verifyOrigin(request);const p=await principal(request.headers),input=planningMigrationSchema.parse(await bodyJson(request));return Response.json(await migrateLegacyPlanning(p,input));}catch(error){return errorResponse(error);}}

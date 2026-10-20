@@ -1,3 +1,7 @@
+import {committeeSchema,locationSchema,activitySchema,addPlanningDays} from '../cms/planning';
+import {heroSliderSchema} from '../cms/hero-slider';
+import {sportlinkSettingsSchema} from '../cms/sportlink-settings';
+import {validatePlanningWrite,syncPlanningIndexes,activityAuthorization,publicActivity} from './planning';
 import {heroPageOptions,resolveHeroPage} from '../cms/hero-pages';
 import {equalContent} from '../cms/compare';
 import {importedNewsContent} from '../cms/import-publication';
@@ -20,7 +24,7 @@ import { assertLayout, migrateLayout, referencesIn, validateDocument, safeDestin
 import type { CmsState, CmsArticle, CmsPage } from '../cms/types';
 import { CmsError } from './errors';
 import { authorize, has, type Principal } from './permissions';
-export const contentModules = ['articles', 'pages', 'people', 'media', 'folders', 'albums', 'forms', 'documents', 'settings', 'navigation', 'hero', 'heroPhotos', 'agenda', 'training', 'narrowcasting', 'patterns'] as const;
+export const contentModules = ['articles', 'pages', 'people', 'media', 'folders', 'albums', 'forms', 'documents', 'settings', 'navigation', 'hero', 'heroPhotos', 'agenda', 'training', 'narrowcasting', 'patterns','committees','locations','activities','heroSlider','sportlinkSettings'] as const;
 export type ContentModule = typeof contentModules[number];
 export type RecordRow = {
     id: string;
@@ -37,15 +41,23 @@ export type RecordRow = {
 };
 export function emptyState(): CmsState { const s = createCmsSeed(); for (const key of ['articles', 'pages', 'people', 'media', 'folders', 'albums', 'departments', 'forms', 'submissions', 'roles', 'members', 'documents', 'redirects', 'audit'] as const)
     s[key] = [] as never; return s; }
-const alias: Record<string, string> = { articles: 'news', albums: 'media', folders: 'media', documents: 'pages', navigation: 'pages', hero: 'pages', heroPhotos: 'pages', agenda: 'pages', training:'pages', narrowcasting: 'pages',patterns:'pages' };
+const alias: Record<string, string> = { articles: 'news', albums: 'media', folders: 'media', documents: 'pages', navigation: 'pages', hero: 'pages', heroPhotos: 'pages', agenda: 'pages', training:'pages', narrowcasting: 'pages',patterns:'pages',committees:'people',locations:'settings',activities:'pages',heroSlider:'pages',sportlinkSettings:'settings' };
 export function permissionModule(module: string,data?:Record<string,any>) { return module==='articles'&&data?.contentType==='story'?'stories':alias[module] || module; }
-export function scope(row: RecordRow) { return { teamId: row.team_id || '', departmentId: row.department_id || '', kind: String(row.draft.kind || '') }; }
+export function scope(row: RecordRow) { return { teamId: row.module==='activities'?row.draft.teamIds?.[0]||'':row.team_id || '', departmentId: row.department_id || '', kind: String(row.draft.kind || '') }; }
 export function recordOutput(row: RecordRow, revisions: unknown[] = []) { const data: Record<string, any> = { ...row.draft, id: row.id, version: row.version, ...(row.module==='articles'?{imported:!!row.imported}:{}) }; if (['articles', 'pages'].includes(row.module))
     Object.assign(data, { status: row.status, scheduledAt: (row as any).scheduled_at || row.draft.scheduledAt || '', updatedAt: new Date(row.updated_at).toISOString(), live: row.live || undefined, revisions });
 else
     Object.assign(data, { published: !!row.live, live: row.live || undefined }); if (row.module === 'media' && String(data.src).startsWith('/api/media/'))
     data.src = `/api/cms/media/${row.id}/file`; if (row.deleted_at)
     Object.assign(data, { deletedAt: row.deleted_at }); return data; }
+// Read the complete register independently from the mixed-content bootstrap.
+// Each query remains bounded; stable IDs allow subsequent import batches to be
+// found without imposing another silent total cap on the people collection.
+async function peopleRecords(sql:any,publicOnly:boolean):Promise<RecordRow[]>{
+ const records:RecordRow[]=[];let cursor='';
+ while(true){const batch:RecordRow[]=await sql`select * from cms_records where module='people' and id>${cursor} and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`} order by id limit 1000`;records.push(...batch);if(batch.length<1000)return records;cursor=batch[batch.length-1].id;}
+}
+function locationChoice(row:RecordRow){const value=row.draft;return {id:row.id,name:value.name,type:value.type,capacity:value.capacity,active:value.active,color:value.color,parentId:value.parentId||'',description:'',sportlinkFieldName:'',published:false,...(row.deleted_at?{deletedAt:new Date(row.deleted_at).toISOString()}: {})};}
 export async function loadState(publicOnly = false, p?: Principal,transaction?:any,requiredIds:string[]=[]): Promise<{
     state: CmsState;
     versions: Record<string, number>;
@@ -53,13 +65,28 @@ export async function loadState(publicOnly = false, p?: Principal,transaction?:a
     const sql:ReturnType<typeof sqlClient> = transaction||sqlClient(), state = emptyState(), versions: Record<string, number> = {};
     const rows = await sql<RecordRow[]> `with plans as materialized (select distinct on (payload->>'id') payload->>'id' as record_id,run_at from cms_jobs where kind='publish' and status in ('pending','processing') order by payload->>'id',run_at) select cms_records.*,i.record_id is not null as imported,plans.run_at as scheduled_at from cms_records left join cms_news_import_identities i on i.record_id=cms_records.id left join plans on plans.record_id=cms_records.id where ${publicOnly ? sql `live is not null and deleted_at is null` : sql `true`} and ${!publicOnly&&p?sql`(module!='media' or id in (select id from cms_records where module='media' order by updated_at desc,id limit 100) or id in (select target_id from cms_references))`:sql`true`} order by case when deleted_at is not null then 3 when module in ('settings','navigation','hero','heroPhotos','agenda','training') then 0 when module!='media' then 1 else 2 end,updated_at desc,id limit 1500`;
     const requested=requiredIds.length?await sql<RecordRow[]>`select *,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported from cms_records where id in ${sql([...new Set(requiredIds)])}`:[];
-    // Article dependencies must not disappear behind the global bootstrap limit.
-    const refs=[...new Set([...rows.filter(row=>row.module!=='media'&&!row.deleted_at),...requested].flatMap(row=>referencesIn(publicOnly?row.live:row.draft)))].filter(id=>!rows.some(row=>row.id===id)&&!requested.some(row=>row.id===id));
+    const planningRows=await sql<RecordRow[]>`select * from cms_records where module in ('committees','locations','activities') and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`} order by updated_at desc,id limit 22000`;
+    const peopleRows=await peopleRecords(sql,publicOnly);
+    // People and planning dependencies must survive the mixed-content bootstrap limit too.
+    const refs=[...new Set([...rows.filter(row=>row.module!=='media'&&!row.deleted_at),...planningRows,...peopleRows,...requested].flatMap(row=>referencesIn(publicOnly?row.live:row.draft)))].filter(id=>!rows.some(row=>row.id===id)&&!requested.some(row=>row.id===id));
     const related=refs.length?await sql<RecordRow[]>`select *,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported from cms_records where id in ${sql(refs)} and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`}`:[];
-    const records=[...new Map([...rows,...requested,...related,...(publicOnly?await heroNewsRows(sql):[])].map(row=>[row.id,row])).values()];
+    const records=[...new Map([...rows,...requested,...related,...planningRows,...peopleRows,...(publicOnly?await heroNewsRows(sql):[])].map(row=>[row.id,row])).values()];
+    const planningPublicLocations=publicOnly?(await sql`select id,draft->>'name' as name from cms_records where module='locations' and deleted_at is null`):[];
+    const locationChoices=!!p&&!publicOnly&&(p.teamScoped?p.teams.some(teamId=>has(p,'pages','read',{teamId})):has(p,'pages','read'));
     for (const row of records) {
+        if(row.module==='locations'&&locationChoices&&!has(p!,'settings','read',scope(row))){state.planning.locations.push(locationChoice(row));versions[row.id]=row.version;continue;}
         const fallbackPublic=!publicOnly&&!!p&&!has(p,permissionModule(row.module,row.draft),'read',scope(row));if(fallbackPublic&&(!row.live||row.deleted_at))continue;
         versions[row.id] = row.version;
+        if(row.module==='sportlinkSettings')continue;
+        if(['committees','locations','activities'].includes(row.module)){
+            if(!publicOnly&&p&&row.module==='activities'){try{activityAuthorization(p,'read',row.draft);}catch{continue;}}
+            if(publicOnly||fallbackPublic){
+                if(row.module==='activities'&&row.live?.public&&row.live.status==='planned'&&row.draft.status!=='cancelled'){const locations=publicOnly?planningPublicLocations:records.filter(item=>item.module==='locations'&&!item.deleted_at).map(item=>({...item.draft,id:item.id}));state.planning.activities.push({...publicActivity({...row.live,id:row.id},locations),public:true,published:true,status:'planned'} as any);}
+                if(row.module==='committees'&&row.live?.active){const allowed=new Set(records.filter(item=>item.module==='people'&&item.live&&!item.deleted_at).map(item=>item.id));state.planning.committees.push({...row.live,id:row.id,published:true,members:(row.live.members||[]).filter((member:any)=>allowed.has(member.personId))} as any);}
+            }else (state.planning as any)[row.module].push(recordOutput(row));
+            continue;
+        }
+        if(row.module==='heroSlider'){state.appearance||={};const slider={...(publicOnly||fallbackPublic?row.live:row.draft)};delete slider.published;delete slider.id;state.appearance.heroSlider=slider as any;continue;}
         if (['navigation', 'hero', 'heroPhotos', 'agenda', 'training'].includes(row.module)) {
             state.appearance ||= {};
             (state.appearance as any)[row.module] = (publicOnly||fallbackPublic ? row.live : row.draft)?.items;
@@ -76,6 +103,7 @@ export async function loadState(publicOnly = false, p?: Principal,transaction?:a
         const data: Record<string, any> = publicOnly||fallbackPublic ? { ...row.live, id: row.id } : recordOutput(row);
         if ((publicOnly||fallbackPublic) && ['articles', 'pages'].includes(row.module))
             Object.assign(data, { live: row.live, status: 'published', revisions: [], updatedAt: new Date(row.updated_at).toISOString() });
+        if((publicOnly||fallbackPublic)&&row.module==='people'){delete data.backofficeUserId;delete data.sportlinkId;}
         if ((publicOnly||fallbackPublic) && row.module === 'people' && !data.showContact) {
             data.email = '';
             data.phone = '';
@@ -90,6 +118,7 @@ export async function loadState(publicOnly = false, p?: Principal,transaction?:a
     state.departments = ds.filter(d => publicOnly || !p || has(p, 'forms', 'read') || p.departments.some(assignment=>assignment.id===String(d.id)&&has(p,'submissions','read',{departmentId:assignment.id,kind:assignment.kind}))).map(d => ({ id: String(d.id), name: String(d.name), description: String(d.description), active: !!d.active, confirmation: String(d.confirmation), emails: publicOnly ? [] : d.emails as string[] }));
     const redirects = await sql `select from_path as "from",to_path as "to" from cms_redirects`;
     state.redirects = redirects.map(r => ({ from: String(r.from).replace(/^\/clubmuur\//, ''), to: String(r.to).replace(/^\/clubmuur\//, '') }));
+    if(publicOnly)await projectPublicPlanning(sql,state);
     return { state:publicOnly?currentClubLinks(state,state.redirects):state, versions };
 }
 function pathFor(module: string, data: Record<string, any>): string | null { if (!data.slug)return null; if (module === 'pages')
@@ -106,6 +135,7 @@ export function validateCandidate(module: ContentModule, value: Record<string, a
     if (module === 'settings')
         delete clean.id;
     if(module==='articles')delete clean.imported;
+    if(module==='people'&&typeof clean.sportlinkId==='string')clean.sportlinkId=clean.sportlinkId.trim().toUpperCase();
     if (module === 'pages' && clean.bodyFormat !== 'page-layout-v2') {
         clean.body = migrateLayout(clean.body, clean.id);
         clean.bodyFormat = 'page-layout-v2';
@@ -146,6 +176,12 @@ export function validateCandidate(module: ContentModule, value: Record<string, a
         if (!groups.length || groups.length !== clean.groups?.length)
             throw new CmsError('narrowcasting', 'Controleer de schermgroepen.', 422);
         return { ...clean, groups };
+    }
+    if(['committees','locations','activities','heroSlider','sportlinkSettings'].includes(module)){
+        if(module==='sportlinkSettings'){delete clean.id;delete clean.published;}
+        if(module==='heroSlider'){delete clean.id;delete clean.published;}
+        const schema=module==='committees'?committeeSchema:module==='locations'?locationSchema:module==='activities'?activitySchema:module==='heroSlider'?heroSliderSchema:sportlinkSettingsSchema;
+        const parsed=schema.safeParse(clean);if(!parsed.success)throw new CmsError('validation','Controleer de ingevulde velden.',422,parsed.error.issues.map(issue=>({path:issue.path.join('.'),message:issue.message})));return parsed.data as Record<string,any>;
     }
     const shape = cmsStateSchema.shape;
     const member = module === 'settings' ? shape.settings : (shape[module as keyof typeof shape] as unknown as {
@@ -190,7 +226,7 @@ async function prepareImportedMedia(tx:any,p:Principal,changes:Change[],requestI
     }
     return {imported,versions};
 }
-export async function mutate(p: Principal, changes: Change[], operationId: string, requestId: string, transaction?:any) {
+export async function mutate(p: Principal, changes: Change[], operationId: string, requestId: string, transaction?:any,integration?:{sportlink?:boolean}) {
     const sql = sqlClient();
     const perform=async (tx:any) => {
         const [operation] = await tx `select response from cms_operations where id=${operationId} and actor_id=${p.id}`;
@@ -198,6 +234,7 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
             return operation.response;
         // Serializes route reservations/parent changes and cross-record publication.
         await tx `select pg_advisory_xact_lock(736402)`;
+        const [replayed]=await tx`select response from cms_operations where id=${operationId} and actor_id=${p.id}`;if(replayed)return replayed.response;
         const prepared=await prepareImportedMedia(tx,p,changes,requestId);
         const required=changes.flatMap(change=>[change.id,...referencesIn(change.data)]);
         const state = (await loadState(false,undefined,tx,required)).state;
@@ -207,6 +244,9 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
             if (!contentModules.includes(change.module))
                 throw new CmsError('module', 'Onbekende module.');
             if((change.module==='heroPhotos'&&change.id!=='site-hero-photos')||(change.module==='agenda'&&change.id!=='site-agenda'))throw new CmsError('configuration-id','Ongeldige website-instelling.',422);
+            if(['agenda','training'].includes(change.module)&&change.action!=='unpublish'&&(await tx`select source_id from cms_planning_legacy where source_id=${change.id} limit 1`).length)throw new CmsError('planning-migrated','Dit onderdeel wordt centraal gepland. Beheer nieuwe wijzigingen in Jaaragenda of Trainingen en neem resterende oude momenten via de migratiereview over.',409);
+            if(change.module==='sportlinkSettings'&&(change.id!=='site-sportlink'||change.action!=='save'))throw new CmsError('private-settings','Sportlink-instellingen zijn privé en kunnen alleen worden bewaard.',422);
+            if(change.module==='heroSlider'&&change.id!=='site-hero-slider')throw new CmsError('configuration-id','Ongeldige hero-sliderinstelling.',422);
             const [old]:RecordRow[] = await tx `select * from cms_records where id=${change.id} for update`;
             if (old && old.module !== change.module)
                 throw new CmsError('module', 'Het record behoort aan een andere module.');
@@ -220,15 +260,17 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
             if(candidate.authorId&&!(await tx`select id from cms_records where id=${candidate.authorId} and module='people' and deleted_at is null`).length)throw new CmsError('author','Kies een bestaande persoon als auteur.',422);
             if (!old && !change.data)
                 throw new CmsError('missing', 'Inhoud ontbreekt.');
-            const newScope = { teamId: candidate.teamId || '', departmentId: candidate.departmentId || '', kind: candidate.kind || '' };
+            const newScope = { teamId: change.module==='activities'?candidate.teamIds?.[0]||'':candidate.teamId || '', departmentId: candidate.departmentId || '', kind: candidate.kind || '' };
             authorize(p, module, action, old ? scope(old) : newScope);
             if (old)
                 authorize(p, permissionModule(change.module,candidate), action, newScope);
+            await validatePlanningWrite(tx,p,change.module,change.id,candidate,old,change.action,!!integration?.sportlink);
             if (old?.deleted_at && !['restore', 'trash'].includes(change.action))
                 throw new CmsError('trashed', 'Herstel dit record eerst.');
             if (change.action === 'trash' && old?.live)
                 authorize(p, module, 'publish', scope(old));
-            if (change.action === 'trash') {
+            // People are soft-deleted without erasing historical bylines or memberships.
+            if (change.action === 'trash'&&change.module!=='people') {
                 const used = await tx `select record_id from cms_references where target_id=${change.id} and snapshot='live' limit 30`;
                 if (used.length)
                     throw new CmsError('in-use', 'Dit record wordt gebruikt. Trek de publicatie bewust in of werk de verwijzingen bij.', 409, used);
@@ -251,6 +293,12 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
                 status = 'draft';
             }
             if (change.action === 'schedule' && !['articles','pages'].includes(change.module)) throw new CmsError('schedule-module','Alleen pagina’s en artikelen kunnen worden ingepland.',422);
+            let sourcePublication=false;
+            if(integration?.sportlink&&change.module==='activities'&&change.action==='save'&&old?.live){
+                const patched={...old.live};for(const key of ['date','startTime','endTime','type','title','status','source','sourceId','sourceData'])patched[key]=candidate[key];
+                const previousSource:string[]=old.live.sourceData?.locationIds||[];patched.locationIds=[...new Set([...(old.live.locationIds||[]).filter((id:string)=>!previousSource.includes(id)),...(candidate.sourceData?.locationIds||[])])];
+                if(!equalContent(patched,old.live)){live=patched;sourcePublication=true;}
+            }
             let planned: Record<string,any> | null = null;
             if (change.action === 'publish' || change.action === 'schedule') {
                 if(change.module==='hero'){
@@ -294,7 +342,7 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
                 }
                 else
                     live = { ...candidate, published: true };
-                const refs = referencesIn(live);
+                const refs = ['activities','committees'].includes(change.module)?[]:referencesIn(live);
                 if (change.module === 'settings')
                     refs.push(...candidate.homepageArticleIds || [], ...candidate.homepageStoryIds || [], ...candidate.homepageAlbumIds || [], ...candidate.homepagePhotoIds || []);
                 for (const id of refs) {
@@ -319,8 +367,8 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
                 if (used && used.record_id !== change.id)
                     throw new CmsError('path-conflict', 'Dit pad is al gereserveerd.', 409, { path });
             }
-            await tx `insert into cms_records(id,module,title,slug,content_type,story_format,author_id,parent_id,season,category,team_id,department_id,status,version,draft,live,deleted_at) values (${change.id},${change.module},${candidate.title || candidate.name || ''},${candidate.slug || null},${candidate.contentType || null},${candidate.storyFormat || null},${candidate.authorId||null},${candidate.parentId||null},${candidate.season||null},${candidate.category||null},${candidate.teamId || null},${candidate.departmentId || null},${status},${version},${tx.json(candidate)},${live ? tx.json(live) : null},${deletedAt?.toISOString()||null}) on conflict(id) do update set title=excluded.title,slug=excluded.slug,content_type=excluded.content_type,story_format=excluded.story_format,author_id=excluded.author_id,parent_id=excluded.parent_id,season=excluded.season,category=excluded.category,team_id=excluded.team_id,department_id=excluded.department_id,status=excluded.status,version=excluded.version,draft=excluded.draft,live=excluded.live,deleted_at=excluded.deleted_at,updated_at=now()`;
-            if (change.action === 'publish') {
+            await tx `insert into cms_records(id,module,title,slug,content_type,story_format,author_id,parent_id,season,category,team_id,department_id,status,version,draft,live,deleted_at) values (${change.id},${change.module},${candidate.title || candidate.name || ''},${candidate.slug || null},${candidate.contentType || null},${candidate.storyFormat || null},${candidate.authorId||null},${candidate.parentId||null},${candidate.season||null},${candidate.category||null},${change.module==='activities'?candidate.teamIds?.[0]||null:candidate.teamId || null},${candidate.departmentId || null},${status},${version},${tx.json(candidate)},${live ? tx.json(live) : null},${deletedAt?.toISOString()||null}) on conflict(id) do update set title=excluded.title,slug=excluded.slug,content_type=excluded.content_type,story_format=excluded.story_format,author_id=excluded.author_id,parent_id=excluded.parent_id,season=excluded.season,category=excluded.category,team_id=excluded.team_id,department_id=excluded.department_id,status=excluded.status,version=excluded.version,draft=excluded.draft,live=excluded.live,deleted_at=excluded.deleted_at,updated_at=now()`;
+            if (change.action === 'publish'||sourcePublication) {
                 const publicationId = crypto.randomUUID();
                 await tx `insert into cms_publications(id,record_id,record_version,snapshot,actor_id) values (${publicationId},${change.id},${version},${tx.json(live)},${p.id})`;
                 await tx `update cms_records set live_id=${publicationId} where id=${change.id}`;
@@ -355,8 +403,10 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
                 for (const [i, id] of (candidate.mediaIds || []).entries())
                     await tx `insert into cms_album_media(album_id,media_id,position) values (${change.id},${id},${i})`;
             }
+            await syncPlanningIndexes(tx,change.module,change.id,candidate,!!deletedAt);
+            if(change.module==='activities'&&change.action==='publish'&&candidate.public){const mappings=await tx`select source_id,legacy_id,report from cms_planning_legacy where activity_id=${change.id} or report->'activityIds' ? ${change.id}`;for(const mapping of mappings){const ids=mapping.report.activityIds||[change.id];const [count]=await tx`select count(*)::int as n from cms_records where id in ${tx(ids)} and live is not null and coalesce((live->>'public')::boolean,false)=true`;if(count.n===ids.length)await tx`update cms_planning_legacy set report=report || '{"activatedPublic":true}'::jsonb where source_id=${mapping.source_id} and legacy_id=${mapping.legacy_id}`;}}
             await tx `insert into cms_audit(id,actor_id,action,record_id,request_id) values (${crypto.randomUUID()},${p.id},${change.action},${change.id},${requestId})`;
-            if (['publish', 'unpublish', 'trash'].includes(change.action))
+            if (['publish', 'unpublish', 'trash'].includes(change.action)||sourcePublication)
                 await tx `insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${`${operationId}:${change.id}:cache`},'cache',${tx.json({ id: change.id })})`;
             if (change.action === 'schedule')
                 await tx `insert into cms_jobs(id,operation_id,kind,payload,run_at) values (${crypto.randomUUID()},${`${operationId}:${change.id}:schedule`},'publish',${tx.json({ id: change.id, module: change.module, version, actorId: p.id, draft: planned })},${new Date(change.scheduledAt!).toISOString()})`;
@@ -372,4 +422,21 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
         return output;
     };
     return transaction?perform(transaction):sql.begin(perform);
+}
+
+async function projectPublicPlanning(sql:any,state:CmsState){
+ const migrated=await sql`select source_id,legacy_id,activity_id,report from cms_planning_legacy`;
+ const hidden=new Set(migrated.filter((row:any)=>row.source_id==='site-agenda'&&row.report?.activatedPublic).map((row:any)=>row.legacy_id));
+ const oldAgenda=(state.appearance?.agenda||[]).filter(item=>!hidden.has(item.id));
+ const items=state.planning.activities.map((item:any)=>({id:item.id,title:item.title,date:item.date,time:item.startTime,endTime:item.endTime,description:item.description,location:item.location,type:item.type}));
+ state.appearance||={};state.appearance.agenda=[...oldAgenda,...items].sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+ const legacyTraining=state.appearance.training||[];
+ const hiddenTraining=new Set(migrated.filter((row:any)=>row.source_id==='site-training'&&row.report?.activatedPublic).map((row:any)=>row.legacy_id));
+ const kept=legacyTraining.map((team,index)=>({...team,sessions:team.sessions.filter((_,offset)=>!hiddenTraining.has(index+':'+offset))})).filter(team=>team.sessions.length);
+ const from=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Amsterdam',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ // Only the next seven calendar days form the compatible weekly view; exceptions remain concrete dates.
+ const rows=await sql`select id,live from cms_records where module='activities' and live is not null and deleted_at is null and live->>'type'='training' and (live->>'public')::boolean=true and live->>'status'='planned' and draft->>'status'='planned' and live->>'date'>=${from} and live->>'date'<${addPlanningDays(from,7)}`;
+ const locations=await sql`select id,draft->>'name' as name from cms_records where module='locations' and deleted_at is null`;
+ for(const row of rows)for(const teamId of row.live.teamIds||[]){const name=state.settings.teams.find(team=>team.id===teamId)?.name;if(!name)continue;let team=kept.find(team=>team.teamLabel===name);if(!team){team={teamLabel:name,sessions:[]};kept.push(team);}const day=new Intl.DateTimeFormat('nl-NL',{timeZone:'Europe/Amsterdam',weekday:'long'}).format(new Date(row.live.date+'T12:00:00Z'));const session={day:day.charAt(0).toUpperCase()+day.slice(1),start:row.live.startTime,end:row.live.endTime,field:(row.live.locationIds||[]).map((id:string)=>locations.find((location:any)=>location.id===id)?.name).filter(Boolean).join(', ')};if(!team.sessions.some(value=>JSON.stringify(value)===JSON.stringify(session)))team.sessions.push(session);}
+ state.appearance.training=kept;
 }

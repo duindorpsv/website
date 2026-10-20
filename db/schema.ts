@@ -44,3 +44,8 @@ export const newsImportAssets=pgTable('cms_news_import_assets',{sessionId:text('
 export const authRevocations=pgTable('cms_auth_revocations',{userId:text('user_id').primaryKey().references(()=>user.id,{onDelete:'cascade'}),invalidBefore:time('invalid_before').notNull()});
 
 export const authRecoveries=pgTable('cms_auth_recoveries',{tokenHash:text('token_hash').primaryKey(),userId:text('user_id').notNull().unique().references(()=>user.id,{onDelete:'cascade'}),sessionId:uuid('session_id').notNull(),expiresAt:time('expires_at').notNull()});
+
+// Operational reservation index; source of truth remains the versioned activity record.
+export const activityReservations=pgTable('cms_activity_reservations',{activityId:text('activity_id').notNull().references(()=>records.id),locationId:text('location_id').notNull().references(()=>records.id),startsAt:time('starts_at').notNull(),endsAt:time('ends_at').notNull()},t=>[primaryKey({columns:[t.activityId,t.locationId]}),index('activity_resource_time_idx').on(t.locationId,t.startsAt,t.endsAt)]);
+export const personAccounts=pgTable('cms_person_accounts',{personId:text('person_id').primaryKey().references(()=>records.id),userId:text('user_id').notNull().unique().references(()=>user.id)});
+export const planningLegacy=pgTable('cms_planning_legacy',{sourceId:text('source_id').notNull(),legacyId:text('legacy_id').notNull(),activityId:text('activity_id').references(()=>records.id),report:jsonb('report').notNull().default({}),sourceVersion:integer('source_version').notNull(),createdAt:time('created_at').notNull().defaultNow()},t=>[primaryKey({columns:[t.sourceId,t.legacyId]})]);

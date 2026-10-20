@@ -8,10 +8,12 @@ type User={id:string;roleId:string;teamScoped:boolean;teams:string[];grants:{mod
 type Context={recordVersion:(id:string)=>number;state:CmsState;ready:boolean;update:CmsUpdate;can:(permission:Permission,teamId?:string,module?:string)=>boolean;roleId:string;setRoleId:(id:string)=>void;notify:(message:string)=>void;notice:string;storageError:string;storageConflictId:string;clearStorageError:()=>void;saving:boolean;preview:boolean;reload:()=>Promise<void>;loadMoreMedia:()=>Promise<void>;mediaLoading:boolean};
 const CmsContext=createContext<Context|null>(null);
 function empty(){const s=createCmsSeed();for(const k of ['articles','pages','people','media','folders','albums','departments','forms','submissions','roles','members','documents','redirects','audit'] as const)s[k]=[] as never;return s;}
-const modules=['articles','pages','people','media','folders','albums','forms','documents','settings','heroPhotos','agenda','training','navigation'] as const;
+const modules=['articles','pages','people','media','folders','albums','forms','documents','settings','heroPhotos','agenda','training','navigation','committees','locations','activities','heroSlider'] as const;
 function recordsFor(state:CmsState,module:typeof modules[number]):any[]{
+ if(['committees','locations','activities'].includes(module))return (state.planning as any)?.[module]||[];
+ if(module==='heroSlider')return state.appearance?.heroSlider?[{id:'site-hero-slider',...state.appearance.heroSlider}]:[];
  if(module==='heroPhotos'||module==='agenda'||module==='training'||module==='navigation')return [{id:module==='heroPhotos'?'site-hero-photos':module==='agenda'?'site-agenda':module==='navigation'?'site-navigation':'site-training',items:state.appearance?.[module],...(module==='heroPhotos'?{portraits:state.appearance?.heroPortraits||[]}:{} )}];
- return module==='settings'?[{...state.settings,id:'settings'}]:state[module];
+ return module==='settings'?[{...state.settings,id:'settings'}]:(state as any)[module];
 }
 export function CmsProvider({children,initialState,preview=false}:{children:ReactNode;initialState?:CmsState;preview?:boolean}){
  const [state,setState]=useState<CmsState>(initialState||empty),current=useRef(state),versions=useRef<Record<string,number>>({}),user=useRef<User|null>(null),[ready,setReady]=useState(!!initialState),[roleId,setRoleId]=useState(''),[notice,notify]=useState(''),[storageError,setStorageError]=useState(''),[storageConflictId,setStorageConflictId]=useState(''),[saving,setSaving]=useState(false),chain=useRef(Promise.resolve());
@@ -37,6 +39,7 @@ export function CmsProvider({children,initialState,preview=false}:{children:Reac
   // audit are always produced by the server and cannot be sent as writable state.
   const changes:any[]=[];
   for(const module of modules){const before=recordsFor(current.current,module);const after=recordsFor(recipeState,module);
+   if(['committees','locations','activities'].includes(module))for(const removed of before.filter((old:any)=>!after.some((record:any)=>record.id===old.id)))changes.push({module,id:removed.id,expectedVersion:commands?.[removed.id]?.expectedVersion??versions.current[removed.id]??0,action:'trash',data:{}});
    for(const record of after as any[]){const old=before.find((r:any)=>r.id===record.id) as any;const command=commands?.[record.id];if(equalContent(old,record)&&!command)continue;let verb='save';if(record.deletedAt&&!old?.deletedAt)verb='trash';else if(old?.deletedAt&&!record.deletedAt)verb='restore';else if(['articles','pages'].includes(module)){if(record.live&&!equalContent(record.live,old?.live))verb='publish';else if(old?.live&&!record.live)verb='unpublish';else if((record as any).status==='scheduled'&&((record as any).scheduledAt!==old?.scheduledAt||old?.status!=='scheduled'))verb='schedule';}else if((record as any).published&&!old?.published)verb='publish';else if(old?.published&&!(record as any).published)verb='unpublish';
     if(module==='settings')verb='publish';
     if(command)verb=command.action;

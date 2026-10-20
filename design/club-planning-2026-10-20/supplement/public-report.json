@@ -1,0 +1,1924 @@
+[
+  {
+    "side": "prototype",
+    "fixture": "F0",
+    "name": "public-agenda",
+    "width": 1440,
+    "file": "prototype-F0-public-agenda-1440.png",
+    "panelFile": "prototype-F0-public-agenda-panel-1440.png",
+    "agendaBox": {
+      "x": 967.9375,
+      "y": 64.796875,
+      "width": 444.0625,
+      "height": 584
+    },
+    "dialogBox": null,
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "44.64px",
+          "lineHeight": "46.872px",
+          "fontWeight": "800"
+        }
+      ],
+      "scrollY": 0
+    },
+    "overflow": false
+  },
+  {
+    "side": "prototype",
+    "fixture": "F0",
+    "name": "public-agenda-detail",
+    "width": 1440,
+    "file": "prototype-F0-public-agenda-detail-1440.png",
+    "panelFile": "prototype-F0-public-agenda-detail-panel-1440.png",
+    "agendaBox": {
+      "x": 967.9375,
+      "y": 64.796875,
+      "width": 444.0625,
+      "height": 584
+    },
+    "dialogBox": {
+      "x": 440,
+      "y": 279.015625,
+      "width": 560,
+      "height": 441.96875
+    },
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "44.64px",
+          "lineHeight": "46.872px",
+          "fontWeight": "800"
+        },
+        {
+          "selector": ".cm-community-dialog",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        }
+      ],
+      "scrollY": 0
+    },
+    "overflow": false
+  },
+  {
+    "side": "prototype",
+    "fixture": "F0",
+    "name": "public-agenda-withdrawn",
+    "width": 1440,
+    "file": "prototype-F0-public-agenda-withdrawn-1440.png",
+    "panelFile": "prototype-F0-public-agenda-withdrawn-panel-1440.png",
+    "agendaBox": {
+      "x": 967.9375,
+      "y": 64.796875,
+      "width": 444.0625,
+      "height": 584
+    },
+    "dialogBox": null,
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "44.64px",
+          "lineHeight": "46.872px",
+          "fontWeight": "800"
+        }
+      ],
+      "scrollY": 0
+    },
+    "overflow": false
+  },
+  {
+    "side": "prototype",
+    "fixture": "F0",
+    "name": "public-agenda-empty",
+    "width": 1440,
+    "file": "prototype-F0-public-agenda-empty-1440.png",
+    "panelFile": "prototype-F0-public-agenda-empty-panel-1440.png",
+    "agendaBox": {
+      "x": 967.9375,
+      "y": 64.796875,
+      "width": 444.0625,
+      "height": 584
+    },
+    "dialogBox": null,
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "44.64px",
+          "lineHeight": "46.872px",
+          "fontWeight": "800"
+        }
+      ],
+      "scrollY": 0
+    },
+    "overflow": false
+  },
+  {
+    "side": "prototype",
+    "width": 1440,
+    "errors": [],
+    "checks": [
+      "max5",
+      "real-location-time-description",
+      "detail",
+      "withdraw-closes-detail",
+      "empty"
+    ]
+  },
+  {
+    "side": "prototype",
+    "fixture": "F0",
+    "name": "public-agenda",
+    "width": 390,
+    "file": "prototype-F0-public-agenda-390.png",
+    "panelFile": "prototype-F0-public-agenda-panel-390.png",
+    "agendaBox": {
+      "x": 24,
+      "y": 154,
+      "width": 342,
+      "height": 691.390625
+    },
+    "dialogBox": null,
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "34px",
+          "lineHeight": "35.7px",
+          "fontWeight": "800"
+        }
+      ],
+      "scrollY": 454
+    },
+    "overflow": false
+  },
+  {
+    "side": "prototype",
+    "fixture": "F0",
+    "name": "public-agenda-detail",
+    "width": 390,
+    "file": "prototype-F0-public-agenda-detail-390.png",
+    "panelFile": "prototype-F0-public-agenda-detail-panel-390.png",
+    "agendaBox": {
+      "x": 24,
+      "y": 154,
+      "width": 342,
+      "height": 691.390625
+    },
+    "dialogBox": {
+      "x": 16,
+      "y": 193.046875,
+      "width": 358,
+      "height": 457.90625
+    },
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "34px",
+          "lineHeight": "35.7px",
+          "fontWeight": "800"
+        },
+        {
+          "selector": ".cm-community-dialog",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        }
+      ],
+      "scrollY": 454
+    },
+    "overflow": false
+  },
+  {
+    "side": "prototype",
+    "fixture": "F0",
+    "name": "public-agenda-withdrawn",
+    "width": 390,
+    "file": "prototype-F0-public-agenda-withdrawn-390.png",
+    "panelFile": "prototype-F0-public-agenda-withdrawn-panel-390.png",
+    "agendaBox": {
+      "x": 24,
+      "y": 154,
+      "width": 342,
+      "height": 691.390625
+    },
+    "dialogBox": null,
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "34px",
+          "lineHeight": "35.7px",
+          "fontWeight": "800"
+        }
+      ],
+      "scrollY": 454
+    },
+    "overflow": false
+  },
+  {
+    "side": "prototype",
+    "fixture": "F0",
+    "name": "public-agenda-empty",
+    "width": 390,
+    "file": "prototype-F0-public-agenda-empty-390.png",
+    "panelFile": "prototype-F0-public-agenda-empty-panel-390.png",
+    "agendaBox": {
+      "x": 24,
+      "y": 320,
+      "width": 342,
+      "height": 480
+    },
+    "dialogBox": null,
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "34px",
+          "lineHeight": "35.7px",
+          "fontWeight": "800"
+        }
+      ],
+      "scrollY": 288
+    },
+    "overflow": false
+  },
+  {
+    "side": "prototype",
+    "width": 390,
+    "errors": [],
+    "checks": [
+      "max5",
+      "real-location-time-description",
+      "detail",
+      "withdraw-closes-detail",
+      "empty"
+    ]
+  },
+  {
+    "side": "candidate",
+    "fixture": "F0",
+    "name": "public-agenda",
+    "width": 1440,
+    "file": "candidate-F0-public-agenda-1440.png",
+    "panelFile": "candidate-F0-public-agenda-panel-1440.png",
+    "agendaBox": {
+      "x": 967.9375,
+      "y": 64.796875,
+      "width": 444.0625,
+      "height": 584
+    },
+    "dialogBox": null,
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "44.64px",
+          "lineHeight": "46.872px",
+          "fontWeight": "800"
+        }
+      ],
+      "scrollY": 0
+    },
+    "overflow": false
+  },
+  {
+    "side": "candidate",
+    "fixture": "F0",
+    "name": "public-agenda-detail",
+    "width": 1440,
+    "file": "candidate-F0-public-agenda-detail-1440.png",
+    "panelFile": "candidate-F0-public-agenda-detail-panel-1440.png",
+    "agendaBox": {
+      "x": 967.9375,
+      "y": 64.796875,
+      "width": 444.0625,
+      "height": 584
+    },
+    "dialogBox": {
+      "x": 440,
+      "y": 279.015625,
+      "width": 560,
+      "height": 441.96875
+    },
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "44.64px",
+          "lineHeight": "46.872px",
+          "fontWeight": "800"
+        },
+        {
+          "selector": ".cm-community-dialog",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        }
+      ],
+      "scrollY": 0
+    },
+    "overflow": false
+  },
+  {
+    "side": "candidate",
+    "fixture": "F0",
+    "name": "public-agenda-withdrawn",
+    "width": 1440,
+    "file": "candidate-F0-public-agenda-withdrawn-1440.png",
+    "panelFile": "candidate-F0-public-agenda-withdrawn-panel-1440.png",
+    "agendaBox": {
+      "x": 967.9375,
+      "y": 64.796875,
+      "width": 444.0625,
+      "height": 584
+    },
+    "dialogBox": null,
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "44.64px",
+          "lineHeight": "46.872px",
+          "fontWeight": "800"
+        }
+      ],
+      "scrollY": 0
+    },
+    "overflow": false
+  },
+  {
+    "side": "candidate",
+    "fixture": "F0",
+    "name": "public-agenda-empty",
+    "width": 1440,
+    "file": "candidate-F0-public-agenda-empty-1440.png",
+    "panelFile": "candidate-F0-public-agenda-empty-panel-1440.png",
+    "agendaBox": {
+      "x": 967.9375,
+      "y": 64.796875,
+      "width": 444.0625,
+      "height": 584
+    },
+    "dialogBox": null,
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "44.64px",
+          "lineHeight": "46.872px",
+          "fontWeight": "800"
+        }
+      ],
+      "scrollY": 0
+    },
+    "overflow": false
+  },
+  {
+    "side": "candidate",
+    "width": 1440,
+    "errors": [],
+    "checks": [
+      "max5",
+      "real-location-time-description",
+      "detail",
+      "withdraw-closes-detail",
+      "empty",
+      "central-server-ics-download"
+    ]
+  },
+  {
+    "side": "candidate",
+    "fixture": "F0",
+    "name": "public-agenda",
+    "width": 390,
+    "file": "candidate-F0-public-agenda-390.png",
+    "panelFile": "candidate-F0-public-agenda-panel-390.png",
+    "agendaBox": {
+      "x": 24,
+      "y": 178,
+      "width": 342,
+      "height": 666.875
+    },
+    "dialogBox": null,
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "34px",
+          "lineHeight": "35.7px",
+          "fontWeight": "800"
+        }
+      ],
+      "scrollY": 430
+    },
+    "overflow": false
+  },
+  {
+    "side": "candidate",
+    "fixture": "F0",
+    "name": "public-agenda-detail",
+    "width": 390,
+    "file": "candidate-F0-public-agenda-detail-390.png",
+    "panelFile": "candidate-F0-public-agenda-detail-panel-390.png",
+    "agendaBox": {
+      "x": 24,
+      "y": 178,
+      "width": 342,
+      "height": 666.875
+    },
+    "dialogBox": {
+      "x": 16,
+      "y": 193.046875,
+      "width": 358,
+      "height": 457.90625
+    },
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "34px",
+          "lineHeight": "35.7px",
+          "fontWeight": "800"
+        },
+        {
+          "selector": ".cm-community-dialog",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        }
+      ],
+      "scrollY": 430
+    },
+    "overflow": false
+  },
+  {
+    "side": "candidate",
+    "fixture": "F0",
+    "name": "public-agenda-withdrawn",
+    "width": 390,
+    "file": "candidate-F0-public-agenda-withdrawn-390.png",
+    "panelFile": "candidate-F0-public-agenda-withdrawn-panel-390.png",
+    "agendaBox": {
+      "x": 24,
+      "y": 178,
+      "width": 342,
+      "height": 666.875
+    },
+    "dialogBox": null,
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "34px",
+          "lineHeight": "35.7px",
+          "fontWeight": "800"
+        }
+      ],
+      "scrollY": 430
+    },
+    "overflow": false
+  },
+  {
+    "side": "candidate",
+    "fixture": "F0",
+    "name": "public-agenda-empty",
+    "width": 390,
+    "file": "candidate-F0-public-agenda-empty-390.png",
+    "panelFile": "candidate-F0-public-agenda-empty-panel-390.png",
+    "agendaBox": {
+      "x": 24,
+      "y": 320,
+      "width": 342,
+      "height": 480
+    },
+    "dialogBox": null,
+    "styleEvidence": {
+      "fonts": [
+        {
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "status": "unloaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Barlow Condensed",
+          "weight": "900",
+          "status": "unloaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "700",
+          "status": "loaded"
+        },
+        {
+          "family": "Manrope",
+          "weight": "800",
+          "status": "loaded"
+        },
+        {
+          "family": "Permanent Marker",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Name",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Slogan",
+          "weight": "800",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Est",
+          "weight": "400",
+          "status": "unloaded"
+        },
+        {
+          "family": "Clubband Year",
+          "weight": "700",
+          "status": "unloaded"
+        }
+      ],
+      "computed": [
+        {
+          "selector": "body",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda",
+          "fontFamily": "Manrope, Arial, sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "25.6px",
+          "fontWeight": "400"
+        },
+        {
+          "selector": ".cm-community-agenda h2",
+          "fontFamily": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "fontSize": "34px",
+          "lineHeight": "35.7px",
+          "fontWeight": "800"
+        }
+      ],
+      "scrollY": 288
+    },
+    "overflow": false
+  },
+  {
+    "side": "candidate",
+    "width": 390,
+    "errors": [],
+    "checks": [
+      "max5",
+      "real-location-time-description",
+      "detail",
+      "withdraw-closes-detail",
+      "empty",
+      "central-server-ics-download"
+    ]
+  }
+]

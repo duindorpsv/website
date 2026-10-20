@@ -1,0 +1,1 @@
+{"passed":true,"checks":["private versioned config","calendar catalog cache","durable idempotent queue","real source field and changing-room mapping","no guessed venue mapping","source imports internal","match identity idempotent","only stable visible member IDs","no raw contact cache","source outage preserves active teams","manage permission","paused scheduler"]}
