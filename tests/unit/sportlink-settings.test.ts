@@ -19,7 +19,7 @@ test('configuration rejects duplicate mappings, unsafe targets and authority ove
  for(const name of ['programma','poule-programma'])assert.equal(sportlinkArticleDataset(name),'matches');assert.equal(sportlinkArticleDataset('team-indeling'),'players');assert.equal(sportlinkArticleDataset('wedstrijd-kleedkamers'),'assignments');
 });
 test('field and changing-room identity comes from actual source fields, never the accommodation',()=>{
- assert.deepEqual(sportlinkAssignmentFields({accommodatie:'Sportpark Duindorp',veld:'Veld 1',kleedkamerthuisteam:'3',kleedkameruitteam:'4'}),{field:'Veld 1',changingRooms:{home:'3',away:'4',official:''}});
+ assert.deepEqual(sportlinkAssignmentFields({accommodatie:'Sportpark Duindorp',veld:'Veld 1',kleedkamerthuisteam:'3',kleedkameruitteam:'4'}),{field:'Veld 1',homeDressingRoom:'3',awayDressingRoom:'4',referee:'',venueAddress:'',changingRooms:{home:'3',away:'4',official:''}});
  assert.equal(sportlinkAssignmentFields({accommodatie:'Veld 1'}).field,'');
  const match={wedstrijdcode:123,wedstrijddatum:'2026-10-24T14:30:00+0200',thuisteamid:'1',thuisteam:'Duindorp sv 1',uitteamid:'2',uitteam:'Tegenstander 1',veld:'Veld 2',kleedkamerthuisteam:'A',kleedkameruitteam:'B',kleedkamerscheidsrechter:'C',accommodatie:'Sportpark'};
  const snapshot=normalizeSportlink({teams:[{teamcode:1,lokaleteamcode:-1,teamnaam:'Duindorp sv 1'}],standings:[],leagueResults:[],leagueFixtures:[],clubResults:[],clubFixtures:[match]});assert.equal(snapshot.fixtures[0].field,'Veld 2');assert.deepEqual(snapshot.fixtures[0].changingRooms,{home:'A',away:'B',official:'C'});

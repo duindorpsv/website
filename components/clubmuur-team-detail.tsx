@@ -104,7 +104,7 @@ function TeamDetail({teamId}:{teamId:string}){
    </>}
   </div>
   {data?.notes.length? <details className="td-source-notes"><summary>Over deze teamgegevens <Info size={15}/></summary><ul>{data.notes.map(note=><li key={note}>{note}</li>)}</ul></details>:null}
-  <SportlinkMatchDialog match={selected} onClose={()=>setSelected(null)}/>
+  <SportlinkMatchDialog match={selected} onClose={()=>setSelected(null)} teamId={teamId} season={selectedSeason} pool={selectedPool}/>
  </ClubPageFrame>;
 }
 

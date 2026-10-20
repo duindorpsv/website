@@ -1,0 +1,2 @@
+CREATE INDEX "sportlink_match_home_kickoff_idx" ON "sportlink_matches" USING btree ("home_team_code","kickoff");--> statement-breakpoint
+CREATE INDEX "sportlink_match_away_kickoff_idx" ON "sportlink_matches" USING btree ("away_team_code","kickoff");

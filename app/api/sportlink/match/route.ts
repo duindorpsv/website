@@ -1,0 +1,3 @@
+import {getSportlinkMatch,MatchDataError} from '@/lib/sportlink-match-server';
+export const dynamic='force-dynamic';
+export async function GET(request:Request){const params=new URL(request.url).searchParams;try{return Response.json(await getSportlinkMatch(params.get('id')||'',{team:params.get('team'),pool:params.get('pool'),season:params.get('season')}),{headers:{'Cache-Control':'private, no-store'}});}catch(error){const status=error instanceof MatchDataError?error.status:503;return Response.json({error:error instanceof MatchDataError?error.message:'De wedstrijdgegevens zijn tijdelijk niet beschikbaar.'},{status,headers:{'Cache-Control':'no-store',...(status===503?{'Retry-After':'30'}:{})}});}}
