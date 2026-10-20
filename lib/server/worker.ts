@@ -12,6 +12,7 @@ import { env } from './env';
 import {listObjects,deleteObject} from './storage';
 import {analyzeNewsSession,processNewsBatch,failNewsJob,cleanExpiredNews} from './news-imports';
 import {CmsError} from './errors';
+import {processSportlinkSync} from './sportlink-sync';
 export async function runOnce(workerId = crypto.randomUUID()) {
     const sql = sqlClient();
     await storageReady();
@@ -23,7 +24,8 @@ export async function runOnce(workerId = crypto.randomUUID()) {
     let status = 'done';
     const renewal=setInterval(()=>{void sql`update cms_jobs set lease_until=now()+interval '60 seconds' where id=${job.id} and lease_owner=${workerId} and status='processing'`.catch(()=>{});},20000);
     try {
-        if(['news-analyze','news-import'].includes(job.kind)){
+        if(job.kind==='sportlink-sync')await processSportlinkSync(job.payload,job.id);
+        else if(['news-analyze','news-import'].includes(job.kind)){
             try{if(job.kind==='news-analyze')await analyzeNewsSession(job.payload.sessionId);else await processNewsBatch(job.payload.sessionId,job.payload.run,job.payload.batch);}
             catch(e){if(e instanceof CmsError)await failNewsJob(job.payload.sessionId,e.message);else throw e;}
         }

@@ -1,4 +1,5 @@
 'use client';
+import {useCmsPageHeader} from './page-header';
 import {Pagination,usePagination} from './pagination';
 import {equalContent} from '@/lib/cms/compare';
 import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
@@ -120,7 +121,8 @@ export function MediaManager({ tab = 'media' }: {
         if (await update(draft => { draft.albums.push(album); }, 'Album aangemaakt'))
             setSelectedAlbumId(id);
     }
-    return <div className="cms-media-workspace">
+    const pageHeader=useCmsPageHeader({actions:activeTab==='albums'?<button className="cms-button primary" disabled={!can('media',uploadTeamId)} onClick={createAlbum}><Plus size={17}/>Nieuw album</button>:<button className="cms-button primary" disabled={uploading||!can('media',uploadTeamId)} onClick={()=>input.current?.click()}><Upload size={17}/>Foto’s uploaden</button>});
+    return <div className="cms-media-workspace">{pageHeader}
     <div className="cms-toolbar cms-media-toolbar">
       <div className="cms-media-tabs" role="tablist" aria-label="Mediabeheer">
         <button className={activeTab === 'media' ? 'is-active' : ''} role="tab" aria-selected={activeTab === 'media'} onClick={() => { setActiveTab('media'); setQuery(''); }}><Images size={17}/> Mediabibliotheek <span>{media.length}</span></button>
@@ -129,12 +131,12 @@ export function MediaManager({ tab = 'media' }: {
       <label className="cms-media-search"><Search size={17}/><input aria-label={activeTab === 'media' ? 'Zoek foto’s' : 'Zoek albums'} placeholder={activeTab === 'media' ? 'Zoek foto’s…' : 'Zoek albums…'} value={query} onChange={e => setQuery(e.target.value)}/></label>
       <button type="button" className="cms-button" disabled={mediaLoading} onClick={()=>void loadMoreMedia()}><RefreshCw size={15}/>{mediaLoading?'Bibliotheek laden…':'Mediabibliotheek vernieuwen'}</button>
     </div>
-    <div className="cms-panel cms-media-intro"><div><strong>{activeTab === 'media' ? 'Alle beelden. Eén vertrouwde plek.' : 'Herinneringen om te delen.'}</strong><p>{activeTab === 'media' ? 'Orden je bestanden in mappen, koppel ze aan teams en kies welke foto’s op de site mogen verschijnen.' : 'Maak openbare albums uit je mediabibliotheek. Een foto kan in meerdere albums staan.'}</p></div><span className="cms-status">Gedeelde mediabibliotheek</span></div>
+
     <div className="cms-toolbar cms-media-filters">
       <label className="cms-field">Team<select value={teamFilter} onChange={e => setTeamFilter(e.target.value)}><option value="all">Alle teams</option><option value="">Club algemeen</option>{state.settings.teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
       <label className="cms-field">Nieuw materiaal voor<select value={uploadTeamId} onChange={e => setUploadTeamId(e.target.value)} disabled={!anyMediaPermission}><option value="" disabled={!can('media')}>Club algemeen</option>{allowedTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
       <label className="cms-field">Seizoen<input value={uploadSeason} onChange={e => setUploadSeason(e.target.value)} placeholder="2026–2027"/></label>
-      {activeTab === 'albums' && <button className="cms-button primary" disabled={!can('media', uploadTeamId)} onClick={createAlbum}><Plus size={17}/> Nieuw album</button>}
+
     </div>
     {activeTab === 'media' ? <div className="cms-media-layout">
       <aside className="cms-panel cms-folder-sidebar">

@@ -25,7 +25,8 @@ import {type Article,type Team} from '@/lib/club-data';
 type Actions={openArticle:(a:Article)=>void;openTeam:(t:Team)=>void;openJoin:()=>void;openMatch:()=>void};
 
 export function ClubmuurHero({actions,items,layout='01',photo='01-trots',preview=false}:{actions:Actions;items:Article[];layout?:HeroLayout;photo?:HeroPhotoId;preview?:boolean}){
-  const {state}=useCMS();
+  const {state,ready,storageError}=useCMS();
+  const parallaxEnabled=ready&&!storageError&&(state.appearance?.heroSlider?.parallax??true);
   const cards=useHeroCards();
   const scene=useRef<HTMLDivElement>(null);
   const {catalog}=getHeroSelection(state.appearance,state.media);
@@ -51,14 +52,16 @@ export function ClubmuurHero({actions,items,layout='01',photo='01-trots',preview
     if(!el)return;
     let frame=0;
     const reset=()=>{cancelAnimationFrame(frame);el.style.setProperty('--cm-px','0');el.style.setProperty('--cm-py','0');};
+    if(!parallaxEnabled){reset();return;}
+    const connection=(navigator as Navigator&{connection?:EventTarget&{saveData?:boolean}}).connection;
     const move=(e:PointerEvent)=>{
-      if(!media.matches)return;
+      if(!media.matches||connection?.saveData)return;
       cancelAnimationFrame(frame);
       frame=requestAnimationFrame(()=>{const r=el.getBoundingClientRect();el.style.setProperty('--cm-px',String((e.clientX-r.left)/r.width-.5));el.style.setProperty('--cm-py',String((e.clientY-r.top)/r.height-.5));});
     };
-    el.addEventListener('pointermove',move,{passive:true});el.addEventListener('pointerleave',reset);media.addEventListener('change',reset);
-    return()=>{cancelAnimationFrame(frame);el.removeEventListener('pointermove',move);el.removeEventListener('pointerleave',reset);media.removeEventListener('change',reset);};
-  },[]);
+    el.addEventListener('pointermove',move,{passive:true});el.addEventListener('pointerleave',reset);media.addEventListener('change',reset);connection?.addEventListener('change',reset);
+    return()=>{cancelAnimationFrame(frame);el.removeEventListener('pointermove',move);el.removeEventListener('pointerleave',reset);media.removeEventListener('change',reset);connection?.removeEventListener('change',reset);};
+  },[parallaxEnabled]);
   return <div className="cm-opening" data-hero-layout={layout} data-hero-players={players} data-hero-photo={photo}>
     <div className="cm-first-screen" ref={scene}>
     <section className="cm-wall" aria-labelledby="cm-title">

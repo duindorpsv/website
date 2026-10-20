@@ -95,7 +95,7 @@ export function matchesForTeam(rows:unknown[],team:SportlinkTeam,pools:TeamPool[
   const status=text(row.status),score=(text(row.uitslag)||text(row['uitslag-regulier'])).match(/^(\d{1,3})\s*[-–:]\s*(\d{1,3})(?:\s*\([^)]*\))?$/);
   const validScore=finished(status)&&score;
   const pool=options.pool||matchingPool(row,pools);
-  map.set(id,{id,kickoff:date,home,away,homeScore:validScore?Number(score[1]):null,awayScore:validScore?Number(score[2]):null,scoreLabel:validScore?`${score[1]} – ${score[2]}`:null,status,venue:text(row.accommodatie),competitionId:pool?.id||'',competitionLabel:pool?.label||text(row.klassepoule)||text(row.competitienaam)||text(row.competitie)});
+  map.set(id,{id,kickoff:date,home,away,homeScore:validScore?Number(score[1]):null,awayScore:validScore?Number(score[2]):null,scoreLabel:validScore?`${score[1]} – ${score[2]}`:null,status,venue:text(row.accommodatie),...sportlinkAssignmentFields(row),competitionId:pool?.id||'',competitionLabel:pool?.label||text(row.klassepoule)||text(row.competitienaam)||text(row.competitie)});
  }
  return [...map.values()].sort((a,b)=>a.kickoff.localeCompare(b.kickoff)||a.id.localeCompare(b.id));
 }
@@ -152,3 +152,4 @@ export function normalizeRoster(rows:unknown[],teamId:string,now=new Date()):Nor
  }
  return result;
 }
+import {sportlinkAssignmentFields} from './sportlink-assignments';

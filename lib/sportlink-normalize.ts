@@ -2,6 +2,7 @@ import type {
   FormResult, SportlinkMatch, SportlinkRound,
   SportlinkSide, SportlinkSnapshot, SportlinkStanding, SportlinkTeam,
 } from './sportlink-types';
+import {sportlinkAssignmentFields} from './sportlink-assignments';
 
 type Raw = Record<string, unknown>;
 type Input = {
@@ -127,7 +128,7 @@ export function normalizeSportlink(input: Input, now = new Date()): SportlinkSna
       home: side(homeName, text(row.thuisteamclubrelatiecode), text(row.thuisteamid)),
       away: side(awayName, text(row.uitteamclubrelatiecode), text(row.uitteamid)),
       homeScore: goals?.[0] ?? null, awayScore: goals?.[1] ?? null,
-      scoreLabel: goals ? `${goals[0]} – ${goals[1]}` : null, status, venue: text(row.accommodatie),
+      scoreLabel: goals ? `${goals[0]} – ${goals[1]}` : null, status, venue: text(row.accommodatie), ...sportlinkAssignmentFields(row),
       competitionId: inLeague ? competition?.id || '' : text(row.poulecode),
       competitionLabel: inLeague ? competition?.label || '' : text(row.klassepoule) || text(row.competitienaam) || text(row.competitie),
     };

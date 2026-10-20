@@ -1,4 +1,6 @@
 import {z} from 'zod';
+import {planningSchema} from './planning';
+import {heroSliderSchema} from './hero-slider';
 import {safeDestination} from './layout/document';
 import {validHeroCards,type HeroCardConfig} from '../clubmuur-config';
 import {validHeroPortraits,type HeroPortrait} from './hero-portraits';
@@ -16,7 +18,7 @@ const optionalDate=text.refine(value=>!value||Number.isFinite(Date.parse(value))
 const permissions=['news','stories','pages','media','people','forms','settings','users','publish'] as const;
 const statuses=z.enum(['draft','review','scheduled','published','archived']);
 const seo=z.object({title:text,description:text,noIndex:z.boolean()});
-const widget=z.object({contentType:z.enum(['news','story']).optional(),title:text.optional(),text:text.optional(),refId:text.optional(),ids:z.array(text).optional(),url:text.optional(),label:text.optional(),layout:text.optional(),items:z.array(z.object({title:text,text,url:text.optional()})).optional()});
+const widget=z.object({committeeId:text.optional(),contentType:z.enum(['news','story']).optional(),title:text.optional(),text:text.optional(),refId:text.optional(),ids:z.array(text).optional(),url:text.optional(),label:text.optional(),layout:text.optional(),items:z.array(z.object({title:text,text,url:text.optional()})).optional()});
 const widgetKinds=['person','people','image','textImage','columns','album','news','documents','faq','timeline','cta','team','contact','form','story','training','newsletter','matches'];
 const doc:z.ZodType<unknown>=z.lazy(()=>z.object({
   type:id,text:text.optional(),attrs:z.record(z.unknown()).optional(),
@@ -32,10 +34,11 @@ const revision=<T extends z.ZodTypeAny>(data:T)=>z.object({id,at:date,label:text
 const uniqueIds=<T extends z.ZodTypeAny>(item:T)=>z.array(item).refine(rows=>new Set(rows.map(row=>(row as {id:string}).id)).size===rows.length,'Dubbele identifiers');
 export const cmsStateSchema=z.object({
   schemaVersion:z.literal(1),
-  appearance:z.object({heroPortraits:z.custom<HeroPortrait[]>(validHeroPortraits).optional(),hero:z.custom<HeroCardConfig[]>(validHeroCards).optional(),navigation:z.custom<ClubNavigationItem[]>(validClubNavigation).optional(),heroPhotos:z.custom<HeroPhotoId[]>(value=>Array.isArray(value)&&value.length>0&&value.length<=300&&new Set(value).size===value.length&&value.every(id=>typeof id==='string')).optional(),agenda:agendaSchema.optional(),training:trainingSchema.optional()}).superRefine((appearance,context)=>{if(appearance.heroPhotos&&!validHeroPhotoIds(appearance.heroPhotos,appearance.heroPortraits||[]))context.addIssue({code:'custom',path:['heroPhotos'],message:'Kies bestaande spelersportretten.'});}).optional(),
+  planning:planningSchema.default({committees:[],locations:[],activities:[],lastSportlinkSync:null}),
+  appearance:z.object({heroSlider:heroSliderSchema.optional(),heroPortraits:z.custom<HeroPortrait[]>(validHeroPortraits).optional(),hero:z.custom<HeroCardConfig[]>(validHeroCards).optional(),navigation:z.custom<ClubNavigationItem[]>(validClubNavigation).optional(),heroPhotos:z.custom<HeroPhotoId[]>(value=>Array.isArray(value)&&value.length>0&&value.length<=300&&new Set(value).size===value.length&&value.every(id=>typeof id==='string')).optional(),agenda:agendaSchema.optional(),training:trainingSchema.optional()}).superRefine((appearance,context)=>{if(appearance.heroPhotos&&!validHeroPhotoIds(appearance.heroPhotos,appearance.heroPortraits||[]))context.addIssue({code:'custom',path:['heroPhotos'],message:'Kies bestaande spelersportretten.'});}).optional(),
   articles:uniqueIds(articleContent.extend({id,imported:z.boolean().optional(),status:statuses,updatedAt:date,scheduledAt:optionalDate,live:articleContent.optional(),revisions:z.array(revision(articleContent)),deletedAt:date.optional(),demo:z.boolean().optional()})),
   pages:uniqueIds(pageContent.extend({id,scheduledAt:optionalDate.optional(),status:statuses,updatedAt:date,live:pageContent.optional(),revisions:z.array(revision(pageContent)),deletedAt:date.optional(),system:z.boolean().optional()})),
-  people:uniqueIds(z.object({id,name:text,role:text,group:text,teamId:text,bio:text,mediaId:text,email:text,phone:text,showContact:z.boolean(),published:z.boolean(),order:number,deletedAt:date.optional()})),
+  people:uniqueIds(z.object({backofficeUserId:text.max(150).optional(),sportlinkId:text.trim().max(150).transform(value=>value.toUpperCase()).optional(),id,name:text,role:text,group:text,teamId:text,bio:text,mediaId:text,email:text,phone:text,showContact:z.boolean(),published:z.boolean(),order:number,deletedAt:date.optional()})),
   media:uniqueIds(z.object({id,name:text,src:text,blobKey:text.optional(),folderId:text,alt:text,caption:text,credit:text,teamId:text,season:text,published:z.boolean(),featured:z.boolean(),order:number,focusX:number,focusY:number,createdAt:date,deletedAt:date.optional()})),
   folders:uniqueIds(z.object({id,name:text})),
   albums:uniqueIds(z.object({id,title:text,slug:text,description:text,date:optionalDate,teamId:text,season:text,coverId:text,mediaIds:z.array(text),published:z.boolean(),order:number,deletedAt:date.optional()})),

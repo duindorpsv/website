@@ -2,7 +2,7 @@ import {test,expect,type Page} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 import {loginWithEmailCode} from './login-fixture';
 const owner=JSON.parse(readFileSync('.runtime/e2e-account.json','utf8'));
-async function selectTab(page:Page){await page.goto('/beheer#homepage');await page.getByRole('button',{name:'Spelersfoto’s',exact:true}).click();await expect(page.getByRole('heading',{name:'Jij kiest wie er bovenaan staat.',exact:true})).toBeVisible();}
+async function selectTab(page:Page){await page.goto('/beheer#homepage');await page.getByRole('tab',{name:'Spelersfoto’s',exact:true}).click();await expect(page.getByRole('heading',{name:'Jij kiest wie er bovenaan staat.',exact:true})).toBeVisible();}
 
 test('player portraits: upload, choose composition, publish a custom-only selection and render its actual public source',async({page})=>{
  test.setTimeout(120000);

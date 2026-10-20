@@ -5,6 +5,7 @@ import {principal,authorize,has,cmsPermissions,verifyOrigin,writeAudit} from '@/
 import {contentModules,loadState,mutate,permissionModule,recordOutput,scope,type RecordRow,type Change} from '@/lib/server/records';
 import {bodyJson,CmsError,errorResponse} from '@/lib/server/errors';
 import {listSubscribers,changeSubscriber} from '@/lib/server/newsletter';
+import {activityAuthorization} from '@/lib/server/planning';
 export const dynamic='force-dynamic';
 const change=z.object({module:z.enum(contentModules),id:z.string().min(1).max(160),expectedVersion:z.number().int().min(0),action:z.enum(['save','publish','unpublish','trash','restore','schedule','cancelSchedule']),data:z.record(z.unknown()).optional(),scheduledAt:z.string().optional()}).strict();
 export async function GET(request:Request,{params}:{params:Promise<{path:string[]}>}){try{
@@ -31,11 +32,11 @@ export async function GET(request:Request,{params}:{params:Promise<{path:string[
  }
  const module=path[0];if(!contentModules.includes(module as any))throw new CmsError('missing','Onderdeel niet gevonden.',404);
  const url=new URL(request.url),{limit,offset}=listPagination(url);
- if(path[1]){const [row]=await sql<RecordRow[]>`select *,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported from cms_records where id=${path[1]} and module=${module}`;if(!row)throw new CmsError('missing','Record niet gevonden.',404);authorize(p,permissionModule(module,row.draft),'read',scope(row));const revisions=await sql`select id,snapshot as data,label,created_at as at from cms_revisions where record_id=${row.id} order by created_at desc limit 30`;return Response.json(path[2]==='revisions'?{items:revisions}:recordOutput(row,revisions));}
+ if(path[1]){const [row]=await sql<RecordRow[]>`select *,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported from cms_records where id=${path[1]} and module=${module}`;if(!row)throw new CmsError('missing','Record niet gevonden.',404);if(module==='activities')activityAuthorization(p,'read',row.draft);else authorize(p,permissionModule(module,row.draft),'read',scope(row));const revisions=await sql`select id,snapshot as data,label,created_at as at from cms_revisions where record_id=${row.id} order by created_at desc limit 30`;return Response.json(path[2]==='revisions'?{items:revisions}:recordOutput(row,revisions));}
  if(!Number.isInteger(limit)||!Number.isInteger(offset))throw new CmsError('pagination','Gebruik geldige paginagrenzen.',422);
  const type=url.searchParams.get('contentType');
  const readable=(kind:string)=>p.grants.some(g=>['*',permissionModule(module,{contentType:kind})].includes(g.module)&&['*','read'].includes(g.action));
- const visible=sql`module=${module} and ${type?sql`content_type=${type}`:sql`true`} and ${module==='articles'?sql`((content_type='story' and ${readable('story')}) or (content_type!='story' and ${readable('news')}))`:sql`${readable('')}`} and ${p.teamScoped?p.teams.length?sql`team_id in ${sql(p.teams)}`:sql`false`:sql`true`}`;
+ const visible=sql`module=${module} and ${type?sql`content_type=${type}`:sql`true`} and ${module==='articles'?sql`((content_type='story' and ${readable('story')}) or (content_type!='story' and ${readable('news')}))`:sql`${readable('')}`} and ${p.teamScoped?p.teams.length?module==='activities'?sql`jsonb_array_length(coalesce(draft->'teamIds','[]'::jsonb))>0 and coalesce(draft->'teamIds','[]'::jsonb) <@ ${sql.json(p.teams)}`:sql`team_id in ${sql(p.teams)}`:sql`false`:sql`true`}`;
  const rows=await sql<RecordRow[]>`select *,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported from cms_records where ${visible} order by updated_at desc,id limit ${limit} offset ${offset}`;
  const [count]=await sql`select count(*)::int as total from cms_records where ${visible}`;
  return Response.json({items:rows.map(r=>recordOutput(r)),total:count.total,hasMore:offset+rows.length<count.total,limit,offset},{headers:{'Cache-Control':'no-store'}});
