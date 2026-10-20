@@ -4,7 +4,7 @@ import {useEffect,useRef,useState} from 'react';
 import {CalendarDays,Plus,Save,Trash2} from 'lucide-react';
 import {useCMS} from './provider';
 import {agendaDate,agendaSchema,emptyAgenda,type ClubAgendaEvent} from '@/lib/club-agenda';
-import {defaultHeroPhotoIds,heroPhotos,heroPhotoSource,type HeroPhotoId} from '@/lib/clubmuur-layouts';
+export {HeroPhotosManager} from './hero-photos-manager';
 import styles from './homepage-content-managers.module.css';
 
 // Edits keep the version from when they started. Another editor's publication
@@ -24,20 +24,6 @@ function usePublishedItems<T>(module:'agenda'|'heroPhotos',items:T[]) {
     } finally {setBusy(false);}
   }
   return {draft,change,dirty,busy,publish,discard:()=>setDirty(false)};
-}
-
-export function HeroPhotosManager() {
-  const {state,can,storageConflictId,reload,clearStorageError}=useCMS();
-  const {draft,change,dirty,busy,publish,discard}=usePublishedItems<HeroPhotoId>('heroPhotos',state.appearance?.heroPhotos||defaultHeroPhotoIds);
-  const pagination=usePagination(heroPhotos);
-  const editable=can('pages')&&can('publish',undefined,'pages');
-  return <section className="cms-panel"><div className="cms-section-heading"><div><h3>Spelersfoto’s in de hero</h3><p className="cms-meta">Vink aan welke foto’s bovenaan de homepage mogen verschijnen. De website wisselt tussen de geselecteerde foto’s en passende indelingen.</p></div><span className="cms-status">{draft.length} geselecteerd</span></div>
-    <fieldset className={styles.fieldset} disabled={!editable||busy}><legend className={styles.srOnly}>Beschikbare spelersfoto’s</legend><div className={styles.photos}>{pagination.items.map(photo=><label key={photo.id} className={`${styles.photo} ${draft.includes(photo.id)?styles.selected:''}`}><img src={heroPhotoSource(photo)} alt="" loading="lazy"/><span><input type="checkbox" checked={draft.includes(photo.id)} onChange={event=>change(event.target.checked?[...draft,photo.id]:draft.filter(id=>id!==photo.id))}/><strong>{photo.name}</strong></span></label>)}</div></fieldset>
-    <Pagination label="Spelersfoto’s" {...pagination}/>
-    {storageConflictId==='site-hero-photos'&&<p role="alert">De selectie is door een andere redacteur gewijzigd. <button className="cms-button" onClick={async()=>{if(!window.confirm('Je selectie vervangen door de serverversie?'))return;await reload();discard();clearStorageError();}}>Serverversie opnieuw laden</button></p>}
-    {!draft.length&&<p role="alert" className="cms-status">Selecteer minimaal één spelersfoto.</p>}
-    <div className="cms-toolbar"><button className="cms-button primary" disabled={!editable||busy||!dirty||!draft.length} onClick={()=>void publish()}><Save size={16}/>{busy?'Publiceren…':'Selectie publiceren'}</button><p className="cms-meta">Uitgevinkte foto’s verdwijnen na publicatie uit de hero. De bestanden blijven bewaard.</p></div>
-  </section>;
 }
 
 export function AgendaManager() {

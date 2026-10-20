@@ -80,3 +80,14 @@
 .cmsp-featured-photos .cm-life-rail-controls button:hover{background:#ffffff20}
 @media(max-width:759px){.cmsp-featured-photos .cm-life-rows{gap:10px}.cmsp-featured-photos .cm-life-rail{gap:10px;padding-inline:12px;scroll-padding-inline:12px}.cmsp-featured-photos .cm-life-photo{flex-basis:70vw;height:177.5px}}
 @media(max-width:359px){.cmsp-featured-photos .cm-life-photo{height:162.5px}}
+/* Alternating poster proportions and staggered placement from the club-wall design. */
+.cmsp-featured-photos{background-color:#09539c;background-blend-mode:soft-light}
+.cmsp-featured-photos .cm-life-rail{align-items:flex-start;gap:14px;padding-inline:0}
+.cmsp-featured-photos .cm-life-photo:nth-child(4n+1){flex-basis:clamp(260px,31vw,430px)}
+.cmsp-featured-photos .cm-life-photo:nth-child(4n+2){flex-basis:clamp(190px,21vw,285px)}
+.cmsp-featured-photos .cm-life-photo:nth-child(4n+3){flex-basis:clamp(240px,28vw,380px)}
+.cmsp-featured-photos .cm-life-photo:nth-child(4n+4){flex-basis:clamp(210px,24vw,325px)}
+.cmsp-featured-photos .cm-life-photo:nth-child(even){margin-top:24px!important}
+.cmsp-featured-photos .cm-life-photo-top{left:16px;right:16px;justify-content:space-between;font-size:7px}
+.cmsp-featured-photos .cm-life-photo:before{display:block}
+@media(max-width:759px){.cmsp-featured-photos .cm-life-photo:nth-child(odd){flex-basis:78vw}.cmsp-featured-photos .cm-life-photo:nth-child(even){flex-basis:62vw;margin-top:16px!important}.cmsp-featured-photos .cm-life-rail{gap:10px}.cmsp-featured-photos .cm-life-photo-top{left:12px;right:12px;font-size:6px}}

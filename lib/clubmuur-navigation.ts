@@ -1,6 +1,6 @@
-export type ClubNavigationLink = {id:string;label:string;href:string};
-export type ClubNavigationItem = ClubNavigationLink & {children?:ClubNavigationLink[]};
-export const maxClubNavigationChildren=13;
+export type ClubNavigationLink = {id:string;label:string;href:string;enabled?:boolean;pageId?:string};
+export type ClubNavigationItem = ClubNavigationLink & {children?:ClubNavigationLink[];managed?:boolean;excluded?:string[]};
+export const maxClubNavigationChildren=50;
 
 export const defaultClubNavigation:ClubNavigationItem[] = [
  {id:'home',label:'HOME',href:'/clubmuur'},
@@ -41,6 +41,7 @@ export const defaultClubNavigation:ClubNavigationItem[] = [
 
 export const clubNavigationDestinations = [
  {label:'Homepage',href:'/clubmuur'},
+ {label:'Activiteiten · clubagenda',href:'/clubmuur#clubagenda'},
  {label:'Onze club · overzicht',href:'/clubmuur/club'},
  ...defaultClubNavigation.flatMap(item=>(item.children||[]).map(child=>({label:child.label,href:child.href}))),
  {label:'Clubnieuws',href:'/clubmuur/nieuws?categorie=Clubnieuws'},
@@ -53,7 +54,7 @@ export function isSafeClubNavigationHref(value:unknown):value is string{
  if(typeof value!=='string'||value.length>300||value!==value.trim()||!value.startsWith('/')||value.startsWith('//')||/[\\\u0000-\u0020\u007f]/.test(value))return false;
  try{
   const url=new URL(value,'https://duindorp.local');
-  return url.origin==='https://duindorp.local'&&supportedPaths.has(url.pathname)&&url.pathname===value.split(/[?#]/,1)[0];
+  return url.origin==='https://duindorp.local'&&(supportedPaths.has(url.pathname)||/^\/clubmuur\/[a-z0-9]+(?:[-/][a-z0-9]+)*$/.test(url.pathname))&&url.pathname===value.split(/[?#]/,1)[0];
  }catch{return false;}
 }
 
@@ -92,18 +93,18 @@ export function migrateClubNavigation(value:unknown):unknown{
 }
 
 export function validClubNavigation(value:unknown):value is ClubNavigationItem[]{
- if(!Array.isArray(value)||value.length!==defaultClubNavigation.length)return false;
+ if(!Array.isArray(value)||value.length<1||value.length>8)return false;
  const ids=new Set<string>();
  const validLink=(link:unknown,keys:string[])=>{
   if(!isRecord(link)||Object.keys(link).some(key=>!keys.includes(key)))return false;
   if(typeof link.id!=='string'||!/^[-a-zA-Z0-9_]{1,80}$/.test(link.id)||ids.has(link.id))return false;
   if(typeof link.label!=='string'||link.label.length>60||!link.label.trim()||link.label!==link.label.trim()||/[\u0000-\u001f\u007f]/.test(link.label)||!isSafeClubNavigationHref(link.href))return false;
+  if(link.enabled!==undefined&&typeof link.enabled!=='boolean'||link.managed!==undefined&&typeof link.managed!=='boolean'||link.pageId!==undefined&&(typeof link.pageId!=='string'||link.pageId.length>100||link.pageId!==''&&!/^[-a-zA-Z0-9_]+$/.test(link.pageId)))return false;
   ids.add(link.id);return true;
  };
- return value.every((item,index)=>{
-  if(!validLink(item,['id','label','href','children']))return false;
-  const original=defaultClubNavigation[index];
-  if(item.id!==original.id||item.label!==original.label||item.href!==original.href)return false;
-  return item.children===undefined||(Array.isArray(item.children)&&item.children.length<=maxClubNavigationChildren&&item.children.every((child:unknown)=>validLink(child,['id','label','href'])));
+ return value.some(item=>isRecord(item)&&item.enabled!==false)&&value.every(item=>{
+  if(!validLink(item,['id','label','href','children','enabled','pageId','managed','excluded']))return false;
+  if(item.excluded!==undefined&&(!Array.isArray(item.excluded)||item.excluded.length>1000||item.excluded.some((id:unknown)=>typeof id!=='string'||id.length>300)))return false;
+  return item.children===undefined||(Array.isArray(item.children)&&item.children.length<=maxClubNavigationChildren&&item.children.every((child:unknown)=>validLink(child,['id','label','href','enabled','pageId'])));
  });
 }

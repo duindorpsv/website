@@ -12,3 +12,63 @@
 .cms-page-cover{padding:20px;display:grid;gap:12px;border-bottom:1px solid #dbe5ef}.cms-page-cover h3{margin:0;font-size:13px}
 
 .cms-submission-answers{display:grid;gap:18px}.cms-submission-answers dt{font-weight:700}.cms-submission-answers dd{margin:5px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* Keep the page itself visible; the block library opens only when requested. */
+.pb-builder .pb-toolbar{gap:2px;padding:10px 12px;top:70px;box-shadow:none;min-height:54px}
+.pb-builder .pb-toolbar>button{width:30px;height:30px;padding:6px;display:inline-flex;align-items:center;justify-content:center;border-color:transparent;background:transparent;color:#5e7896}
+.pb-builder .pb-toolbar>button[aria-pressed=true]{background:#e7f0fc;color:#0758ad}
+.pb-builder .pb-toolbar>button:disabled{opacity:.35;cursor:not-allowed}
+.pb-builder .pb-toolbar>select{width:92px;border:0;background:transparent;font-size:11px;padding:6px 4px}
+.pb-builder .pb-toolbar .pb-insert-button{width:auto;padding-inline:9px;gap:5px;border:1px solid #cbdcf0;background:#fff;color:#0758ad;font-size:11px;font-weight:600;margin-left:4px}
+.pb-builder .pb-toolbar-space{flex:1;min-width:6px}
+.pb-builder .pb-tool-divider{height:18px;width:1px;margin-inline:5px;background:#dce4ef}
+.pb-builder .pb-extra-tools{position:relative;flex-shrink:0}
+.pb-builder .pb-extra-tools>summary{display:flex;align-items:center;gap:2px;padding:7px 4px;cursor:pointer;color:#5e7896;list-style:none;border-radius:4px}
+.pb-builder .pb-extra-tools>summary::-webkit-details-marker{display:none}
+.pb-builder .pb-extra-tools[open]>summary{background:#e7f0fc;color:#0758ad}
+.pb-builder .pb-extra-tools>div{position:absolute;top:calc(100% + 8px);right:0;z-index:30;width:210px;padding:6px;background:#fff;border:1px solid #dce4ef;border-radius:8px;box-shadow:0 12px 32px #16325722}
+.pb-builder .pb-extra-tools>div>button{width:100%;display:flex;align-items:center;gap:9px;padding:10px;border:0;text-align:left;font-size:11px}
+.pb-builder .pb-extra-tools>div>button:hover{background:#f0f6fd}
+.pb-builder .pb-workspace{padding:18px;display:flex;flex-wrap:wrap;gap:16px}
+.pb-builder .pb-workspace>.pb-canvas{width:100%;flex-basis:100%}
+.pb-builder .pb-palette{width:100%;padding:18px;border-bottom:1px solid #dce4ef;background:#f6f9fd;display:block}
+.pb-builder .pb-palette-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.pb-builder .pb-palette-heading strong{font-size:12px}
+.pb-builder .pb-palette-heading p{font-size:11px;line-height:1.6;margin:4px 0 0;color:#7387a0}
+.pb-builder .pb-palette-heading>button{display:grid;place-items:center;border:0;background:transparent;padding:3px}
+.pb-builder .pb-palette-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.pb-builder .pb-palette-item{min-width:0;margin:0;border:1px solid #dae5f1;border-radius:5px;background:#fff;overflow:hidden}
+.pb-builder .pb-palette-item button{border:0;border-radius:0;font-size:11px;padding:9px 7px;min-width:0}
+.pb-builder .pb-palette-item button:first-child{padding-inline:5px;color:#8da2ba}
+.pb-builder .pb-palette-item button:last-child{align-items:center;gap:5px}
+.pb-builder .pb-palette-item button:last-child svg{flex-shrink:0}
+.pb-builder .pb-palette-item:hover{border-color:#6a9ed4;background:#edf5ff}
+.pb-builder .pb-patterns{margin-top:15px;border-top:1px solid #dce4ef;padding-top:12px}
+.pb-builder .pb-patterns summary{font-size:11px;cursor:pointer;margin-bottom:8px}
+.pb-builder .pb-row{background:#fafcff;padding:9px;border-color:#e2e9f2}
+.pb-builder .pb-row-toolbar{font-size:10px;gap:5px;padding:7px;background:#f0f4fa}
+.pb-builder .pb-row-toolbar button,.pb-builder .pb-row-toolbar select{font-size:10px;padding:5px}
+.pb-builder .pb-row-toolbar>strong{white-space:nowrap;margin-right:3px}
+.pb-builder .pb-row-toolbar>label{display:flex;align-items:center;gap:5px}
+.pb-builder .pb-node-actions{gap:3px}
+.pb-builder .pb-widget-toolbar{font-size:10px;min-height:35px;background:#f7f9fc}
+.pb-builder .pb-widget-toolbar button{font-size:10px;padding:5px}
+.pb-builder .pb-column{border-color:#d9e2ee;background:#fff}
+.pb-builder .pb-rich-content{font-size:14px;line-height:1.85;color:#384c63;min-height:90px;padding:18px}
+.pb-builder .pb-rich-content h2{font-size:26px;line-height:1.35;margin:22px 0 12px;color:#163b65}
+.pb-builder .pb-rich-content h3{font-size:21px;line-height:1.4;margin:18px 0 10px;color:#163b65}
+.pb-builder .pb-rich-content h4{font-size:17px;line-height:1.4;margin:16px 0 8px;color:#163b65}
+.pb-builder .pb-rich-content ul,.pb-builder .pb-rich-content ol{padding-left:22px}
+.pb-builder .pb-rich-content blockquote{border-left:3px solid #3378b6;margin:16px 0;padding:4px 16px;background:#f5f9fe}
+.pb-builder .pb-rich-content a{color:#0758ad;text-decoration:underline}
+.pb-builder .pb-add-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:6px 0 10px}
+.pb-builder .pb-add-row button{display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;padding:9px 13px}
+.pb-builder .pb-column-add button{font-size:10px;padding:7px 10px;color:#5e7a98;border-style:dashed}
+.pb-builder .pb-live{margin:0;padding:8px 18px;min-height:30px;color:#7c8fa4;font-size:10px}
+.pb-builder .pb-workspace>.cms-block-inspector{position:static;width:100%;flex-basis:100%;order:-1;border:1px solid #dce4ef;border-radius:7px;min-width:0}
+.pb-builder .cms-block-inspector-heading{margin-bottom:16px}
+.pb-builder .cms-block-inspector textarea{min-height:90px}
+.pb-builder .pb-table-tools{display:flex;flex-wrap:wrap;gap:5px;padding:8px 14px;background:#f5f9ff;border-bottom:1px solid #dce4ef}
+.pb-builder .pb-table-tools button{font-size:10px;padding:6px}
+@container(max-width:550px){.pb-builder .pb-palette-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pb-builder .pb-workspace{padding:12px}.pb-builder .pb-toolbar{padding:8px}.pb-builder .pb-toolbar-space{flex:0}.pb-builder .pb-rich-content{padding:14px}}
+.pb-builder.is-readonly .pb-toolbar,.pb-builder.is-readonly .pb-row-toolbar,.pb-builder.is-readonly .pb-widget-toolbar,.pb-builder.is-readonly .pb-column-add,.pb-builder.is-readonly .pb-add-row,.pb-builder.is-readonly .pb-row-wrap>div[contenteditable=false],.pb-builder.is-readonly .pb-drop{display:none}

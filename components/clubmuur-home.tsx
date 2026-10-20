@@ -16,7 +16,8 @@ import {ClubmuurLiveMatch} from './clubmuur-live-match';
 import {ClubmuurHeroMatch} from './clubmuur-hero-match';
 import {ClubmuurNewsTile} from './clubmuur-news-tile';
 import {ClubmuurNewsline} from './clubmuur-newsline';
-import {heroPhotos,HERO_VISIT_COOKIE,HERO_PHOTO_COOKIE,HERO_VISIT_SECONDS,type HeroLayout,type HeroPhotoId} from '@/lib/clubmuur-layouts';
+import {heroPhotoSource,HERO_VISIT_COOKIE,HERO_PHOTO_COOKIE,HERO_VISIT_SECONDS,type HeroLayout,type HeroPhotoId} from '@/lib/clubmuur-layouts';
+import {getHeroSelection} from '@/lib/cms/hero-portraits';
 export {ClubmuurHeader} from './clubmuur-header';
 import {type Article,type Team} from '@/lib/club-data';
 
@@ -26,11 +27,12 @@ export function ClubmuurHero({actions,items,layout='01',photo='01-trots',preview
   const {state}=useCMS();
   const cards=useHeroCards();
   const scene=useRef<HTMLDivElement>(null);
-  const portrait=heroPhotos.find(item=>item.id===photo)!;
+  const {catalog}=getHeroSelection(state.appearance,state.media);
+  const portrait=catalog.find(item=>item.id===photo)||catalog[0];
   const players=portrait.kind;
-  const photoSeries='series' in portrait?portrait.series:'v14';
+  const photoSeries=portrait.series||'v14';
   const photoBase=`/assets/clubmuur-portraits-${photoSeries}/${photo}`;
-  const photoSrcSet=[`${photoBase}-640.webp ${Math.min(640,portrait.width)}w`,`${photoBase}-1280.webp ${Math.min(1280,portrait.width)}w`,...(portrait.width>1280?[`${photoBase}-1920.webp ${Math.min(1920,portrait.width)}w`]:[])].join(', ');
+  const photoSrcSet=portrait.src?undefined:[`${photoBase}-640.webp ${Math.min(640,portrait.width)}w`,`${photoBase}-1280.webp ${Math.min(1280,portrait.width)}w`,...(portrait.width>1280?[`${photoBase}-1920.webp ${Math.min(1920,portrait.width)}w`]:[])].join(', ');
   useEffect(()=>{
     if(preview)return;
     // Sliding 30-minute visit window. Selection is made on the server so the
@@ -61,7 +63,7 @@ export function ClubmuurHero({actions,items,layout='01',photo='01-trots',preview
     <section className="cm-wall" aria-labelledby="cm-title">
       <ClubmuurBackground/>
       <div className="cm-composition">
-        <div className="cm-player" aria-hidden="true"><img src={`${photoBase}-1280.webp`} srcSet={photoSrcSet} sizes={`(max-width: 999px) 100vw, ${players==='solo'?'38vw':'64vw'}`} alt="" fetchPriority="high" decoding="async" width={portrait.width} height={portrait.height}/></div>
+        <div className="cm-player" aria-hidden="true"><img src={portrait.src?heroPhotoSource(portrait):`${photoBase}-1280.webp`} srcSet={photoSrcSet} sizes={`(max-width: 999px) 100vw, ${players==='solo'?'38vw':'64vw'}`} alt="" fetchPriority="high" decoding="async" width={portrait.width} height={portrait.height}/></div>
         <div className="cm-headline">
           <h1 id="cm-title"><span className="sr-only">Onze Trots.</span><span className="cm-title-brush" aria-hidden="true"/></h1>
         </div>

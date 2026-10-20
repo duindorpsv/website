@@ -3,3 +3,31 @@
 @media(min-width:1650px){.cms-pages-layout{grid-template-columns:280px minmax(0,1fr)}.cms-pages-edit-layout{grid-template-columns:minmax(0,1fr) 285px}}@media(max-width:1280px){.cms-pages-layout{grid-template-columns:210px minmax(0,1fr);gap:13px}.cms-pages-edit-layout{grid-template-columns:minmax(0,1fr)}.cms-page-settings{display:none}.cms-pages-edit-layout.show-settings .cms-page-settings{display:block;grid-row:1}.cms-mobile-page-settings{display:flex!important}.cms-page-title-fields{padding:24px}.cms-block-canvas{padding:22px}.cms-page-alert{flex-wrap:wrap}.cms-page-alert .cms-button{margin-left:30px}.cms-page-save-status{width:100%;margin-bottom:4px}}@media(max-width:850px){.cms-pages-layout{grid-template-columns:1fr}.cms-pages-directory{position:static}.cms-pages-list{max-height:230px}.cms-pages-filters{grid-template-columns:1fr 1fr}.cms-pages-directory-foot{display:none}.cms-pages-list-item .cms-page-order-buttons{opacity:1}.cms-page-save-status{width:auto}.cms-pages-manager .cms-section-heading h1{font-size:28px}.cms-pages-manager .cms-section-heading .cms-button{font-size:11px;padding:10px 12px}.cms-page-breadcrumb strong{max-width:230px}}@media(max-width:560px){.cms-pages-manager .cms-section-heading{align-items:flex-start;gap:8px}.cms-pages-manager .cms-section-heading p{font-size:11px}.cms-pages-manager .cms-section-heading>.cms-button{white-space:nowrap}.cms-page-editor-head{padding:13px!important}.cms-page-breadcrumb{flex-wrap:wrap;gap:5px}.cms-page-breadcrumb .cms-status{margin-left:0}.cms-page-save-status{width:100%}.cms-page-actions{gap:5px}.cms-page-actions .cms-button{font-size:10px;padding:8px}.cms-page-actions .cms-button span{display:none}.cms-page-title-fields{padding:20px 18px}.cms-page-title-input{font-size:23px!important}.cms-block-canvas{padding:20px 16px;flex-basis:260px}.cms-block-toolbar{padding:8px}.cms-block-toolbar>button{padding:6px}.cms-block-palette{padding:14px}.cms-block-palette>div:last-child{grid-template-columns:repeat(2,minmax(0,1fr))}.cms-widget-body{padding:15px}.cms-widget-textImage .cms-widget-image-body{grid-template-columns:1fr}.cms-block-inspector{position:static}.cms-page-preview-bar{flex-wrap:wrap}.cms-page-dialog{padding:28px 22px}.cms-widget-actions button{padding:3px}.cms-widget-kind{font-size:8px}.cms-block-canvas .tiptap{font-size:13px}.cms-block-workspace.has-inspector .cms-block-inspector{flex-basis:100%;order:-1;border-left:0}.cms-page-settings-body{padding:22px}.cms-page-preview .cms-public-page{padding:15px!important}}
 
 .cms-page-preview .cp-wrap{max-width:100%;padding-inline:30px}.cms-page-preview .cp-hero{padding-bottom:35px}.cms-page-preview .cp-hero h1{font-size:clamp(36px,4vw,60px)}.cms-page-preview .cp-content{padding-block:32px}.cms-page-dialog-overlay{position:fixed;inset:0;z-index:1000;background:#10243e70;backdrop-filter:blur(3px)}.cms-page-dialog{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1001;max-height:calc(100vh - 40px);overflow-y:auto;width:min(450px,calc(100% - 40px))}
+
+/* Page editing keeps content, structure and publication controls in clear areas. */
+.cms-pages-manager .cms-page-settings .cms-page-cover{padding:0 0 20px;margin:0 0 22px;border-bottom:1px solid #e5ecf4;gap:9px}
+.cms-pages-manager .cms-page-settings .cms-page-cover h3{margin:0 0 3px}
+.cms-pages-manager .cms-page-cover-preview{display:block;width:100%;height:120px;object-fit:cover;border-radius:6px;border:1px solid #dce5f0}
+.cms-pages-manager .cms-page-cover .cms-button{justify-content:center;font-size:10px;min-height:34px}
+.cms-pages-manager .cms-page-cover-remove{border:0;background:transparent;color:#73849a;font-size:10px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:3px}
+.cms-pages-manager .cms-page-cover .cms-meta{margin:0}
+.cms-pages-manager .cms-page-planning{border-top:1px solid #e5ecf4;padding-top:17px;margin-top:20px}
+.cms-pages-manager .cms-page-planning>summary{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;color:#52759b;cursor:pointer;list-style:none}
+.cms-pages-manager .cms-page-planning>summary::after{content:'+';margin-left:auto;font-size:15px;font-weight:400}
+.cms-pages-manager .cms-page-planning[open]>summary::after{content:'−'}
+.cms-pages-manager .cms-page-planning>section{padding-top:20px}
+.cms-pages-manager .cms-page-planning>section>h3{display:none}
+.cms-pages-manager .cms-page-settings-tabs{position:sticky;top:0;z-index:2}
+.cms-pages-manager .cms-page-composer{overflow:visible}
+.cms-pages-manager .cms-page-title-fields{padding:26px 30px 22px}
+.cms-pages-manager .cms-page-editor-head{padding:14px 18px!important}
+.cms-pages-manager .cms-page-breadcrumb{margin-bottom:12px}
+.cms-pages-manager .cms-page-breadcrumb .cms-status{font-size:9px;max-width:200px;white-space:normal;text-align:center}
+.cms-pages-manager .cms-page-settings .cms-page-live-info{margin-top:20px}
+.cms-pages-manager .cms-page-settings .cms-page-settings-body>h3{margin-bottom:18px}
+.cms-pages-manager .cms-page-settings .cms-field{font-size:10px}
+.cms-pages-manager .cms-page-title-fields textarea{font-weight:400!important}
+@media(max-width:560px){.cms-pages-manager .cms-page-title-fields{padding:20px 18px}.cms-pages-manager .cms-page-breadcrumb .cms-status{max-width:none}.cms-pages-manager .cms-page-settings-body{padding:18px}}
+.cms-pages-manager .cms-page-cover{border-inline:0;border-top:0;min-width:0}
+.cms-pages-manager .cms-page-title-fields .cms-field{min-width:0;max-width:100%}
+.cms-pages-manager .cms-page-title-fields input,.cms-pages-manager .cms-page-title-fields textarea{width:100%;min-width:0;max-width:100%;box-sizing:border-box}

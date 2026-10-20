@@ -27,25 +27,29 @@ export const heroPhotos = [
   {id:'15-clubgenoten',name:'Clubgenoten · ontspannen duo',kind:'duo',layouts:['02','08'],width:1122,height:1402,series:'v18'},
   {id:'16-een-vereniging',name:'Eén vereniging · spelers en staf',kind:'trio',layouts:['02','04','08'],width:1536,height:1024,series:'v18'},
 ] as const;
-export type HeroPhotoId = typeof heroPhotos[number]['id'];
+export type BuiltinHeroPhotoId = typeof heroPhotos[number]['id'];
+export type HeroPhotoId = BuiltinHeroPhotoId|`portrait-${string}`;
+export type HeroPhoto={id:HeroPhotoId;name:string;kind:'solo'|'duo'|'trio'|'walking';layouts:readonly HeroLayout[];width:number;height:number;series?:string;src?:string};
 export const defaultHeroPhotoIds:HeroPhotoId[]=heroPhotos.map(photo=>photo.id);
-export function validHeroPhotoIds(value:unknown):value is HeroPhotoId[] {
-  return Array.isArray(value)&&value.length>0&&value.length<=heroPhotos.length&&new Set(value).size===value.length&&value.every(id=>defaultHeroPhotoIds.includes(id));
+export function validHeroPhotoIds(value:unknown,portraits:readonly {id:string}[]=[]):value is HeroPhotoId[] {
+  const available=new Set<string>([...defaultHeroPhotoIds,...portraits.map(photo=>photo.id)]);
+  return Array.isArray(value)&&value.length>0&&value.length<=213&&new Set(value).size===value.length&&value.every(id=>typeof id==='string'&&available.has(id));
 }
-export function heroPhotoSource(photo:typeof heroPhotos[number]) {
-  return `/assets/clubmuur-portraits-${'series' in photo?photo.series:'v14'}/${photo.id}-640.webp`;
+export function heroPhotoSource(photo:HeroPhoto) {
+  if(photo.src)return photo.src;
+  return `/assets/clubmuur-portraits-${photo.series||'v14'}/${photo.id}-640.webp`;
 }
 
-export function photosForLayout(layout:HeroLayout,enabled:readonly string[]=defaultHeroPhotoIds) {
-  return heroPhotos.filter(photo=>enabled.includes(photo.id)&&(photo.layouts as readonly string[]).includes(layout));
+export function photosForLayout(layout:HeroLayout,enabled:readonly string[]=defaultHeroPhotoIds,catalog:readonly HeroPhoto[]=heroPhotos) {
+  return catalog.filter(photo=>enabled.includes(photo.id)&&(photo.layouts as readonly string[]).includes(layout));
 }
-export function resolveHeroPhoto(value:unknown,layout:HeroLayout,enabled:readonly string[]=defaultHeroPhotoIds):HeroPhotoId|undefined {
-  return photosForLayout(layout,enabled).find(photo=>photo.id===value)?.id;
+export function resolveHeroPhoto(value:unknown,layout:HeroLayout,enabled:readonly string[]=defaultHeroPhotoIds,catalog:readonly HeroPhoto[]=heroPhotos):HeroPhotoId|undefined {
+  return photosForLayout(layout,enabled,catalog).find(photo=>photo.id===value)?.id;
 }
-export function pickHeroPhoto(layout:HeroLayout,saved:unknown,random=Math.random(),enabled:readonly string[]=defaultHeroPhotoIds):HeroPhotoId {
-  const available=photosForLayout(layout,enabled);
+export function pickHeroPhoto(layout:HeroLayout,saved:unknown,random=Math.random(),enabled:readonly string[]=defaultHeroPhotoIds,catalog:readonly HeroPhoto[]=heroPhotos):HeroPhotoId {
+  const available=photosForLayout(layout,enabled,catalog);
   if(!available.length)throw new Error('Geen geselecteerde spelersfoto voor deze indeling.');
-  return resolveHeroPhoto(saved,layout,enabled)??available[Math.min(available.length-1,Math.max(0,Math.floor(random*available.length)))].id;
+  return resolveHeroPhoto(saved,layout,enabled,catalog)??available[Math.min(available.length-1,Math.max(0,Math.floor(random*available.length)))].id;
 }
 
 export function resolveHeroLayout(value:unknown):HeroLayout|undefined {
@@ -53,8 +57,8 @@ export function resolveHeroLayout(value:unknown):HeroLayout|undefined {
 }
 
 /** A presentation-only visit preference; no identity or analytics are stored. */
-export function pickHeroLayout(saved:unknown,random=Math.random(),enabled:readonly string[]=defaultHeroPhotoIds):HeroLayout {
-  const available=heroLayouts.filter(layout=>photosForLayout(layout.id,enabled).length);
+export function pickHeroLayout(saved:unknown,random=Math.random(),enabled:readonly string[]=defaultHeroPhotoIds,catalog:readonly HeroPhoto[]=heroPhotos):HeroLayout {
+  const available=heroLayouts.filter(layout=>photosForLayout(layout.id,enabled,catalog).length);
   if(!available.length)throw new Error('Selecteer minimaal één spelersfoto.');
   return available.find(layout=>layout.id===saved)?.id??available[Math.min(available.length-1,Math.max(0,Math.floor(random*available.length)))].id;
 }

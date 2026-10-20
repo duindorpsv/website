@@ -97,6 +97,7 @@ test('MEDIA01: saving a photo also persists its homepage selection without an un
   expect(response.request().postDataJSON().changes.map((change:any)=>change.module).sort()).toEqual(['media','settings']);
   expect(response.status()).toBe(200);
   await expect(page.getByText('Foto opgeslagen.',{exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Opgeslagen',exact:true})).toBeDisabled();
   await page.reload();
   await page.getByRole('textbox',{name:'Zoek foto’s',exact:true}).fill(original.name);
   await page.locator('.cms-media-tile').filter({hasText:original.name}).first().click();

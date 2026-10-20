@@ -8,9 +8,9 @@ type User={id:string;roleId:string;teamScoped:boolean;teams:string[];grants:{mod
 type Context={recordVersion:(id:string)=>number;state:CmsState;ready:boolean;update:CmsUpdate;can:(permission:Permission,teamId?:string,module?:string)=>boolean;roleId:string;setRoleId:(id:string)=>void;notify:(message:string)=>void;notice:string;storageError:string;storageConflictId:string;clearStorageError:()=>void;saving:boolean;preview:boolean;reload:()=>Promise<void>;loadMoreMedia:()=>Promise<void>;mediaLoading:boolean};
 const CmsContext=createContext<Context|null>(null);
 function empty(){const s=createCmsSeed();for(const k of ['articles','pages','people','media','folders','albums','departments','forms','submissions','roles','members','documents','redirects','audit'] as const)s[k]=[] as never;return s;}
-const modules=['articles','pages','people','media','folders','albums','forms','documents','settings','heroPhotos','agenda','training'] as const;
+const modules=['articles','pages','people','media','folders','albums','forms','documents','settings','heroPhotos','agenda','training','navigation'] as const;
 function recordsFor(state:CmsState,module:typeof modules[number]):any[]{
- if(module==='heroPhotos'||module==='agenda'||module==='training')return [{id:module==='heroPhotos'?'site-hero-photos':module==='agenda'?'site-agenda':'site-training',items:state.appearance?.[module]}];
+ if(module==='heroPhotos'||module==='agenda'||module==='training'||module==='navigation')return [{id:module==='heroPhotos'?'site-hero-photos':module==='agenda'?'site-agenda':module==='navigation'?'site-navigation':'site-training',items:state.appearance?.[module],...(module==='heroPhotos'?{portraits:state.appearance?.heroPortraits||[]}:{} )}];
  return module==='settings'?[{...state.settings,id:'settings'}]:state[module];
 }
 export function CmsProvider({children,initialState,preview=false}:{children:ReactNode;initialState?:CmsState;preview?:boolean}){
