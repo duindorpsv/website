@@ -70,6 +70,12 @@ test('Amsterdam scheduling converts summer and winter time independently from de
  assert.equal(previewUtcDate('invalid'),'');assert.equal(previewLocalDate('invalid'),'');
 });
 
+test('the publication API rejects local or impossible calendar timestamps before storing a schedule',async()=>{
+ const {matchPreviewScheduleSchema}=await import('../../lib/cms/match-preview');
+ for(const value of ['2027-03-28T02:30','2026-10-25T02:30','2027-02-30T02:30:00Z'])assert.equal(matchPreviewScheduleSchema.safeParse(value).success,false);
+ assert.equal(matchPreviewScheduleSchema.safeParse('2026-11-01T13:30:00.000Z').success,true);
+});
+
 test('legacy CMS backups accept the new independent collection without moving it into settings',async()=>{
  const {createCmsSeed}=await import('../../lib/cms/seed');
  const seed=createCmsSeed();const old=JSON.parse(JSON.stringify(seed));delete old.matchPreviews;

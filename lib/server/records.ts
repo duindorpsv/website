@@ -1,4 +1,4 @@
-import {matchPreviewDraftSchema,validateMatchPreview} from '../cms/match-preview';
+import {matchPreviewDraftSchema,matchPreviewScheduleSchema,validateMatchPreview} from '../cms/match-preview';
 import {validateMatchPreviewWrite} from './match-previews';
 import {bumpPlanningRevision} from './planning-revision';
 import {committeeSchema,locationSchema,activitySchema,addPlanningDays} from '../cms/planning';
@@ -300,6 +300,7 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
                 status = 'draft';
             }
             if (change.action === 'schedule' && !['articles','pages','matchPreviews'].includes(change.module)) throw new CmsError('schedule-module','Dit onderdeel kan niet worden ingepland.',422);
+            if(change.module==='matchPreviews'&&change.action==='schedule'&&!matchPreviewScheduleSchema.safeParse(change.scheduledAt).success)throw new CmsError('schedule','Gebruik een geldige UTC-publicatiedatum. Zet de Nederlandse invoertijd eerst om.',422);
             let sourcePublication=false;
             if(integration?.sportlink&&change.module==='activities'&&change.action==='save'&&old?.live){
                 const patched={...old.live};for(const key of ['date','startTime','endTime','type','title','status','source','sourceId','sourceData'])patched[key]=candidate[key];

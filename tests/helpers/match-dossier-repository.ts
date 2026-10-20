@@ -77,6 +77,7 @@ export async function verifyMatchDossierRepository(sql:any){
   const content={...emptyMatchPreviewContent(),enabled:true,speaker:'De aanvoerder',role:'Aanvoerder',whatAtStake:'Live vooruitblik.'};
   const draft={...content,id:previewId,matchId:id,firstTeamId:snapshot.firstTeam!.id,teamId,title:'Vooruitblik'};
   await change('save',draft);assert.equal(await publishedMatchPreview(canonical,snapshot.firstTeam),null);
+  await assert.rejects(()=>change('schedule',draft,undefined,'2027-03-28T02:30'),(error:any)=>error.status===422);
   const editor={...actor,grants:[{module:'news',action:'read'},{module:'news',action:'update'},{module:'news',action:'create'}]};await assert.rejects(()=>change('publish',draft,undefined,undefined,editor),(error:any)=>error.status===403);
   await change('publish',draft);assert.equal((await publishedMatchPreview(canonical,snapshot.firstTeam))?.whatAtStake,'Live vooruitblik.');
   const [oldVersion]=await sql`select version from cms_records where id=${previewId}`;await change('save',{...draft,whatAtStake:'Privéconcept'});assert.equal((await publishedMatchPreview(canonical,snapshot.firstTeam))?.whatAtStake,'Live vooruitblik.');await assert.rejects(()=>change('save',draft,oldVersion.version),(error:any)=>error.code==='conflict');

@@ -4,6 +4,8 @@ import {z} from 'zod';
 import {planningInstant} from './planning';
 
 export const matchPreviewContentSchema=z.object({enabled:z.boolean(),speaker:z.string().trim().max(120),role:z.string().trim().max(120),intro:z.string().trim().max(1200),whatAtStake:z.string().trim().max(3000),preparation:z.string().trim().max(3000),supporterFocus:z.string().trim().max(3000)});
+/** The API accepts UTC instants only; Amsterdam/DST input is converted explicitly by the editor. */
+export const matchPreviewScheduleSchema=z.string().datetime();
 export const matchPreviewDraftSchema=matchPreviewContentSchema.extend({id:z.string().min(1).max(150),matchId:z.string().regex(/^\d{1,12}$/),teamId:z.string().max(150),firstTeamId:z.string().min(1).max(100),title:z.string().max(500)}).strict();
 export const matchPreviewStateSchema=matchPreviewDraftSchema.extend({status:z.enum(['draft','review','scheduled','published','archived']),publishAt:z.string(),scheduledAt:z.string().optional(),updatedAt:z.string(),version:z.number().optional(),deletedAt:z.string().optional(),live:matchPreviewDraftSchema.extend({published:z.boolean().optional()}).optional(),scheduled:matchPreviewContentSchema.optional(),revisions:z.array(z.unknown()).optional()});
 
