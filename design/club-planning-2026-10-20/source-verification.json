@@ -419,8 +419,8 @@
     },
     {
       "path": "tests/e2e/club-planning.spec.ts",
-      "size": 15068,
-      "sha256": "0f60947d2d1004942d5ec27f49e228160b7b96864c04d8a1a86c4b49c74e725d"
+      "size": 15457,
+      "sha256": "6408b9eec2a6e6fe4d87f41a6d5c3938e6b1a319d83d56495525f3b7c53869ee"
     },
     {
       "path": "tests/e2e/cms-content.spec.ts",
@@ -429,8 +429,8 @@
     },
     {
       "path": "tests/e2e/cms.spec.ts",
-      "size": 21348,
-      "sha256": "1757749b115df16c6c9988080228712e1b6625c344a659fe058354d7cbf282c0"
+      "size": 21455,
+      "sha256": "30088de1f48ef3855c19ff48ffc618a5c21feb360f2b4d2ffa13a411787c8017"
     },
     {
       "path": "tests/e2e/hero-editor.spec.ts",

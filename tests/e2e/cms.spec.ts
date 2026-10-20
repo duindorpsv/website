@@ -21,9 +21,11 @@ test('real login, row/column builder and one-step undo/redo',async({page})=>{
  await page.keyboard.type(text);await expect(content).toHaveText(text);
  await page.getByRole('button',{name:'Ongedaan maken',exact:true}).click();await expect(content).toHaveText('');
  const redo=page.getByRole('button',{name:'Opnieuw',exact:true});await expect(redo).toBeEnabled();await redo.click();await expect(content).toHaveText(text);
- await content.locator('p').click();await page.keyboard.press('Home');await page.keyboard.press('Shift+End');
- // Native keyboard selection reaches the DOM before ProseMirror processes the
- // selectionchange event. Verify the selected range before moving focus away.
+ // Select through the focused editor's keyboard command. Home/End address a
+ // visual line inside nested NodeViews and can leave an empty selection.
+ const editor=page.locator('.ProseMirror');await editor.focus();await expect(editor).toBeFocused();
+ await page.keyboard.press('ControlOrMeta+A');
+ // Confirm the command selected the typed text before moving toolbar focus.
  await expect.poll(()=>page.locator('.ProseMirror').evaluate(element=>{
   const {state}=(element as HTMLElement&{editor:Editor}).editor;
   return state.doc.textBetween(state.selection.from,state.selection.to,'');

@@ -70,6 +70,7 @@ design/club-planning-2026-10-20/hero-slider/manifest.json
 design/club-planning-2026-10-20/hero-slider/overlay-1440-list.png
 design/club-planning-2026-10-20/hero-slider/verification-summary.json
 design/club-planning-2026-10-20/planning-evidence.zip
+design/club-planning-2026-10-20/planning-selector-proof.json
 design/club-planning-2026-10-20/planning-supplement-1.zip
 design/club-planning-2026-10-20/planning-supplement-2.zip
 design/club-planning-2026-10-20/planning/candidate-report.json
