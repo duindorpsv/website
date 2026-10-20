@@ -30,6 +30,7 @@ test('each hero tile can link to every published page, including a custom page o
  const created=await mutate([{module:'pages',id,action:'publish',expectedVersion:0,data:content}]);expect(created.status(),await created.text()).toBe(200);const pageVersion=(await created.json()).versions[id];
  const version=async()=>(await page.request.get('/api/cms/bootstrap').then(response=>response.json())).versions['site-hero']||0;
  try{
+  await page.reload();
   await page.getByRole('button',{name:'Homepage',exact:true}).click();await page.getByRole('button',{name:'Vier vakken bovenaan',exact:true}).click();
   const slots=['Nieuws · volle hoogte','Uitgelicht naast de spelers','Rechtsboven','Rechtsonder'],targets=['club/bestuur','club/contact','teams/trainingen',slug];
   for(let index=0;index<slots.length;index++){
