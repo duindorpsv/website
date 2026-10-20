@@ -13,18 +13,19 @@ const kinds:FormKind[]=['contact','registration','request'];
 const kindIcons={contact:Mail,registration:UserRound,request:ClipboardCheck};
 export function FormsManager(){
  const {can,state}=useCMS();
- const [kind,setKind]=useState<FormKind>('contact'),[tab,setTab]=useState<'forms'|'inbox'|'departments'>('forms'),[resultForm,setResultForm]=useState('');
+ const [kind,setKind]=useState<FormKind>('contact'),[tab,setTab]=useState<'forms'|'inbox'|'departments'>('forms'),[resultForm,setResultForm]=useState(''),[counts,setCounts]=useState<Partial<Record<FormKind,{total:number;new:number}>>>({}),[countsRevision,setCountsRevision]=useState(0);
  const configure=can('forms'),activeTab=configure?tab:'inbox';
+ useEffect(()=>{const controller=new AbortController();void Promise.all(kinds.map(async value=>{const results=await Promise.all(['','new'].map(async status=>{const response=await fetch('/api/cms/submissions?'+new URLSearchParams({kind:value,status,limit:'1'}),{signal:controller.signal,cache:'no-store'});if(!response.ok)throw Error('Inzendingen tellen is niet beschikbaar.');return (await response.json()).total;}));return [value,{total:results[0],new:results[1]}] as const;})).then(values=>setCounts(Object.fromEntries(values))).catch(()=>{});return()=>controller.abort();},[countsRevision]);
  function openInbox(value:FormKind){setKind(value);setResultForm('');setTab('inbox');}
  return <section className={styles.root}>
   <div className={styles.intro}><h2>Contact, aanmeldingen & aanvragen</h2><p>Maak formulieren voor de website en volg ontvangen berichten op. Per formulier kies je de afdeling die de e-mails ontvangt.</p></div>
-  <div className={styles.kindCards} aria-label="Soorten inzendingen">{kinds.map(value=>{const Icon=kindIcons[value],active=activeTab==='inbox'&&kind===value;return <button type="button" className={styles.kindCard} aria-pressed={active} key={value} onClick={()=>openInbox(value)}><span className={styles.kindIcon}><Icon size={21}/></span><span><strong>{formKindLabels[value].plural}</strong><small>{formKindLabels[value].description}</small><span className={styles.kindMeta}>{state.forms.filter(form=>form.kind===value).length} formulieren <span aria-hidden="true">·</span> Inzendingen openen</span></span></button>;})}</div>
+  <div className={styles.kindCards} aria-label="Soorten inzendingen">{kinds.map(value=>{const Icon=kindIcons[value],active=activeTab==='inbox'&&kind===value;return <button type="button" className={styles.kindCard} aria-pressed={active} key={value} onClick={()=>openInbox(value)}><span className={styles.kindIcon}><Icon size={21}/></span><span><strong>{formKindLabels[value].plural}</strong><small>{formKindLabels[value].description}</small><span className={styles.kindMeta}>{counts[value]?`${counts[value]!.total} ontvangen`: 'Inzendingen openen'} <span aria-hidden="true">·</span> {counts[value]?`${counts[value]!.new} nieuw`:`${state.forms.filter(form=>form.kind===value).length} formulieren`}</span></span></button>;})}</div>
   <nav className={styles.tabs} aria-label="Formulierbeheer">
    {configure&&<button type="button" aria-label="Formulieren maken en bewerken" aria-current={activeTab==='forms'?'page':undefined} onClick={()=>setTab('forms')}>Formulieren maken en bewerken <span>{state.forms.length}</span></button>}
    <button type="button" aria-current={activeTab==='inbox'?'page':undefined} onClick={()=>{setResultForm('');setTab('inbox');}}>Inzendingen</button>
    {configure&&<button type="button" aria-current={activeTab==='departments'?'page':undefined} onClick={()=>setTab('departments')}>Afdelingen en ontvangers</button>}
   </nav>
-  {activeTab==='forms'?<FormDefinitions onResults={form=>{setKind(form.kind);setResultForm(form.id);setTab('inbox');}}/>:activeTab==='departments'?<DepartmentsEditor/>:<SubmissionInbox key={kind+resultForm} kind={kind} initialFormId={resultForm}/>}
+  {activeTab==='forms'?<FormDefinitions onResults={form=>{setKind(form.kind);setResultForm(form.id);setTab('inbox');}}/>:activeTab==='departments'?<DepartmentsEditor/>:<SubmissionInbox key={kind+resultForm} kind={kind} initialFormId={resultForm} onChanged={()=>setCountsRevision(value=>value+1)}/>}
  </section>;
 }
 

@@ -2,7 +2,7 @@
 import {Pagination,usePagination} from './pagination';
 import {equalContent} from '@/lib/cms/compare';
 import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
-import { ArrowDown, ArrowUp, Check, Folder, FolderPlus, GripVertical, ImagePlus, Images, Plus, Search, Star, Trash2, Upload, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, Check, Folder, FolderPlus, GripVertical, ImagePlus, Images, Plus, RefreshCw, Search, Star, Trash2, Upload, X } from 'lucide-react';
 import { useCMS } from './provider';
 import { now, slugify, uid } from '@/lib/cms/model';
 import { deleteMediaBlob, putMediaBlob, validateImageFile } from '@/lib/cms/media-storage';
@@ -16,10 +16,13 @@ function docUsesMedia(doc: CmsDoc, id: string): boolean {
 export function mediaReferences(state: CmsState, id: string): string[] {
     return [
         ...state.articles.filter(a => !a.deletedAt && a.live && (a.live.coverId === id || docUsesMedia(a.live.body, id))).map(a => `Nieuws: ${a.live!.title}`),
-        ...state.pages.filter(p => !p.deletedAt && p.live && docUsesMedia(p.live.body, id)).map(p => `Pagina: ${p.live!.title}`),
+        ...state.pages.filter(p => !p.deletedAt && p.live && (p.live.coverId === id || docUsesMedia(p.live.body, id))).map(p => `Pagina: ${p.live!.title}`),
         ...state.people.filter(p => !p.deletedAt && p.published && p.mediaId === id).map(p => `Persoon: ${p.name}`),
         ...state.albums.filter(a => !a.deletedAt && a.published && (a.coverId === id || a.mediaIds.includes(id))).map(a => `Album: ${a.title}`),
         ...(state.settings.homepagePhotoIds.includes(id) ? ['Uitgelicht op de homepage'] : []),
+        ...(state.appearance?.hero||[]).filter(card=>card.imageId===id).map(card=>`Hero-vak: ${card.title}`),
+        ...(state.appearance?.heroPortraits||[]).filter(portrait=>portrait.mediaId===id).map(portrait=>`Spelersportret: ${portrait.name}`),
+        ...(state.settings.sponsors||[]).filter(sponsor=>sponsor.imageId===id).map(sponsor=>`Sponsor: ${sponsor.name}`),
     ];
 }
 export function MediaManager({ tab = 'media' }: {
@@ -117,13 +120,14 @@ export function MediaManager({ tab = 'media' }: {
         if (await update(draft => { draft.albums.push(album); }, 'Album aangemaakt'))
             setSelectedAlbumId(id);
     }
-    return <div className="cms-media-workspace"><button className="cms-button" disabled={mediaLoading} onClick={()=>void loadMoreMedia()}>{mediaLoading?'Mediabibliotheek laden…':'Mediabibliotheek vernieuwen'}</button>
+    return <div className="cms-media-workspace">
     <div className="cms-toolbar cms-media-toolbar">
       <div className="cms-media-tabs" role="tablist" aria-label="Mediabeheer">
         <button className={activeTab === 'media' ? 'is-active' : ''} role="tab" aria-selected={activeTab === 'media'} onClick={() => { setActiveTab('media'); setQuery(''); }}><Images size={17}/> Mediabibliotheek <span>{media.length}</span></button>
         <button className={activeTab === 'albums' ? 'is-active' : ''} role="tab" aria-selected={activeTab === 'albums'} onClick={() => { setActiveTab('albums'); setQuery(''); }}><Folder size={17}/> Albums <span>{albums.length}</span></button>
       </div>
       <label className="cms-media-search"><Search size={17}/><input aria-label={activeTab === 'media' ? 'Zoek foto’s' : 'Zoek albums'} placeholder={activeTab === 'media' ? 'Zoek foto’s…' : 'Zoek albums…'} value={query} onChange={e => setQuery(e.target.value)}/></label>
+      <button type="button" className="cms-button" disabled={mediaLoading} onClick={()=>void loadMoreMedia()}><RefreshCw size={15}/>{mediaLoading?'Bibliotheek laden…':'Mediabibliotheek vernieuwen'}</button>
     </div>
     <div className="cms-panel cms-media-intro"><div><strong>{activeTab === 'media' ? 'Alle beelden. Eén vertrouwde plek.' : 'Herinneringen om te delen.'}</strong><p>{activeTab === 'media' ? 'Orden je bestanden in mappen, koppel ze aan teams en kies welke foto’s op de site mogen verschijnen.' : 'Maak openbare albums uit je mediabibliotheek. Een foto kan in meerdere albums staan.'}</p></div><span className="cms-status">Gedeelde mediabibliotheek</span></div>
     <div className="cms-toolbar cms-media-filters">
@@ -158,7 +162,7 @@ export function MediaManager({ tab = 'media' }: {
       <div className="cms-media-main">
         <div className={`cms-upload-zone ${dropActive ? 'is-dragging' : ''}`} onDragOver={e => { e.preventDefault(); if (anyMediaPermission)
             setDropActive(true); }} onDragLeave={() => setDropActive(false)} onDrop={e => { e.preventDefault(); setDropActive(false); void upload(e.dataTransfer.files); }}>
-          <Upload size={25}/><div><strong>{uploading ? 'Foto’s worden opgeslagen…' : 'Sleep je foto’s hierheen'}</strong><p>JPG, PNG, WebP, AVIF of GIF · maximaal 8 MB per foto</p></div><button className="cms-button" disabled={uploading || !can('media', uploadTeamId)} onClick={() => input.current?.click()}><ImagePlus size={16}/>{uploading ? 'Bezig…' : 'Bestanden kiezen'}</button><input hidden ref={input} type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" multiple onChange={e => void upload(e.target.files)}/>
+          <Upload size={25}/><div><strong>{uploading ? 'Foto’s worden opgeslagen…' : 'Sleep je foto’s hierheen'}</strong><p>JPG, PNG, WebP of AVIF · maximaal 8 MB per foto</p></div><button className="cms-button" disabled={uploading || !can('media', uploadTeamId)} onClick={() => input.current?.click()}><ImagePlus size={16}/>{uploading ? 'Bezig…' : 'Bestanden kiezen'}</button><input hidden ref={input} type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple onChange={e => void upload(e.target.files)}/>
         </div>
         <p className="cms-meta">Uploads worden in de gedeelde mediabibliotheek opgeslagen.</p>
         {visibleMedia.length ? <div className="cms-media-grid">{mediaPage.items.map(m => <button key={m.id} className={`cms-media-tile ${selectedId === m.id ? 'is-selected' : ''}`} onClick={() => setSelectedId(m.id)} aria-pressed={selectedId === m.id}>
@@ -169,28 +173,31 @@ export function MediaManager({ tab = 'media' }: {
       </div>
       {selected && <MediaDetails key={selected.id} media={selected} onClose={() => setSelectedId('')}/>}
     </div> : <div className={`cms-album-layout ${selectedAlbum ? 'has-editor' : ''}`}>
-      <div className="cms-album-list">{albumPage.items.map(a => <button key={a.id} className={`cms-album-card ${a.id === selectedAlbumId ? 'is-selected' : ''}`} onClick={() => setSelectedAlbumId(a.id)}>
+      <div className="cms-album-directory"><div className="cms-album-list">{albumPage.items.map(a => <button key={a.id} className={`cms-album-card ${a.id === selectedAlbumId ? 'is-selected' : ''}`} onClick={() => setSelectedAlbumId(a.id)}>
         <div className="cms-album-cover">{media.find(m => m.id === a.coverId)?.src ? <img src={media.find(m => m.id === a.coverId)!.src} alt=""/> : <Images size={30}/>}<span className={`cms-photo-badge ${a.published ? 'published' : ''}`}>{a.published ? 'Gepubliceerd' : 'Concept'}</span></div>
         <div><strong>{a.title}</strong><p>{a.mediaIds.length} foto’s · {a.season || 'Geen seizoen'}</p><span className="cms-meta">{state.settings.teams.find(t => t.id === a.teamId)?.name || 'Club algemeen'}</span></div>
-      </button>)}{!albums.length && <div className="cms-empty"><FolderPlus size={30}/><h3>Het eerste album begint hier</h3><p>Maak een album en selecteer foto’s uit de mediabibliotheek.</p><button className="cms-button primary" onClick={createAlbum} disabled={!can('media', uploadTeamId)}>Nieuw album</button></div>}</div>
-      <Pagination label="Albums" {...albumPage}/>
+      </button>)}{!albumPage.total && <div className="cms-empty"><FolderPlus size={30}/><h3>{albums.length?'Geen albums gevonden':'Het eerste album begint hier'}</h3><p>{albums.length?'Pas je zoekopdracht of teamfilter aan.':'Maak een album en selecteer foto’s uit de mediabibliotheek.'}</p><button className="cms-button primary" onClick={createAlbum} disabled={!can('media', uploadTeamId)}>Nieuw album</button></div>}</div>
+      <Pagination label="Albums" {...albumPage}/></div>
       {selectedAlbum && <AlbumDetails key={selectedAlbum.id} album={selectedAlbum} onClose={() => setSelectedAlbumId('')}/>}
     </div>}
   </div>;
 }
+function mediaDraft(value:CmsMedia){const result={...value} as any;delete result.live;delete result.version;return result as CmsMedia;}
 function MediaDetails({ media, onClose }: {
     media: CmsMedia;
     onClose: () => void;
 }) {
     const { state, update, can, notify, reload } = useCMS();
-    const [draft, setDraft] = useState(() => structuredClone(media));
+    const [draft, setDraft] = useState(() => mediaDraft(media));
+    const [busy,setBusy]=useState(false);
     const editable = can('media', media.teamId);
     const publicationRights = editable && can('publish', media.teamId) && can('publish', draft.teamId);
     const contentEditable = editable;
     const references = useMemo(() => mediaReferences(state, media.id), [state, media.id]);
-    const dirty = JSON.stringify(media) !== JSON.stringify(draft);
+    const dirty = !equalContent(mediaDraft(media),draft);
     const patch = (value: Partial<CmsMedia>) => setDraft(current => ({ ...current, ...value }));
     async function save() {
+        if (busy)return;
         if (!contentEditable || !can('media', draft.teamId))
             return notify('Je hebt geen bewerkrechten voor dit team.');
         if (!draft.name.trim())
@@ -207,7 +214,7 @@ function MediaDetails({ media, onClose }: {
         if (!draft.published && blockingReferences.length)
             return notify(`Deze foto wordt nog gebruikt: ${blockingReferences.join(', ')}. Verwijder eerst die koppelingen.`);
         const next = { ...draft, name: draft.name.trim(), featured: draft.published && draft.featured };
-        if (await update(data => {
+        setBusy(true);try{if (await update(data => {
             const index = data.media.findIndex(m => m.id === media.id);
             if (index >= 0)
                 data.media[index] = next;
@@ -215,12 +222,12 @@ function MediaDetails({ media, onClose }: {
         }, `Foto “${next.name}” bijgewerkt`,next.published&&publicationRights?{[media.id]:{action:'publish'}}:undefined)) {
             setDraft(next);
             notify('Foto opgeslagen.');
-        }
+        }}finally{setBusy(false);}
     }
     return <aside className="cms-panel cms-media-details">
-    <div className="cms-editor-heading"><h3>Fotogegevens</h3><button className="cms-icon-button" aria-label="Fotogegevens sluiten" onClick={onClose}><X size={18}/></button></div>
+    <div className="cms-editor-heading"><h3>Fotogegevens</h3><button className="cms-icon-button" aria-label="Fotogegevens sluiten" disabled={busy} onClick={onClose}><X size={18}/></button></div>
     <div className="cms-media-detail-preview">{draft.src ? <img src={draft.src} alt={draft.alt || draft.name} style={{ objectPosition: `${draft.focusX}% ${draft.focusY}%` }}/> : <Images size={36}/>}</div>
-    <fieldset disabled={!contentEditable}>
+    <fieldset disabled={!contentEditable||busy}>
       <label className="cms-field">Naam<input value={draft.name} onChange={e => patch({ name: e.target.value })}/></label>
       <label className="cms-field">Alt-tekst <span className="cms-meta">Beschrijf wat er op de foto staat.</span><textarea rows={2} value={draft.alt} onChange={e => patch({ alt: e.target.value })} placeholder="Spelers van JO13 vieren samen een doelpunt"/></label>
       <label className="cms-field">Bijschrift<textarea rows={2} value={draft.caption} onChange={e => patch({ caption: e.target.value })}/></label>
@@ -234,7 +241,7 @@ function MediaDetails({ media, onClose }: {
     </fieldset>
     {!!references.length && <div className="cms-media-usage"><strong>In gebruik</strong>{references.map(ref => <span key={ref}>{ref}</span>)}</div>}
     {media.published && <p className="cms-meta">Gepubliceerde wijzigingen zijn direct zichtbaar op de website.</p>}
-    <div className="cms-toolbar"><button className="cms-button primary" disabled={!contentEditable || !dirty} onClick={save}><Check size={16}/>{dirty ? 'Opslaan' : 'Opgeslagen'}</button><button className="cms-button danger" disabled={!editable} onClick={async () => {
+    <div className="cms-toolbar"><button className="cms-button primary" disabled={!contentEditable || !dirty||busy} onClick={save}><Check size={16}/>{busy?'Opslaan…':dirty ? 'Opslaan' : 'Opgeslagen'}</button><button className="cms-button danger" disabled={!editable||busy} onClick={async () => {
             if (references.length)
                 return notify(`Verwijderen kan nog niet. In gebruik bij: ${references.join(', ')}.`);
             if (await update(data => { const item = data.media.find(m => m.id === media.id); if (item) {

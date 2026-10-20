@@ -10,7 +10,7 @@ import styles from './forms-manager.module.css';
 type Submission={id:string;version:number;form_id:string;department_id:string;status:SubmissionStatus;created_at:string;delivery_status:string;external_ref?:string;snapshot:{name?:string;email?:string;formName:string;definition?:{registrationPurpose?:string}};answers:FormAnswer[];notes?:{note:string;created_at?:string}[];history?:{from_status:SubmissionStatus;to_status:SubmissionStatus;created_at?:string}[]};
 const date=(value:string)=>new Date(value).toLocaleString('nl-NL',{timeZone:'Europe/Amsterdam',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
 const deliveryLabels:Record<string,string>={sent:'E-mail verzonden',pending:'E-mail staat klaar voor verzending',retry:'E-mail wordt opnieuw aangeboden',failed:'E-mail verzenden is mislukt','legacy-unknown':'E-mailstatus onbekend'};
-export function SubmissionInbox({kind,initialFormId=''}:{kind:FormKind;initialFormId?:string}){
+export function SubmissionInbox({kind,initialFormId='',onChanged}:{kind:FormKind;initialFormId?:string;onChanged?:()=>void}){
  const {state}=useCMS();
  const [items,setItems]=useState<Submission[]>([]),[selected,setSelected]=useState<Submission|null>(null),[query,setQuery]=useState(''),[status,setStatus]=useState(''),[formId,setFormId]=useState(initialFormId),[departmentId,setDepartmentId]=useState(''),[total,setTotal]=useState(0),[loading,setLoading]=useState(false),[detailLoading,setDetailLoading]=useState(false),[saving,setSaving]=useState(false),[message,setMessage]=useState(''),[note,setNote]=useState(''),[externalRef,setExternalRef]=useState('');
  const saveLock=useRef(false),selectedId=useRef(''),detailSequence=useRef(0),busy=loading||saving||detailLoading;
@@ -29,7 +29,7 @@ export function SubmissionInbox({kind,initialFormId=''}:{kind:FormKind;initialFo
  }
  async function patch(values:Record<string,string>){
   if(!selected||saveLock.current||detailLoading)return;saveLock.current=true;setSaving(true);setMessage('');
-  try{const response=await fetch(`/api/cms/submissions/${encodeURIComponent(selected.id)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({expectedVersion:selected.version,...values})}),data=await response.json();if(!response.ok)throw Error(data.message||'Opslaan is mislukt.');await detail(selected.id,true);await refresh(true);setMessage('Opvolging opgeslagen.');}
+  try{const response=await fetch(`/api/cms/submissions/${encodeURIComponent(selected.id)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({expectedVersion:selected.version,...values})}),data=await response.json();if(!response.ok)throw Error(data.message||'Opslaan is mislukt.');await detail(selected.id,true);await refresh(true);onChanged?.();setMessage('Opvolging opgeslagen.');}
   catch(error){setMessage(error instanceof Error?error.message:'Opslaan is mislukt.');}finally{saveLock.current=false;setSaving(false);}
  }
  function closeDetail(){selectedId.current='';detailSequence.current++;setSelected(null);setDetailLoading(false);setNote('');}

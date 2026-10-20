@@ -1,6 +1,8 @@
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 import {loginWithEmailCode} from './login-fixture';
+import type {CmsDoc} from '../../lib/cms/types';
+const plainText=(node:CmsDoc):string=>node.text||(node.content||[]).map(plainText).join('');
 
 const owner=JSON.parse(readFileSync('.runtime/e2e-account.json','utf8'));
 
@@ -34,15 +36,17 @@ test('page editor preserves untouched live content and persists rich text edits'
  await page.getByRole('button',{name:'Onderstrepen',exact:true}).click();
  await page.getByRole('button',{name:'Centreren',exact:true}).click();
  await page.getByRole('combobox',{name:'Tekststijl',exact:true}).selectOption('3');
- await expect(composer.locator('.pb-rich-content h3 u')).toHaveText(text);
+ await expect(composer.locator('.pb-rich-content h3')).toHaveText(text);
+ await expect.poll(async()=>composer.locator('.pb-rich-content h3').evaluate(node=>{const copy=node.cloneNode(true) as HTMLElement;copy.querySelectorAll('u').forEach(underline=>underline.remove());return copy.textContent;})).toBe('');
  await page.getByRole('button',{name:'Bewaren',exact:true}).click();
- await expect.poll(async()=>JSON.stringify((await page.request.get('/api/cms/pages/'+id).then(response=>response.json())).body)).toContain(text);
+ await expect.poll(async()=>plainText((await page.request.get('/api/cms/pages/'+id).then(response=>response.json())).body)).toContain(text);
  await page.getByRole('button',{name:'Publicatie bijwerken',exact:true}).click();
  await expect(page.locator('.cms-page-breadcrumb .cms-status')).toHaveText('Gepubliceerd');
  await page.reload();
  await page.getByRole('textbox',{name:'Pagina’s doorzoeken',exact:true}).fill(title);
  await page.locator('.cms-page-select').filter({hasText:title}).click();
- await expect(composer.locator('.pb-rich-content h3 u')).toHaveText(text);
+ await expect(composer.locator('.pb-rich-content h3')).toHaveText(text);
+ await expect.poll(async()=>composer.locator('.pb-rich-content h3').evaluate(node=>{const copy=node.cloneNode(true) as HTMLElement;copy.querySelectorAll('u').forEach(underline=>underline.remove());return copy.textContent;})).toBe('');
  await expect(composer.locator('.pb-rich-content h3')).toHaveCSS('text-align','center');
  await page.getByRole('button',{name:'Revisies',exact:true}).click();
  await expect(page.locator('.cms-page-revisions article').first()).toContainText('Gepubliceerd');
