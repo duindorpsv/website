@@ -26,7 +26,7 @@ De achtergrondspeler gebruikt dezelfde instellingen voor CMS-preview en homepage
 
 ## Visuele verificatie
 
-Bewijsbestanden zijn lokaal bewaard onder [`.runtime/review-evidence/hero-slider/`](../.runtime/review-evidence/hero-slider/), bedoeld om samen met het volledige reviewpakket te bundelen. Deze map is geen productiecontent en wordt door Git genegeerd. De oorspronkelijke RAM-bewijzen blijven ook beschikbaar in `/dev/shm/duindorpsv-hero-slider-H9cB4W` en `/dev/shm/duindorpsv-hero-slider-flow-bTDyOd`.
+De belangrijkste beelden en meetbestanden staan bij [het reviewbewijs](../design/club-planning-2026-10-20/hero-slider/). Het volledige archief met alle 47 vergelijkingen staat in het [reviewpakket](../design/club-planning-2026-10-20/README.md). Dit zijn uitsluitend synthetische testgegevens, geen productiecontent.
 
 | Controle | Resultaat |
 | --- | --- |
@@ -39,11 +39,11 @@ De breedtes zijn 1920, 1440, 1201, 1200, 1024, 1000, 999, 701, 700, 390 en 320 p
 
 De 47 vergelijkingen hebben zowel `changedPixels: 0` als `maxChannelDifference: 0`. Dit betreft de genoemde modulepanelen en toestanden; het is geen uitspraak dat de gehele CMS-shell identiek is. Volledige screenshots zijn eveneens opgenomen.
 
-Desktop: [baseline](../.runtime/review-evidence/hero-slider/baseline-1440.png), [kandidaat](../.runtime/review-evidence/hero-slider/candidate-1440.png), [verschil van de lijst](../.runtime/review-evidence/hero-slider/diff-1440-list.png), [overlay](../.runtime/review-evidence/hero-slider/overlay-1440-list.png).
+Desktop: [baseline](../design/club-planning-2026-10-20/hero-slider/baseline-1440.png), [kandidaat](../design/club-planning-2026-10-20/hero-slider/candidate-1440.png), [verschil van de lijst](../design/club-planning-2026-10-20/hero-slider/diff-1440-list.png), [overlay](../design/club-planning-2026-10-20/hero-slider/overlay-1440-list.png).
 
-Mobiel: [baseline](../.runtime/review-evidence/hero-slider/baseline-390.png), [kandidaat](../.runtime/review-evidence/hero-slider/candidate-390.png), [mobiele uitsnede](../.runtime/review-evidence/hero-slider/candidate-390-crop-preview.png), [lege selectie](../.runtime/review-evidence/hero-slider/candidate-390-empty-list.png), [conflictmelding](../.runtime/review-evidence/hero-slider/candidate-390-conflict-notice.png).
+Mobiel: [baseline](../design/club-planning-2026-10-20/hero-slider/baseline-390.png), [kandidaat](../design/club-planning-2026-10-20/hero-slider/candidate-390.png), [mobiele uitsnede](../design/club-planning-2026-10-20/hero-slider/candidate-390-crop-preview.png), [lege selectie](../design/club-planning-2026-10-20/hero-slider/candidate-390-empty-list.png), [conflictmelding](../design/club-planning-2026-10-20/hero-slider/candidate-390-conflict-notice.png).
 
-Machineleesbaar: [geometrie en pixelmetingen](../.runtime/review-evidence/hero-slider/manifest.json), [bestandshashes](../.runtime/review-evidence/hero-slider/asset-verification.json), [functionele verificatie](../.runtime/review-evidence/hero-slider/verification-summary.json).
+Machineleesbaar: [geometrie en pixelmetingen](../design/club-planning-2026-10-20/hero-slider/manifest.json), [bestandshashes](../design/club-planning-2026-10-20/hero-slider/asset-verification.json), [functionele verificatie](../design/club-planning-2026-10-20/hero-slider/verification-summary.json).
 
 Bewuste productieverschillen buiten de identieke panelen:
 
@@ -56,7 +56,7 @@ Bewuste productieverschillen buiten de identieke panelen:
 
 `pnpm exec tsx --test tests/unit/hero-slider.test.ts`: **4 tests geslaagd**. De tests controleren standaarden en aanwezige responsive assets, alle schema- en bewegingsgrenzen, unieke bronselectie, lege/uitgeschakelde selecties en onveilige of verkeerde media-URL’s.
 
-De echte CMS-provider, editor en achtergrondspeler zijn daarnaast in een lokale browserharness gecontroleerd met een HTTP-fixture voor de API. Dit vervangt alleen de externe opslag/authomgeving; componenten en provider zijn de productieimplementatie. De controle omvat acht mutaties, upload en verwerkingspolling, expliciete mediapublicatie, afzonderlijke draft/live, herladen, focus en volgorde, max. 20, leeg publiceren, conflicten met behoud van lokale invoer en herladen na bevestiging. Screenshots op [1440](../.runtime/review-evidence/hero-slider/flow-1440.png), [1024](../.runtime/review-evidence/hero-slider/flow-1024.png), [390](../.runtime/review-evidence/hero-slider/flow-390.png) en [320](../.runtime/review-evidence/hero-slider/flow-320.png) hebben geen overloop of JavaScriptfouten.
+De echte CMS-provider, editor en achtergrondspeler zijn daarnaast in een lokale browserharness gecontroleerd met een HTTP-fixture voor de API. Dit vervangt alleen de externe opslag/authomgeving; componenten en provider zijn de productieimplementatie. De controle omvat acht mutaties, upload en verwerkingspolling, expliciete mediapublicatie, afzonderlijke draft/live, herladen, focus en volgorde, max. 20, leeg publiceren, conflicten met behoud van lokale invoer en herladen na bevestiging. Screenshots op [1440](../design/club-planning-2026-10-20/hero-slider/flow-1440.png), [1024](../design/club-planning-2026-10-20/hero-slider/flow-1024.png), [390](../design/club-planning-2026-10-20/hero-slider/flow-390.png) en [320](../design/club-planning-2026-10-20/hero-slider/flow-320.png) hebben geen overloop of JavaScriptfouten.
 
 De runtimecontrole gebruikt ook normale beweging en een bestuurde klok. Gecontroleerd zijn de decodegrens vóór wisselen, automatisch wisselen, pauze zonder bolletjes, handmatig pauzeren, hover/focus, verborgen document, buiten beeld, databesparing, verminderde beweging, handmatige keuzes bij verminderde beweging, de mobiele preview in een desktopvenster, standaard mobiele uitsnede, expliciete 30/70-focus, één afbeelding, een defect eerste beeld, een mislukte fallback zonder herhaallus, geen netwerkverzoek voor uitgesloten beelden, directe overgang en alle drie zoominstellingen.
 

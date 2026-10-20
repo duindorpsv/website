@@ -11,6 +11,7 @@ import {mutate} from './records';
 
 export type SportlinkSyncState={status:'never'|'queued'|'running'|'success'|'partial'|'failed'|'paused';lastAttemptAt?:string;lastSuccessAt?:string;nextRunAt?:string;message?:string;counts?:Record<string,number>};
 const stateKey=(dataset:SportlinkDataset)=>'sportlink-sync-v1:'+dataset;
+function authorizeSportlinkManage(actor:Principal){authorize(actor,'settings','manage');if(actor.teamScoped)throw new CmsError('forbidden','Sportlink-synchronisatie vereist clubbrede instellingenbeheerrechten.',403);}
 async function setSyncState(dataset:SportlinkDataset,patch:Partial<SportlinkSyncState>,transaction?:any){
  const sql=transaction||sqlClient(),[row]=await sql`select payload_json from sportlink_cache where cache_key=${stateKey(dataset)} for update`;
  const previous:SportlinkSyncState=row?.payload_json?JSON.parse(row.payload_json):{status:'never'},value={...previous,...patch};
@@ -24,13 +25,13 @@ export async function sportlinkStatus(actor:Principal){
  const fields=[...new Set<string>(matches.map((match:any)=>match.field).filter(Boolean))].map(name=>({name}));
  const changingRooms=[...new Set<string>(matches.flatMap((match:any)=>Object.values(match.changingRooms||{})).filter(Boolean))].map(name=>({name}));
  const unresolved=JSON.parse(assignmentRows.find(row=>row.cache_key==='sportlink-planning-review-v1')?.payload_json||'{"items":[]}').items;
- return {...config,actorId:undefined,canManage:has(actor,'settings','manage'),credentialConfigured:!!process.env.SPORTLINK_CLIENT_ID,automaticActive:config.configured&&config.settings.enabled&&!!process.env.SPORTLINK_CLIENT_ID,datasets,teams,fields,changingRooms,unresolved};
+ return {...config,actorId:undefined,canManage:has(actor,'settings','manage')&&!actor.teamScoped,credentialConfigured:!!process.env.SPORTLINK_CLIENT_ID,automaticActive:config.configured&&config.settings.enabled&&!!process.env.SPORTLINK_CLIENT_ID,datasets,teams,fields,changingRooms,unresolved};
 }
 export async function rescheduleSportlink(settings:SportlinkSettings){
  const sql=sqlClient();await sql.begin(async tx=>{for(const dataset of SPORTLINK_DATASETS){const [row]=await tx`select payload_json from sportlink_cache where cache_key=${stateKey(dataset)} for update`;if(!row?.payload_json)continue;const previous:SportlinkSyncState=JSON.parse(row.payload_json);if(previous.lastSuccessAt)await setSyncState(dataset,{nextRunAt:new Date(nextSportlinkRun(settings.schedules[dataset],new Date(previous.lastSuccessAt))).toISOString()},tx);}});
 }
 export async function queueSportlinkSync(actor:Principal,dataset:SportlinkDataset,operationId:string,scheduled=false){
- authorize(actor,'settings','manage');if(!SPORTLINK_DATASETS.includes(dataset))throw new CmsError('sportlink-dataset','Kies een geldig Sportlink-onderdeel.',422);
+ authorizeSportlinkManage(actor);if(!SPORTLINK_DATASETS.includes(dataset))throw new CmsError('sportlink-dataset','Kies een geldig Sportlink-onderdeel.',422);
  if(!process.env.SPORTLINK_CLIENT_ID)throw new CmsError('sportlink-config','Stel SPORTLINK_CLIENT_ID in GitHub production in.',422);
  const sql=sqlClient(),config=await readSportlinkSettings();if(!config.configured)throw new CmsError('sportlink-settings','Bewaar eerst de Sportlink-instellingen.',422);
  return sql.begin(async tx=>{
@@ -48,7 +49,7 @@ export async function queueSportlinkSync(actor:Principal,dataset:SportlinkDatase
 /** Durable due times; no dependency on a visitor opening the website. */
 export async function scheduleSportlinkSync(){
  const config=await readSportlinkSettings();if(!config.configured||!config.settings.enabled||!config.actorId||!process.env.SPORTLINK_CLIENT_ID)return;
- const actor=await actorPrincipal(config.actorId);authorize(actor,'settings','manage');const sql=sqlClient();
+ const actor=await actorPrincipal(config.actorId);authorizeSportlinkManage(actor);const sql=sqlClient();
  for(const dataset of SPORTLINK_DATASETS){if(!config.settings.schedules[dataset].enabled)continue;
   const [row]=await sql`select payload_json from sportlink_cache where cache_key=${stateKey(dataset)}`,state:SportlinkSyncState=row?.payload_json?JSON.parse(row.payload_json):{status:'never'};
   if(state.nextRunAt&&new Date(state.nextRunAt).getTime()>Date.now())continue;
@@ -92,7 +93,7 @@ export async function importSportlinkPeople(actor:Principal,sourceIds:string[],o
 }
 
 export async function processSportlinkSync(payload:{dataset:SportlinkDataset;actorId:string;scheduled?:boolean},jobId:string){
- const actor=await actorPrincipal(payload.actorId);authorize(actor,'settings','manage');const {settings}=await readSportlinkSettings(),sql=sqlClient(),dataset=payload.dataset;
+ const actor=await actorPrincipal(payload.actorId);authorizeSportlinkManage(actor);const {settings}=await readSportlinkSettings(),sql=sqlClient(),dataset=payload.dataset;
  if(!SPORTLINK_DATASETS.includes(dataset))throw new CmsError('sportlink-dataset','Onbekende synchronisatietaak.',422);
  if(payload.scheduled&&(!settings.enabled||!settings.schedules[dataset].enabled)){await sql.begin(tx=>setSyncState(dataset,{status:'paused',message:'Automatische synchronisatie is gepauzeerd.'},tx));return;}
  const effective=settings;effective.enabled=true;effective.schedules[dataset].enabled=true;effective.schedules.teams.enabled=true;

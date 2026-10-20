@@ -17,7 +17,7 @@ test('hero slider: real upload, saved private draft, explicit public source/crop
   await expect(page.getByRole('status').filter({hasText:action==='save'?'De werkversie is opgeslagen.':'De hero-slider is gepubliceerd op de homepage.'})).toBeVisible();
  }
  try{
-  await page.getByRole('button',{name:'Homepage',exact:true}).click();await page.getByRole('button',{name:'Hero-slider',exact:true}).click();
+  await page.getByRole('button',{name:'Homepage',exact:true}).click();await page.getByRole('tab',{name:'Hero-slider',exact:true}).click();
   await page.getByRole('button',{name:'Achtergrond toevoegen',exact:true}).click();await page.getByRole('button',{name:'Uploaden',exact:true}).click();await page.locator('.hsm-upload input[type=file]').setInputFiles('public/assets/clubmuur-portraits-v14/01-trots-640.webp');await page.getByLabel('Fotonaam',{exact:true}).fill(name);await page.getByLabel('Beschrijving',{exact:true}).fill('Een gecontroleerde achtergrond voor de slider.');await page.getByRole('button',{name:'Uploaden en toevoegen',exact:true}).click();await expect(page.getByText(name,{exact:true})).toBeVisible({timeout:75000});
   await page.getByLabel('Horizontale uitsnede',{exact:true}).fill('30');await page.getByLabel('Verticale uitsnede',{exact:true}).fill('70');
   while(await page.getByRole('button',{name:name+' eerder',exact:true}).isEnabled())await page.getByRole('button',{name:name+' eerder',exact:true}).click();

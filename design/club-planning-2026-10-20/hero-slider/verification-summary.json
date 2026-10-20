@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-20",
+  "sqlRepository": {
+    "passed": true,
+    "authCovered": false,
+    "checks": [
+      "private draft leaves public live unchanged",
+      "pages editor can save without publish grant",
+      "publish authorization",
+      "private media publish rejected",
+      "public media reference tracked",
+      "stale expectedVersion rejects 409",
+      "singleton ID enforced",
+      "raw blob/src payload rejected 422",
+      "empty draft and publication persist",
+      "removal preserves library record"
+    ]
+  },
+  "unit": {
+    "passed": 4,
+    "failed": 0
+  },
+  "browser": {
+    "passed": true,
+    "apiFixture": true,
+    "realProvider": true,
+    "realUi": true,
+    "mutations": 8,
+    "publicProductionWrites": false,
+    "checks": [
+      "media library",
+      "upload endpoint and private processing polling",
+      "explicit media publication",
+      "draft reload",
+      "explicit slider publication",
+      "max20",
+      "empty selection stays empty",
+      "409 preserves local edits",
+      "explicit conflict reload",
+      "1440/1024/390/320 no overflow",
+      "normal and reduced motion",
+      "saveData",
+      "decode gate",
+      "pause without dots",
+      "hover/focus/hidden/offscreen pause",
+      "portrait preview and focal point",
+      "failed first skip",
+      "all failed fallback once",
+      "excluded media never requested",
+      "direct transition and all zoom values"
+    ]
+  },
+  "limits": [
+    "Authenticated Supabase integration suite and real-worker E2E are implemented but not run here.",
+    "Screenshots compare isolated native module panels, not an assertion that the complete CMS shell is pixel-identical."
+  ]
+}

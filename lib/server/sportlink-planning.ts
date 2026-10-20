@@ -39,13 +39,15 @@ export async function syncSportlinkMatches(actor:Principal,matches:SportlinkMatc
    const candidates=locations.filter(location=>location.type===type&&(explicit?location.id===explicit.locationId:type==='field'&&key(location.sportlinkFieldName||'')===key(value)));
    if(candidates.length===1)desired.push(candidates[0].id);else unresolved.push({matchId:match.id,title,fieldName,reason:`Sportlink ${type==='field'?'veld':'kleedkamer'} “${value}” heeft geen unieke actieve koppeling.`});
   };
-  mapping('field',fieldName);for(const room of new Set(Object.values(rooms)))mapping('changing',room);
+  // Equal names at an opponent's ground are not our resources. Away fixtures
+  // still belong in the agenda, but only home fixtures own local allocations.
+  if(match.home.own){mapping('field',fieldName);for(const room of new Set(Object.values(rooms)))mapping('changing',room);}
   const previousSource=new Set<string>(old?.draft.sourceData?.locationIds||[]);
   const extras=(old?.draft.locationIds||[]).filter((locationId:string)=>!previousSource.has(locationId)&&locations.some(location=>location.id===locationId&&location.type!=='field'));
   let locationIds=[...new Set([...desired,...extras])],sourceLocations=[...new Set(desired)];
   const mappedTeams=settings.teamMappings.filter(mapping=>[match.home.id,match.away.id].includes(mapping.teamId.split(':')[0])).map(mapping=>mapping.cmsTeamId);
   const previousTeams=new Set<string>(old?.draft.sourceData?.teamIds||[]),teamIds=[...new Set<string>([...(old?.draft.teamIds||[]).filter((teamId:string)=>!previousTeams.has(teamId)),...mappedTeams])];
-  const revision=createHash('sha256').update(JSON.stringify([title,match.kickoff,match.status,fieldName,rooms,duration,sourceLocations,mappedTeams])).digest('hex');
+  const revision=createHash('sha256').update(JSON.stringify([title,match.kickoff,match.status,match.home.own,fieldName,rooms,duration,sourceLocations,mappedTeams])).digest('hex');
   if(old?.draft.sourceData?.revision===revision&&JSON.stringify(old.draft.locationIds)===JSON.stringify(locationIds)){counts.unchanged++;continue;}
   const cancelled=/afgelast|vervallen|geannuleerd|cancelled/i.test(match.status);
   const maxAttempts=locationIds.length+1;

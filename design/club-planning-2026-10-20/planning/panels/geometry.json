@@ -1,0 +1,1014 @@
+[
+  {
+    "panel": "people-stats",
+    "viewportWidth": 1440,
+    "reference": {
+      "x": 298,
+      "y": 265.84375,
+      "width": 1104,
+      "height": 89.59375
+    },
+    "candidate": {
+      "x": 298,
+      "y": 265.84375,
+      "width": 1104,
+      "height": 89.59375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": 0.0
+    }
+  },
+  {
+    "panel": "people-table",
+    "viewportWidth": 1440,
+    "reference": {
+      "x": 298,
+      "y": 480.125,
+      "width": 1104,
+      "height": 1144.375
+    },
+    "candidate": {
+      "x": 298,
+      "y": 380.4375,
+      "width": 1104,
+      "height": 1144.375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -99.6875
+    }
+  },
+  {
+    "panel": "committee-stats",
+    "viewportWidth": 1440,
+    "reference": {
+      "x": 298,
+      "y": 265.84375,
+      "width": 1104,
+      "height": 89.59375
+    },
+    "candidate": {
+      "x": 298,
+      "y": 265.84375,
+      "width": 1104,
+      "height": 89.59375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": 0.0
+    }
+  },
+  {
+    "panel": "committee-grid",
+    "viewportWidth": 1440,
+    "reference": {
+      "x": 298,
+      "y": 574.921875,
+      "width": 1104,
+      "height": 758.15625
+    },
+    "candidate": {
+      "x": 298,
+      "y": 475.234375,
+      "width": 1104,
+      "height": 758.15625
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -99.6875
+    }
+  },
+  {
+    "panel": "location-stats",
+    "viewportWidth": 1440,
+    "reference": {
+      "x": 298,
+      "y": 378.734375,
+      "width": 1104,
+      "height": 103.6875
+    },
+    "candidate": {
+      "x": 298,
+      "y": 265.84375,
+      "width": 1104,
+      "height": 103.6875
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -112.890625
+    }
+  },
+  {
+    "panel": "location-grid",
+    "viewportWidth": 1440,
+    "reference": {
+      "x": 298,
+      "y": 636.40625,
+      "width": 1104,
+      "height": 925.171875
+    },
+    "candidate": {
+      "x": 298,
+      "y": 523.515625,
+      "width": 1104,
+      "height": 925.171875
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -112.890625
+    }
+  },
+  {
+    "panel": "booking-timeline",
+    "viewportWidth": 1440,
+    "reference": {
+      "x": 298,
+      "y": 669.40625,
+      "width": 1104,
+      "height": 698.390625
+    },
+    "candidate": {
+      "x": 298,
+      "y": 556.515625,
+      "width": 1104,
+      "height": 698.390625
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -112.890625
+    }
+  },
+  {
+    "panel": "agenda-week",
+    "viewportWidth": 1440,
+    "reference": {
+      "x": 298,
+      "y": 383.453125,
+      "width": 851,
+      "height": 868.984375
+    },
+    "candidate": {
+      "x": 298,
+      "y": 265.84375,
+      "width": 851,
+      "height": 868.984375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -117.609375
+    }
+  },
+  {
+    "panel": "agenda-dag",
+    "viewportWidth": 1440,
+    "reference": {
+      "x": 298,
+      "y": 132.453125,
+      "width": 851,
+      "height": 868.984375
+    },
+    "candidate": {
+      "x": 298,
+      "y": 131.84375,
+      "width": 851,
+      "height": 868.984375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -0.609375
+    }
+  },
+  {
+    "panel": "agenda-maand",
+    "viewportWidth": 1440,
+    "reference": {
+      "x": 298,
+      "y": 119.453125,
+      "width": 851,
+      "height": 948.984375
+    },
+    "candidate": {
+      "x": 298,
+      "y": 118.84375,
+      "width": 851,
+      "height": 948.984375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -0.609375
+    }
+  },
+  {
+    "panel": "agenda-jaar",
+    "viewportWidth": 1440,
+    "reference": {
+      "x": 298,
+      "y": 119.453125,
+      "width": 851,
+      "height": 1008.984375
+    },
+    "candidate": {
+      "x": 298,
+      "y": 118.84375,
+      "width": 851,
+      "height": 1008.984375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -0.609375
+    }
+  },
+  {
+    "panel": "training-stats",
+    "viewportWidth": 1440,
+    "reference": {
+      "x": 298,
+      "y": 344.328125,
+      "width": 1104,
+      "height": 86.1875
+    },
+    "candidate": {
+      "x": 298,
+      "y": 265.84375,
+      "width": 1104,
+      "height": 86.1875
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -78.484375
+    }
+  },
+  {
+    "panel": "training-calendar",
+    "viewportWidth": 1440,
+    "reference": {
+      "x": 298,
+      "y": 452.515625,
+      "width": 1104,
+      "height": 1352.0625
+    },
+    "candidate": {
+      "x": 298,
+      "y": 374.03125,
+      "width": 1104,
+      "height": 1352.0625
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -78.484375
+    }
+  },
+  {
+    "panel": "people-stats",
+    "viewportWidth": 1920,
+    "reference": {
+      "x": 358,
+      "y": 272.578125,
+      "width": 1464,
+      "height": 89.59375
+    },
+    "candidate": {
+      "x": 358,
+      "y": 272.578125,
+      "width": 1464,
+      "height": 89.59375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": 0.0
+    }
+  },
+  {
+    "panel": "people-table",
+    "viewportWidth": 1920,
+    "reference": {
+      "x": 358,
+      "y": 486.859375,
+      "width": 1464,
+      "height": 1144.375
+    },
+    "candidate": {
+      "x": 358,
+      "y": 387.171875,
+      "width": 1464,
+      "height": 1144.375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -99.6875
+    }
+  },
+  {
+    "panel": "committee-stats",
+    "viewportWidth": 1920,
+    "reference": {
+      "x": 358,
+      "y": 272.578125,
+      "width": 1464,
+      "height": 89.59375
+    },
+    "candidate": {
+      "x": 358,
+      "y": 272.578125,
+      "width": 1464,
+      "height": 89.59375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": 0.0
+    }
+  },
+  {
+    "panel": "committee-grid",
+    "viewportWidth": 1920,
+    "reference": {
+      "x": 358,
+      "y": 581.65625,
+      "width": 1464,
+      "height": 757.96875
+    },
+    "candidate": {
+      "x": 358,
+      "y": 481.96875,
+      "width": 1464,
+      "height": 757.96875
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -99.6875
+    }
+  },
+  {
+    "panel": "location-stats",
+    "viewportWidth": 1920,
+    "reference": {
+      "x": 358,
+      "y": 385.46875,
+      "width": 1464,
+      "height": 103.6875
+    },
+    "candidate": {
+      "x": 358,
+      "y": 272.578125,
+      "width": 1464,
+      "height": 103.6875
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -112.890625
+    }
+  },
+  {
+    "panel": "location-grid",
+    "viewportWidth": 1920,
+    "reference": {
+      "x": 358,
+      "y": 643.140625,
+      "width": 1464,
+      "height": 925.171875
+    },
+    "candidate": {
+      "x": 358,
+      "y": 530.25,
+      "width": 1464,
+      "height": 925.171875
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -112.890625
+    }
+  },
+  {
+    "panel": "booking-timeline",
+    "viewportWidth": 1920,
+    "reference": {
+      "x": 358,
+      "y": 676.140625,
+      "width": 1464,
+      "height": 698.390625
+    },
+    "candidate": {
+      "x": 358,
+      "y": 563.25,
+      "width": 1464,
+      "height": 698.390625
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -112.890625
+    }
+  },
+  {
+    "panel": "agenda-week",
+    "viewportWidth": 1920,
+    "reference": {
+      "x": 358,
+      "y": 390.1875,
+      "width": 1191,
+      "height": 918.984375
+    },
+    "candidate": {
+      "x": 358,
+      "y": 272.578125,
+      "width": 1191,
+      "height": 918.984375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -117.609375
+    }
+  },
+  {
+    "panel": "training-stats",
+    "viewportWidth": 1920,
+    "reference": {
+      "x": 358,
+      "y": 351.0625,
+      "width": 1464,
+      "height": 86.1875
+    },
+    "candidate": {
+      "x": 358,
+      "y": 272.578125,
+      "width": 1464,
+      "height": 86.1875
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -78.484375
+    }
+  },
+  {
+    "panel": "training-calendar",
+    "viewportWidth": 1920,
+    "reference": {
+      "x": 358,
+      "y": 459.25,
+      "width": 1464,
+      "height": 1352.0625
+    },
+    "candidate": {
+      "x": 358,
+      "y": 380.765625,
+      "width": 1464,
+      "height": 1352.0625
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -78.484375
+    }
+  },
+  {
+    "panel": "people-stats",
+    "viewportWidth": 1024,
+    "reference": {
+      "x": 256,
+      "y": 251.796875,
+      "width": 744,
+      "height": 100
+    },
+    "candidate": {
+      "x": 256,
+      "y": 251.796875,
+      "width": 744,
+      "height": 100
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0,
+      "x": 0,
+      "y": 0.0
+    }
+  },
+  {
+    "panel": "people-table",
+    "viewportWidth": 1024,
+    "reference": {
+      "x": 256,
+      "y": 533.484375,
+      "width": 744,
+      "height": 1179.34375
+    },
+    "candidate": {
+      "x": 256,
+      "y": 376.796875,
+      "width": 744,
+      "height": 1179.34375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -156.6875
+    }
+  },
+  {
+    "panel": "committee-stats",
+    "viewportWidth": 1024,
+    "reference": {
+      "x": 256,
+      "y": 251.796875,
+      "width": 744,
+      "height": 84
+    },
+    "candidate": {
+      "x": 256,
+      "y": 251.796875,
+      "width": 744,
+      "height": 84
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0,
+      "x": 0,
+      "y": 0.0
+    }
+  },
+  {
+    "panel": "committee-grid",
+    "viewportWidth": 1024,
+    "reference": {
+      "x": 256,
+      "y": 612.28125,
+      "width": 744,
+      "height": 756.15625
+    },
+    "candidate": {
+      "x": 256,
+      "y": 455.59375,
+      "width": 744,
+      "height": 756.15625
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -156.6875
+    }
+  },
+  {
+    "panel": "location-stats",
+    "viewportWidth": 1024,
+    "reference": {
+      "x": 256,
+      "y": 424.6875,
+      "width": 744,
+      "height": 114.1875
+    },
+    "candidate": {
+      "x": 256,
+      "y": 251.796875,
+      "width": 744,
+      "height": 114.1875
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -172.890625
+    }
+  },
+  {
+    "panel": "location-grid",
+    "viewportWidth": 1024,
+    "reference": {
+      "x": 256,
+      "y": 692.859375,
+      "width": 744,
+      "height": 1239.5625
+    },
+    "candidate": {
+      "x": 256,
+      "y": 519.96875,
+      "width": 744,
+      "height": 1239.5625
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -172.890625
+    }
+  },
+  {
+    "panel": "booking-timeline",
+    "viewportWidth": 1024,
+    "reference": {
+      "x": 256,
+      "y": 725.859375,
+      "width": 744,
+      "height": 698.390625
+    },
+    "candidate": {
+      "x": 256,
+      "y": 552.96875,
+      "width": 744,
+      "height": 698.390625
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -172.890625
+    }
+  },
+  {
+    "panel": "agenda-week",
+    "viewportWidth": 1024,
+    "reference": {
+      "x": 256,
+      "y": 364.9375,
+      "width": 744,
+      "height": 892.578125
+    },
+    "candidate": {
+      "x": 256,
+      "y": 251.796875,
+      "width": 744,
+      "height": 892.578125
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -113.140625
+    }
+  },
+  {
+    "panel": "training-stats",
+    "viewportWidth": 1024,
+    "reference": {
+      "x": 256,
+      "y": 351.875,
+      "width": 744,
+      "height": 86.1875
+    },
+    "candidate": {
+      "x": 256,
+      "y": 251.796875,
+      "width": 744,
+      "height": 86.1875
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -100.078125
+    }
+  },
+  {
+    "panel": "training-calendar",
+    "viewportWidth": 1024,
+    "reference": {
+      "x": 256,
+      "y": 460.0625,
+      "width": 744,
+      "height": 1352.0625
+    },
+    "candidate": {
+      "x": 256,
+      "y": 359.984375,
+      "width": 744,
+      "height": 1352.0625
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -100.078125
+    }
+  },
+  {
+    "panel": "people-stats",
+    "viewportWidth": 390,
+    "reference": {
+      "x": 16,
+      "y": 252.34375,
+      "width": 358,
+      "height": 202.1875
+    },
+    "candidate": {
+      "x": 16,
+      "y": 275.265625,
+      "width": 358,
+      "height": 202.1875
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": 22.921875
+    }
+  },
+  {
+    "panel": "people-table",
+    "viewportWidth": 390,
+    "reference": {
+      "x": 16,
+      "y": 666.3125,
+      "width": 358,
+      "height": 2570.171875
+    },
+    "candidate": {
+      "x": 16,
+      "y": 498.453125,
+      "width": 358,
+      "height": 2570.171875
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -167.859375
+    }
+  },
+  {
+    "panel": "committee-stats",
+    "viewportWidth": 390,
+    "reference": {
+      "x": 16,
+      "y": 233.65625,
+      "width": 358,
+      "height": 132.796875
+    },
+    "candidate": {
+      "x": 16,
+      "y": 275.265625,
+      "width": 358,
+      "height": 132.796875
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": 41.609375
+    }
+  },
+  {
+    "panel": "committee-grid",
+    "viewportWidth": 390,
+    "reference": {
+      "x": 16,
+      "y": 711.828125,
+      "width": 358,
+      "height": 1505.8125
+    },
+    "candidate": {
+      "x": 16,
+      "y": 576.65625,
+      "width": 358,
+      "height": 1505.8125
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -135.171875
+    }
+  },
+  {
+    "panel": "location-stats",
+    "viewportWidth": 390,
+    "reference": {
+      "x": 16,
+      "y": 442.828125,
+      "width": 358,
+      "height": 204.59375
+    },
+    "candidate": {
+      "x": 16,
+      "y": 275.265625,
+      "width": 358,
+      "height": 204.59375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -167.5625
+    }
+  },
+  {
+    "panel": "location-grid",
+    "viewportWidth": 390,
+    "reference": {
+      "x": 16,
+      "y": 853.8125,
+      "width": 358,
+      "height": 2383.125
+    },
+    "candidate": {
+      "x": 16,
+      "y": 686.25,
+      "width": 358,
+      "height": 2383.125
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -167.5625
+    }
+  },
+  {
+    "panel": "booking-timeline",
+    "viewportWidth": 390,
+    "reference": {
+      "x": 16,
+      "y": 882.8125,
+      "width": 358,
+      "height": 698.390625
+    },
+    "candidate": {
+      "x": 16,
+      "y": 715.25,
+      "width": 358,
+      "height": 698.390625
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -167.5625
+    }
+  },
+  {
+    "panel": "agenda-week",
+    "viewportWidth": 390,
+    "reference": {
+      "x": 16,
+      "y": 429.0625,
+      "width": 358,
+      "height": 860.375
+    },
+    "candidate": {
+      "x": 16,
+      "y": 275.265625,
+      "width": 358,
+      "height": 860.375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -153.796875
+    }
+  },
+  {
+    "panel": "agenda-dag",
+    "viewportWidth": 390,
+    "reference": {
+      "x": 16,
+      "y": 89.0625,
+      "width": 358,
+      "height": 860.375
+    },
+    "candidate": {
+      "x": 16,
+      "y": 89.265625,
+      "width": 358,
+      "height": 860.375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": 0.203125
+    }
+  },
+  {
+    "panel": "agenda-maand",
+    "viewportWidth": 390,
+    "reference": {
+      "x": 16,
+      "y": 89.0625,
+      "width": 358,
+      "height": 1040.375
+    },
+    "candidate": {
+      "x": 16,
+      "y": 89.265625,
+      "width": 358,
+      "height": 1040.375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": 0.203125
+    }
+  },
+  {
+    "panel": "agenda-jaar",
+    "viewportWidth": 390,
+    "reference": {
+      "x": 16,
+      "y": 89.0625,
+      "width": 358,
+      "height": 1100.375
+    },
+    "candidate": {
+      "x": 16,
+      "y": 89.265625,
+      "width": 358,
+      "height": 1100.375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": 0.203125
+    }
+  },
+  {
+    "panel": "training-stats",
+    "viewportWidth": 390,
+    "reference": {
+      "x": 16,
+      "y": 407.828125,
+      "width": 358,
+      "height": 121
+    },
+    "candidate": {
+      "x": 16,
+      "y": 275.265625,
+      "width": 358,
+      "height": 121
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0,
+      "x": 0,
+      "y": -132.5625
+    }
+  },
+  {
+    "panel": "training-calendar",
+    "viewportWidth": 390,
+    "reference": {
+      "x": 16,
+      "y": 550.828125,
+      "width": 358,
+      "height": 2019.484375
+    },
+    "candidate": {
+      "x": 16,
+      "y": 418.265625,
+      "width": 358,
+      "height": 2019.484375
+    },
+    "geometryDelta": {
+      "width": 0,
+      "height": 0.0,
+      "x": 0,
+      "y": -132.5625
+    }
+  }
+]
