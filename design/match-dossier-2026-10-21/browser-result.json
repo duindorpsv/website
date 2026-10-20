@@ -1,0 +1,24 @@
+{
+  "fixture": "Synthetic UI data with actual application components; PostgreSQL/publication verification is separate.",
+  "checks": [
+    "shared modal: hero",
+    "shared modal: live",
+    "shared modal: competition",
+    "shared modal: programme",
+    "shared modal: results",
+    "shared modal: team",
+    "shared modal: cancellations",
+    "shared desktop row heights",
+    "ICS and context-preserving WhatsApp",
+    "390px, nowrap, no overflow, focus trap",
+    "360px, nowrap, no overflow, focus trap",
+    "state: young",
+    "state: reserve",
+    "state: missing",
+    "state: played",
+    "state: cancelled",
+    "state: stale"
+  ],
+  "errors": [],
+  "requests": 14
+}

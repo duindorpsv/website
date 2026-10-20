@@ -1,4 +1,5 @@
 'use client';
+import {SportlinkMatchDialog} from './sportlink-match-dialog';
 
 import {useEffect,useRef,useState,type CSSProperties} from 'react';
 import {ArrowRight,ArrowUpRight,CalendarDays,Check,ChevronLeft,ChevronRight,Clock3,LocateFixed,Pause,Play,RefreshCw,Trophy} from 'lucide-react';
@@ -25,7 +26,7 @@ export function ClubLogo({team,className=''}:{team:SportlinkSide;className?:stri
  return <span className={`cm-club-logo ${className}`} aria-hidden="true">{source&&!failed?<img src={source} alt="" width={40} height={40} loading="lazy" decoding="async" onError={()=>setFailed(true)}/>:<span className="cm-club-logo-fallback">{initials||'FC'}</span>}</span>;
 }
 
-function MatchItem({match,result,index}:{match:SportlinkMatch;result:boolean;index:number}){
+function MatchItem({match,result,index,onOpen}:{match:SportlinkMatch;result:boolean;index:number;onOpen:()=>void}){
  const hasScore=result&&match.homeScore!==null&&match.awayScore!==null;
  const homeWon=hasScore&&match.homeScore!>match.awayScore!;
  const awayWon=hasScore&&match.awayScore!>match.homeScore!;
@@ -35,7 +36,7 @@ function MatchItem({match,result,index}:{match:SportlinkMatch;result:boolean;ind
  const day=dateLabel(match.kickoff,{weekday:'short',day:'numeric',month:'short'});
  const time=dateLabel(match.kickoff,{hour:'2-digit',minute:'2-digit'});
  return <li className="cm-fixture" data-own={own} data-status={!!fixtureStatus} style={{'--fixture-index':index} as CSSProperties}>
-  <div className="cm-fixture-meta"><span>{day||'Datum volgt'}</span>{own&&<span className="cm-fixture-ours">Ons eerste</span>}</div>
+  <button type="button" className="cm-fixture-open" onClick={onOpen} aria-label={`Wedstrijddetails: ${match.home.name} tegen ${match.away.name}`}><span className="sr-only">Bekijk wedstrijd</span></button><div className="cm-fixture-meta"><span>{day||'Datum volgt'}</span>{own&&<span className="cm-fixture-ours">Ons eerste</span>}</div>
   <div className="cm-fixture-teams">
    <div className="cm-fixture-team" data-winner={homeWon}><ClubLogo team={match.home}/><span title={match.home.name}>{match.home.name}</span>{hasScore&&<b>{match.homeScore}</b>}</div>
    <div className="cm-fixture-team" data-winner={awayWon}><ClubLogo team={match.away}/><span title={match.away.name}>{match.away.name}</span>{hasScore&&<b>{match.awayScore}</b>}</div>
@@ -45,6 +46,7 @@ function MatchItem({match,result,index}:{match:SportlinkMatch;result:boolean;ind
 }
 
 function RoundCard({round,result,animate}:{round:SportlinkRound;result:boolean;animate:boolean}){
+ const [selected,setSelected]=useState<SportlinkMatch|null>(null);
  const [page,setPage]=useState(0);
  const [interacting,setInteracting]=useState(false);
  // Keep our first team on the opening page; the rest follows kickoff order.
@@ -68,10 +70,10 @@ function RoundCard({round,result,animate}:{round:SportlinkRound;result:boolean;a
   onMouseEnter={()=>setInteracting(true)} onMouseLeave={()=>setInteracting(false)} onFocusCapture={()=>setInteracting(true)} onBlurCapture={event=>{if(!event.currentTarget.contains(event.relatedTarget))setInteracting(false);}}>
   <div className="cm-competition-card-head"><div><span className="cm-card-eyebrow">{result?'VORIGE SPEELRONDE':'VOLGENDE SPEELRONDE'}</span><h3 id={id}>{title}</h3></div><span className="cm-competition-card-icon">{result?<Check size={19}/>:<CalendarDays size={19}/>}</span></div>
   <div className="cm-round-caption"><span>{round.label||'Competitie'}</span><span>{round.matches.length} {round.matches.length===1?'wedstrijd':'wedstrijden'}</span></div>
-  {visible.length?<ol key={`${matchKey}-${currentPage}`} className="cm-fixtures" aria-label={`${result?'Uitslagen':'Programma'}, pagina ${currentPage+1} van ${pages}`}>{visible.map((match,index)=><MatchItem key={match.id} match={match} result={result} index={index}/>)}</ol>:<div className="cm-competition-empty"><CalendarDays size={28} strokeWidth={1.25}/><strong>{result?'Nog geen uitslagen':'Even geen wedstrijden'}</strong><p>{result?'Zodra er uitslagen beschikbaar zijn, staan ze hier.':'Het volgende programma verschijnt hier zodra het bekend is.'}</p></div>}
+  {visible.length?<ol key={`${matchKey}-${currentPage}`} className="cm-fixtures" aria-label={`${result?'Uitslagen':'Programma'}, pagina ${currentPage+1} van ${pages}`}>{visible.map((match,index)=><MatchItem key={match.id} match={match} result={result} index={index} onOpen={()=>setSelected(match)}/>)}</ol>:<div className="cm-competition-empty"><CalendarDays size={28} strokeWidth={1.25}/><strong>{result?'Nog geen uitslagen':'Even geen wedstrijden'}</strong><p>{result?'Zodra er uitslagen beschikbaar zijn, staan ze hier.':'Het volgende programma verschijnt hier zodra het bekend is.'}</p></div>}
   <div className="cm-round-footer"><span>{pages>1?<><b>{String(currentPage+1).padStart(2,'0')}</b><span className="cm-page-divider">/</span>{String(pages).padStart(2,'0')}</>:<><span className="cm-round-small-dot"/>De hele poule</>}</span>{pages>1?<div className="cm-round-controls"><button type="button" onClick={()=>setPage(current=>(current-1+pages)%pages)} aria-label={`Vorige ${result?'uitslagen':'wedstrijden'}`}><ChevronLeft size={17}/></button><button type="button" onClick={()=>setPage(current=>(current+1)%pages)} aria-label={`Volgende ${result?'uitslagen':'wedstrijden'}`}><ChevronRight size={17}/></button></div>:<span className="cm-round-footer-label">{result?'AFGELOPEN':'VOORUITKIJKEN'}</span>}</div>
   {pages>1&&<span key={`progress-${currentPage}`} className="cm-round-progress" aria-hidden="true"/>}
- </article>;
+ <SportlinkMatchDialog match={selected} onClose={()=>setSelected(null)}/></article>;
 }
 
 function Form({results}:{results:FormResult[]}){

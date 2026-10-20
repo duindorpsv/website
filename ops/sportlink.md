@@ -68,3 +68,22 @@ Een databaselease voorkomt parallelle bronverwerking. Tijdens langere taken verl
 De SSE-route stuurt alleen private revisie/statusgegevens en controleert periodiek opnieuw de actieve sessie. Ze leest opgeslagen databasewijzigingen, doet geen Sportlink-aanvragen en voegt geen onafhankelijk bezettingspollschema toe. De browser laadt bij een revisiewijziging de actuele geautoriseerde CMS-state. De bootstrap leest inhoud, versies en revisie samen in één read-only repeatable-read-transactie, zodat de response één consistent moment weergeeft. Bij een onderbroken verbinding wordt dat zichtbaar; na herstel wordt de gedeelde toestand opnieuw geladen.
 
 Tijdens een geopende bewerking blijft de lokale tekst staan. Bij een nieuwe activiteitversie verschijnt een melding met de actuele tijd/status en wordt opslaan geblokkeerd. Kopieer eigen wijzigingen indien nodig en kies **Actuele activiteit laden**. Ook een directe oude API-mutatie blijft door `expectedVersion` en de bronvergrendeling geweigerd. Alleen bronvelden worden in bestaande publicaties doorgewerkt; lokale beschrijvingen, publicatiekeuzes en conceptinhoud worden niet automatisch gepubliceerd.
+## Wedstrijddossier en redactionele vooruitblik
+
+Een wedstrijd opent overal dezelfde detailmodal. De server leest de canonieke `sportlink_matches`-rij na commit terug. De modal controleert iedere minuut wanneer zichtbaar en online, en bij focus, hervatten, herstel van de verbinding of een handmatige verversing. Catalogus-, foto- en spelersschema's behouden hun eigen ingestelde frequenties. De kortere dossiergrens geldt voor relevante wedstrijd-/poulegegevens, niet voor de gehele Sportlink-catalogus.
+
+Het overzicht toont alleen beschikbare broninformatie. Publieke hoofdtrainers komen uit `wedstrijd-thuisteam` en `wedstrijd-uitteam` met `toonlidfoto=NEE`: uitsluitend Hoofdtrainer, Hoofdcoach of de primaire Trainer/coach-functie. Assistenten, generieke trainers, afgeschermde en dubbelzinnige registraties worden verborgen. De cache bewaart geen deelnemerslijst, relatiecodes, foto's of contactgegevens. Beide kanten en de historische bron kunnen onafhankelijk uitvallen.
+
+Het tabblad met laatste vijf wedstrijden/onderlinge ontmoetingen verschijnt alleen voor het bevestigde eerste elftal en met echte beschikbare data. Vorm blijft bij exact team, poule en seizoen. O10 en jonger krijgen geen openbare uitslagen, vorm of resultaatstatistieken. Oudere onderlinge ontmoetingen bewaren hun oorspronkelijke thuis-/uitvolgorde. Een ontbrekend historisch artikel blokkeert de overige wedstrijdinformatie niet.
+
+Open **Clubbeheer → Voorbeschouwingen** (`/beheer#voorbeschouwingen`) voor de optionele tab Kleedkamer:
+
+1. Kies een opgeslagen wedstrijd van het eerste elftal. Ontbreekt die, synchroniseer het programma via de bestaande instellingen; maak geen losse handmatige wedstrijd aan.
+2. Schakel de vooruitblik in en vul spreker, rol en minstens één tekstveld in. De overige vragen zijn optioneel.
+3. **Concept bewaren** verandert de huidige openbare tekst niet. **Publiceren** of **Publicatie bijwerken** maakt een nieuwe live-snapshot.
+4. **Deze versie inplannen** bewaart de nu ingevulde tekst als eigen snapshot. De huidige publicatie blijft staan tot de worker de geplande versie publiceert. Latere conceptbewerkingen veranderen die geplande snapshot niet. Alle invoertijden zijn Nederlands; ontbrekende/dubbele DST-tijden worden afgewezen.
+5. **Publicatie intrekken** verwijdert de openbare tab en annuleert een eventuele planning. **Planning annuleren** behoudt de bestaande live-publicatie.
+
+Bewerken gebruikt bestaande nieuws-/teamrechten. Publiceren, plannen, annuleren en intrekken vereisen de bijbehorende `news:publish`-rechten. Voor een teamgebonden rol moet het bevestigde Sportlink-team expliciet aan het juiste CMS-team gekoppeld zijn. Een gewijzigd team of een andere wedstrijd kan een bestaande vooruitblik niet stilzwijgend overnemen. Bij een versieconflict blijft de lokale tekst staan en moet de redacteur bewust de serverversie laden.
+
+De eigenlijke wedstrijdgegevens zijn hier niet bewerkbaar. Scores, aftrap, locatie, veld en kleedkamers blijven van Sportlink. Geplande publicaties werken zonder open beheertab. Er zijn geen nieuwe secrets nodig. Migratie `0017_match_dossier_indexes` voegt alleen de twee indexen voor opvragen op team en aftrap toe. De bestaande production-workflow voert de migratie en controles uit.

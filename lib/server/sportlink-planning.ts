@@ -1,3 +1,5 @@
+import {publicCoachName} from '../sportlink-match-coaches';
+import {writeStoredMatches} from './match-store';
 import {equalContent} from '../cms/compare';
 import {setTimeout as delay} from 'node:timers/promises';
 import {createHash} from 'node:crypto';
@@ -34,7 +36,11 @@ export function matchWithDetail(match:SportlinkMatch,detail:unknown):SportlinkMa
  const value=text(info.wedstrijddatetime)||text(info.wedstrijddatum);let kickoff=match.kickoff;
  if(value&&/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:?\d{2})$/.test(value)&&Number.isFinite(Date.parse(value)))kickoff=new Date(value).toISOString();
  else if(/^\d{4}-\d{2}-\d{2}$/.test(value)&&/^\d{2}:\d{2}(?::00)?$/.test(text(info.aanvangstijd)))try{kickoff=planningInstant(value+'T'+text(info.aanvangstijd));}catch{throw new SportlinkSourceError('Het brontijdstip is ongeldig of dubbel door wintertijd. De vorige planning blijft behouden.');}
- return {...match,kickoff};
+ const source=record(detail),rooms=record(source.kleedkamers),venue=record(source.accommodatie);
+ const home=text(rooms.thuis),away=text(rooms.uit);
+ const official=record(source.officials),matchOfficial=record(source.matchofficials);
+ const referee=publicCoachName(text(matchOfficial.scheidsrechters)||text(official.verenigingsscheidsrechter))||'';
+ return {...match,kickoff,field:text(info.veldnaam),homeDressingRoom:home,awayDressingRoom:away,changingRooms:{home,away,official:text(rooms.official)},venue:text(venue.naam),venueAddress:[text(venue.straat),text(venue.plaats)].filter(Boolean).join(' · '),referee};
 }
 /** Network preparation precedes a single DB transaction. A failed fetch cannot commit half a roster. */
 async function prepare(matches:SportlinkMatch[],settings:SportlinkSettings,details?:Map<string,unknown>){
@@ -159,6 +165,7 @@ export async function syncSportlinkMatches(actor:Principal,matches:SportlinkMatc
   // Missing matches outside the fetched source window are retained, never treated as cancellations.
   const payload={matches:[...merged.values()],revision:batchRevision,observedAtByMatch:sourceWater};
   for(const [cacheKey,value] of [['sportlink-assignments-v1',payload],['sportlink-planning-review-v1',{items:unresolved}]] as const)await tx`insert into sportlink_cache(cache_key,payload_json,updated_at,expires_at,refresh_after) values (${cacheKey},${JSON.stringify(value)},${Date.now()},${Date.now()+6*3600000},0) on conflict(cache_key) do update set payload_json=excluded.payload_json,updated_at=excluded.updated_at,expires_at=excluded.expires_at`;
+  await writeStoredMatches(prepared.filter(item=>sourceWater[item.match.id]<=observedAt||!sourceWater[item.match.id]).map(item=>({...item.match,sourceUpdatedAt:new Date(observedAt).toISOString()})),new Date(observedAt).toISOString(),tx);
   await bumpPlanningRevision(tx,{status:'success',revision:batchRevision,lastSuccessAt:stamp,counts,message:'Wedstrijden en bezetting zijn samen verwerkt.'});return counts;
  });
  }catch(error){await sql.begin(async tx=>{await tx`select pg_advisory_xact_lock(736402)`;await bumpPlanningRevision(tx,{status:'failed',message:'De bronupdate is niet verwerkt. De vorige volledige planning blijft bewaard. Controleer de bronstatus bij Sportlink-instellingen.'});});throw error;}finally{await sql`update sportlink_cache set refresh_after=0 where cache_key=${streamKey} and refresh_after=${lease}`;}

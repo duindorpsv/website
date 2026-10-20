@@ -1,3 +1,4 @@
+import {supportsPublicMatchResults} from './match-dossier';
 import type {FormResult,SportlinkMatch,SportlinkSide,SportlinkStanding,SportlinkTeam} from './sportlink-types';
 import type {TeamPlayer,TeamPool} from './sportlink-team-types';
 
@@ -93,7 +94,7 @@ export function matchesForTeam(rows:unknown[],team:SportlinkTeam,pools:TeamPool[
   const home=side(homeName,text(row.thuisteamclubrelatiecode),text(row.thuisteamid),team),away=side(awayName,text(row.uitteamclubrelatiecode),text(row.uitteamid),team);
   if(!options.allTeams&&!home.own&&!away.own)continue;
   const status=text(row.status),score=(text(row.uitslag)||text(row['uitslag-regulier'])).match(/^(\d{1,3})\s*[-–:]\s*(\d{1,3})(?:\s*\([^)]*\))?$/);
-  const validScore=finished(status)&&score;
+  const validScore=finished(status)&&score&&supportsPublicMatchResults(home)&&supportsPublicMatchResults(away);
   const pool=options.pool||matchingPool(row,pools);
   map.set(id,{id,kickoff:date,home,away,homeScore:validScore?Number(score[1]):null,awayScore:validScore?Number(score[2]):null,scoreLabel:validScore?`${score[1]} – ${score[2]}`:null,status,venue:text(row.accommodatie),...sportlinkAssignmentFields(row),competitionId:pool?.id||'',competitionLabel:pool?.label||text(row.klassepoule)||text(row.competitienaam)||text(row.competitie)});
  }
@@ -118,6 +119,7 @@ export function currentPool(pools:TeamPool[],matches:SportlinkMatch[],now=new Da
 }
 
 export function standingsForTeam(rows:unknown[],team:SportlinkTeam,results:SportlinkMatch[]):SportlinkStanding[]{
+ if(!supportsPublicMatchResults(team))return [];
  const sideIds=new Map<string,string>();
  for(const match of results)for(const item of [match.home,match.away])sideIds.set(`${item.clubCode}:${key(item.name)}`,item.id);
  return rows.map(record).filter(row=>number(row.positie)>0&&text(row.teamnaam)).map(row=>{

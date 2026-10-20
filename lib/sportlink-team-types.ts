@@ -12,7 +12,7 @@ export type TeamAvailability = 'available'|'empty'|'unavailable';
 export type SportlinkTeamDetail = {
  team:SportlinkTeam; teamPhotoUrl:string|null; seasons:TeamSeason[]; pools:TeamPool[];
  selectedSeasonId:string; selectedPoolId:string|null;
- fixtures:SportlinkMatch[]; results:SportlinkMatch[]; standings:SportlinkStanding[];
+ fixtures:SportlinkMatch[]; results:SportlinkMatch[]; standings:SportlinkStanding[];comparisonMatches?:SportlinkMatch[];matchUpdatedAt?:Record<string,string>;matchSource?:Record<string,'club'|'pool'>;
  players:TeamPlayer[]; hiddenPlayers:number;
  updatedAt:string; stale:boolean; warning:string|null;
  availability:{fixtures:TeamAvailability; results:TeamAvailability; standings:TeamAvailability; players:TeamAvailability};

@@ -29,5 +29,6 @@ import './cms.css';
 import './cms-public.css';
 import '@/components/cms/media.css';
 import '@/components/cms/pages.css';
+import './match-dossier.css';
 export const metadata:Metadata={title:'Duindorp SV · Onze Trots',description:'Onze wijk. Onze club. Onze trots. Het nieuws, de teams en alle club- en wedstrijdinformatie van Duindorp SV.',icons:{icon:'/assets/logo.png',shortcut:'/assets/logo.png'}};
 export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="nl" suppressHydrationWarning><body>{children}</body></html>}

@@ -1,3 +1,5 @@
+import {canonicalMatches,writeStoredMatches} from './server/match-store';
+import {sportlinkReadMaxAge,withSportlinkReadAge,collectSportlinkObservation,observeSportlinkSource} from './server/sportlink-read-context';
 import {verifiedSportlinkCatalog} from './server/sportlink-identity';
 import {sportlinkStore, type SportlinkStatement} from './server/sportlink-store';
 import {currentPool,finished,matchesForTeam,mergeTeamCatalog,normalizeRoster,poolsForTeam,record,seasonForDate,standingsForTeam,teamCatalog,text,validSeason,validTeamId} from './sportlink-team-normalize';
@@ -28,20 +30,20 @@ async function loadCached<T>(key:string,loader:()=>Promise<T>,historical=false,f
   const row=await read(key),now=Date.now(),config=(await readSportlinkSettings()).settings;
   const dataset:SportlinkDataset=key.startsWith(CATALOG)?'teams':key.startsWith('team-roster-')?'players':key.startsWith('team-photo-')?'teamInfo':key.includes('standing')?'standings':key.includes('results')?'results':'matches';
   if(!historical&&!force&&(!config.enabled||!config.schedules[dataset].enabled)){if(row?.payload_json)return fromRow<T>(row,true);throw Error('Dit Sportlink-onderdeel is gepauzeerd.');}
-  if(row?.payload_json&&!force&&(historical||row.expires_at>now))return fromRow<T>(row,false);
+  if(row?.payload_json&&!force&&(historical||row.expires_at>now&&(!['matches','results','standings'].includes(dataset)||now-Number(row.updated_at)<sportlinkReadMaxAge())))return fromRow<T>(row,false);
   // Historic data comes only from previously observed snapshots, never current-season endpoints.
   if(historical)throw new Error('Voor dit seizoen is dit onderdeel niet opgeslagen.');
   const lease=now+45000;
   const claimed=await db.prepare('UPDATE sportlink_cache SET refresh_after=? WHERE cache_key=? AND refresh_after<=? RETURNING cache_key').bind(lease,key,now).first();
   if(!claimed){if(row?.payload_json)return fromRow<T>(row,true);throw new Error('Dit onderdeel wordt bijgewerkt.');}
   try{
-   const value=await loader(),updatedAt=Date.now();
-   const written=await db.prepare('UPDATE sportlink_cache SET payload_json=?,updated_at=?,expires_at=?,refresh_after=0 WHERE cache_key=? AND refresh_after=? RETURNING cache_key').bind(JSON.stringify(value),updatedAt,nextSportlinkRun(config.schedules[dataset],updatedAt),key,lease).first();
+   const {value,updatedAt}=await collectSportlinkObservation(loader);
+   const written=await db.prepare('UPDATE sportlink_cache SET payload_json=?,updated_at=?,expires_at=?,refresh_after=0 WHERE cache_key=? AND refresh_after=? AND updated_at<=? RETURNING cache_key').bind(JSON.stringify(value),updatedAt,nextSportlinkRun(config.schedules[dataset],updatedAt),key,lease,updatedAt).first();
    if(!written){const fresh=await read(key);if(fresh?.payload_json)return fromRow<T>(fresh,true);throw Error('Dit onderdeel wordt opnieuw bijgewerkt.');}
-   return {value,updatedAt,stale:false};
+   const committed=await read(key);return fromRow<T>(committed!,false);
   }catch(error){
-   await db.prepare('UPDATE sportlink_cache SET refresh_after=? WHERE cache_key=? AND refresh_after=?').bind(Date.now()+120000,key,lease).run();
-   if(row?.payload_json)return fromRow<T>(row,true);
+   await db.prepare('UPDATE sportlink_cache SET refresh_after=? WHERE cache_key=? AND refresh_after=? AND updated_at<=?').bind(Date.now()+120000,key,lease,now).run();
+   const latest=await read(key);if(latest?.payload_json)return fromRow<T>(latest,Number(latest.updated_at)<=now);
    throw error;
   }
  };
@@ -52,7 +54,7 @@ async function safe<T>(promise:Promise<Cached<T>>,empty:T):Promise<Dataset<T>>{
 }
 async function requestArticle(name:string,params:Record<string,string>={}):Promise<unknown>{
  if(name==='team-indeling')return fetchSportlinkArticle(name,params);
- const result=await cachedSportlinkArticle(name,params);if(result.stale)throw new Error('Sportlink wordt opnieuw geprobeerd.');return result.value;
+ const result=await cachedSportlinkArticle(name,params);observeSportlinkSource(result.updatedAt);if(result.stale)throw new Error('Sportlink wordt opnieuw geprobeerd.');return result.value;
 }
 async function article(name:string,params:Record<string,string>={}):Promise<unknown[]>{
  const data=await requestArticle(name,params);if(!Array.isArray(data))throw new Error('Sportlink leverde geen geldige teamgegevens.');return data;
@@ -101,7 +103,7 @@ async function downloadRoster(teamId:string,season:string):Promise<Roster>{
 }
 function sortPools(pools:TeamPool[]){return [...pools].sort((a,b)=>b.seasonId.localeCompare(a.seasonId)||Number(b.current)-Number(a.current)||Number(b.phase?.match(/\d+/)?.[0]||0)-Number(a.phase?.match(/\d+/)?.[0]||0)||a.label.localeCompare(b.label,'nl'));}
 
-export async function getSportlinkTeamDetail(teamId:string,season?:string|null,pool?:string|null,refreshDataset?:SportlinkDataset):Promise<SportlinkTeamDetail>{
+async function loadTeamDetail(teamId:string,season?:string|null,pool?:string|null,refreshDataset?:SportlinkDataset):Promise<SportlinkTeamDetail>{
  if(!validTeamId(teamId))throw new TeamDataError('Ongeldig team.',400);
  if(season&&!validSeason(season))throw new TeamDataError('Ongeldig seizoen.',400);
  if(pool&&!/^\d{1,12}$/.test(pool))throw new TeamDataError('Ongeldige poule.',400);
@@ -140,10 +142,24 @@ export async function getSportlinkTeamDetail(teamId:string,season?:string|null,p
  const leagueResults=selectedPool&&poolResults?matchesForTeam(poolResults.value,team,currentPools,selectedSeasonId,{pool:selectedPool,allTeams:true}):[];
  const filteredResults=selectedPool?allResults.value.filter(match=>match.competitionId===selectedPool.id):allResults.value;
  const filteredFixtures=selectedPool?allFixtures.value.filter(match=>match.competitionId===selectedPool.id):allFixtures.value;
- const resultMap=new Map([...filteredResults,...leagueResults.filter(match=>match.home.own||match.away.own)].map(match=>[match.id,match]));
- const fixtureMap=new Map([...filteredFixtures,...(selectedPool&&poolFixtures?matchesForTeam(poolFixtures.value,team,currentPools,selectedSeasonId,{pool:selectedPool}):[])].map(match=>[match.id,match]));
+ const poolFixtureMatches=selectedPool&&poolFixtures?matchesForTeam(poolFixtures.value,team,currentPools,selectedSeasonId,{pool:selectedPool}):[];
+ const resultMap=new Map([...leagueResults.filter(match=>match.home.own||match.away.own),...filteredResults].map(match=>[match.id,match]));
+ const fixtureMap=new Map([...poolFixtureMatches,...filteredFixtures].map(match=>[match.id,match]));
  const results=[...resultMap.values()].sort((a,b)=>b.kickoff.localeCompare(a.kickoff));
- const fixtures=[...fixtureMap.values()].filter(match=>!finished(match.status)).sort((a,b)=>a.kickoff.localeCompare(b.kickoff));
+ const comparisonMatches=[...new Map([...leagueResults,...filteredResults].map(match=>[match.id,match])).values()].sort((a,b)=>b.kickoff.localeCompare(a.kickoff));
+ const matchUpdatedAt:Record<string,string>={};
+ const matchSource:Record<string,'club'|'pool'>={};
+ const markSynced=(matches:SportlinkMatch[],updatedAt:number,source:'club'|'pool')=>{if(updatedAt)for(const match of matches){matchUpdatedAt[match.id]=new Date(updatedAt).toISOString();matchSource[match.id]=source;}};
+ markSynced(leagueResults,poolResults?.updatedAt||0,'pool');
+ markSynced(poolFixtureMatches,poolFixtures?.updatedAt||0,'pool');
+ markSynced(filteredResults,allResults.updatedAt,'club');
+ markSynced(filteredFixtures,allFixtures.updatedAt,'club');
+ let fixtures=[...fixtureMap.values()].filter(match=>!finished(match.status)).sort((a,b)=>a.kickoff.localeCompare(b.kickoff));
+ const staged=[...new Map([...comparisonMatches,...fixtures].map(match=>[match.id,match])).values()];
+ for(const match of staged)if(matchUpdatedAt[match.id])match.sourceUpdatedAt=matchUpdatedAt[match.id];
+ for(const source of ['club','pool'] as const)await writeStoredMatches(staged.filter(match=>matchSource[match.id]===source&&match.sourceUpdatedAt),new Date().toISOString(),undefined,source==='pool');
+ fixtures=await canonicalMatches(fixtures);const canonicalResults=await canonicalMatches(results),canonicalComparison=await canonicalMatches(comparisonMatches);
+
  const standings=poolStandings?standingsForTeam(poolStandings.value,team,leagueResults):[];
  const fixtureSource=poolFixtures?.available?poolFixtures:allFixtures,resultSource=poolResults?.available?poolResults:allResults;
  const datasets=[allFixtures,allResults,roster,...[poolFixtures,poolResults,poolStandings].filter(item=>item!==null)];
@@ -158,7 +174,7 @@ export async function getSportlinkTeamDetail(teamId:string,season?:string|null,p
  else if(roster.value.hiddenPlayers)notes.push('Alleen spelers en begeleiders die via Sportlink openbaar zichtbaar zijn, worden getoond.');
  if(!allFixtures.available&&!poolFixtures?.available)notes.push('Het programma is tijdelijk niet beschikbaar.');
  if(!allResults.available&&!poolResults?.available)notes.push('De uitslagen zijn tijdelijk niet beschikbaar.');
- return {team,teamPhotoUrl:teamPhoto.value?`/api/sportlink/team/photo?team=${encodeURIComponent(teamId)}&person=team&season=${encodeURIComponent(selectedSeasonId)}`:null,seasons:availableCatalogs.map(item=>({id:item.season,label:item.season})),pools:sortPools(pools),selectedSeasonId,selectedPoolId:selectedPool?.id||null,fixtures,results,standings,players:(await readSportlinkSettings()).settings.includePhotos?roster.value.players:roster.value.players.map(player=>({...player,photoUrl:null})),hiddenPlayers:roster.value.hiddenPlayers,updatedAt,stale,warning:stale?'Een deel van de Sportlink-gegevens wordt bijgewerkt. Je ziet de laatst opgehaalde gegevens.':anyUnavailable?'Een deel van de teamgegevens is tijdelijk niet beschikbaar.':null,availability:{fixtures:availability(fixtureSource,fixtures),results:availability(resultSource,results),standings:poolStandings?availability(poolStandings,standings):'empty',players:!roster.available?'unavailable':roster.value.players.length?'available':'empty'},notes};
+ return {team,teamPhotoUrl:teamPhoto.value?`/api/sportlink/team/photo?team=${encodeURIComponent(teamId)}&person=team&season=${encodeURIComponent(selectedSeasonId)}`:null,seasons:availableCatalogs.map(item=>({id:item.season,label:item.season})),pools:sortPools(pools),selectedSeasonId,selectedPoolId:selectedPool?.id||null,fixtures,results:canonicalResults,comparisonMatches:canonicalComparison,matchUpdatedAt,matchSource,standings,players:(await readSportlinkSettings()).settings.includePhotos?roster.value.players:roster.value.players.map(player=>({...player,photoUrl:null})),hiddenPlayers:roster.value.hiddenPlayers,updatedAt,stale,warning:stale?'Een deel van de Sportlink-gegevens wordt bijgewerkt. Je ziet de laatst opgehaalde gegevens.':anyUnavailable?'Een deel van de teamgegevens is tijdelijk niet beschikbaar.':null,availability:{fixtures:availability(fixtureSource,fixtures),results:availability(resultSource,results),standings:poolStandings?availability(poolStandings,standings):'empty',players:!roster.available?'unavailable':roster.value.players.length?'available':'empty'},notes};
 }
 
 export async function getSportlinkTeamPhoto(teamId:string,person:string,season:string|null):Promise<{data:string;mime:string}|null>{
@@ -182,4 +198,9 @@ export async function getSportlinkTeamPhoto(teamId:string,person:string,season:s
  }
  const photo=await read(rosterPhotoKey(teamId,person,selectedSeason));
  return photo?.payload_json?JSON.parse(photo.payload_json) as {data:string;mime:string}:null;
+}
+
+export function getSportlinkTeamDetail(teamId:string,season?:string|null,pool?:string|null,options?:SportlinkDataset|{maxAgeMs?:number}):Promise<SportlinkTeamDetail>{
+ const read=()=>loadTeamDetail(teamId,season,pool,typeof options==='string'?options:undefined);
+ return typeof options==='object'&&options.maxAgeMs?withSportlinkReadAge(options.maxAgeMs,read):read();
 }

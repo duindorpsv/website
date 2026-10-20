@@ -1,3 +1,4 @@
+import {validateMatchPreviewWrite} from './match-previews';
 import {deliverEmailCode} from './auth';
 import {syncHomepage,moveChildPaths} from './publication-effects';
 import {has,type Principal} from './permissions';
@@ -68,6 +69,7 @@ export async function runOnce(workerId = crypto.randomUUID()) {
                 const currentJob = await tx `select status,lease_owner from cms_jobs where id=${job.id}`;
                 if (currentJob[0]?.status !== 'processing'||currentJob[0]?.lease_owner!==workerId)
                     return;
+                if(record.module==='matchPreviews')await validateMatchPreviewWrite(tx,frozen,record.draft,'publish');
                 const references = referencesIn(frozen);
                 for (const id of references) {
                     const [target] = await tx `select live from cms_records where id=${id} and deleted_at is null`;
@@ -76,15 +78,15 @@ export async function runOnce(workerId = crypto.randomUUID()) {
                 }
                 const publicationId = crypto.randomUUID();
                 await tx `insert into cms_publications(id,record_id,record_version,snapshot,actor_id) values (${publicationId},${record.id},${job.payload.version},${tx.json(frozen)},${job.payload.actorId})`;
-                const path = record.module === 'pages' ? `/clubmuur/${frozen.slug}` : `/clubmuur/${frozen.contentType === 'story' ? 'verhalen' : 'nieuws'}/${frozen.slug}`;
-                const old = record.live, oldPath = old ? (record.module === 'pages' ? `/clubmuur/${old.slug}` : `/clubmuur/${old.contentType === 'story' ? 'verhalen' : 'nieuws'}/${old.slug}`) : null;
-                const [conflict] = await tx `select record_id from cms_paths where path=${path}`;
+                const path = record.module==='matchPreviews'?null:record.module === 'pages' ? `/clubmuur/${frozen.slug}` : `/clubmuur/${frozen.contentType === 'story' ? 'verhalen' : 'nieuws'}/${frozen.slug}`;
+                const old = record.live, oldPath = old&&path ? (record.module === 'pages' ? `/clubmuur/${old.slug}` : `/clubmuur/${old.contentType === 'story' ? 'verhalen' : 'nieuws'}/${old.slug}`) : null;
+                const [conflict] = path?await tx `select record_id from cms_paths where path=${path}`:[];
                 if (conflict && conflict.record_id !== record.id)
                     throw new Error('Publicatiepad is niet beschikbaar.');
                 await tx `update cms_records set live_id=${publicationId},live=${tx.json(frozen)},status=case when version=${job.payload.version} then 'published' else 'draft' end,version=version+1,updated_at=now() where id=${record.id}`;
                 await tx`delete from cms_references where record_id=${record.id} and snapshot='live'`;
                 for(const target of references){const [exists]=await tx`select id from cms_records where id=${target}`;if(exists)await tx`insert into cms_references(record_id,target_id,snapshot) values (${record.id},${target},'live') on conflict do nothing`;}
-                await tx `insert into cms_paths(path,record_id,kind) values (${path},${record.id},'live') on conflict(path) do update set kind='live'`;
+                if(path)await tx `insert into cms_paths(path,record_id,kind) values (${path},${record.id},'live') on conflict(path) do update set kind='live'`;
                 if (oldPath && oldPath !== path){await tx`delete from cms_redirects where from_path=${path}`;await tx`update cms_redirects set to_path=${path} where record_id=${record.id}`;
                     await tx `insert into cms_redirects(from_path,to_path,record_id) values (${oldPath},${path},${record.id}) on conflict(from_path) do update set to_path=excluded.to_path`; }
                 if(record.module==='articles')await syncHomepage(tx,record.id,old,frozen,job.payload.actorId);

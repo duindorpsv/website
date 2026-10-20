@@ -1,3 +1,5 @@
+import {matchPreviewDraftSchema,matchPreviewScheduleSchema,validateMatchPreview} from '../cms/match-preview';
+import {validateMatchPreviewWrite} from './match-previews';
 import {bumpPlanningRevision} from './planning-revision';
 import {committeeSchema,locationSchema,activitySchema,addPlanningDays} from '../cms/planning';
 import {heroSliderSchema} from '../cms/hero-slider';
@@ -25,7 +27,7 @@ import { assertLayout, migrateLayout, referencesIn, validateDocument, safeDestin
 import type { CmsState, CmsArticle, CmsPage } from '../cms/types';
 import { CmsError } from './errors';
 import { authorize, has, type Principal } from './permissions';
-export const contentModules = ['articles', 'pages', 'people', 'media', 'folders', 'albums', 'forms', 'documents', 'settings', 'navigation', 'hero', 'heroPhotos', 'agenda', 'training', 'narrowcasting', 'patterns','committees','locations','activities','heroSlider','sportlinkSettings'] as const;
+export const contentModules = ['matchPreviews','articles', 'pages', 'people', 'media', 'folders', 'albums', 'forms', 'documents', 'settings', 'navigation', 'hero', 'heroPhotos', 'agenda', 'training', 'narrowcasting', 'patterns','committees','locations','activities','heroSlider','sportlinkSettings'] as const;
 export type ContentModule = typeof contentModules[number];
 export type RecordRow = {
     id: string;
@@ -40,13 +42,13 @@ export type RecordRow = {
     deleted_at: string | null;
     updated_at: string;
 };
-export function emptyState(): CmsState { const s = createCmsSeed(); for (const key of ['articles', 'pages', 'people', 'media', 'folders', 'albums', 'departments', 'forms', 'submissions', 'roles', 'members', 'documents', 'redirects', 'audit'] as const)
+export function emptyState(): CmsState { const s = createCmsSeed(); for (const key of ['matchPreviews','articles', 'pages', 'people', 'media', 'folders', 'albums', 'departments', 'forms', 'submissions', 'roles', 'members', 'documents', 'redirects', 'audit'] as const)
     s[key] = [] as never; return s; }
-const alias: Record<string, string> = { articles: 'news', albums: 'media', folders: 'media', documents: 'pages', navigation: 'pages', hero: 'pages', heroPhotos: 'pages', agenda: 'pages', training:'pages', narrowcasting: 'pages',patterns:'pages',committees:'people',locations:'settings',activities:'pages',heroSlider:'pages',sportlinkSettings:'settings' };
+const alias: Record<string, string> = { matchPreviews:'news',articles: 'news', albums: 'media', folders: 'media', documents: 'pages', navigation: 'pages', hero: 'pages', heroPhotos: 'pages', agenda: 'pages', training:'pages', narrowcasting: 'pages',patterns:'pages',committees:'people',locations:'settings',activities:'pages',heroSlider:'pages',sportlinkSettings:'settings' };
 export function permissionModule(module: string,data?:Record<string,any>) { return module==='articles'&&data?.contentType==='story'?'stories':alias[module] || module; }
 export function scope(row: RecordRow) { return { teamId: row.module==='activities'?row.draft.teamIds?.[0]||'':row.team_id || '', departmentId: row.department_id || '', kind: String(row.draft.kind || '') }; }
-export function recordOutput(row: RecordRow, revisions: unknown[] = []) { const data: Record<string, any> = { ...row.draft, id: row.id, version: row.version, ...(row.module==='articles'?{imported:!!row.imported}:{}) }; if (['articles', 'pages'].includes(row.module))
-    Object.assign(data, { status: row.status, scheduledAt: (row as any).scheduled_at || row.draft.scheduledAt || '', updatedAt: new Date(row.updated_at).toISOString(), live: row.live || undefined, revisions });
+export function recordOutput(row: RecordRow, revisions: unknown[] = []) { const data: Record<string, any> = { ...row.draft, id: row.id, version: row.version, ...(row.module==='articles'?{imported:!!row.imported}:{}) }; if (['articles', 'pages','matchPreviews'].includes(row.module))
+    Object.assign(data, { status: row.status, scheduledAt: (row as any).scheduled_at || row.draft.scheduledAt || '',...(row.module==='matchPreviews'?{publishAt:(row as any).scheduled_at||''}:{}), updatedAt: new Date(row.updated_at).toISOString(), live: row.live || undefined, revisions });
 else
     Object.assign(data, { published: !!row.live, live: row.live || undefined }); if (row.module === 'media' && String(data.src).startsWith('/api/media/'))
     data.src = `/api/cms/media/${row.id}/file`; if (row.deleted_at)
@@ -99,10 +101,11 @@ export async function loadState(publicOnly = false, p?: Principal,transaction?:a
                 state.settings = (publicOnly||fallbackPublic ? row.live : row.draft) as unknown as CmsState['settings'];
             continue;
         }
-        if (!['articles', 'pages', 'people', 'media', 'folders', 'albums', 'forms', 'documents'].includes(row.module))
+        if(publicOnly&&row.module==='matchPreviews')continue;
+        if (!['matchPreviews','articles', 'pages', 'people', 'media', 'folders', 'albums', 'forms', 'documents'].includes(row.module))
             continue;
         const data: Record<string, any> = publicOnly||fallbackPublic ? { ...row.live, id: row.id } : recordOutput(row);
-        if ((publicOnly||fallbackPublic) && ['articles', 'pages'].includes(row.module))
+        if ((publicOnly||fallbackPublic) && ['articles', 'pages','matchPreviews'].includes(row.module))
             Object.assign(data, { live: row.live, status: 'published', revisions: [], updatedAt: new Date(row.updated_at).toISOString() });
         if((publicOnly||fallbackPublic)&&row.module==='people'){delete data.backofficeUserId;delete data.sportlinkId;}
         if ((publicOnly||fallbackPublic) && row.module === 'people' && !data.showContact) {
@@ -126,7 +129,7 @@ function pathFor(module: string, data: Record<string, any>): string | null { if 
     return `/clubmuur/${data.slug}`; if (module === 'articles')
     return `/clubmuur/${data.contentType === 'story' ? 'verhalen' : 'nieuws'}/${data.slug}`; if (module === 'albums')
     return `/clubmuur/media/fotos/${data.slug}`; return null; }
-export function validateCandidate(module: ContentModule, value: Record<string, any>) {
+export function validateCandidate(module: ContentModule, value: Record<string, any>):Record<string,any> {
     if (JSON.stringify(value).length > 1500000)
         throw new CmsError('too-large', 'Inhoud is te groot.', 413);
     const clean = structuredClone(value);
@@ -135,6 +138,7 @@ export function validateCandidate(module: ContentModule, value: Record<string, a
     // Settings use a command ID, but their singleton content has no ID field.
     if (module === 'settings')
         delete clean.id;
+    if(module==='matchPreviews'){for(const key of ['status','publishAt','published'])delete clean[key];const parsed=matchPreviewDraftSchema.safeParse(clean);if(!parsed.success)throw new CmsError('match-preview','Controleer de velden van de vooruitblik.',422,parsed.error.issues);return parsed.data;}
     if(module==='articles')delete clean.imported;
     if(module==='people'&&typeof clean.sportlinkId==='string')clean.sportlinkId=clean.sportlinkId.trim().toUpperCase();
     if (module === 'pages' && clean.bodyFormat !== 'page-layout-v2') {
@@ -265,6 +269,8 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
             authorize(p, module, action, old ? scope(old) : newScope);
             if (old)
                 authorize(p, permissionModule(change.module,candidate), action, newScope);
+            if(change.module==='matchPreviews'&&change.data&&(!old||!equalContent(candidate,old.draft)))authorize(p,'news',old?'update':'create',newScope);
+            if(change.module==='matchPreviews')await validateMatchPreviewWrite(tx,candidate,old?.draft,change.action);
             await validatePlanningWrite(tx,p,change.module,change.id,candidate,old,change.action,!!integration?.sportlink);
             if (old?.deleted_at && !['restore', 'trash'].includes(change.action))
                 throw new CmsError('trashed', 'Herstel dit record eerst.');
@@ -293,7 +299,8 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
                 live = null;
                 status = 'draft';
             }
-            if (change.action === 'schedule' && !['articles','pages'].includes(change.module)) throw new CmsError('schedule-module','Alleen pagina’s en artikelen kunnen worden ingepland.',422);
+            if (change.action === 'schedule' && !['articles','pages','matchPreviews'].includes(change.module)) throw new CmsError('schedule-module','Dit onderdeel kan niet worden ingepland.',422);
+            if(change.module==='matchPreviews'&&change.action==='schedule'&&!matchPreviewScheduleSchema.safeParse(change.scheduledAt).success)throw new CmsError('schedule','Gebruik een geldige UTC-publicatiedatum. Zet de Nederlandse invoertijd eerst om.',422);
             let sourcePublication=false;
             if(integration?.sportlink&&change.module==='activities'&&change.action==='save'&&old?.live){
                 const patched={...old.live};for(const key of ['date','startTime','endTime','type','title','status','source','sourceId','sourceData'])patched[key]=candidate[key];
@@ -315,6 +322,7 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
                     }
                 }
                 if(change.module==='navigation'){const known=new Set(['/clubmuur',...clubNavigationDestinations.map(item=>item.href.split(/[?#]/)[0]),...state.pages.filter(page=>page.live&&!page.deletedAt).map(page=>'/clubmuur/'+page.live!.slug)]);for(const group of candidate.items.filter((group:any)=>group.enabled!==false))for(const link of [group,...group.children||[]])if(link.enabled!==false&&!known.has(link.href.split(/[?#]/)[0]))throw new CmsError('navigation-destination','Publiceer eerst de bestemmingspagina van ‘'+link.label+'’.',422);}
+                if(change.module==='matchPreviews'){const issues=validateMatchPreview(candidate as any);if(issues.length)throw new CmsError('publication-invalid','Publicatie is nog niet mogelijk.',422,issues);}
                 if(change.module==='forms'){const issues=formDefinitionErrors(candidate as any);const [department]=await tx`select id from cms_departments where id=${candidate.departmentId} and active=true`;if(!department)issues.push('Kies een actieve afdeling met ontvangers.');if(issues.length)throw new CmsError('form-definition','Controleer de formulierinstellingen.',422,issues);}
                 if (change.module === 'media') {
                     const [object] = await tx `select state from cms_media_objects where id=${change.id}`;

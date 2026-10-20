@@ -5,7 +5,7 @@ import {siteText} from '@/lib/cms/site-copy';
 import {useEffect,useMemo,useState} from 'react';
 import type {CSSProperties} from 'react';
 import {ArrowRight,CalendarDays,ChevronRight,Download,MapPin,RefreshCw,Search,ShieldCheck,Trophy,Users} from 'lucide-react';
-import {Dialog,DialogContent,DialogDescription,DialogHeader,DialogTitle} from '@/components/ui/dialog';
+import {SportlinkMatchDialog} from './sportlink-match-dialog';
 import {ClubLogo} from '@/components/clubmuur-competition';
 import {useSportlink} from '@/hooks/use-sportlink';
 import type {SportlinkMatch,SportlinkTeam} from '@/lib/sportlink-types';
@@ -65,6 +65,35 @@ export function SportlinkMatchesPage(){
   const [filters,setFilters]=useState<MatchFilters>({...defaultMatchFilters});
   const [sort,setSort]=useState<'asc'|'desc'>('asc');
   const [selected,setSelected]=useState<SportlinkMatch|null>(null);
+  const [sharedError,setSharedError]=useState('');
+  const [sharedContext,setSharedContext]=useState<{teamId?:string;pool?:string;season?:string}>({});
+  useEffect(()=>{
+    const controller=new AbortController();
+    async function openSharedMatch(){
+      const params=new URLSearchParams(window.location.search),id=params.get('wedstrijd');
+      if(!id)return;
+      const context={teamId:params.get('team')||undefined,pool:params.get('poule')||undefined,season:params.get('seizoen')||undefined};
+      setSharedContext(context);
+      const known=[...(data?.fixtures||[]),...(data?.results||[]),...(data?.previousRound.matches||[]),...(data?.nextRound.matches||[])].find(match=>match.id===id);
+      if(known){setSelected(known);setSharedError('');return;}
+      try{
+        const query=new URLSearchParams({id});
+        if(context.teamId)query.set('team',context.teamId);if(context.pool)query.set('pool',context.pool);if(context.season)query.set('season',context.season);
+        const response=await fetch(`/api/sportlink/match?${query}`,{signal:controller.signal,cache:'no-store'});
+        if(!response.ok)throw new Error('Deze gedeelde wedstrijd kon nu niet worden geopend.');
+        const payload=await response.json() as {match:SportlinkMatch};
+        if(payload.match?.id!==id)throw new Error('Deze gedeelde wedstrijd is niet gevonden.');
+        if(!controller.signal.aborted){setSelected(payload.match);setSharedError('');}
+      }catch(error){if(!controller.signal.aborted)setSharedError(error instanceof Error?error.message:'De wedstrijd kon niet worden geopend.');}
+    }
+    void openSharedMatch();window.addEventListener('popstate',openSharedMatch);
+    return()=>{controller.abort();window.removeEventListener('popstate',openSharedMatch);};
+  },[data]);
+  function closeSelected(){
+    setSelected(null);setSharedContext({});
+    const url=new URL(window.location.href);url.searchParams.delete('wedstrijd');url.searchParams.delete('poule');url.searchParams.delete('seizoen');window.history.replaceState(null,'',url.pathname+url.search+url.hash);
+  }
+
   useEffect(()=>{
     const sync=()=>{
       const params=new URLSearchParams(window.location.search);
@@ -111,24 +140,10 @@ export function SportlinkMatchesPage(){
     <SportlinkMatchFilters filters={filters} teams={teams} competitions={competitions} sort={sort} onChange={changeFilters} onSort={changeSort} onReset={resetFilters} mode={tab}/>
     <DataStatus/>
     <div className="sl-match-summary"><h2>{selectedTeam?.name||(filters.teamId!=='all'?'Geselecteerd team':'Alle teams')}</h2><span role="status" aria-live="polite" aria-atomic="true">{loading&&!data?'Wedstrijden laden…':dateError?'Controleer je datumbereik':`${matches.length} ${matches.length===1?'wedstrijd':'wedstrijden'}${hasFilters?' in je selectie':''}`}</span></div>
-    {loading&&!data?<div className="sl-fixtures-loading" role="status">Het wedstrijdprogramma wordt opgehaald…</div>:groups.length?<div className="sl-date-groups" key={tab}>{groups.map(([key,group])=><section className="sl-date-group" key={key}><h3><CalendarDays size={16}/>{group.label}</h3><div>{group.matches.map((match,index)=><button type="button" className="sl-fixture" key={match.id} onClick={()=>setSelected(match)} style={{'--sl-delay':`${Math.min(index,7)*35}ms`} as CSSProperties} aria-label={`Wedstrijddetails: ${match.home.name} tegen ${match.away.name}`}><span className="sl-fixture-meta">{match.competitionLabel||'Wedstrijd'}{match.status&&<small>{match.status}</small>}</span><span className="sl-fixture-home"><span>{match.home.name}</span><ClubLogo team={match.home}/></span><strong className={`sl-fixture-score${matchScore(match)?' sl-played':''}`}>{matchScore(match)||kickoffTime(match)}<small>{matchScore(match)?'EINDSTAND':'AFTRAP'}</small></strong><span className="sl-fixture-away"><ClubLogo team={match.away}/><span>{match.away.name}</span></span><span className="sl-fixture-location"><MapPin size={14}/>{match.venue||'Locatie volgt'}</span><ChevronRight size={18} className="sl-fixture-arrow"/></button>)}</div></section>)}</div>:<div className="sl-filter-empty"><EmptyState title={dateError?'Pas je datums aan.':error&&!data?'Even geen verbinding.':hasFilters?'Geen wedstrijden in deze selectie.':tab==='programma'?'Nog geen wedstrijden op het programma.':'Nog geen uitslagen beschikbaar.'} description={dateError?dateError:error&&!data?'De Sportlink-gegevens kunnen op dit moment niet worden opgehaald. Probeer opnieuw via de knop hierboven.':hasFilters?'Probeer een ruimere periode, een ander team of wis je filters.':'Sportlink heeft op dit moment geen wedstrijden voor dit overzicht aangeleverd.'}/>{hasFilters&&!dateError&&<button className="sl-filter-empty-reset" onClick={resetFilters}>Toon alle beschikbare wedstrijden <ArrowRight size={15}/></button>}</div>}
+    {loading&&!data?<div className="sl-fixtures-loading" role="status">Het wedstrijdprogramma wordt opgehaald…</div>:groups.length?<div className="sl-date-groups" key={tab}>{groups.map(([key,group])=><section className="sl-date-group" key={key}><h3><CalendarDays size={16}/>{group.label}</h3><div>{group.matches.map((match,index)=><button type="button" className="sl-fixture" key={match.id} onClick={()=>{setSharedContext({});setSelected(match);}} style={{'--sl-delay':`${Math.min(index,7)*35}ms`} as CSSProperties} aria-label={`Wedstrijddetails: ${match.home.name} tegen ${match.away.name}`}><span className="sl-fixture-meta">{match.competitionLabel||'Wedstrijd'}{match.status&&<small>{match.status}</small>}</span><span className="sl-fixture-home"><span>{match.home.name}</span><ClubLogo team={match.home}/></span><strong className={`sl-fixture-score${matchScore(match)?' sl-played':''}`}>{matchScore(match)||kickoffTime(match)}<small>{matchScore(match)?'EINDSTAND':'AFTRAP'}</small></strong><span className="sl-fixture-away"><ClubLogo team={match.away}/><span>{match.away.name}</span></span><span className="sl-fixture-location"><MapPin size={14}/>{match.venue||'Locatie volgt'}</span><ChevronRight size={18} className="sl-fixture-arrow"/></button>)}</div></section>)}</div>:<div className="sl-filter-empty"><EmptyState title={dateError?'Pas je datums aan.':error&&!data?'Even geen verbinding.':hasFilters?'Geen wedstrijden in deze selectie.':tab==='programma'?'Nog geen wedstrijden op het programma.':'Nog geen uitslagen beschikbaar.'} description={dateError?dateError:error&&!data?'De Sportlink-gegevens kunnen op dit moment niet worden opgehaald. Probeer opnieuw via de knop hierboven.':hasFilters?'Probeer een ruimere periode, een ander team of wis je filters.':'Sportlink heeft op dit moment geen wedstrijden voor dit overzicht aangeleverd.'}/>{hasFilters&&!dateError&&<button className="sl-filter-empty-reset" onClick={resetFilters}>Toon alle beschikbare wedstrijden <ArrowRight size={15}/></button>}</div>}
     <p className="sl-filter-coverage">Je filtert het beschikbare Sportlink-programma (6 weken) en de recente uitslagen (8 weken). Datums zijn inclusief en in Nederlandse tijd.</p>
-    <SportlinkMatchDialog match={selected} onClose={()=>setSelected(null)}/>
+    {sharedError&&<p className="md-refresh-warning" role="status">{sharedError}</p>}<SportlinkMatchDialog match={selected} onClose={closeSelected} {...sharedContext}/>
   </div></main>;
 }
 
-function escapeCalendar(value:string){return value.replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/;/g,'\\;').replace(/,/g,'\\,');}
-function calendarDate(date:Date){return date.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');}
-function foldCalendarLine(line:string){const encoder=new TextEncoder();let current='';const lines:string[]=[];for(const char of line){if(encoder.encode(current+char).length>74){lines.push(current);current=' ';}current+=char;}lines.push(current);return lines.join('\r\n');}
-function downloadMatchCalendar(match:SportlinkMatch){
-  const date=validDate(match.kickoff);if(!date)return;
-  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Duindorp SV//Wedstrijdkalender//NL','CALSCALE:GREGORIAN','BEGIN:VEVENT',`UID:${escapeCalendar(match.id)}@duindorpsv.nl`,`DTSTAMP:${calendarDate(new Date())}`,`DTSTART:${calendarDate(date)}`,`SUMMARY:${escapeCalendar(`${match.home.name} – ${match.away.name}`)}`,`DESCRIPTION:${escapeCalendar([match.competitionLabel,'Wedstrijdgegevens via Sportlink. Controleer het programma voor eventuele wijzigingen.'].filter(Boolean).join('\n'))}`,...(match.venue?[`LOCATION:${escapeCalendar(match.venue)}`]:[]),'END:VEVENT','END:VCALENDAR'];
-  const url=URL.createObjectURL(new Blob([lines.map(foldCalendarLine).join('\r\n')+'\r\n'],{type:'text/calendar;charset=utf-8'}));
-  const link=document.createElement('a');link.href=url;link.download=`duindorp-wedstrijd-${match.id.replace(/[^a-z0-9-]/gi,'-')}.ics`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
-
-export function SportlinkMatchDialog({match,onClose}:{match:SportlinkMatch|null;onClose:()=>void}){
-  const kickoff=match&&validDate(match.kickoff);
-  const canSave=match&&kickoff&&kickoff.getTime()>Date.now()&&!matchScore(match)&&!/afgelast|geannuleerd|uitgesteld|gestaakt/i.test(match.status);
-  return <Dialog open={!!match} onOpenChange={open=>!open&&onClose()}><DialogContent className="club-dialog sl-match-dialog">{match&&<><DialogHeader><span className="sl-eyebrow">{match.competitionLabel||'DUINDORP SV · WEDSTRIJD'}</span><DialogTitle>Onze kleuren. Jouw wedstrijd.</DialogTitle><DialogDescription>{kickoff?dateTime.format(kickoff):'De speeldatum volgt.'}</DialogDescription></DialogHeader><div className="sl-dialog-clubs"><div><ClubLogo team={match.home}/><strong>{match.home.name}</strong></div><div className="sl-dialog-score"><strong>{matchScore(match)||kickoffTime(match)}</strong><small>{matchScore(match)?'EINDSTAND':'AFTRAP'}</small></div><div><ClubLogo team={match.away}/><strong>{match.away.name}</strong></div></div><div className="sl-dialog-details"><p><MapPin size={18}/><span>{match.venue||'De locatie is nog niet doorgegeven.'}</span></p>{match.status&&<p><ShieldCheck size={18}/><span>{match.status}</span></p>}{match.competitionLabel&&<p><Trophy size={18}/><span>{match.competitionLabel}</span></p>}</div>{canSave&&<button className="sl-calendar-button" onClick={()=>downloadMatchCalendar(match)}><Download size={17}/>Bewaar in mijn agenda</button>}<p className="sl-dialog-note">Wedstrijdgegevens via Sportlink. Aanvangstijden en locaties kunnen wijzigen.</p></>}</DialogContent></Dialog>;
-}
+export {SportlinkMatchDialog} from './sportlink-match-dialog';

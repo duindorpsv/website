@@ -1,3 +1,4 @@
+import {supportsPublicMatchResults} from './match-dossier';
 import type {
   FormResult, SportlinkMatch, SportlinkRound,
   SportlinkSide, SportlinkSnapshot, SportlinkStanding, SportlinkTeam,
@@ -45,7 +46,7 @@ function kickoff(row: Raw): string | null {
 }
 
 function score(row: Raw, status: string): [number, number] | null {
-  if (!completed(status)) return null;
+  if (!completed(status)||!supportsPublicMatchResults({name:text(row.thuisteam)})||!supportsPublicMatchResults({name:text(row.uitteam)})) return null;
   const value = text(row.uitslag) || text(row['uitslag-regulier']);
   const pair = value.match(/^(\d{1,3})\s*[-–:]\s*(\d{1,3})(?:\s*\([^)]*\))?$/);
   return pair ? [Number(pair[1]), Number(pair[2])] : null;
