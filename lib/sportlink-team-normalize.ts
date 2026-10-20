@@ -81,7 +81,7 @@ function matchingPool(row:Raw,pools:TeamPool[]):TeamPool|undefined{
  return type&&candidates.length===1?candidates[0]:undefined;
 }
 function side(name:string,clubCode:string,id:string,team:SportlinkTeam,own=false):SportlinkSide{
- const ownSide=own|| (!!code(team.teamCode)&&id===team.teamCode)||(!code(id)&&key(name)===key(team.name));
+ const ownSide=!!code(team.teamCode)&&id===team.teamCode;
  return {id:code(id)||`${clubCode}:${key(name)}`,name,clubCode,own:ownSide,logoUrl:ownSide?'/assets/logo.png':clubCode?`https://logoapi.voetbal.nl/logo.php?clubcode=${encodeURIComponent(clubCode)}`:null};
 }
 export function matchesForTeam(rows:unknown[],team:SportlinkTeam,pools:TeamPool[],seasonId:string,options:{pool?:TeamPool;allTeams?:boolean}={}):SportlinkMatch[]{

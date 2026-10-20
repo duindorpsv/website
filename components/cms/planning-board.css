@@ -6,3 +6,5 @@
 
 .planning-board .plan-period h3{color:#fff}
 @media(min-width:921px) and (max-width:1350px){.plan-workspace{grid-template-columns:minmax(0,1fr)}.plan-sidebar{display:grid;grid-template-columns:1fr 1fr;align-items:start}.plan-side-search{grid-column:1/-1}.plan-source-note{grid-column:1/-1}.plan-unassigned{max-height:230px}}
+.plan-match-side{font-size:8px;font-weight:800;line-height:1.2}.plan-legend i.away,.plan-year-days i.away{background:#b4beca}.plan-legend i.unknown,.plan-year-days i.unknown{background:#7d8893}.plan-form-note p{margin:4px 0 10px}.plan-card.cancelled{opacity:.65}
+.plan-year-side-summary{display:block;font-size:8px;font-weight:500;margin-top:3px;white-space:nowrap}.plan-year-month-title>span{text-align:right}

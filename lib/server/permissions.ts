@@ -57,9 +57,9 @@ export function verifyOrigin(request: Request) { if (request.headers.get('origin
     throw new CmsError('origin-rejected', 'De herkomst van dit verzoek is niet toegestaan.', 403); }
 export async function writeAudit(actorId: string | null, action: string, recordId: string | null, requestId: string, metadata: Record<string, unknown> = {}) { await sqlClient() `insert into cms_audit(id,actor_id,action,record_id,request_id,metadata) values (${crypto.randomUUID()},${actorId},${action},${recordId},${requestId},${sqlClient().json(metadata as any)})`; }
 /** Background jobs survive browser expiry but always recheck current membership. */
-export async function actorPrincipal(id:string):Promise<Principal>{
- const sql=sqlClient();const [m]=await sql`select m.role_id,r.team_scoped,u.name,u.email,u.two_factor_enabled from cms_memberships m join cms_roles r on r.id=m.role_id join auth_user u on u.id=m.user_id where m.user_id=${id} and m.active=true and coalesce(u.banned,false)=false`;
+export async function actorPrincipal(id:string,transaction?:any):Promise<Principal>{
+ const sql=transaction||sqlClient();const [m]=await sql`select m.role_id,r.team_scoped,u.name,u.email,u.two_factor_enabled from cms_memberships m join cms_roles r on r.id=m.role_id join auth_user u on u.id=m.user_id where m.user_id=${id} and m.active=true and coalesce(u.banned,false)=false`;
  if(!m)throw new CmsError('forbidden','De nieuwsimport heeft geen actieve beheerder meer.',403);
  const [teams,departments,grants]=await Promise.all([sql`select team_id from cms_user_teams where user_id=${id}`,sql`select department_id as id,kind from cms_user_departments where user_id=${id}`,sql`select module,action from cms_grants where role_id=${m.role_id}`]);
- return {id,name:m.name,email:m.email,roleId:m.role_id,teamScoped:m.team_scoped,teams:teams.map(t=>t.team_id),departments:departments.map(d=>({id:String(d.id),kind:String(d.kind)})),grants:grants.map(g=>({module:String(g.module),action:String(g.action)})),mfa:!!m.two_factor_enabled};
+ return {id,name:m.name,email:m.email,roleId:m.role_id,teamScoped:m.team_scoped,teams:teams.map((t:{team_id:string})=>t.team_id),departments:departments.map((d:{id:unknown;kind:unknown})=>({id:String(d.id),kind:String(d.kind)})),grants:grants.map((g:{module:unknown;action:unknown})=>({module:String(g.module),action:String(g.action)})),mfa:!!m.two_factor_enabled};
 }

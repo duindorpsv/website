@@ -1,10 +1,10 @@
-import pageDefaults from './club-pages.json';
+import pageDefaults from './club-pages.json' with {type:'json'};
 import {migrateLayout} from './layout/document';
 import {publicFormPresets} from './form-presets';
 import {articles as examples,teams} from '../club-data';
 import {clubContentPaths,clubContentTitles} from '../clubmuur-page-routes';
 import {clubHistorySections,clubHistoryTitle} from '../clubmuur-history';
-import volunteer from '../clubmuur-volunteer-story.json';
+import volunteer from '../clubmuur-volunteer-story.json' with {type:'json'};
 import {boardPeople,youthPeople,clubCommissions} from '../clubmuur-people';
 import {articleContent,emptySEO,pageContent,textDoc} from './model';
 import type {CmsArticle,CmsMedia,CmsPage,CmsState,Permission} from './types';

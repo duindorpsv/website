@@ -6,7 +6,7 @@ import {sportlinkAssignmentFields} from './sportlink-assignments';
 
 type Raw = Record<string, unknown>;
 type Input = {
-  teams: unknown[]; standings: unknown[]; leagueResults: unknown[];
+  verifiedClubCode?: string; teams: unknown[]; standings: unknown[]; leagueResults: unknown[];
   leagueFixtures: unknown[]; clubResults: unknown[]; clubFixtures: unknown[];
 };
 const ZONE = 'Europe/Amsterdam';
@@ -88,17 +88,7 @@ export function normalizeSportlink(input: Input, now = new Date()): SportlinkSna
   const ownCodes = new Set(teams.map(team => validTeamCode(team.teamCode)).filter(Boolean));
   const leagueRows = [...input.leagueResults, ...input.leagueFixtures].map(raw);
   const allRawMatches = [...leagueRows, ...input.clubResults.map(raw), ...input.clubFixtures.map(raw)];
-  const ownStanding = input.standings.map(raw).find(row => truth(row.eigenteam));
-  let ownClubCode = text(ownStanding?.clubrelatiecode);
-  if (!ownClubCode) {
-    for (const row of allRawMatches) {
-      for (const prefix of ['thuis', 'uit']) {
-        const code = validTeamCode(row[`${prefix}teamid`]);
-        if (code && ownCodes.has(code) && text(row[`${prefix}teamclubrelatiecode`])) ownClubCode = text(row[`${prefix}teamclubrelatiecode`]);
-      }
-      if (ownClubCode) break;
-    }
-  }
+  const ownClubCode = input.verifiedClubCode || '';
   const sideIds = new Map<string, string>();
   for (const row of allRawMatches) {
     for (const prefix of ['thuis', 'uit']) {
@@ -107,7 +97,7 @@ export function normalizeSportlink(input: Input, now = new Date()): SportlinkSna
     }
   }
   const side = (name: string, clubCode: string, id: string, explicitOwn = false): SportlinkSide => {
-    const own = explicitOwn || (!!clubCode && clubCode === ownClubCode) || (!!validTeamCode(id) && ownCodes.has(id)) || /^duindorp(?: sv)?(?: |$)/.test(key(name));
+    const own = !!validTeamCode(id) && ownCodes.has(id) && (!clubCode || !ownClubCode || clubCode===ownClubCode);
     return {
       id: validTeamCode(id) || sideIds.get(sideKey(clubCode, name)) || sideKey(clubCode, name), name, clubCode, own,
       logoUrl: own ? '/assets/logo.png' : clubCode ? `https://logoapi.voetbal.nl/logo.php?clubcode=${encodeURIComponent(clubCode)}` : null,

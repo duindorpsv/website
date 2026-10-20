@@ -1,3 +1,4 @@
+import {verifiedSportlinkCatalog} from './server/sportlink-identity';
 import {sportlinkStore, type SportlinkStatement} from './server/sportlink-store';
 import {currentPool,finished,matchesForTeam,mergeTeamCatalog,normalizeRoster,poolsForTeam,record,seasonForDate,standingsForTeam,teamCatalog,text,validSeason,validTeamId} from './sportlink-team-normalize';
 import type {SportlinkTeamDetail,TeamAvailability,TeamPlayer,TeamPool} from './sportlink-team-types';
@@ -106,7 +107,7 @@ export async function getSportlinkTeamDetail(teamId:string,season?:string|null,p
  if(pool&&!/^\d{1,12}$/.test(pool))throw new TeamDataError('Ongeldige poule.',400);
  const now=new Date(),currentSeason=seasonForDate(now);
  const current=await loadCached<unknown[]>(`${CATALOG}${currentSeason}`,async()=>{
-  const rows=await article('teams',{competitieperiode:'ALLES'});
+  const rows=(await verifiedSportlinkCatalog((await readSportlinkSettings()).settings,false,false)).rows;
   if(!teamCatalog(rows).length)throw new Error('Er zijn op dit moment geen teams beschikbaar.');
   const previous=await read(`${CATALOG}${currentSeason}`);
   return mergeTeamCatalog(previous?.payload_json?JSON.parse(previous.payload_json) as unknown[]:[],rows);

@@ -13,6 +13,8 @@ import {listObjects,deleteObject} from './storage';
 import {analyzeNewsSession,processNewsBatch,failNewsJob,cleanExpiredNews} from './news-imports';
 import {CmsError} from './errors';
 import {processSportlinkSync} from './sportlink-sync';
+/** Only the worker that still owns the task may keep its lease and readiness heartbeat alive. */
+export async function renewJobLease(jobId:string,workerId:string){return sqlClient()`with owned as (update cms_jobs set lease_until=now()+interval '60 seconds' where id=${jobId} and lease_owner=${workerId} and status='processing' returning id) insert into cms_heartbeats(id,at) select 'worker',now() from owned where true on conflict(id) do update set at=excluded.at`;}
 export async function runOnce(workerId = crypto.randomUUID()) {
     const sql = sqlClient();
     await storageReady();
@@ -22,7 +24,7 @@ export async function runOnce(workerId = crypto.randomUUID()) {
     if (!job)
         return false;
     let status = 'done';
-    const renewal=setInterval(()=>{void sql`update cms_jobs set lease_until=now()+interval '60 seconds' where id=${job.id} and lease_owner=${workerId} and status='processing'`.catch(()=>{});},20000);
+    const renewal=setInterval(()=>{void renewJobLease(job.id,workerId).catch(()=>{});},20000);
     try {
         if(job.kind==='sportlink-sync')await processSportlinkSync(job.payload,job.id);
         else if(['news-analyze','news-import'].includes(job.kind)){
