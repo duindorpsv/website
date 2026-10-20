@@ -10,7 +10,7 @@ export async function bumpPlanningRevision(tx:any,patch:Partial<PlanningSyncStat
  await tx`insert into sportlink_cache(cache_key,payload_json,updated_at,expires_at,refresh_after) values (${PLANNING_REVISION_KEY},${JSON.stringify(state)},${Date.now()},0,0) on conflict(cache_key) do update set payload_json=excluded.payload_json,updated_at=excluded.updated_at`;
  return state as PlanningSyncStatus;
 }
-export async function planningSyncStatus():Promise<PlanningSyncStatus>{
- const sql=sqlClient(),[row]=await sql`select payload_json from sportlink_cache where cache_key=${PLANNING_REVISION_KEY}`;
- const config=await readSportlinkSettings();return {...(row?.payload_json?JSON.parse(row.payload_json):{revision:'initial',status:'never'}),configured:config.configured&&!!config.settings.clubCode,credentialConfigured:!!process.env.SPORTLINK_CLIENT_ID};
+export async function planningSyncStatus(transaction?:any):Promise<PlanningSyncStatus>{
+ const sql=transaction||sqlClient(),[row]=await sql`select payload_json from sportlink_cache where cache_key=${PLANNING_REVISION_KEY}`;
+ const config=await readSportlinkSettings(transaction,true);return {...(row?.payload_json?JSON.parse(row.payload_json):{revision:'initial',status:'never'}),configured:config.configured&&!!config.settings.clubCode,credentialConfigured:!!process.env.SPORTLINK_CLIENT_ID};
 }

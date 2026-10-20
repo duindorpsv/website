@@ -28,7 +28,7 @@ De screenshots tonen gecontroleerde presentatievoorbeelden, geen geslaagde live 
 ## Belangrijkste gewijzigde bestanden
 
 - Broncontract en identiteit: `lib/server/sportlink-identity.ts`, `lib/server/sportlink-client.ts`, `lib/sportlink-normalize.ts`, `lib/sportlink-team-normalize.ts` en beide publieke serveradapters.
-- Centrale verwerking: `lib/server/sportlink-planning.ts`, `sportlink-sync.ts`, `sportlink-config.ts`, `planning-revision.ts`, `records.ts`, `planning.ts` en de transactionele principalhercontrole in `permissions.ts`.
+- Centrale verwerking: `lib/server/sportlink-planning.ts`, `sportlink-sync.ts`, `sportlink-config.ts`, `planning-revision.ts`, `records.ts`, `planning.ts`, de lease-/heartbeatverlenging in `worker.ts` en de transactionele principalhercontrole in `permissions.ts`.
 - Private API: `app/api/cms/planning/events/route.ts`, `app/api/cms/sportlink/identity/route.ts` en de bestaande instellingenroute.
 - Model en beheer: `lib/cms/{types,planning,sportlink-settings}.ts`, `components/cms/{provider,planning-board,locations-manager,sportlink-settings-manager,planning-sync-status}` met bijbehorende stijlen.
 - Verificatie: `tests/unit/verified-sportlink-planning.test.ts`, `tests/helpers/sportlink-repository.ts`, `tests/e2e/{planning-live-source,club-planning}.spec.ts`, deze bewijsmap en `ops/sportlink.md`.

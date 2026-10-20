@@ -1,3 +1,4 @@
+import {planningSyncStatus} from '@/lib/server/planning-revision';
 import {z} from 'zod';
 import {listPagination} from '@/lib/server/pagination';
 import {sqlClient} from '@/db';
@@ -12,7 +13,7 @@ export async function GET(request:Request,{params}:{params:Promise<{path:string[
  const p=await principal(request.headers),{path}=await params,sql=sqlClient();
  if(path[0]==='newsletter'&&path.length===1)return Response.json(await listSubscribers(p,Object.fromEntries(new URL(request.url).searchParams)),{headers:{'Cache-Control':'no-store'}});
  if(path[0]==='bootstrap'){
-  const result=await loadState(false,p);result.state.roles=[{id:p.roleId,name:p.roleId,description:'',permissions:cmsPermissions(p),teamScoped:p.teamScoped}];
+  const result=await sql.begin('isolation level repeatable read read only',async tx=>({...await loadState(false,p,tx),planningSync:await planningSyncStatus(tx)}));result.state.roles=[{id:p.roleId,name:p.roleId,description:'',permissions:cmsPermissions(p),teamScoped:p.teamScoped}];
   result.state.members=[{id:p.id,name:p.name,email:p.email,roleId:p.roleId,teamIds:p.teams,active:true}];
   return Response.json({...result,principal:p},{headers:{'Cache-Control':'no-store'}});
  }
