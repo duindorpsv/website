@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import {dossierFixture} from '../helpers/match-dossier-fixture';
 import {assertLocalSupabaseTests} from '../helpers/supabase-auth';
 import {loginWithEmailCode} from './login-fixture';
-import {sqlClient,closeDb} from '../../db';
+import {sqlClient} from '../../db';
 import {writeStoredMatches} from '../../lib/server/match-store';
 import {readSportlinkSettings} from '../../lib/server/sportlink-config';
 import {runOnce} from '../../lib/server/worker';
@@ -58,6 +58,6 @@ test('CMS preview edits and scheduled snapshots use the real shared database and
   await expect.poll(async()=> (await sql`select live->>'whatAtStake' as text from cms_records where id=${recordId}`)[0]?.text).toBe('Geplande vervanging.');expect((await sql`select draft->>'whatAtStake' as text from cms_records where id=${recordId}`)[0].text).toBe('Later privéconcept.');
   const reopened=await context.newPage();await reopened.goto('/beheer#voorbeschouwingen');await reopened.locator('.cmp-match-list button').filter({hasText:fixture.match.away.name}).first().click();await expect(reopened.getByLabel(/Wat staat er op het spel/)).toHaveValue('Later privéconcept.');await reopened.getByRole('button',{name:'Publicatie intrekken',exact:true}).click();await expect.poll(async()=> (await sql`select live from cms_records where id=${recordId}`)[0]?.live).toBeNull();response=await reopened.request.get(`/api/sportlink/match?id=${id}`);expect((await response.json()).preview).toBeNull();await reopened.close();
  }finally{
-  await sql`update cms_records set live=null,deleted_at=now() where id=${recordId}`;await sql`delete from sportlink_matches where id=${id}`;await sql`delete from sportlink_cache where cache_key='club-competition-v1'`;for(const row of before)await sql`insert into sportlink_cache ${sql(row)}`;await closeDb();
+  await sql`update cms_records set live=null,deleted_at=now() where id=${recordId}`;await sql`delete from sportlink_matches where id=${id}`;await sql`delete from sportlink_cache where cache_key='club-competition-v1'`;for(const row of before)await sql`insert into sportlink_cache ${sql(row)}`;
  }
 });
