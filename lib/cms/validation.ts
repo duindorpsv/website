@@ -1,6 +1,7 @@
 import {z} from 'zod';
 import {safeDestination} from './layout/document';
 import {validHeroCards,type HeroCardConfig} from '../clubmuur-config';
+import {validHeroPortraits,type HeroPortrait} from './hero-portraits';
 import {validClubNavigation,type ClubNavigationItem} from '../clubmuur-navigation';
 import {trainingSchema} from './training';
 import {agendaSchema} from '../club-agenda';
@@ -31,7 +32,7 @@ const revision=<T extends z.ZodTypeAny>(data:T)=>z.object({id,at:date,label:text
 const uniqueIds=<T extends z.ZodTypeAny>(item:T)=>z.array(item).refine(rows=>new Set(rows.map(row=>(row as {id:string}).id)).size===rows.length,'Dubbele identifiers');
 export const cmsStateSchema=z.object({
   schemaVersion:z.literal(1),
-  appearance:z.object({hero:z.custom<HeroCardConfig[]>(validHeroCards).optional(),navigation:z.custom<ClubNavigationItem[]>(validClubNavigation).optional(),heroPhotos:z.custom<HeroPhotoId[]>(validHeroPhotoIds).optional(),agenda:agendaSchema.optional(),training:trainingSchema.optional()}).optional(),
+  appearance:z.object({heroPortraits:z.custom<HeroPortrait[]>(validHeroPortraits).optional(),hero:z.custom<HeroCardConfig[]>(validHeroCards).optional(),navigation:z.custom<ClubNavigationItem[]>(validClubNavigation).optional(),heroPhotos:z.custom<HeroPhotoId[]>(value=>Array.isArray(value)&&value.length>0&&value.length<=300&&new Set(value).size===value.length&&value.every(id=>typeof id==='string')).optional(),agenda:agendaSchema.optional(),training:trainingSchema.optional()}).superRefine((appearance,context)=>{if(appearance.heroPhotos&&!validHeroPhotoIds(appearance.heroPhotos,appearance.heroPortraits||[]))context.addIssue({code:'custom',path:['heroPhotos'],message:'Kies bestaande spelersportretten.'});}).optional(),
   articles:uniqueIds(articleContent.extend({id,imported:z.boolean().optional(),status:statuses,updatedAt:date,scheduledAt:optionalDate,live:articleContent.optional(),revisions:z.array(revision(articleContent)),deletedAt:date.optional(),demo:z.boolean().optional()})),
   pages:uniqueIds(pageContent.extend({id,scheduledAt:optionalDate.optional(),status:statuses,updatedAt:date,live:pageContent.optional(),revisions:z.array(revision(pageContent)),deletedAt:date.optional(),system:z.boolean().optional()})),
   people:uniqueIds(z.object({id,name:text,role:text,group:text,teamId:text,bio:text,mediaId:text,email:text,phone:text,showContact:z.boolean(),published:z.boolean(),order:number,deletedAt:date.optional()})),

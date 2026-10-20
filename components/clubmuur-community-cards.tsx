@@ -56,7 +56,7 @@ export function ClubmuurCommunityCards({ items, onOpen, articleOpen = false }: {
   return <section ref={sectionRef} className="cm-community" aria-label="Nieuws en agenda van Duindorp" data-in-view={visible}>
     <div className="cm-community-grid">
       <ClubmuurNewsFeed items={items} onOpen={onOpen} articleOpen={articleOpen || !!event} />
-      <article className="cm-community-card cm-community-agenda" aria-labelledby="cm-community-agenda-title">
+      <article className="cm-community-card cm-community-agenda" id="clubagenda" aria-labelledby="cm-community-agenda-title">
         <header className="cm-community-card-head"><div className="cm-community-eyebrow"><span>{siteText(state,'agendaEyebrow')}</span><CalendarDays size={18} aria-hidden="true" /></div><h2 id="cm-community-agenda-title">{siteText(state,'agendaTitle')}</h2><p>{siteText(state,'agendaIntro')}</p></header>
         <div className="cm-community-events">{!events.length&&<p className="cm-community-empty">Er staan op dit moment geen activiteiten in de agenda.</p>}{events.map(item => <button type="button" key={item.id} onClick={event => { dialogTriggerRef.current = event.currentTarget; setEvent(item); }} className="cm-community-event" aria-label={`Bekijk ${item.title}, ${agendaDate(item)}, ${item.time} uur`}><span className="cm-community-date" aria-hidden="true"><strong>{Number(item.date.slice(8))}</strong><small>{agendaDate(item,true).split(' ').slice(1).join(' ')}</small></span><span className="cm-community-event-copy"><small>{item.time} uur</small><strong>{item.title}</strong></span><ArrowUpRight size={18} aria-hidden="true" /></button>)}</div>
         <footer className="cm-community-card-foot"><span className="cm-community-footnote"><span />Clubagenda</span></footer>

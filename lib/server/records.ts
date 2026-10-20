@@ -1,12 +1,14 @@
+import {equalContent} from '../cms/compare';
 import {importedNewsContent} from '../cms/import-publication';
 import {formDefinitionErrors} from '../cms/form-definition';
 import {trainingSchema} from '../cms/training';
 import {agendaSchema} from '../club-agenda';
+import {validHeroPortraits} from '../cms/hero-portraits';
 import {validHeroPhotoIds} from '../clubmuur-layouts';
 import {currentClubLinks} from '../current-club-links';
 import {syncHomepage,moveChildPaths} from './publication-effects';
 import {heroNewsRows} from './hero-news';
-import { validClubNavigation } from '../clubmuur-navigation';
+import { clubNavigationDestinations,validClubNavigation } from '../clubmuur-navigation';
 import { validHeroCards } from '../clubmuur-config';
 import { parseGroups } from '../narrowcasting-config';
 import { sqlClient } from '../../db/index';
@@ -60,6 +62,7 @@ export async function loadState(publicOnly = false, p?: Principal,transaction?:a
         if (['navigation', 'hero', 'heroPhotos', 'agenda', 'training'].includes(row.module)) {
             state.appearance ||= {};
             (state.appearance as any)[row.module] = (publicOnly||fallbackPublic ? row.live : row.draft)?.items;
+            if(row.module==='heroPhotos')state.appearance.heroPortraits=(publicOnly||fallbackPublic?row.live:row.draft)?.portraits||[];
             continue;
         }
         if (row.module === 'settings') {
@@ -118,10 +121,10 @@ export function validateCandidate(module: ContentModule, value: Record<string, a
     if (module === 'heroPhotos' || module === 'agenda' || module==='training') {
         delete clean.id;
         delete clean.published;
-        if (Object.keys(clean).some(key=>key!=='items'))throw new CmsError('unknown-field','Gebruik alleen de items van dit onderdeel.',422);
+        if (Object.keys(clean).some(key=>key!=='items'&&(module!=='heroPhotos'||key!=='portraits')))throw new CmsError('unknown-field','Gebruik alleen de items van dit onderdeel.',422);
         if(module==='heroPhotos'){
-            if(!validHeroPhotoIds(clean.items))throw new CmsError('hero-photos','Selecteer minimaal één geldige spelersfoto.',422);
-            return {items:clean.items};
+            if(!validHeroPortraits(clean.portraits||[])||!validHeroPhotoIds(clean.items,clean.portraits||[]))throw new CmsError('hero-photos','Selecteer minimaal één geldige spelersfoto.',422);
+            return {items:clean.items,portraits:clean.portraits||[]};
         }
         const result=(module==='training'?trainingSchema:agendaSchema).safeParse(clean.items);
         if(!result.success)throw new CmsError('agenda',module==='training'?'Controleer teams, dagen, tijden en velden.':'Controleer titel, datum, tijd en beschrijving van de activiteiten.',422,result.error.issues.map(issue=>({path:issue.path.join('.'),message:issue.message})));
@@ -209,7 +212,8 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
             if ((old?.version || 0) !== change.expectedVersion)
                 throw new CmsError('conflict', 'Deze inhoud is ondertussen gewijzigd. Je werkversie blijft bewaard; laad de serverversie opnieuw.', 409, { id: change.id, expected: change.expectedVersion, actual: old?.version || 0 });
             const module = permissionModule(change.module,old?.draft||change.data), action = change.action === 'publish' || change.action === 'unpublish' || change.action === 'schedule' || change.action === 'cancelSchedule' ? 'publish' : change.action === 'trash' ? 'delete' : old ? 'update' : 'create';
-            const candidate = change.data ? validateCandidate(change.module, { ...change.data, id: change.id }) : structuredClone(old?.draft || {});
+            if(change.module==='heroPhotos'&&change.action==='publish'&&change.data?.portraits===undefined&&!equalContent(old?.draft.portraits||[],old?.live?.portraits||[]))throw new CmsError('conflict','De portretinstellingen bevatten een nieuwere werkversie. Laad de serverversie en publiceer de volledige selectie.',409,{id:change.id});
+            const candidate = change.data ? validateCandidate(change.module, { ...change.data,...(change.module==='heroPhotos'&&change.data.portraits===undefined?{portraits:old?.draft.portraits||[]}:{}), id: change.id }) : structuredClone(old?.draft || {});
             if(prepared.imported.has(change.id)&&candidate.contentType==='news'&&change.action==='publish')Object.assign(candidate,importedNewsContent(candidate as any));
             if(change.module==='pages'){let id=candidate.parentId;const visited=new Set([change.id]);while(id){if(visited.has(id))throw new CmsError('parent-cycle','De paginahiërarchie bevat een kringverwijzing.',422);visited.add(id);const [parent]=await tx`select draft from cms_records where id=${id} and module='pages' and deleted_at is null`;if(!parent)throw new CmsError('parent-missing','Kies een bestaande bovenliggende pagina.',422);id=parent.draft.parentId;}}
             if(candidate.authorId&&!(await tx`select id from cms_records where id=${candidate.authorId} and module='people' and deleted_at is null`).length)throw new CmsError('author','Kies een bestaande persoon als auteur.',422);
@@ -248,6 +252,7 @@ export async function mutate(p: Principal, changes: Change[], operationId: strin
             if (change.action === 'schedule' && !['articles','pages'].includes(change.module)) throw new CmsError('schedule-module','Alleen pagina’s en artikelen kunnen worden ingepland.',422);
             let planned: Record<string,any> | null = null;
             if (change.action === 'publish' || change.action === 'schedule') {
+                if(change.module==='navigation'){const known=new Set(['/clubmuur',...clubNavigationDestinations.map(item=>item.href.split(/[?#]/)[0]),...state.pages.filter(page=>page.live&&!page.deletedAt).map(page=>'/clubmuur/'+page.live!.slug)]);for(const group of candidate.items.filter((group:any)=>group.enabled!==false))for(const link of [group,...group.children||[]])if(link.enabled!==false&&!known.has(link.href.split(/[?#]/)[0]))throw new CmsError('navigation-destination','Publiceer eerst de bestemmingspagina van ‘'+link.label+'’.',422);}
                 if(change.module==='forms'){const issues=formDefinitionErrors(candidate as any);const [department]=await tx`select id from cms_departments where id=${candidate.departmentId} and active=true`;if(!department)issues.push('Kies een actieve afdeling met ontvangers.');if(issues.length)throw new CmsError('form-definition','Controleer de formulierinstellingen.',422,issues);}
                 if (change.module === 'media') {
                     const [object] = await tx `select state from cms_media_objects where id=${change.id}`;

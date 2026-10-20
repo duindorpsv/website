@@ -1,5 +1,6 @@
 'use client';
 import {Pagination,usePagination} from './pagination';
+import {equalContent} from '@/lib/cms/compare';
 import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import { ArrowDown, ArrowUp, Check, Folder, FolderPlus, GripVertical, ImagePlus, Images, Plus, Search, Star, Trash2, Upload, X } from 'lucide-react';
 import { useCMS } from './provider';
@@ -245,12 +246,18 @@ function MediaDetails({ media, onClose }: {
         }}><Trash2 size={15}/> Prullenbak</button></div>
   </aside>;
 }
+function albumDraft(value:CmsAlbum){const result={...value} as any;delete result.live;delete result.version;return result as CmsAlbum;}
 function AlbumDetails({ album, onClose }: {
     album: CmsAlbum;
     onClose: () => void;
 }) {
     const { state, update, can, notify, reload } = useCMS();
-    const [draft, setDraft] = useState(() => structuredClone(album));
+    const [draft, setDraft] = useState(() => albumDraft(album));
+    const [showOnHome,setShowOnHome]=useState(state.settings.homepageAlbumIds.includes(album.id));
+    const [busy,setBusy]=useState(false);
+    const homeAllowed=can('pages')&&can('publish','','settings');
+    const live=(album as CmsAlbum&{live?:CmsAlbum}).live;
+    const pending=!!live&&!equalContent(albumDraft(live),albumDraft(album));
     const [pickerQuery, setPickerQuery] = useState('');
     const [pickerFolder, setPickerFolder] = useState('all');
     const [draggedId, setDraggedId] = useState('');
@@ -261,7 +268,7 @@ function AlbumDetails({ album, onClose }: {
     const selectedPage=usePagination(selectedMedia);
     const pickerPage=usePagination(media.filter(m=>(pickerFolder==='all'||m.folderId===pickerFolder)&&`${m.name} ${m.alt}`.toLocaleLowerCase('nl').includes(pickerQuery.toLocaleLowerCase('nl'))),JSON.stringify([pickerFolder,pickerQuery]));
     const selectedMissing = draft.mediaIds.filter(id => !media.some(m => m.id === id));
-    const dirty = JSON.stringify(album) !== JSON.stringify(draft);
+    const dirty = !equalContent(albumDraft(album),draft)||showOnHome!==state.settings.homepageAlbumIds.includes(album.id);
     const patch = (value: Partial<CmsAlbum>) => setDraft(current => ({ ...current, ...value }));
     function togglePhoto(id: string) {
         if (!editable)
@@ -288,7 +295,10 @@ function AlbumDetails({ album, onClose }: {
         patch({ mediaIds: ids });
         setDraggedId('');
     }
-    async function save(published = draft.published) {
+    async function save(action:'save'|'publish'|'unpublish') {
+        if(busy)return;
+        const published=action==='publish'||action==='save'&&album.published;
+        if(action!=='save'&&!publishAllowed)return notify('Voor publiceren zijn publicatierechten nodig.');
         if (!editable || !can('media', draft.teamId))
             return notify('Je hebt geen albumrechten voor dit team.');
         if (!draft.title.trim())
@@ -299,14 +309,14 @@ function AlbumDetails({ album, onClose }: {
             return notify('Deze album-slug is al in gebruik.');
         if (published !== album.published && !publishAllowed)
             return notify('Voor wijzigingen aan een gepubliceerd album zijn publicatierechten nodig.');
-        if (published && (!draft.mediaIds.length || selectedMissing.length))
+        if (action==='publish' && (!draft.mediaIds.length || selectedMissing.length))
             return notify('Selecteer ten minste één beschikbare foto voordat je publiceert.');
-        if (published && selectedMedia.some(m => !m.published || !m.alt.trim() || !m.src))
+        if (action==='publish' && selectedMedia.some(m => !m.published || !m.alt.trim() || !m.src))
             return notify('Publiceer eerst alle geselecteerde foto’s en vul hun alt-tekst in via de mediabibliotheek. Controleer of de foto’s beschikbaar en gepubliceerd zijn.');
-        if (published && !draft.mediaIds.includes(draft.coverId))
+        if (action==='publish' && !draft.mediaIds.includes(draft.coverId))
             return notify('Kies een omslagfoto uit dit album.');
         const next = { ...draft, title: draft.title.trim(), published };
-        if (await update(data => {
+        setBusy(true);try{if (await update(data => {
             const i = data.albums.findIndex(a => a.id === album.id);
             if (i >= 0)
                 data.albums[i] = next;
@@ -315,21 +325,20 @@ function AlbumDetails({ album, onClose }: {
                 data.redirects = data.redirects.filter(r => r.from !== from);
                 data.redirects.push({ from, to: `media/fotos/${next.slug}` });
             }
-            if (!published)
-                data.settings.homepageAlbumIds = data.settings.homepageAlbumIds.filter(id => id !== album.id);
-        }, `Album “${next.title}” ${published ? 'gepubliceerd' : 'opgeslagen'}`,published&&publishAllowed?{[album.id]:{action:'publish'}}:undefined)) {
+            if(homeAllowed&&action!=='save'){const ids=data.settings.homepageAlbumIds.filter(id=>id!==album.id);data.settings.homepageAlbumIds=showOnHome&&published?[...ids,album.id]:ids;}
+        }, `Album “${next.title}” ${action==='publish'?'gepubliceerd':'opgeslagen'}`,{[album.id]:{action}})) {
             setDraft(next);
-            notify(published ? 'Album gepubliceerd op de website.' : 'Album opgeslagen als concept.');
-        }
+            notify(action==='publish'?'Album gepubliceerd. De homepage en albumpagina tonen dezelfde bijgewerkte foto’s.':action==='unpublish'?'Album teruggezet naar concept.':'Albumconcept bewaard; de publicatie blijft behouden.');
+        }}finally{setBusy(false);}
     }
     return <section className="cms-panel cms-album-editor">
     <div className="cms-editor-heading"><div><span className="cms-meta">ALBUM BEWERKEN</span><h3>{draft.title || 'Nieuw album'}</h3></div><button className="cms-icon-button" aria-label="Album sluiten" onClick={onClose}><X size={18}/></button></div>
-    <fieldset disabled={!editable}>
+    <fieldset disabled={!editable||busy}>
       <div className="cms-grid cms-album-fields"><label className="cms-field">Titel<input value={draft.title} onChange={e => patch({ title: e.target.value })}/></label><label className="cms-field">Datum<input type="date" value={draft.date} onChange={e => patch({ date: e.target.value })}/></label></div>
       <label className="cms-field">Beschrijving<textarea rows={3} value={draft.description} onChange={e => patch({ description: e.target.value })} placeholder="Vertel het verhaal achter deze dag…"/></label>
       <label className="cms-field">URL-slug<div className="cms-slug-input"><input value={draft.slug} onChange={e => patch({ slug: e.target.value })}/><button type="button" className="cms-button" onClick={() => patch({ slug: slugify(draft.title) })}>Uit titel</button></div><span className="cms-meta">/clubmuur/media/fotos/{draft.slug}</span></label>
       <div className="cms-grid cms-album-fields"><label className="cms-field">Team<select value={draft.teamId} onChange={e => patch({ teamId: e.target.value })}><option value="" disabled={!can('media')}>Club algemeen</option>{state.settings.teams.map(t => <option key={t.id} value={t.id} disabled={!can('media', t.id)}>{t.name}</option>)}</select></label><label className="cms-field">Seizoen<input value={draft.season} onChange={e => patch({ season: e.target.value })}/></label><label className="cms-field">Volgorde<input type="number" min={0} value={draft.order} onChange={e => patch({ order: Math.max(0, Number(e.target.value)) })}/></label></div>
-      <div className="cms-album-selection-heading"><div><h4>Foto’s in dit album <span>{draft.mediaIds.length}</span></h4><p>Sleep om te ordenen, of gebruik de pijlen. De ster bepaalt de omslag.</p></div></div>
+      <label className="cms-check"><input type="checkbox" checked={showOnHome} disabled={!homeAllowed} onChange={event=>setShowOnHome(event.target.checked)}/>Op de homepage tonen</label><p className="cms-meta">De homepage gebruikt dit album: dezelfde omslag, foto’s en volgorde. Een map hieronder helpt je foto’s te vinden; selecteer de gewenste foto’s om ze aan het album toe te voegen.</p>{pending&&<p className="cms-media-warning" role="status">Er staan nog niet-gepubliceerde albumwijzigingen klaar. Kies ‘Opslaan en publiceren’ om de website en homepage bij te werken.</p>}<div className="cms-album-selection-heading"><div><h4>Foto’s in dit album <span>{draft.mediaIds.length}</span></h4><p>Sleep om te ordenen, of gebruik de pijlen. De ster bepaalt de omslag.</p></div></div>
       {selectedMissing.length > 0 && <div className="cms-media-warning">{selectedMissing.length} foto’s staan in de prullenbak. <button type="button" onClick={() => { const ids = selectedMedia.map(m => m.id); patch({ mediaIds: ids, coverId: ids.includes(draft.coverId) ? draft.coverId : ids[0] || '' }); }}>Verwijder ontbrekende foto’s uit dit album</button></div>}
       {selectedMedia.length ? <div className="cms-album-selected">{selectedPage.items.map(m => <div key={m.id} className={`cms-album-photo ${draft.coverId === m.id ? 'is-cover' : ''}`} draggable={editable} onDragStart={() => setDraggedId(m.id)} onDragEnd={() => setDraggedId('')} onDragOver={e => e.preventDefault()} onDrop={e => onDrop(e, m.id)}>
         <div className="cms-album-photo-image"><img src={m.src} alt={m.alt || m.name}/><GripVertical className="cms-photo-drag" size={17}/>{!m.published && <span className="cms-photo-badge">Nog concept</span>}</div><strong>{m.name}</strong><div className="cms-album-photo-actions"><button type="button" aria-label={`Maak ${m.name} de omslagfoto`} aria-pressed={draft.coverId === m.id} onClick={() => patch({ coverId: m.id })}><Star size={15} fill={draft.coverId === m.id ? 'currentColor' : 'none'}/></button><button type="button" aria-label={`${m.name} eerder`} disabled={draft.mediaIds.indexOf(m.id) === 0} onClick={() => movePhoto(m.id, -1)}><ArrowUp size={15}/></button><button type="button" aria-label={`${m.name} later`} disabled={draft.mediaIds.indexOf(m.id) === draft.mediaIds.length - 1} onClick={() => movePhoto(m.id, 1)}><ArrowDown size={15}/></button><button type="button" aria-label={`Verwijder ${m.name} uit album`} onClick={() => togglePhoto(m.id)}><X size={15}/></button></div>
@@ -337,8 +346,8 @@ function AlbumDetails({ album, onClose }: {
       <Pagination label="Foto’s in album" {...selectedPage}/>
       <details className="cms-album-picker" open><summary>Foto’s toevoegen uit de bibliotheek</summary><div className="cms-toolbar"><label className="cms-field">Zoeken<input value={pickerQuery} onChange={e => setPickerQuery(e.target.value)} placeholder="Zoek op naam of beschrijving"/></label><label className="cms-field">Map<select value={pickerFolder} onChange={e => setPickerFolder(e.target.value)}><option value="all">Alle mappen</option><option value="">Losse bestanden</option>{state.folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label></div><div className="cms-album-picker-grid">{pickerPage.items.map(m => <button type="button" key={m.id} className={draft.mediaIds.includes(m.id) ? 'is-selected' : ''} onClick={() => togglePhoto(m.id)} aria-pressed={draft.mediaIds.includes(m.id)} aria-label={`${draft.mediaIds.includes(m.id) ? 'Verwijder' : 'Selecteer'} ${m.name}`}><img src={m.src} alt={m.alt || m.name}/><span>{m.name}</span>{draft.mediaIds.includes(m.id) && <Check size={15}/>}</button>)}</div>{!media.length && <p className="cms-meta">Upload eerst foto’s via de mediabibliotheek.</p>}<Pagination label="Albumfoto’s kiezen" {...pickerPage}/></details>
     </fieldset>
-    {album.published && <p className="cms-meta">Dit album staat live op de website. Conceptwijzigingen verschijnen na een nieuwe publicatie.</p>}
-    <div className="cms-toolbar cms-album-save"><button className="cms-button primary" disabled={!editable || !dirty } onClick={() => save()}><Check size={16}/>{dirty ? 'Wijzigingen opslaan' : 'Opgeslagen'}</button><button className="cms-button" disabled={!publishAllowed} onClick={() => save(!album.published)}>{album.published ? 'Terug naar concept' : 'Album publiceren'}</button>{album.published && <a className="cms-button" href={`/clubmuur/media/fotos/${album.slug}`} target="_blank" rel="noreferrer">Bekijk album</a>}<button className="cms-button danger" disabled={!editable} onClick={async () => {
+    {album.published && <p className="cms-meta">Gepubliceerd: {live?.mediaIds.length??album.mediaIds.length} foto’s. Werkversie: {draft.mediaIds.length} foto’s.</p>}
+    <div className="cms-toolbar cms-album-save"><button className="cms-button primary" disabled={!editable||busy||(!dirty&&!pending)||album.published&&!publishAllowed} onClick={()=>save(album.published?'publish':'save')}><Check size={16}/>{busy?'Opslaan…':album.published?'Opslaan en publiceren':'Concept bewaren'}</button>{album.published?<><button className="cms-button" disabled={!editable||busy||!dirty} onClick={()=>save('save')}>Alleen concept bewaren</button><button className="cms-button" disabled={!publishAllowed||busy} onClick={()=>save('unpublish')}>Terug naar concept</button></>:<button className="cms-button" disabled={!publishAllowed||busy} onClick={()=>save('publish')}>Album publiceren</button>}{album.published && <a className="cms-button" href={`/clubmuur/media/fotos/${album.slug}`} target="_blank" rel="noreferrer">Bekijk album</a>}<button className="cms-button danger" disabled={!editable} onClick={async () => {
             if (await update(data => { const a = data.albums.find(x => x.id === album.id); if (a) {
                 a.deletedAt = now();
                 a.published = false;

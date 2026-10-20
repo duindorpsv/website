@@ -1,15 +1,61 @@
 'use client';
-import {Pagination,usePagination} from './pagination';
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState,type FormEvent} from 'react';
+import {Building2,ClipboardCheck,Mail,Plus,UserRound} from 'lucide-react';
 import {useCMS} from './provider';
-import {formKindLabels,submissionLabels,statusesForFormKind} from '@/lib/cms/forms';
-import type {CmsForm,FormKind,FormFieldType} from '@/lib/cms/types';
-import {PublicForm} from './public-form';
-import {CmsProvider} from './provider';
+import {formKindLabels} from '@/lib/cms/forms';
+import type {CmsDepartment,FormKind} from '@/lib/cms/types';
+import {Pagination,usePagination} from './pagination';
 import {FormDefinitions} from './form-definitions';
 import {SubmissionInbox} from './submission-inbox';
+import styles from './forms-manager.module.css';
+
+const kinds:FormKind[]=['contact','registration','request'];
+const kindIcons={contact:Mail,registration:UserRound,request:ClipboardCheck};
 export function FormsManager(){
- const {can}=useCMS();const [kind,setKind]=useState<FormKind>('contact'),[tab,setTab]=useState<'forms'|'inbox'|'departments'>('forms'),[resultForm,setResultForm]=useState('');const configure=can('forms'),activeTab=configure?tab:'inbox';
- return <section><div className="cms-toolbar" aria-label="Formulierbeheer"><button className="cms-button" disabled={!configure} onClick={()=>setTab('forms')}>Formulieren maken en bewerken</button><button className="cms-button" onClick={()=>{setResultForm('');setTab('inbox');}}>Inzendingen</button>{can('forms')&&<button className="cms-button" onClick={()=>setTab('departments')}>Afdelingen en ontvangers</button>}</div>{activeTab==='forms'?<FormDefinitions onResults={form=>{setKind(form.kind);setResultForm(form.id);setTab('inbox');}}/>:activeTab==='departments'?<DepartmentsEditor/>:<><div className="cms-toolbar">{(['contact','registration','request'] as FormKind[]).map(value=><button className="cms-button" aria-pressed={kind===value} key={value} onClick={()=>{setKind(value);setResultForm('');}}>{formKindLabels[value].plural}</button>)}</div><SubmissionInbox key={kind+resultForm} kind={kind} initialFormId={resultForm}/></>}</section>;
+ const {can,state}=useCMS();
+ const [kind,setKind]=useState<FormKind>('contact'),[tab,setTab]=useState<'forms'|'inbox'|'departments'>('forms'),[resultForm,setResultForm]=useState('');
+ const configure=can('forms'),activeTab=configure?tab:'inbox';
+ function openInbox(value:FormKind){setKind(value);setResultForm('');setTab('inbox');}
+ return <section className={styles.root}>
+  <div className={styles.intro}><h2>Contact, aanmeldingen & aanvragen</h2><p>Maak formulieren voor de website en volg ontvangen berichten op. Per formulier kies je de afdeling die de e-mails ontvangt.</p></div>
+  <div className={styles.kindCards} aria-label="Soorten inzendingen">{kinds.map(value=>{const Icon=kindIcons[value],active=activeTab==='inbox'&&kind===value;return <button type="button" className={styles.kindCard} aria-pressed={active} key={value} onClick={()=>openInbox(value)}><span className={styles.kindIcon}><Icon size={21}/></span><span><strong>{formKindLabels[value].plural}</strong><small>{formKindLabels[value].description}</small><span className={styles.kindMeta}>{state.forms.filter(form=>form.kind===value).length} formulieren <span aria-hidden="true">·</span> Inzendingen openen</span></span></button>;})}</div>
+  <nav className={styles.tabs} aria-label="Formulierbeheer">
+   {configure&&<button type="button" aria-label="Formulieren maken en bewerken" aria-current={activeTab==='forms'?'page':undefined} onClick={()=>setTab('forms')}>Formulieren maken en bewerken <span>{state.forms.length}</span></button>}
+   <button type="button" aria-current={activeTab==='inbox'?'page':undefined} onClick={()=>{setResultForm('');setTab('inbox');}}>Inzendingen</button>
+   {configure&&<button type="button" aria-current={activeTab==='departments'?'page':undefined} onClick={()=>setTab('departments')}>Afdelingen en ontvangers</button>}
+  </nav>
+  {activeTab==='forms'?<FormDefinitions onResults={form=>{setKind(form.kind);setResultForm(form.id);setTab('inbox');}}/>:activeTab==='departments'?<DepartmentsEditor/>:<SubmissionInbox key={kind+resultForm} kind={kind} initialFormId={resultForm}/>}
+ </section>;
 }
-function DepartmentsEditor(){const [items,setItems]=useState<any[]>([]),[draft,setDraft]=useState<any>(null),[message,setMessage]=useState('');async function refresh(){const response=await fetch('/api/cms/departments');const data=await response.json();setItems(data.items||[]);}useEffect(()=>{void refresh();},[]);const pagination=usePagination(items);return <div className="cms-panel"><h3>Afdelingen en ontvangers</h3>{pagination.items.map(d=><button className="cms-button" key={d.id} onClick={()=>setDraft({...d,expectedVersion:d.version})}>{d.name}</button>)}<Pagination label="Afdelingen" {...pagination}/><button className="cms-button" onClick={()=>setDraft({id:crypto.randomUUID(),name:'',description:'',emails:[],active:true,confirmation:'',expectedVersion:0})}>Afdeling toevoegen</button>{draft&&<form onSubmit={async e=>{e.preventDefault();const {version,...payload}=draft;const response=await fetch('/api/cms/departments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await response.json();setMessage(response.ok?'Afdeling opgeslagen.':data.message);await refresh();}}>{['name','description','confirmation'].map(k=><label className="cms-field" key={k}>{k==='name'?'Naam':k==='description'?'Omschrijving':'Ontvangstbevestiging'}<input value={draft[k]} onChange={e=>setDraft({...draft,[k]:e.target.value})}/></label>)}<label className="cms-field">Ontvangers, gescheiden door komma’s<input value={draft.emails.join(',')} onChange={e=>setDraft({...draft,emails:e.target.value.split(',').map(x=>x.trim())})}/></label><label><input type="checkbox" checked={draft.active} onChange={e=>setDraft({...draft,active:e.target.checked})}/> Actief</label><button className="cms-button">Bewaren</button></form>}{message&&<p role="status">{message}</p>}</div>;}
+
+type Department=CmsDepartment&{version:number};
+type DepartmentDraft=CmsDepartment&{expectedVersion:number};
+function DepartmentsEditor(){
+ const {reload}=useCMS();
+ const [items,setItems]=useState<Department[]>([]),[draft,setDraft]=useState<DepartmentDraft|null>(null),[message,setMessage]=useState(''),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false);
+ const saving=useRef(false),pagination=usePagination(items);
+ async function refresh(){const response=await fetch('/api/cms/departments',{cache:'no-store'}),data=await response.json();if(!response.ok)throw Error(data.message||'Afdelingen ophalen is mislukt.');const rows:Department[]=data.items||[];setItems(rows);return rows;}
+ useEffect(()=>{let active=true;void refresh().catch(error=>{if(active)setMessage(error.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[]);
+ function choose(item:Department){setDraft({id:item.id,name:item.name,description:item.description,emails:item.emails,active:item.active,confirmation:item.confirmation,expectedVersion:item.version});setMessage('');}
+ function create(){setDraft({id:crypto.randomUUID(),name:'',description:'',emails:[],active:true,confirmation:'',expectedVersion:0});setMessage('');}
+ async function save(event:FormEvent){
+  event.preventDefault();if(!draft||saving.current)return;saving.current=true;setBusy(true);setMessage('');
+  try{const response=await fetch('/api/cms/departments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...draft,name:draft.name.trim(),emails:draft.emails.map(email=>email.trim()).filter(Boolean)})}),data=await response.json();if(!response.ok)throw Error(data.message||'Afdeling opslaan is mislukt.');const rows=await refresh(),saved=rows.find(item=>item.id===draft.id);if(saved)choose(saved);await reload();setMessage('Afdeling opgeslagen.');}
+  catch(error){setMessage(error instanceof Error?error.message:'Afdeling opslaan is mislukt.');}finally{saving.current=false;setBusy(false);}
+ }
+ const patch=(values:Partial<DepartmentDraft>)=>setDraft(current=>current?{...current,...values}:current);
+ return <div className={styles.workspace}>
+  <aside className={styles.library}><div className={styles.panelHead}><div><h3>Afdelingen</h3><p>Ontvangers per formulier</p></div><Building2 size={19}/></div><div className={styles.libraryAction}><button type="button" className="cms-button primary" disabled={busy} onClick={create}><Plus size={15}/>Afdeling toevoegen</button></div><div className={styles.recordList}>
+   {pagination.items.map(item=><button type="button" className={styles.record} aria-pressed={draft?.id===item.id} disabled={busy} key={item.id} onClick={()=>choose(item)}><strong>{item.name}</strong><small>{item.emails.join(', ')}</small><span className={styles.badge}>{item.active?'Actief':'Uitgeschakeld'}</span></button>)}
+   {loading&&<p className={styles.loading} role="status">Afdelingen laden…</p>}
+  </div><Pagination label="Afdelingen" {...pagination} disabled={busy}/></aside>
+  <section className={styles.editor}>{draft?<form onSubmit={save}><div className={styles.panelHead}><div><h3>{draft.name||'Nieuwe afdeling'}</h3><p>Formulierberichten gaan naar de e-mailadressen hieronder.</p></div></div><fieldset className={styles.settings} disabled={busy}>
+   <label className="cms-field">Naam<input required maxLength={120} aria-label="Afdelingsnaam" value={draft.name} onChange={event=>patch({name:event.target.value})}/></label>
+   <label className="cms-field">Omschrijving<textarea maxLength={1000} value={draft.description} onChange={event=>patch({description:event.target.value})}/></label>
+   <label className="cms-field">Ontvangers, gescheiden door komma’s<input required aria-label="Ontvangers, gescheiden door komma’s" value={draft.emails.join(', ')} onChange={event=>patch({emails:event.target.value.split(',')})}/><small>Gebruik maximaal 10 geldige e-mailadressen.</small></label>
+   <label className="cms-field">Ontvangstbevestiging<textarea maxLength={3000} value={draft.confirmation} onChange={event=>patch({confirmation:event.target.value})}/></label>
+   <label className={styles.check}><input type="checkbox" checked={draft.active} onChange={event=>patch({active:event.target.checked})}/>Afdeling actief</label>
+   <div className={styles.actions}><button className="cms-button primary" type="submit">{busy?'Opslaan…':'Bewaren'}</button></div>
+  </fieldset></form>:<div className="cms-empty"><Building2 size={30}/><h3>Kies een afdeling</h3><p>Beheer hier de ontvangers van contactberichten, aanmeldingen en aanvragen.</p></div>}{message&&<p className={styles.message} role="status">{message}</p>}</section>
+ </div>;
+}
