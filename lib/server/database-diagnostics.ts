@@ -32,7 +32,18 @@ export async function inspectDatabase(sql:any){
       where n.nspname='public' and c.relkind='r' and c.relname ~ '^(cms_|auth_|sportlink_)'`;
     return row;
   });
-  return {health,connections,jobs,security};
+  const sportlink=await check(async tx=>{
+    const datasets=['teams','players','matches','assignments','results','standings','teamInfo'];
+    const rows=await tx`select cache_key,payload_json from sportlink_cache where cache_key in ${tx(datasets.map(name=>'sportlink-sync-v1:'+name))} order by cache_key`;
+    const statuses=new Set(['never','queued','running','success','partial','failed','paused']);
+    const timestamp=(value:unknown)=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(value)&&Number.isFinite(Date.parse(value))?new Date(value).toISOString():null;
+    return rows.map((row:any)=>{
+      const state=JSON.parse(row.payload_json||'{}');
+      const counts=Object.fromEntries(['selected','teams','failed','players','updated','active','skipped','importable'].filter(key=>Number.isSafeInteger(state.counts?.[key])&&state.counts[key]>=0).map(key=>[key,state.counts[key]]));
+      return {dataset:row.cache_key.slice('sportlink-sync-v1:'.length),status:statuses.has(state.status)?state.status:'unknown',lastAttemptAt:timestamp(state.lastAttemptAt),lastSuccessAt:timestamp(state.lastSuccessAt),nextRunAt:timestamp(state.nextRunAt),counts};
+    });
+  });
+  return {health,connections,jobs,security,sportlink};
 }
 
 /** Explicit PIDs only; never stop another role or a recent application query. */

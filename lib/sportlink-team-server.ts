@@ -19,7 +19,9 @@ const inFlight=new Map<string,Promise<Cached<unknown>>>();
 export class TeamDataError extends Error{constructor(message:string,public status:number){super(message);}}
 function database(){if(!sportlinkStore)throw new Error('De teamgegevens zijn nog niet beschikbaar.');return sportlinkStore;}
 async function read(key:string){return database().prepare('SELECT payload_json,updated_at,expires_at,refresh_after FROM sportlink_cache WHERE cache_key=?').bind(key).first<CacheRow>();}
-function fromRow<T>(row:CacheRow,stale:boolean):Cached<T>{return {value:JSON.parse(row.payload_json!) as T,updatedAt:row.updated_at,stale};}
+// Raw PostgreSQL bigint values arrive as decimal strings. Normalize only this
+// timestamp boundary; changing the raw client's parsers would affect other data.
+function fromRow<T>(row:CacheRow,stale:boolean):Cached<T>{return {value:JSON.parse(row.payload_json!) as T,updatedAt:Number(row.updated_at),stale};}
 
 /** Cache each dataset separately: a roster failure cannot erase a valid standings table. */
 async function loadCached<T>(key:string,loader:()=>Promise<T>,historical=false,force=false):Promise<Cached<T>>{
@@ -124,7 +126,9 @@ async function loadTeamDetail(teamId:string,season?:string|null,pool?:string|nul
  const pools=availableCatalogs.flatMap(item=>poolsForTeam(item.rows,item.team!,item.season));
  const currentPools=pools.filter(item=>item.seasonId===selectedSeasonId);
  if(pool&&!currentPools.some(item=>item.id===pool))throw new TeamDataError('Deze poule hoort niet bij dit team en seizoen.',404);
- const teamParams:Record<string,string>=Number(team.teamCode)>0?{teamcode:team.teamCode}:{lokaleteamcode:team.localTeamCode};
+ // Club.Dataservice requires these identifiers together, including the -1
+ // sentinel when the source has no local or federation team identifier.
+ const teamParams:Record<string,string>={teamcode:team.teamCode||'-1',lokaleteamcode:team.localTeamCode||'-1'};
  const [allFixtures,allResults,roster,teamPhoto]=await Promise.all([
   safe(loadCached<SportlinkMatch[]>(`team-fixtures-v1:${selectedSeasonId}:${teamId}`,async()=>matchesForTeam(await matchArticle('programma',teamParams,selectedSeasonId,true),team,currentPools,selectedSeasonId),historical,refreshDataset==='matches'),[]),
   safe(loadCached<SportlinkMatch[]>(`team-results-v1:${selectedSeasonId}:${teamId}`,async()=>matchesForTeam(await matchArticle('uitslagen',teamParams,selectedSeasonId,false),team,currentPools,selectedSeasonId),historical,refreshDataset==='results'),[]),

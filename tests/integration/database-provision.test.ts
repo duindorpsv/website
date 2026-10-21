@@ -46,6 +46,8 @@ test('provisioning under a concurrent reader keeps valid policies and repairs mi
 test('database inspection exposes operational metadata without SQL text, client names or payloads',async()=>{
   const id=crypto.randomUUID(),secret='private-payload@example.invalid';
   await admin`insert into cms_jobs(id,kind,payload,operation_id) values (${id},'cache',${admin.json({email:secret})},${id})`;
+  const key='sportlink-sync-v1:teams',[previous]=await admin`select * from sportlink_cache where cache_key=${key}`;
+  await admin`insert into sportlink_cache(cache_key,payload_json) values (${key},${JSON.stringify({status:'partial',lastAttemptAt:'2026-10-21T12:00:00Z',lastSuccessAt:secret,message:secret,email:secret,counts:{teams:2,selected:3,failed:1,private:secret}})}) on conflict(cache_key) do update set payload_json=excluded.payload_json`;
   try {
     await blocker.begin(async held=>{
       await held.unsafe("select 'private-query@example.invalid'");
@@ -56,8 +58,9 @@ test('database inspection exposes operational metadata without SQL text, client 
       for(const value of [secret,'private-query@example.invalid','private-client@example.invalid',url])assert.ok(!serialized.includes(value));
       assert.ok(!serialized.includes('"query":'));
       assert.equal(result.security.tables,result.security.rls_enabled);
+      assert.deepEqual(result.sportlink.find((row:any)=>row.dataset==='teams'),{dataset:'teams',status:'partial',lastAttemptAt:'2026-10-21T12:00:00.000Z',lastSuccessAt:null,nextRunAt:null,counts:{selected:3,teams:2,failed:1}});
     });
-  } finally {await admin`delete from cms_jobs where id=${id}`;}
+  } finally {await admin`delete from cms_jobs where id=${id}`;if(previous)await admin`update sportlink_cache set payload_json=${previous.payload_json} where cache_key=${key}`;else await admin`delete from sportlink_cache where cache_key=${key}`;}
   assert.equal(safeDatabaseCode({code:'55P03',message:url}),'55P03');
   assert.equal(safeDatabaseCode({code:url,message:url}),'unavailable');
 });
