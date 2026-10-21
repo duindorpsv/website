@@ -101,7 +101,18 @@ test('newsletter uses real shared transactions, provider HTTP, fenced worker del
  const signup='newsletter-signup-'+tag+'@example.org',op=crypto.randomUUID();await requestNewsletter({operationId:op,email:signup,name:'Aanmelding',topics:['jeugd'],consent:true},'new-'+tag);
  const [mail]=await sql`select payload from cms_jobs where operation_id=${'newsletter-confirm:'+op}`;const token=/bevestigen\?token=([a-f0-9]{64})/.exec(mail.payload.text)![1];assert.equal((await sql`select status from cms_newsletter where email=${signup}`)[0].status,'pending-confirmation');await confirmNewsletter(token);assert.equal((await sql`select status from cms_newsletter where email=${signup}`)[0].status,'active');await assert.rejects(()=>confirmNewsletter(token));
  const neutral1=await requestNewsletterAccess({email:'unknown-'+tag+'@example.org',action:'unsubscribe'},'unknown-'+tag),neutral2=await requestNewsletterAccess({email:signup,action:'unsubscribe'},'known-'+tag);assert.deepEqual(neutral1,neutral2);
+ // A status detour through pending cannot bypass a previous opt-out or suppression.
+ const contactVersion=async(contactId:string)=>(await sql`select version from cms_newsletter where id=${contactId}`)[0].version;
+ const signupContact=(await readNewsletterState()).contacts.find(c=>c.email===signup)!;
+ await command('contact',{expectedVersion:await contactVersion(signupContact.id),data:{...signupContact,status:'pending'}});
+ await assert.rejects(async()=>command('contact',{expectedVersion:await contactVersion(signupContact.id),data:{...signupContact,status:'subscribed'}}),(e:any)=>e.code==='consent');
+ const suppressedContact=(await readNewsletterState()).contacts.find(c=>c.id===contactId)!;
+ await command('contact',{expectedVersion:await contactVersion(contactId),data:{...suppressedContact,status:'pending'},unblock:true});
+ await assert.rejects(async()=>command('contact',{expectedVersion:await contactVersion(contactId),data:{...suppressedContact,status:'subscribed'}}),(e:any)=>e.code==='consent');
+ const rejoin=crypto.randomUUID();await requestNewsletter({operationId:rejoin,email:signup,name:'Opnieuw bevestigd',topics:['jeugd'],consent:true},'rejoin-'+tag);
+ const [rejoinMail]=await sql`select payload from cms_jobs where operation_id=${'newsletter-confirm:'+rejoin}`;await confirmNewsletter(/bevestigen\?token=([a-f0-9]{64})/.exec(rejoinMail.payload.text)![1]);
+ assert.equal((await sql`select status from cms_newsletter where email=${signup}`)[0].status,'active');assert.equal((await sql`select unsubscribed_at from cms_newsletter where email=${signup}`)[0].unsubscribed_at,null);
  const resourcesBefore=(await sql`select count(*)::int as n from cms_newsletter_resources`)[0].n;await assert.rejects(async()=>command('import',{data:{...(await readNewsletterState()),contacts:[{id:'x',email:'bad'}]}}));assert.equal((await sql`select count(*)::int as n from cms_newsletter_resources`)[0].n,resourcesBefore);
  const disposable:any=await command('create');await command('test',{id:disposable.id,expectedVersion:await version(disposable.id),testEmail:'isolated-test@example.invalid'});await command('delete',{id:disposable.id,expectedVersion:await version(disposable.id)});assert.ok((await sql`select data from cms_newsletter_resources where id=${disposable.id}`)[0].data.deletedAt);assert.ok(!(await newsletterWorkspace(actor)).newsletter.campaigns.some(c=>c.id===disposable.id));assert.ok((await sql`select id from cms_newsletter_deliveries where campaign_id=${disposable.id}`).length===1);
- await sql`update cms_jobs set status='cancelled' where payload->>'actorId'=${actorId} or operation_id=${'newsletter-confirm:'+op}`;
+ await sql`update cms_jobs set status='cancelled' where payload->>'actorId'=${actorId} or operation_id in (${'newsletter-confirm:'+op},${'newsletter-confirm:'+rejoin})`;
 });

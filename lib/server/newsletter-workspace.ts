@@ -79,10 +79,10 @@ export async function mutateNewsletter(p:Principal,value:unknown){
    const status=contact.status==='subscribed'?'active':contact.status==='pending'?'pending-confirmation':contact.status;
    if(old?.status==='suppressed'&&status!=='suppressed'&&!input.unblock)throw new CmsError('suppressed','Hef de blokkade eerst expliciet op.',422);
    if(old?.status==='suppressed'&&input.unblock&&status!=='pending-confirmation')throw new CmsError('suppressed','Na opheffen is eerst een nieuwe bevestiging nodig.',422);
-   if(old?.status==='unsubscribed'&&status==='active')throw new CmsError('consent','Opnieuw aanmelden vereist een nieuwe bevestiging per e-mail.',422);
+   if(status==='active'&&(old?.status==='unsubscribed'||old?.unsubscribed_at))throw new CmsError('consent','Opnieuw aanmelden vereist een nieuwe bevestiging per e-mail.',422);
    if(status==='active'&&(!contact.consentAt||Date.parse(contact.consentAt)>Date.now()||contact.source==='demo'||email.endsWith('.invalid')))throw new CmsError('consent','Leg geldige toestemming vast; voorbeeldadressen worden nooit geactiveerd.',422);
    const raw=randomBytes(32).toString('hex');
-   if(old)await tx`update cms_newsletter set name=${contact.name},topics=${tx.json(contact.tags)},status=${status},consent_at=${contact.consentAt||null},confirmed_at=${status==='active'?(old.confirmed_at||at):old.confirmed_at},unsubscribed_at=${['unsubscribed','suppressed'].includes(status)?at:old.unsubscribed_at},version=version+1 where id=${contact.id}`;
+   if(old)await tx`update cms_newsletter set name=${contact.name},topics=${tx.json(contact.tags)},status=${status},consent_at=${contact.consentAt||null},confirmed_at=${status==='active'?(old.confirmed_at||at):old.confirmed_at},unsubscribed_at=${['unsubscribed','suppressed'].includes(status)||['unsubscribed','suppressed'].includes(old.status)?old.unsubscribed_at||at:old.unsubscribed_at},version=version+1 where id=${contact.id}`;
    else await tx`insert into cms_newsletter(id,email,name,topics,status,consent_version,consent_at,confirmed_at,source,confirmation_hash,unsubscribe_hash,expires_at) values (${contact.id},${email},${contact.name},${tx.json(contact.tags)},${status},'newsletter-admin-consent-v1',${contact.consentAt||null},${status==='active'?at:null},'manual',${newsletterHash(raw)},${newsletterHash(randomBytes(32).toString('hex'))},now())`;
   }else if(input.action==='audience'){
    const data=newsletterAudienceSchema.parse(input.data);if(data.mode==='tags'&&!data.tags.length)throw new CmsError('audience','Kies minimaal één interesse.',422);
