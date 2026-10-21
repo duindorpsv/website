@@ -30,6 +30,12 @@ Sportlink bepaalt altijd wedstrijddatum, tijd, status, veld en kleedkamerindelin
 
 Automatische reservering van eigen velden en kleedkamers gebeurt uitsluitend bij een geverifieerd eigen thuisteam én een expliciet bevestigde wedstrijd op het eigen park. Een gelijknamig veld bij een uitwedstrijd is geen Duindorp-locatie. Bewust toegevoegde lokale extra ruimtes blijven apart behouden.
 
+## Clublogo’s
+
+Sportlink levert de clubrelatiecodes van thuisteam, uitteam en pouleteams. Logo’s van tegenstanders zitten niet in de clubfeed zelf. De website gebruikt hiervoor de door Sportlink beschreven [KNVB-afbeeldingsserver](https://sportlinkservices.freshdesk.com/nl/support/solutions/articles/9000122479-veelgestelde-vragen), met de bronclubcode in `https://sassets.knvb.nl/sites/voetbal.nl/files/knvblogos_width60/CLUBCODE.png`. De eveneens gedocumenteerde `logoapi.voetbal.nl` gaf bij controle op 21 oktober 2026 HTTP 403.
+
+Programma, uitslagen, standen en wedstrijddossiers gebruiken dezelfde logokeuze, ook voor eerder opgeslagen wedstrijden. Er is geen nieuwe import of instelling nodig. Het eigen Duindorp-logo blijft lokaal beschikbaar. Wanneer de KNVB voor een club geen afbeelding levert, verschijnen neutrale initialen. De afbeeldingen worden door de browser geladen en niet in de mediabibliotheek geïmporteerd.
+
 ## Personen importeren
 
 De officiële Club.Dataservice beschrijft `team-indeling` met een `relatiecode`. De import accepteert uitsluitend werkelijk beschikbare, niet-afgeschermde personen met zo’n stabiele code. De publieke beeld-/rosterhash is nooit een ledenidentiteit. Bekijk bij **Personen → Sportlink-import** de gevonden rijen, kies bewust personen en importeer de selectie. Het CMS verwerkt grotere selecties in deelbatches van maximaal vijftig en bewaart de voortgang bij een herpoging. Bestaande en verwijderde bronkoppelingen worden herkend. Nieuwe personen zijn concepten zonder openbaar contact, account of uitnodiging.

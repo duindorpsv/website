@@ -5,6 +5,7 @@ import {useEffect,useRef,useState,type CSSProperties} from 'react';
 import {ArrowRight,ArrowUpRight,CalendarDays,Check,ChevronLeft,ChevronRight,Clock3,LocateFixed,Pause,Play,RefreshCw,Trophy} from 'lucide-react';
 import {useSportlink} from '@/hooks/use-sportlink';
 import {useStandingsScroll} from '@/hooks/use-standings-scroll';
+import {clubLogoUrl} from '@/lib/sportlink-club-logo';
 import type {FormResult,SportlinkMatch,SportlinkRound,SportlinkSide,SportlinkStanding} from '@/lib/sportlink-types';
 
 const PAGE_SIZE=4;
@@ -19,7 +20,7 @@ function dateLabel(value:string|null,options:Intl.DateTimeFormatOptions){
 
 /** Official logos retain their native proportions; unavailable logos get neutral initials. */
 export function ClubLogo({team,className=''}:{team:SportlinkSide;className?:string}){
- const source=team.own?'/assets/logo.png':team.logoUrl;
+ const source=clubLogoUrl(team);
  const [failed,setFailed]=useState(false);
  useEffect(()=>setFailed(false),[source]);
  const initials=team.name.replace(/\b(sv|s\.v\.|vv|v\.v\.)\b/gi,'').trim().split(/\s+/).filter(Boolean).slice(0,2).map(part=>part[0]).join('').toUpperCase();
