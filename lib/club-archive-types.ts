@@ -21,3 +21,6 @@ export function archiveCompareDate(a:{id:string;date:ArchiveDate},b:{id:string;d
 
 /** Search includes the current names of linked existing registers as well as historical text. */
 export function archiveSearchText(item:ArchiveMoment|MuseumObject){return `${item.title} ${item.intro} ${item.story.join(' ')} ${item.people.join(' ')} ${'team'in item?item.team||'':''} ${'collection'in item?item.collection:''} ${(item.links||[]).map(link=>link.name).join(' ')}`.toLocaleLowerCase('nl');}
+
+/** Inbox date filters use the same Dutch day as the displayed receipt time. */
+export function archiveReceivedDay(value:string){const parts=new Intl.DateTimeFormat('en',{timeZone:'Europe/Amsterdam',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(value));const part=(type:string)=>parts.find(p=>p.type===type)!.value;return `${part('year')}-${part('month')}-${part('day')}`;}

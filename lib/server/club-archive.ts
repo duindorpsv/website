@@ -28,7 +28,7 @@ export async function readArchive(tx:any=sqlClient(),admin=false){
  const people=await tx`select id,jsonb_build_object('name',live->>'name') as live from cms_records where module='people' and live is not null and deleted_at is null`,articles=await tx`select id,jsonb_build_object('title',live->>'title','slug',live->>'slug','contentType',live->>'contentType') as live from cms_records where module='articles' and live is not null and deleted_at is null`,teams=await tx`select id,name from cms_teams`;
  for(const item of [...state.moments,...state.objects]){const links:any[]=[];for(const id of item.personIds||[]){const p=people.find((p:any)=>p.id===id);if(p){const name=p.live.name;item.people=[...new Set([...item.people,name])];links.push({id,name,href:'/clubmuur/club/tijdlijn?zoek='+encodeURIComponent(name)});}}for(const id of item.teamIds||[]){const t=teams.find((t:any)=>t.id===id);if(t)links.push({id,name:t.name,href:`/clubmuur/teams/${encodeURIComponent(id)}`});}for(const id of item.articleIds||[]){const a=articles.find((a:any)=>a.id===id);if(a)links.push({id,name:a.live.title,href:'/clubmuur/'+(a.live.contentType==='story'?'verhalen/':'nieuws/')+a.live.slug});}item.links=links;}
  if(!admin){for(const o of state.objects){o.collectionIds=(o.collectionIds||[]).filter(id=>state.collections!.some(c=>c.id===id&&c.published));const collection=state.collections!.find(c=>c.id===o.collectionIds?.[0]);if(collection)o.collection=collection.title;}state.moments=state.moments.filter(m=>m.published);state.objects=state.objects.filter(m=>m.published);for(const m of state.moments){m.objectIds=m.objectIds.filter(id=>state.objects.some(o=>o.id===id));m.relatedMomentIds=m.relatedMomentIds.filter(id=>state.moments.some(o=>o.id===id));}for(const o of state.objects)o.momentIds=o.momentIds.filter(id=>state.moments.some(m=>m.id===id));}
- state.objects.sort(archiveCompareDate);return {state,catalog,media:media.filter((m:any)=>m.state==='ready'),people:people.map((p:any)=>({id:p.id,name:p.live.name})),articles:articles.map((a:any)=>({id:a.id,name:a.live.title})),teams};
+ if(!state.moments.some(m=>m.published&&m.id===state.featuredMomentId))state.featuredMomentId='';if(!state.objects.some(o=>o.published&&o.id===state.featuredObjectId))state.featuredObjectId='';state.objects.sort(archiveCompareDate);return {state,catalog,media:media.filter((m:any)=>m.state==='ready'),people:people.map((p:any)=>({id:p.id,name:p.live.name})),articles:articles.map((a:any)=>({id:a.id,name:a.live.title})),teams};
 }
 export async function archiveWorkspace(p:Principal){requireArchive(p,true);const sql=sqlClient(),result=await readArchive(sql,true),revisions=await sql`select id,kind,record_id,version,action,reason,created_at from cms_archive_revisions order by created_at desc limit 300`;const originals=await sql`select id,proposed,consent_version,consent_at from cms_archive_contributions order by created_at desc`;return {...result,originals,revisions,canEdit:!p.teamScoped&&p.grants.some(g=>(g.module==='pages'||g.module==='*')&&(g.action==='publish'||g.action==='*'))};}
 async function revision(tx:any,p:Principal,kind:string,id:string,version:number,data:any,action:string,reason=''){
@@ -49,8 +49,27 @@ export async function archiveCatalogWrite(tx:any,p:Principal,kind:string,input:a
  const live=kind==='settings'?data:publish?{...data,published:true}:withdraw?null:old?.live;
  const aliases=[...new Set([...(old?.aliases||[]),...(publish&&old?.live?.slug?[old.live.slug]:[])])];
  await tx`insert into cms_archive_catalog(kind,id,draft,live,aliases,version) values (${kind},${id},${tx.json(data)},${live?tx.json(live):null},${tx.json(aliases)},1) on conflict(kind,id) do update set draft=excluded.draft,live=excluded.live,aliases=excluded.aliases,version=cms_archive_catalog.version+1,updated_at=now()`;
- if(publish&&['moment','object'].includes(kind)){const moment=kind==='moment';await tx`delete from cms_archive_relations where ${moment?tx`moment_id=${id}`:tx`object_id=${id}`}`;for(const target of moment?data.objectIds:data.momentIds)await tx`insert into cms_archive_relations(moment_id,object_id) values (${moment?id:target},${moment?target:id}) on conflict do nothing`;}
+ if(publish&&['moment','object'].includes(kind)){
+  const moment=kind==='moment',before=await tx`select moment_id,object_id from cms_archive_relations where ${moment?tx`moment_id=${id}`:tx`object_id=${id}`}`;
+  const previous=before.map((r:any)=>moment?r.object_id:r.moment_id),next:string[]=moment?data.objectIds:data.momentIds;
+  await tx`delete from cms_archive_relations where ${moment?tx`moment_id=${id}`:tx`object_id=${id}`}`;
+  for(const target of next)await tx`insert into cms_archive_relations(moment_id,object_id) values (${moment?id:target},${moment?target:id}) on conflict do nothing`;
+  const changed=[...new Set([...previous,...next])].filter(target=>previous.includes(target)!==next.includes(target));
+  for(const target of changed)await syncInverseArchiveRelations(tx,p,moment?'object':'moment',target,id,`Koppeling bijgewerkt via ${kind==='moment'?'tijdlijnmoment':'museumstuk'} “${data.title}”`);
+ }
  await revision(tx,p,kind,id,expected+1,{draft:data,live},action,reason);return {id,version:expected+1};
+}
+/** Synchronize inverse published references and fence editors that opened an older version.
+ * Preserve an explicitly different saved draft relation set, plus all draft text/media edits. */
+async function syncInverseArchiveRelations(tx:any,p:Principal,kind:string,id:string,sourceId:string,reason:string){
+ const [row]=await tx`select * from cms_archive_catalog where kind=${kind} and id=${id} for update`;if(!row)return;
+ const moment=kind==='moment',key=moment?'objectIds':'momentIds',refs=await tx`select moment_id,object_id from cms_archive_relations where ${moment?tx`moment_id=${id}`:tx`object_id=${id}`}`;
+ const ids=refs.map((r:any)=>moment?r.object_id:r.moment_id).sort(),same=(a:string[]=[],b:string[]=[])=>JSON.stringify([...new Set(a)].sort())===JSON.stringify([...new Set(b)].sort());
+ const draft={...row.draft},live=row.live?{...row.live,[key]:ids}:null;
+ const previous=ids.includes(sourceId)?ids.filter((value:string)=>value!==sourceId):[...ids,sourceId];
+ if(same(row.draft[key],previous))draft[key]=ids;
+ await tx`update cms_archive_catalog set draft=${tx.json(draft)},live=${live?tx.json(live):null},version=version+1,updated_at=now() where kind=${kind} and id=${id}`;
+ await revision(tx,p,kind,id,row.version+1,{draft,live},'relations',reason);
 }
 async function validateArchiveReferences(tx:any,data:any,kind:string){
  for(const [ids,module] of [[data.personIds||[],'people'],[data.articleIds||[],'articles']])for(const id of ids)if(!(await tx`select id from cms_records where id=${id} and module=${module} and live is not null and deleted_at is null`).length)throw new CmsError('reference','Een gekoppelde persoon of verhaal is niet gepubliceerd.',422);
