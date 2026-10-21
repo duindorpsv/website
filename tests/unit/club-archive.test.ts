@@ -4,7 +4,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {archiveDateSchema,archiveContributionSchema,ARCHIVE_POLICY} from '../../lib/club-archive-schema';
-import {archiveDateOverlaps,archiveDateLabel,archiveCompareDate} from '../../lib/club-archive-types';
+import {archiveDateOverlaps,archiveDateLabel,archiveCompareDate,archiveSearchText} from '../../lib/club-archive-types';
 
 test('archive date precision never invents January and seasons overlap years and decades',()=>{
  assert.deepEqual(archiveDateSchema.parse({year:1987,precision:'year',month:1}),{year:1987});
@@ -42,4 +42,9 @@ test('historical source snapshot preserves founding, unknown dates and qualified
 test('archive streaming uploads avoid Proxy truncation while protected routes retain Proxy coverage',()=>{
  for(const url of ['/api/archive/uploads?batch=example','/api/archive/uploads/'])assert.equal(unstable_doesMiddlewareMatch({config:proxyConfig,nextConfig:{},url}),false);
  for(const url of ['/beheer','/api/cms/archive','/api/archive/media/file','/api/archive/uploads/file'])assert.equal(unstable_doesMiddlewareMatch({config:proxyConfig,nextConfig:{},url}),true);
+});
+
+test('archive search finds current linked team and story names without duplicating them in historical text',()=>{
+ const seed=JSON.parse(readFileSync('data/club-archive/seed.json','utf8')),moment={...seed.moments[0],team:'',links:[{id:'real-team-id',name:'Historische jeugdselectie',href:'/clubmuur/teams/123:-1'},{id:'real-story-id',name:'Een verbonden wedstrijdverhaal',href:'/clubmuur/verhalen/verbonden-verhaal'}]};
+ assert.ok(archiveSearchText(moment).includes('historische jeugdselectie'));assert.ok(archiveSearchText(moment).includes('verbonden wedstrijdverhaal'));assert.ok(!moment.story.join(' ').includes('Historische jeugdselectie'));
 });

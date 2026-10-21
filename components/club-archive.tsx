@@ -7,7 +7,7 @@ import {ArrowDown,ArrowLeft,ArrowRight,ArrowUpRight,AudioLines,BookOpen,Calendar
 import {Dialog,DialogContent,DialogDescription,DialogHeader,DialogTitle} from '@/components/ui/dialog';
 import {useArchive} from './club-archive-provider';
 import {ArchiveContributionDialog} from './club-archive-contributions';
-import {ARCHIVE_CATEGORIES,ARCHIVE_MONTHS,archiveDateLabel,archiveDateOverlaps,momentHref,objectHref,type ArchiveDate,type ArchiveMedia,type ArchiveMoment,type MuseumObject,type ContributionContext,type ArchiveContribution,archiveCompareDate} from '@/lib/club-archive-types';
+import {ARCHIVE_CATEGORIES,ARCHIVE_MONTHS,archiveDateLabel,archiveDateOverlaps,momentHref,objectHref,type ArchiveDate,type ArchiveMedia,type ArchiveMoment,type MuseumObject,type ContributionContext,type ArchiveContribution,archiveCompareDate,archiveSearchText} from '@/lib/club-archive-types';
 
 const TIMELINE='/clubmuur/club/tijdlijn';
 const MUSEUM='/clubmuur/club/museum';
@@ -16,7 +16,7 @@ const DECADES=Array.from({length:Math.floor((CURRENT_YEAR-1950)/10)+1},(_,i)=>19
 const yearOf=(item:{date:ArchiveDate})=>item.date.year??9999;
 const safeMedia=(media:ArchiveMedia[])=>media.filter(item=>item.src&&item.approved!==false);
 const mediumIcon=(kind:string)=>kind==='video'?<Film size={13}/>:kind==='audio'?<AudioLines size={13}/>:<Camera size={13}/>;
-const findText=(item:ArchiveMoment|MuseumObject)=>`${item.title} ${item.intro} ${item.story.join(' ')} ${item.people.join(' ')} ${'team'in item?item.team:''}`.toLocaleLowerCase('nl');
+const findText=archiveSearchText;
 
 function ArchiveLink({href,children,primary=false}:{href:string;children:ReactNode;primary?:boolean}){return <a className={`ca-button${primary?' ca-button--primary':''}`} href={href}>{children}<ArrowUpRight size={16}/></a>}
 function MediaBadges({media}:{media:ArchiveMedia[]}){const items=safeMedia(media);return <span className="ca-media-badges">{(['image','video','audio'] as const).map(kind=>{const count=items.filter(item=>item.kind===kind).length;return count?<span key={kind} title={`${count} ${kind==='image'?'foto’s':kind==='video'?'video’s':'geluidsfragmenten'}`}>{mediumIcon(kind)}{count}</span>:null;})}</span>}

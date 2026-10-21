@@ -18,3 +18,6 @@ export const objectHref=(slug:string)=>`/clubmuur/club/museum/${slug}`;
 export const archiveId=(prefix='archief')=>`${prefix}-${crypto.randomUUID()}`;
 
 export function archiveCompareDate(a:{id:string;date:ArchiveDate},b:{id:string;date:ArchiveDate},newest=false){const unknown=(d:ArchiveDate)=>!d.year||d.unknown?1:0;return unknown(a.date)-unknown(b.date)||((a.date.year??9999)-(b.date.year??9999)||(a.date.month??(a.date.season?13:0))-(b.date.month??(b.date.season?13:0))||a.id.localeCompare(b.id))*(newest?-1:1);}
+
+/** Search includes the current names of linked existing registers as well as historical text. */
+export function archiveSearchText(item:ArchiveMoment|MuseumObject){return `${item.title} ${item.intro} ${item.story.join(' ')} ${item.people.join(' ')} ${'team'in item?item.team||'':''} ${'collection'in item?item.collection:''} ${(item.links||[]).map(link=>link.name).join(' ')}`.toLocaleLowerCase('nl');}
