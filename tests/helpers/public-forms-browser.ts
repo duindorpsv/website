@@ -89,7 +89,7 @@ export async function publicFriendlyAndNewsletter(page:Page){
   const newsletter=page.getByRole('form',{name:'Nieuwsbrief aanvragen',exact:true});
   await expect(newsletter).toBeVisible();await assertControlsVisible(newsletter);
   await newsletter.getByLabel('E-mailadres *',{exact:true}).fill('newsletter-'+crypto.randomUUID()+'@example.invalid');
-  await newsletter.getByRole('checkbox').check();
+  await newsletter.getByRole('checkbox',{name:'Ik wil de nieuwsbrief ontvangen en bevestig mijn aanvraag via e-mail.'}).check();
   const requested=page.waitForResponse(response=>response.url().endsWith('/api/newsletter'));
   await newsletter.getByRole('button',{name:'Nieuwsbrief aanvragen',exact:true}).click();expect((await requested).status()).toBe(201);
   await expect(newsletter.getByRole('status')).toContainText('Je aanvraag is opgeslagen');

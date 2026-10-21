@@ -127,6 +127,13 @@
       "when": 1792535318429,
       "tag": "0017_match_dossier_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792539763468,
+      "tag": "0018_newsletter_delivery",
+      "breakpoints": true
     }
   ]
 }

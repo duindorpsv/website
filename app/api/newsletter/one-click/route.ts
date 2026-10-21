@@ -1,0 +1,4 @@
+import {unsubscribeNewsletter} from '@/lib/server/newsletter';
+import {bodyBytes,errorResponse,CmsError} from '@/lib/server/errors';
+/** RFC 8058: intentional mailbox-provider POST; GET never changes membership. */
+export async function POST(request:Request){try{const type=request.headers.get('content-type')||'';if(!type.startsWith('application/x-www-form-urlencoded'))throw new CmsError('one-click','Gebruik de afmeldactie in de e-mail.',415);const body=new URLSearchParams(new TextDecoder().decode(await bodyBytes(request,1000)));if(body.get('List-Unsubscribe')!=='One-Click')throw new CmsError('one-click','Ongeldige afmeldactie.',422);return Response.json(await unsubscribeNewsletter(new URL(request.url).searchParams.get('token')||''),{headers:{'Cache-Control':'no-store'}});}catch(e){return errorResponse(e);}}
