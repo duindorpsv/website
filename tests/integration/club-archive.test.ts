@@ -9,10 +9,25 @@ import {sqlClient,closeDb} from '../../db';
 import {assertLocalSupabaseTests,loginEmail,authCookies} from '../helpers/supabase-auth';
 import {getAuth} from '../../lib/server/auth';
 import {archiveSession,archiveCookie,ARCHIVE_COOKIE,archiveBatch,archiveUpload,archiveUploadGuard,archiveUploadStatus,retryArchiveMedia,submitArchive,processArchiveMedia,archiveFileResponse,prepareArchiveFile,cleanArchiveUploads} from '../../lib/server/archive-uploads';
-import {seedClubArchive} from '../../lib/server/archive-seed';
+import {seedClubArchive,ensureClubArchive} from '../../lib/server/archive-seed';
+import {GET as readiness} from '../../app/health/ready/route';
 import {mutateArchive,readArchive,archiveWorkspace,archiveResolve} from '../../lib/server/club-archive';
 import type {Principal} from '../../lib/server/permissions';
 assertLocalSupabaseTests();const sql=sqlClient();after(closeDb);
+
+test('existing CMS upgrade installs archive before readiness without rerunning the first-install seed',async()=>{
+ const [before]=await sql`select draft,live,version from cms_records where id='settings'`;assert.ok(before);
+ await sql`delete from cms_archive_relations`;await sql`delete from cms_archive_catalog where seed_hash is not null`;await sql`delete from cms_archive_media where id like 'seed-%'`;
+ await sql`insert into cms_heartbeats(id,at) values ('worker',now()) on conflict(id) do update set at=excluded.at`;
+ assert.equal((await readiness()).status,503,'a healthy old worker cannot make an empty archive release ready');
+ assert.equal(await ensureClubArchive(),true);
+ const state=(await readArchive()).state;assert.equal(state.moments.length,16);assert.equal(state.objects.length,9);assert.equal((await sql`select id from cms_archive_media where id like 'seed-%'`).length,12);assert.equal((await readiness()).status,200);
+ const [settings]=await sql`select * from cms_archive_catalog where kind='settings' and id='settings'`;
+ await sql`update cms_archive_catalog set draft=${sql.json({...settings.draft,widgetEnabled:false})},live=${sql.json({...settings.live,widgetEnabled:false})},version=version+1 where kind='settings' and id='settings'`;
+ assert.equal(await ensureClubArchive(),false);assert.equal((await readArchive()).state.widgetEnabled,false,'restarts preserve editorial settings');
+ await sql`update cms_archive_catalog set draft=${sql.json(settings.draft)},live=${sql.json(settings.live)},version=version+1 where kind='settings' and id='settings'`;
+ const [after]=await sql`select draft,live,version from cms_records where id='settings'`;assert.deepEqual(after,before);
+});
 
 test('connected archive: real private uploads, atomic moderation, shared catalog, stable withdrawal and idempotent seed',async()=>{
  const tag=crypto.randomUUID().slice(0,8),actorId='archive-owner-'+tag;

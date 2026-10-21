@@ -6,6 +6,12 @@ import {archiveLock,archiveMediaPath} from './club-archive';
 import {prepareArchiveFile} from './archive-uploads';
 import {putObject} from './storage';
 const root=()=>join(process.cwd(),'data/club-archive');
+/** Existing installations skip the first-install CMS seed. Complete this feature once before worker readiness. */
+export async function ensureClubArchive(){
+ const [installed]=await sqlClient()`select id from cms_archive_catalog where kind='settings' and id='settings'`;
+ if(installed)return false;
+ await seedClubArchive();return true;
+}
 export async function seedClubArchive(){
  const raw=await readFile(join(root(),'seed.json'),'utf8'),seed=JSON.parse(raw),manifest=JSON.parse(await readFile(join(root(),'media-manifest.json'),'utf8')),checksum=createHash('sha256').update(raw).digest('hex'),sql=sqlClient();
  await sql.begin(async tx=>{await archiveLock(tx);
