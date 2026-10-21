@@ -9,11 +9,36 @@ import {sqlClient,closeDb} from '../../db';
 import {assertLocalSupabaseTests,loginEmail,authCookies} from '../helpers/supabase-auth';
 import {getAuth} from '../../lib/server/auth';
 import {archiveSession,archiveCookie,ARCHIVE_COOKIE,archiveBatch,archiveUpload,archiveUploadGuard,archiveUploadStatus,retryArchiveMedia,submitArchive,processArchiveMedia,archiveFileResponse,prepareArchiveFile,cleanArchiveUploads} from '../../lib/server/archive-uploads';
-import {seedClubArchive,ensureClubArchive} from '../../lib/server/archive-seed';
+import {seedClubArchive,ensureClubArchive,attachArchiveNavigation} from '../../lib/server/archive-seed';
 import {GET as readiness} from '../../app/health/ready/route';
 import {mutateArchive,readArchive,archiveWorkspace,archiveResolve} from '../../lib/server/club-archive';
 import type {Principal} from '../../lib/server/permissions';
 assertLocalSupabaseTests();const sql=sqlClient();after(closeDb);
+
+test('archive navigation preserves existing current-version history, private menu edits and repeat-import versions',async()=>{
+ const rollback=new Error('Rollback isolated navigation history');
+ try{await sql.begin(async tx=>{
+  const fixtures=[];
+  for(const hasHistory of [true,false]){
+   const id='archive-nav-'+crypto.randomUUID(),draft={items:[{id:'club',label:'Mijn club',href:'/clubmuur/club',enabled:true,children:[{id:'private',label:'Nog niet gepubliceerd',href:'/clubmuur/club/contact',enabled:false}]}]},live={items:[{id:'club',label:'Onze club',href:'/clubmuur/club',enabled:true,children:[{id:'public',label:'Mijn bestaande link',href:'/clubmuur/club/contact',enabled:true}]}]};
+   await tx`insert into cms_records(id,module,draft,live,version) values (${id},'navigation',${tx.json(draft)},${tx.json(live)},7)`;
+   const revisionId=crypto.randomUUID();if(hasHistory)await tx`insert into cms_revisions(id,record_id,version,snapshot,label) values (${revisionId},${id},7,${tx.json(draft)},'Bestaande redactierevisie')`;
+   fixtures.push({id,draft,live,hasHistory,revisionId});
+  }
+  await attachArchiveNavigation(tx);
+  const [lock]=await tx`select exists(select 1 from pg_locks where pid=pg_backend_pid() and locktype='advisory' and objid=736402 and granted) as held`;assert.equal(lock.held,true,'the import serializes with ordinary CMS edits');
+  for(const f of fixtures){
+   const [row]=await tx`select * from cms_records where id=${f.id}`,history=await tx`select * from cms_revisions where record_id=${f.id} order by version`;
+   assert.equal(row.version,8);assert.deepEqual(row.draft.items[0].children[0],f.draft.items[0].children[0]);assert.deepEqual(row.live.items[0].children[0],f.live.items[0].children[0]);assert.equal(row.draft.items[0].label,'Mijn club');assert.equal(row.live.items[0].label,'Onze club');
+   for(const value of [row.draft,row.live])for(const suffix of ['tijdlijn','museum'])assert.equal(value.items[0].children.filter((item:any)=>item.href==='/clubmuur/club/'+suffix).length,1);
+   assert.deepEqual(history.map(r=>r.version),[7,8]);assert.deepEqual(history[0].snapshot,f.draft);if(f.hasHistory){assert.equal(history[0].id,f.revisionId);assert.equal(history[0].label,'Bestaande redactierevisie');}assert.deepEqual(history[1].snapshot,row.draft);
+   const [publication]=await tx`select record_version,snapshot from cms_publications where id=${row.live_id}`;assert.equal(publication.record_version,8);assert.deepEqual(publication.snapshot,row.live);
+  }
+  await attachArchiveNavigation(tx);
+  for(const f of fixtures){assert.equal((await tx`select version from cms_records where id=${f.id}`)[0].version,8);assert.equal((await tx`select id from cms_revisions where record_id=${f.id}`).length,2);assert.equal((await tx`select id from cms_publications where record_id=${f.id}`).length,1);}
+  throw rollback;
+ });}catch(error){if(error!==rollback)throw error;}
+});
 
 test('existing CMS upgrade installs archive before readiness without rerunning the first-install seed',async()=>{
  const [before]=await sql`select draft,live,version from cms_records where id='settings'`;assert.ok(before);
