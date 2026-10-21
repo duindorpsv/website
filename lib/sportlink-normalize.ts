@@ -4,6 +4,7 @@ import type {
   SportlinkSide, SportlinkSnapshot, SportlinkStanding, SportlinkTeam,
 } from './sportlink-types';
 import {sportlinkAssignmentFields} from './sportlink-assignments';
+import {clubLogoUrl} from './sportlink-club-logo';
 
 type Raw = Record<string, unknown>;
 type Input = {
@@ -101,7 +102,7 @@ export function normalizeSportlink(input: Input, now = new Date()): SportlinkSna
     const own = !!validTeamCode(id) && ownCodes.has(id) && (!clubCode || !ownClubCode || clubCode===ownClubCode);
     return {
       id: validTeamCode(id) || sideIds.get(sideKey(clubCode, name)) || sideKey(clubCode, name), name, clubCode, own,
-      logoUrl: own ? '/assets/logo.png' : clubCode ? `https://logoapi.voetbal.nl/logo.php?clubcode=${encodeURIComponent(clubCode)}` : null,
+      logoUrl: clubLogoUrl({own,clubCode}),
     };
   };
   const leagueMatchIds = new Set(leagueRows.map(row => text(row.wedstrijdcode)));

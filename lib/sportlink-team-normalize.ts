@@ -1,4 +1,5 @@
 import {supportsPublicMatchResults} from './match-dossier';
+import {clubLogoUrl} from './sportlink-club-logo';
 import type {FormResult,SportlinkMatch,SportlinkSide,SportlinkStanding,SportlinkTeam} from './sportlink-types';
 import type {TeamPlayer,TeamPool} from './sportlink-team-types';
 
@@ -83,7 +84,7 @@ function matchingPool(row:Raw,pools:TeamPool[]):TeamPool|undefined{
 }
 function side(name:string,clubCode:string,id:string,team:SportlinkTeam,own=false):SportlinkSide{
  const ownSide=!!code(team.teamCode)&&id===team.teamCode;
- return {id:code(id)||`${clubCode}:${key(name)}`,name,clubCode,own:ownSide,logoUrl:ownSide?'/assets/logo.png':clubCode?`https://logoapi.voetbal.nl/logo.php?clubcode=${encodeURIComponent(clubCode)}`:null};
+ return {id:code(id)||`${clubCode}:${key(name)}`,name,clubCode,own:ownSide,logoUrl:clubLogoUrl({own:ownSide,clubCode})};
 }
 export function matchesForTeam(rows:unknown[],team:SportlinkTeam,pools:TeamPool[],seasonId:string,options:{pool?:TeamPool;allTeams?:boolean}={}):SportlinkMatch[]{
  const map=new Map<string,SportlinkMatch>();

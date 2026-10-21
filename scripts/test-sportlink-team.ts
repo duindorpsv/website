@@ -24,6 +24,8 @@ test('team endpoint filters unrelated local friendlies and other teams from the 
  const rows=[game(1,'2026-10-10T14:30:00+0200'),{...game(2,'2026-10-10T14:30:00+0200'),thuisteamid:'-1',thuisteam:'Duindorp sv JO11-2',uitteamid:'-1',uitteam:'Duindorp sv JO10-1'}];
  const result=matchesForTeam(rows,team,pools,'2026/2027');assert.equal(result.length,1);
  assert.equal(result[0].competitionId,'826233');assert.equal(result[0].home.own,true);
+ assert.equal(result[0].home.logoUrl,'/assets/logo.png');
+ assert.equal(result[0].away.logoUrl,'https://sassets.knvb.nl/sites/voetbal.nl/files/knvblogos_width60/BBGV42S.png');
 });
 test('previous-season results never leak into the selected season',()=>{
  const rows=[game(1,'2026-06-20T14:30:00+0200'),game(2,'2026-09-20T14:30:00+0200')];
@@ -56,6 +58,7 @@ test('standings show form for both opponents and selected team, without highligh
  const standings=standingsForTeam(rows,team,results);
  assert.deepEqual(standings.map(row=>row.form),[['W'],['V'],[]]);
  assert.deepEqual(standings.map(row=>row.team.own),[true,false,false]);
+ assert.equal(standings[1].team.logoUrl,'https://sassets.knvb.nl/sites/voetbal.nl/files/knvblogos_width60/BBGV42S.png');
 });
 test('roster respects hidden identities and never exposes contact details or member codes',()=>{
  const roster=normalizeRoster([{naam:'Afgeschermd',relatiecode:'private-1',foto:'/9j/FAKE'},{naam:'Test Speler',rol:'Teamspeler',relatiecode:'private-2',email:'private@example.test',foto:'/9j/AAAA'},{naam:'Test Trainer',rol:'Technische staf',functie:'Trainer',foto:'https://untrusted.test/foto'}],team.id,now);

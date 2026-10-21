@@ -86,7 +86,7 @@ test('next hero match skips cancellations and youth matches; logo URLs are stabl
   const snapshot = normalizeSportlink(input, now);
   assert.equal(snapshot.nextMatch?.id, '3');
   assert.equal(snapshot.nextMatch?.home.logoUrl, '/assets/logo.png');
-  assert.equal(snapshot.nextMatch?.away.logoUrl, 'https://logoapi.voetbal.nl/logo.php?clubcode=BBGV42S');
+  assert.equal(snapshot.nextMatch?.away.logoUrl, 'https://sassets.knvb.nl/sites/voetbal.nl/files/knvblogos_width60/BBGV42S.png');
   assert.equal(JSON.stringify(snapshot).includes('binaries.sportlink.com'), false);
 });
 
