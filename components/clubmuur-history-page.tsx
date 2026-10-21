@@ -21,6 +21,7 @@ export function ClubHistoryPage() {
       {clubHistoryMilestones.map(item => <a key={item.year} href={item.href}><strong>{item.year}</strong><span>{item.label}</span><ChevronRight size={16} aria-hidden="true" /></a>)}
     </nav>
 
+    <div className="cp-actions"><a className="cp-button-secondary" href="/clubmuur/club/tijdlijn">Ontdek de interactieve tijdlijn <ArrowUpRight size={16}/></a><a className="cp-button-secondary" href="/clubmuur/club/museum">Bezoek het digitale museum <ArrowUpRight size={16}/></a></div>
     <div className="hp-layout">
       <aside className="hp-aside">
         <nav className="hp-chapters" aria-label="Hoofdstukken van ons verhaal">

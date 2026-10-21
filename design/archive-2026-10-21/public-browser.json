@@ -1,0 +1,11 @@
+{
+  "environment": "Isolated Next development server and real PostgreSQL/filesystem storage",
+  "widths": [
+    1440,
+    1280,
+    768,
+    390,
+    360
+  ],
+  "errors": []
+}

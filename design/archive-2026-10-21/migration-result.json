@@ -1,0 +1,9 @@
+{
+  "navigationPreservesCustomItems": true,
+  "navigationIdempotent": true,
+  "upgrade": "0018 → 0019",
+  "existingContentUnchanged": true,
+  "archiveTables": 6,
+  "rls": true,
+  "publicProviderRolesHaveNoDirectAccess": true
+}

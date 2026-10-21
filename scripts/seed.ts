@@ -1,3 +1,4 @@
+import {seedClubArchive} from '../lib/server/archive-seed';
 import {rebuildReferences} from '../lib/server/imports';
 import { sqlClient } from '../db/index';
 import { createCmsSeed } from '../lib/cms/seed';
@@ -82,6 +83,7 @@ try {
         await tx `insert into cms_imports(id,checksum,archive_key,report) values (${batch},${checksum},${`imports/seed-${checksum}.json`},${tx.json(report)})`;
         console.log(JSON.stringify(report));
     });
+    console.log(JSON.stringify({archive:await seedClubArchive()}));
 }
 finally {
     await sql.end();

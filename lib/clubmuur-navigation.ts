@@ -6,6 +6,8 @@ export const defaultClubNavigation:ClubNavigationItem[] = [
  {id:'home',label:'HOME',href:'/clubmuur'},
  {id:'club',label:'ONZE CLUB',href:'/clubmuur/club',children:[
   {id:'club-verhaal',label:'Ons verhaal & historie',href:'/clubmuur/club/ons-verhaal'},
+  {id:'club-tijdlijn',label:'Clubarchief · tijdlijn',href:'/clubmuur/club/tijdlijn'},
+  {id:'club-museum',label:'Digitaal clubmuseum',href:'/clubmuur/club/museum'},
   {id:'club-bestuur',label:'Het bestuur',href:'/clubmuur/club/bestuur'},
   {id:'club-commissies',label:'Commissies',href:'/clubmuur/club/commissies'},
   {id:'club-jeugd',label:'Jeugdorganisatie',href:'/clubmuur/club/jeugdorganisatie'},

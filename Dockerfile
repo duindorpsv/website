@@ -14,6 +14,7 @@ RUN pnpm test && pnpm typecheck && pnpm build && pnpm build:runtime
 RUN pnpm --filter duindorp-sv-runtime --prod deploy --legacy /production
 
 FROM node:24.18.0-bookworm-slim AS runtime
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 LABEL org.opencontainers.image.source="https://github.com/duindorpsv/website"
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
@@ -23,6 +24,7 @@ COPY --from=build --chown=node:node /build/.next/static ./.next/static
 COPY --from=build --chown=node:node /build/public ./public
 COPY --from=build --chown=node:node /build/dist/runtime/*.js ./runtime/
 COPY --from=build --chown=node:node /build/db/migrations ./db/migrations
+COPY --from=build --chown=node:node /build/data/club-archive ./data/club-archive
 COPY --chown=node:node ops/scripts/entrypoint.sh /app/entrypoint.sh
 # ESM runtime bundles have .mjs names even though web server.js is CommonJS.
 WORKDIR /app/runtime

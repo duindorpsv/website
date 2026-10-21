@@ -17,3 +17,5 @@ Er is één deployment-Environment: **production**. Na de vereiste controles gaa
 De [Environment-handleiding](ops/github-environments.md) bevat alle exacte secrets/variables. Volg [eerste deployment](ops/first-deploy.md) voor projectkeuze, bestaande inhoud/accounts/media en hostinrichting; [rollback en herstel](ops/rollback-and-restore.md) beschrijft backups. [CMS-handleiding](ops/cms-guide.md), [nieuwsimport](ops/news-import.md) en het [uitvoerlog](ops/execution-log.md) bevatten de beheerinformatie en bewezen controles.
 
 Nieuwsbriefcampagnes en de echte Resend-wachtrij staan onder `/beheer#nieuwsbrieven`. Voor doelgroepen, toestemming, bezorgmeldingen, versiegebonden templates en de eenmalige inrichting: [nieuwsbriefbeheer](ops/newsletters.md).
+
+Clubarchief, interactieve tijdlijn, museum, moderatie en historische import: [werkinstructie en techniek](ops/club-archive.md).
