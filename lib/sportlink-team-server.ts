@@ -19,7 +19,9 @@ const inFlight=new Map<string,Promise<Cached<unknown>>>();
 export class TeamDataError extends Error{constructor(message:string,public status:number){super(message);}}
 function database(){if(!sportlinkStore)throw new Error('De teamgegevens zijn nog niet beschikbaar.');return sportlinkStore;}
 async function read(key:string){return database().prepare('SELECT payload_json,updated_at,expires_at,refresh_after FROM sportlink_cache WHERE cache_key=?').bind(key).first<CacheRow>();}
-function fromRow<T>(row:CacheRow,stale:boolean):Cached<T>{return {value:JSON.parse(row.payload_json!) as T,updatedAt:row.updated_at,stale};}
+// Raw PostgreSQL bigint values arrive as decimal strings. Normalize only this
+// timestamp boundary; changing the raw client's parsers would affect other data.
+function fromRow<T>(row:CacheRow,stale:boolean):Cached<T>{return {value:JSON.parse(row.payload_json!) as T,updatedAt:Number(row.updated_at),stale};}
 
 /** Cache each dataset separately: a roster failure cannot erase a valid standings table. */
 async function loadCached<T>(key:string,loader:()=>Promise<T>,historical=false,force=false):Promise<Cached<T>>{

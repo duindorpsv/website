@@ -1,0 +1,10 @@
+import {test,after} from 'node:test';
+import postgres from 'postgres';
+import {assertLocalSupabaseTests} from '../helpers/supabase-auth';
+import {verifySportlinkTeamRefresh} from '../helpers/sportlink-team-refresh';
+import {closeDb} from '../../db';
+assertLocalSupabaseTests();
+const sql=postgres(process.env.MIGRATION_DATABASE_URL!,{max:1,prepare:false});
+test('populated cached team matches retain PostgreSQL source dates',()=>verifySportlinkTeamRefresh(sql,'cached'));
+test('two teams sharing a pool complete one synchronization using one source observation',()=>verifySportlinkTeamRefresh(sql,'sync'));
+after(async()=>{await closeDb();await sql.end({timeout:2});});

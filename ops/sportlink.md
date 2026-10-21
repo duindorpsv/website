@@ -40,7 +40,15 @@ Deze openbare teambron is geen volledige ledenadministratie. Wanneer Sportlink g
 
 Instellingen staan in het private, versiegebonden record `site-sportlink`. Bewaren gebruikt de bestaande commando’s, revisies, audit en `expectedVersion`; de configuratie wordt nooit openbaar gepubliceerd. Beheer en handmatige taken vereisen clubbrede instellingenbeheerrechten. De achtergrondtaak controleert opnieuw of de betreffende beheerder nog toegang heeft. Personenimport vereist personenrechten. Nieuwe bronnen geven geen accountrechten.
 
-De serverexport en operationele databaseback-up bevatten de configuratie en planning. De oude v1-browserback-up bevat geen private Sportlink-instellingen. Herstel en productie-uitrol volgen de bestaande procedure; deze implementatieopdracht vraagt geen productierelease.
+De serverexport en operationele databaseback-up bevatten de configuratie en planning. De oude v1-browserback-up bevat geen private Sportlink-instellingen. Herstel en productie-uitrol volgen de bestaande productieworkflow.
+
+## Synchronisatieproblemen controleren
+
+**Gedeeltelijk** betekent dat minstens één geselecteerd team is bijgewerkt en een ander onderdeel mislukte. Als geen team kon worden bijgewerkt, staat er **Opnieuw proberen**. De foutmelding vermeldt hoeveel teams zijn verwerkt. De laatst geslaagde datum en gegevens blijven bij een echte bronstoring behouden. Een geldige lege stand, lege uitslagenlijst of ontbrekende openbare teamfoto telt als een geslaagde bronwaarneming.
+
+De verwerking zet de numerieke PostgreSQL-tijdstempels expliciet om voordat zij brondata dateert. Teams in dezelfde poule gebruiken dezelfde bronresponse; de versheidscontrole geldt vanaf het begin van de synchronisatietaak. Een oude of bij een storing teruggegeven response wordt niet als een nieuwe geslaagde synchronisatie geteld.
+
+De bestaande GitHub-workflow **Production database diagnostics** kan de opgeslagen status, tijdstippen en aantallen van de zeven onderdelen uitlezen. Laat `provision` uit en `reset_stalled_pids` leeg voor alleen controle. Deze uitvoer bevat geen Sportlink-sleutel, bronresponses, teamleden of contactgegevens.
 
 Broncontrole op 20 oktober 2026: [officiële artikelen](https://sportlink-assist.freshdesk.com/nl/support/solutions/articles/9000062942-lijst-met-artikelen-van-club-dataservice), [parameters](https://sportlink-assist.freshdesk.com/nl/support/solutions/articles/9000211117-lijst-met-parameters-in-club-dataservice) en de [live artikeldefinities](https://data.sportlink.com/list). De implementatie is met vaste synthetische providerresponses en echte repositorytransacties getest. Een volledige live ledenimport is hiermee niet bewezen.
 
