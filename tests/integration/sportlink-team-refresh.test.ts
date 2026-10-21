@@ -7,4 +7,5 @@ assertLocalSupabaseTests();
 const sql=postgres(process.env.MIGRATION_DATABASE_URL!,{max:1,prepare:false});
 test('populated cached team matches retain PostgreSQL source dates',()=>verifySportlinkTeamRefresh(sql,'cached'));
 test('two teams sharing a pool complete one synchronization using one source observation',()=>verifySportlinkTeamRefresh(sql,'sync'));
+test('team results use both official Sportlink identifiers and preserve results during source outages',()=>verifySportlinkTeamRefresh(sql,'results'));
 after(async()=>{await closeDb();await sql.end({timeout:2});});

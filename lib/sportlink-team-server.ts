@@ -126,7 +126,9 @@ async function loadTeamDetail(teamId:string,season?:string|null,pool?:string|nul
  const pools=availableCatalogs.flatMap(item=>poolsForTeam(item.rows,item.team!,item.season));
  const currentPools=pools.filter(item=>item.seasonId===selectedSeasonId);
  if(pool&&!currentPools.some(item=>item.id===pool))throw new TeamDataError('Deze poule hoort niet bij dit team en seizoen.',404);
- const teamParams:Record<string,string>=Number(team.teamCode)>0?{teamcode:team.teamCode}:{lokaleteamcode:team.localTeamCode};
+ // Club.Dataservice requires these identifiers together, including the -1
+ // sentinel when the source has no local or federation team identifier.
+ const teamParams:Record<string,string>={teamcode:team.teamCode||'-1',lokaleteamcode:team.localTeamCode||'-1'};
  const [allFixtures,allResults,roster,teamPhoto]=await Promise.all([
   safe(loadCached<SportlinkMatch[]>(`team-fixtures-v1:${selectedSeasonId}:${teamId}`,async()=>matchesForTeam(await matchArticle('programma',teamParams,selectedSeasonId,true),team,currentPools,selectedSeasonId),historical,refreshDataset==='matches'),[]),
   safe(loadCached<SportlinkMatch[]>(`team-results-v1:${selectedSeasonId}:${teamId}`,async()=>matchesForTeam(await matchArticle('uitslagen',teamParams,selectedSeasonId,false),team,currentPools,selectedSeasonId),historical,refreshDataset==='results'),[]),
