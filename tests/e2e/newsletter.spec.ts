@@ -39,7 +39,7 @@ test('newsletter composer uses TipTap, preserves server drafts and immutable sch
  await sql`update cms_jobs set run_at='1800-01-01T00:00:00Z' where kind='newsletter-delivery' and payload->>'deliveryId'=${delivery.id} and status='pending'`;await runOnce();
  await expect.poll(async()=>(await sql`select status from cms_newsletter_deliveries where id=${delivery.id}`)[0].status).toBe('accepted');
  const [sent]=await sql`select provider_id from cms_newsletter_deliveries where id=${delivery.id}`;expect(sent.provider_id).toBeTruthy();
- const reopened=await context.newPage();await reopened.goto('/beheer#nieuwsbrieven');await reopened.getByRole('button',{name:new RegExp(name)}).first().click();await expect(reopened.locator('.nl-log-list')).toContainText('Aangeboden aan Resend');await expect(reopened.getByLabel('Onderwerpregel',{exact:true})).toBeDisabled();await reopened.close();
+ const reopened=await context.newPage();await reopened.goto('/beheer#nieuwsbrieven');await reopened.getByRole('button',{name:new RegExp(name)}).first().click();await expect(reopened.locator('.nl-log-list').filter({hasText:'Aangeboden aan Resend'})).toBeVisible();await expect(reopened.getByLabel('Onderwerpregel',{exact:true})).toBeDisabled();await reopened.close();
 });
 
 test('newsletter public access does not change status on GET and rejects anonymous CMS access',async({page})=>{

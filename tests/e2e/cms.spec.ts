@@ -57,11 +57,11 @@ test('NEWSLETTER: subscribers and subjects are managed in the CMS without an ext
  await page.getByRole('button',{name:'Nieuwsbrieven',exact:true}).click();await page.getByRole('tab',{name:'Contacten',exact:true}).click();
  const openContact=async()=>{await page.getByLabel('Zoek nieuwsbriefcontact',{exact:true}).fill(email);await page.locator('.nl-contact-list').getByRole('button').filter({hasText:email}).click();};
  await openContact();const dialog=page.getByRole('dialog');
- await expect(dialog.getByLabel('Status',{exact:true})).toHaveValue('pending');
+ await expect(dialog.getByRole('combobox',{name:'Status',exact:true})).toHaveValue('pending');
  await dialog.getByLabel('Voornaam / naam',{exact:true}).fill('Bewerkt in het CMS');await dialog.getByRole('textbox',{name:/Interesses/}).fill('jeugd, club');
  await dialog.getByRole('button',{name:'Contact opslaan',exact:true}).click();await expect(dialog).toBeHidden();
  await page.reload();await page.getByRole('tab',{name:'Contacten',exact:true}).click();await openContact();await expect(dialog.getByLabel('Voornaam / naam',{exact:true})).toHaveValue('Bewerkt in het CMS');await expect(dialog.getByRole('textbox',{name:/Interesses/})).toHaveValue('jeugd, club');
- await dialog.getByLabel('Status',{exact:true}).selectOption('unsubscribed');await dialog.getByRole('button',{name:'Contact opslaan',exact:true}).click();await expect(dialog).toBeHidden();
+ await dialog.getByRole('combobox',{name:'Status',exact:true}).selectOption('unsubscribed');await dialog.getByRole('button',{name:'Contact opslaan',exact:true}).click();await expect(dialog).toBeHidden();
  const status=await page.request.get('/api/cms/newsletter?'+new URLSearchParams({q:email})).then(r=>r.json());expect(status.items[0].status).toBe('unsubscribed');expect(status.items[0]).not.toHaveProperty('confirmation_hash');
  const integration=await page.request.get('/api/cms/integrations').then(r=>r.json());expect(integration.mailProvider).toBe('resend');expect(integration.newsletterManagement).toBe('cms');
  await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1)).toBe(false);
