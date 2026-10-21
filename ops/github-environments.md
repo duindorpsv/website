@@ -66,3 +66,7 @@ Het bestaande rootless Docker-account en de vaste deploywrapper blijven vereist.
 De wrapper controleert `main`, CI, bron/tree en image-digest, bewaart de configuratie privé en maakt een externe database-/media-/configbackup vóór migraties. Daarna volgen migratie, beperkte databaseprovisioning en web/worker-readiness. Een mislukte applicatiestart herstelt de vorige combinatie van image en configuratie; database en media worden niet automatisch teruggezet. Een terugkeer naar de oude lokale-databasearchitectuur vereist een beheerde migratie.
 
 De Environment staat alleen `main` toe. Als een reviewer is ingesteld, wacht de productiejob op die goedkeuring. De echte projectverbinding, opslag en Resend-bezorging moeten worden gecontroleerd; een geslaagde CI bewijst geen live deployment.
+
+## Nieuwsbriefbeheer
+
+De campagne-module gebruikt dezelfde `RESEND_API_KEY`, `MAIL_FROM` en `APP_BASE_URL`; er zijn geen nieuwe verplichte GitHub secrets of variabelen. **Nieuwsbrieven → Instellingen → Koppelen via bestaande Resend-sleutel** maakt of hergebruikt de bezorgwebhook. Daarvoor moet de bestaande Resend-sleutel webhookbeheerrechten hebben. Een beperkte verzendsleutel kan wel mails aanbieden. De UI toont apart of bezorgmeldingen gekoppeld zijn; provideracceptatie wordt niet als bezorging gepresenteerd. Contacten en doelgroepen blijven in het eigen CMS, er zijn geen externe providerlijsten nodig. Zie [de beheerdershandleiding](newsletters.md) voor de eenmalige inrichting en echte testmailcontrole.

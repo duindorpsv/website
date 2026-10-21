@@ -1,3 +1,4 @@
+import {newsletterSchema} from './newsletter-schema';
 import {matchPreviewStateSchema} from './match-preview';
 import {z} from 'zod';
 import {planningSchema} from './planning';
@@ -34,7 +35,7 @@ const pageContent=z.object({coverId:text.optional(),coverSrc:text.refine(safeDes
 const revision=<T extends z.ZodTypeAny>(data:T)=>z.object({id,at:date,label:text,data});
 const uniqueIds=<T extends z.ZodTypeAny>(item:T)=>z.array(item).refine(rows=>new Set(rows.map(row=>(row as {id:string}).id)).size===rows.length,'Dubbele identifiers');
 export const cmsStateSchema=z.object({
-  schemaVersion:z.literal(1),matchPreviews:z.array(matchPreviewStateSchema).refine(rows=>new Set(rows.map(row=>row.matchId)).size===rows.length,'Dubbele wedstrijdvooruitblik').default([]),
+  newsletter:newsletterSchema.optional(),schemaVersion:z.literal(1),matchPreviews:z.array(matchPreviewStateSchema).refine(rows=>new Set(rows.map(row=>row.matchId)).size===rows.length,'Dubbele wedstrijdvooruitblik').default([]),
   planning:planningSchema.default({committees:[],locations:[],activities:[],lastSportlinkSync:null}),
   appearance:z.object({heroSlider:heroSliderSchema.optional(),heroPortraits:z.custom<HeroPortrait[]>(validHeroPortraits).optional(),hero:z.custom<HeroCardConfig[]>(validHeroCards).optional(),navigation:z.custom<ClubNavigationItem[]>(validClubNavigation).optional(),heroPhotos:z.custom<HeroPhotoId[]>(value=>Array.isArray(value)&&value.length>0&&value.length<=300&&new Set(value).size===value.length&&value.every(id=>typeof id==='string')).optional(),agenda:agendaSchema.optional(),training:trainingSchema.optional()}).superRefine((appearance,context)=>{if(appearance.heroPhotos&&!validHeroPhotoIds(appearance.heroPhotos,appearance.heroPortraits||[]))context.addIssue({code:'custom',path:['heroPhotos'],message:'Kies bestaande spelersportretten.'});}).optional(),
   articles:uniqueIds(articleContent.extend({id,imported:z.boolean().optional(),status:statuses,updatedAt:date,scheduledAt:optionalDate,live:articleContent.optional(),revisions:z.array(revision(articleContent)),deletedAt:date.optional(),demo:z.boolean().optional()})),

@@ -1,3 +1,4 @@
+import {dispatchNewsletter,deliverNewsletter} from './newsletter-delivery';
 import {validateMatchPreviewWrite} from './match-previews';
 import {deliverEmailCode} from './auth';
 import {syncHomepage,moveChildPaths} from './publication-effects';
@@ -27,7 +28,9 @@ export async function runOnce(workerId = crypto.randomUUID()) {
     let status = 'done';
     const renewal=setInterval(()=>{void renewJobLease(job.id,workerId).catch(()=>{});},20000);
     try {
-        if(job.kind==='sportlink-sync')await processSportlinkSync(job.payload,job.id);
+        if(job.kind==='newsletter-dispatch')await dispatchNewsletter(job.payload,job.id,workerId);
+        else if(job.kind==='newsletter-delivery')await deliverNewsletter(job.payload,job.id,workerId);
+        else if(job.kind==='sportlink-sync')await processSportlinkSync(job.payload,job.id);
         else if(['news-analyze','news-import'].includes(job.kind)){
             try{if(job.kind==='news-analyze')await analyzeNewsSession(job.payload.sessionId);else await processNewsBatch(job.payload.sessionId,job.payload.run,job.payload.batch);}
             catch(e){if(e instanceof CmsError)await failNewsJob(job.payload.sessionId,e.message);else throw e;}
