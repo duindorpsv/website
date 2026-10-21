@@ -1,3 +1,4 @@
+import {readArchive,archiveResolve} from '@/lib/server/club-archive';
 import {loadState} from '@/lib/server/records';
 import {sqlClient} from '@/db';
 import {permanentRedirect} from 'next/navigation';
@@ -14,8 +15,9 @@ export async function generateMetadata({params}:{params:Promise<{concept:string;
  const path=clubPathFromSegments(view)||'home';const {state}=await loadState(true);
  const article=state.articles.find(a=>a.live&&`${a.live.contentType==='story'?'verhalen':'nieuws'}/${a.live.slug}`===path)?.live;
  const page=state.pages.find(p=>p.live?.slug===path)?.live;
- const live=article||page;const title=live?.seo.title||live?.title||clubContentTitles[path]||(path.startsWith('teams/')?'Teaminformatie':'Onze Trots');
- const description=live?.seo.description||live?.intro||state.settings.siteDescription;
+ const archiveMatch=/^club\/(tijdlijn|museum)\/([^/]+)$/.exec(path),archive=archiveMatch?await archiveResolve(archiveMatch[1]==='museum'?'object':'moment',archiveMatch[2]):null;
+ const live=article||page;const title=archive?.title||live?.seo.title||live?.title||clubContentTitles[path]||(path.startsWith('teams/')?'Teaminformatie':'Onze Trots');
+ const description=archive?.intro||live?.seo.description||live?.intro||state.settings.siteDescription;
  const canonical=new URL(path==='home'?'/clubmuur':`/clubmuur/${path}`,process.env.APP_BASE_URL||'http://localhost:3000').href;
  return {title:`${title} · Duindorp SV`,description,alternates:{canonical},openGraph:{title,description,url:canonical,type:article?'article':'website'},robots:{index:process.env.APP_ENV==='production'&&!live?.seo.noIndex,follow:process.env.APP_ENV==='production'}};
 }
@@ -32,6 +34,9 @@ export default async function Page({ params,searchParams }: { params: Promise<{c
   redirect(`${destination}${params.size?`?${params}`:''}`);
  }
  if(concept!=='clubmuur')notFound();
+ const archivePath=/^club\/(tijdlijn|museum)(?:\/|$)/.test(path);
+ let archiveState;
+ if(archivePath||path==='home'){archiveState=(await readArchive()).state;if(path.split('/').length===3){const item=await archiveResolve(path.startsWith('club/museum')?'object':'moment',path.split('/')[2]);if(!item)notFound();if(item.slug!==path.split('/')[2])permanentRedirect('/clubmuur/'+(path.startsWith('club/museum')?'club/museum/':'club/tijdlijn/')+item.slug);}}
  const {state}=await loadState(true);
  const known=state.pages.some(p=>p.live?.slug===path)||state.articles.some(a=>a.live&&`${a.live.contentType==='story'?'verhalen':'nieuws'}/${a.live.slug}`===path)||state.albums.some(a=>`media/fotos/${a.slug}`===path);
  if(!isClubPagePath(path)&&!known)notFound();
@@ -46,5 +51,5 @@ export default async function Page({ params,searchParams }: { params: Promise<{c
  const heroLayout=pickHeroLayout(heroPreview??visit?.get(HERO_VISIT_COOKIE)?.value,Math.random(),enabled,catalog);
  const photoPreview=resolveHeroPhoto(query.photo,heroLayout,enabled,catalog);
  const heroPhoto=photoPreview??pickHeroPhoto(heroLayout,heroPreview?undefined:visit?.get(HERO_PHOTO_COOKIE)?.value,Math.random(),enabled,catalog);
- return <ClubSite key={`${concept}-${path}`} concept="clubmuur" initialState={state} section={section} contentPath={contentPage?path:undefined} headerDesign={headerDesign} heroLayout={heroLayout} heroPhoto={heroPhoto} heroPreview={!!heroPreview||!!photoPreview}/>;
+ return <ClubSite archiveState={archiveState} key={`${concept}-${path}`} concept="clubmuur" initialState={state} section={section} contentPath={contentPage?path:undefined} headerDesign={headerDesign} heroLayout={heroLayout} heroPhoto={heroPhoto} heroPreview={!!heroPreview||!!photoPreview}/>;
 }

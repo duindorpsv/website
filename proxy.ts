@@ -15,4 +15,6 @@ export async function proxy(request:NextRequest){
   if(process.env.APP_ENV!=='production')response.headers.set('X-Robots-Tag','noindex, nofollow');
   return response;
 }
-export const config={matcher:['/((?!_next/static|_next/image|favicon.ico).*)']};
+// Raw archive uploads enforce origin, private ownership, expiry and quotas before
+// reading their stream. Skip Proxy's automatic 10 MiB clone/truncation here.
+export const config={matcher:['/((?!_next/static|_next/image|favicon.ico|api/archive/uploads/?$).*)']};

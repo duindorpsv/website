@@ -134,6 +134,13 @@
       "when": 1792539763468,
       "tag": "0018_newsletter_delivery",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1792548486765,
+      "tag": "0019_club_archive",
+      "breakpoints": true
     }
   ]
 }

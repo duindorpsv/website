@@ -1,0 +1,12 @@
+{
+  "environment": "Actual CMS components and PostgreSQL mutations through isolated harness actor; actual Supabase login and role boundaries verified separately by CI",
+  "widths": [
+    1440,
+    1280,
+    768,
+    390,
+    360
+  ],
+  "savedAndReopened": true,
+  "errors": []
+}

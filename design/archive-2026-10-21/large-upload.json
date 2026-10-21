@@ -1,0 +1,10 @@
+{
+  "environment": "Real production-build HTTP route and isolated PostgreSQL/filesystem worker decoder",
+  "bytes": 11466078,
+  "aboveProxyDefault": true,
+  "entireBodyPreserved": true,
+  "checksumMatches": true,
+  "decoded": true,
+  "mime": "audio/mp4",
+  "neverPublished": true
+}

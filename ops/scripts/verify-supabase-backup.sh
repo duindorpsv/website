@@ -31,10 +31,10 @@ docker run --rm -i --network none --read-only --entrypoint pg_restore postgres:1
 python3 - <<'PY'
 import json,pathlib
 listing=pathlib.Path('.runtime/database-backup-probe.list').read_text()
-expected=['TABLE DATA public cms_records','TABLE DATA auth users','TABLE DATA storage objects','TABLE DATA drizzle __drizzle_migrations']
+expected=['TABLE DATA public cms_records','TABLE DATA auth users','TABLE DATA storage objects','TABLE DATA drizzle __drizzle_migrations',*["TABLE DATA public cms_archive_"+name for name in ['catalog','batches','media','contributions','revisions','relations']]]
 if not all(name in listing for name in expected):
     raise RuntimeError('Supabase backup is missing required application/provider data')
-proof={'format':'PostgreSQL custom','readable':True,'cms':True,'auth':True,'storageMetadata':True,'migrationJournal':True}
+proof={'format':'PostgreSQL custom','readable':True,'cms':True,'auth':True,'storageMetadata':True,'migrationJournal':True,'archiveTables':6}
 pathlib.Path('.runtime/database-backup-proof.json').write_text(json.dumps(proof)+'\n')
 print('Supabase database backup verified: CMS, Auth, Storage metadata and migration journal')
 PY

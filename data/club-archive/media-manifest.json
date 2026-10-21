@@ -1,0 +1,301 @@
+[
+  {
+    "file": "source-reference/public/assets/club-archive/clubembleem.webp",
+    "asset_path": "/assets/club-archive/clubembleem.webp",
+    "width": 154,
+    "height": 175,
+    "bytes": 6784,
+    "sha256": "1395d701836a038ff0f489027b379d11295f6497f5466c38f6bb966921136625",
+    "used_in_current_seed": false,
+    "uses": []
+  },
+  {
+    "file": "source-reference/public/assets/club-archive/clubkrant-1963.webp",
+    "asset_path": "/assets/club-archive/clubkrant-1963.webp",
+    "width": 1945,
+    "height": 896,
+    "bytes": 316100,
+    "sha256": "e2516e6aa23a29b28e996daa3c107b80b062c076ab888f35e71d6bded60e34f5",
+    "used_in_current_seed": true,
+    "uses": [
+      {
+        "type": "moment",
+        "id": "sportrevue-1963",
+        "title": "De club op papier.",
+        "caption": "Een bewaard briefhoofd van de Sportrevue, dertiende jaargang. De bron dateert dit beeld op 1963.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      },
+      {
+        "type": "museumstuk",
+        "id": "sportrevue-1963",
+        "title": "Duindorp’s Sportrevue.",
+        "caption": "Een bewaard briefhoofd van de Sportrevue, dertiende jaargang. De bron dateert dit beeld op 1963.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      }
+    ]
+  },
+  {
+    "file": "source-reference/public/assets/club-archive/elftal-1950.webp",
+    "asset_path": "/assets/club-archive/elftal-1950.webp",
+    "width": 1183,
+    "height": 784,
+    "bytes": 158108,
+    "sha256": "a81cd56c2c905caeee24284d19ba26bf7e17d8b4a98e708d449d59d9acfe4eb4",
+    "used_in_current_seed": true,
+    "uses": [
+      {
+        "type": "moment",
+        "id": "oprichting-1950",
+        "title": "Een eigen club voor Duindorp.",
+        "caption": "Het eerste elftal in seizoen 1950/1951. Dit is een elftalfoto, geen opname van de oprichtingsvergadering.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://www.duindorpsv.nl/200/historie/"
+      },
+      {
+        "type": "moment",
+        "id": "eerste-kampioenschap-1951",
+        "title": "Meteen ongeslagen kampioen.",
+        "caption": "Het eerste elftal in seizoen 1950/1951. Dit is een elftalfoto, geen opname van de oprichtingsvergadering.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      },
+      {
+        "type": "museumstuk",
+        "id": "eerste-elftal-1950",
+        "title": "De eerste generatie.",
+        "caption": "Het eerste elftal in seizoen 1950/1951. Dit is een elftalfoto, geen opname van de oprichtingsvergadering.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      }
+    ]
+  },
+  {
+    "file": "source-reference/public/assets/club-archive/elftal-1953.webp",
+    "asset_path": "/assets/club-archive/elftal-1953.webp",
+    "width": 569,
+    "height": 351,
+    "bytes": 36526,
+    "sha256": "0d4abe264afa24e523e09c8393c34819c5499cf5a0e4f3c01fcce48f4fa91eaf",
+    "used_in_current_seed": true,
+    "uses": [
+      {
+        "type": "museumstuk",
+        "id": "elftalfoto-1953",
+        "title": "Wie staan hier op de foto?",
+        "caption": "Elftalfoto uit seizoen 1953/1954. Herken jij de spelers?",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      }
+    ]
+  },
+  {
+    "file": "source-reference/public/assets/club-archive/elftal-2009.webp",
+    "asset_path": "/assets/club-archive/elftal-2009.webp",
+    "width": 481,
+    "height": 267,
+    "bytes": 60472,
+    "sha256": "c5019f036d52892a57b3f43e24161830f395d6bedbb152bde6299c6ab038cd28",
+    "used_in_current_seed": true,
+    "uses": [
+      {
+        "type": "moment",
+        "id": "houtrust-1975",
+        "title": "Eindelijk een eigen thuis.",
+        "caption": "Gebruikt in de vergelijking; zie vergelijkingstoelichting.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      },
+      {
+        "type": "moment",
+        "id": "zaterdagvoetbal-2010",
+        "title": "Een nieuwe zaterdag begint.",
+        "caption": "Duindorp SV 1 zondag in seizoen 2009/2010, voor het clubhuis op Houtrust.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      },
+      {
+        "type": "museumstuk",
+        "id": "zondagelftal-2009",
+        "title": "Voor het clubhuis.",
+        "caption": "Duindorp SV 1 zondag in seizoen 2009/2010, voor het clubhuis op Houtrust.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      }
+    ]
+  },
+  {
+    "file": "source-reference/public/assets/club-archive/historisch-briefhoofd.webp",
+    "asset_path": "/assets/club-archive/historisch-briefhoofd.webp",
+    "width": 1710,
+    "height": 564,
+    "bytes": 35934,
+    "sha256": "606eeb140c69a9ec3eabb964721c144f2b9f6514657e197710e91d225476f29c",
+    "used_in_current_seed": true,
+    "uses": [
+      {
+        "type": "museumstuk",
+        "id": "briefhoofd",
+        "title": "Het oude clubbriefhoofd.",
+        "caption": "Historisch briefhoofd met clubembleem. Het ontwerpjaar is bij de bron niet vermeld.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      }
+    ]
+  },
+  {
+    "file": "source-reference/public/assets/club-archive/kampioen-1973.webp",
+    "asset_path": "/assets/club-archive/kampioen-1973.webp",
+    "width": 1053,
+    "height": 662,
+    "bytes": 192958,
+    "sha256": "50b8eef9aa61891dd9a6443d8341f4c4517b9d49b38b68a7cbfe855257a4d34f",
+    "used_in_current_seed": true,
+    "uses": [
+      {
+        "type": "moment",
+        "id": "kampioen-1973",
+        "title": "De vlag kan uit.",
+        "caption": "Elftalfoto uit het kampioensseizoen 1972/1973.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      },
+      {
+        "type": "museumstuk",
+        "id": "kampioensfoto-1973",
+        "title": "De ploeg van 1973.",
+        "caption": "Elftalfoto uit het kampioensseizoen 1972/1973.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      }
+    ]
+  },
+  {
+    "file": "source-reference/public/assets/club-archive/kampioen-2005.webp",
+    "asset_path": "/assets/club-archive/kampioen-2005.webp",
+    "width": 1638,
+    "height": 1182,
+    "bytes": 333486,
+    "sha256": "3fae79de622d29f11ecfd1d26a06d00f84ee70091c8b94209879477fd6f9854c",
+    "used_in_current_seed": true,
+    "uses": [
+      {
+        "type": "moment",
+        "id": "kampioen-2005",
+        "title": "Blauw-wit schrijft geschiedenis.",
+        "caption": "De kampioensploeg uit seizoen 2004/2005, in blauw-witte strepen.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/de-15-vragen-aan-rinus-taal/"
+      },
+      {
+        "type": "museumstuk",
+        "id": "kampioensfoto-2005",
+        "title": "Het blauw-wit van 2005.",
+        "caption": "De kampioensploeg uit seizoen 2004/2005, in blauw-witte strepen.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/de-15-vragen-aan-rinus-taal/"
+      }
+    ]
+  },
+  {
+    "file": "source-reference/public/assets/club-archive/kampioen-2017.webp",
+    "asset_path": "/assets/club-archive/kampioen-2017.webp",
+    "width": 1824,
+    "height": 1368,
+    "bytes": 325942,
+    "sha256": "387520b09fb95a3a15269588b03c8265443e26e7135d84bc4f2f162c5acf1254",
+    "used_in_current_seed": true,
+    "uses": [
+      {
+        "type": "moment",
+        "id": "kampioen-2017",
+        "title": "Feest op Houtrust.",
+        "caption": "Het kampioensfeest op Houtrust, seizoen 2016/2017.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      }
+    ]
+  },
+  {
+    "file": "source-reference/public/assets/club-archive/promotie-1984.webp",
+    "asset_path": "/assets/club-archive/promotie-1984.webp",
+    "width": 1720,
+    "height": 1059,
+    "bytes": 629124,
+    "sha256": "d696f13b0d5c495af27cbb936c9889ce6ca14536b0fb0955072c127ae1ccb8d1",
+    "used_in_current_seed": true,
+    "uses": [
+      {
+        "type": "moment",
+        "id": "promotie-1984",
+        "title": "Terug naar de KNVB.",
+        "caption": "Het eerste elftal bij de promotie naar de KNVB in 1984.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      },
+      {
+        "type": "museumstuk",
+        "id": "promotiefoto-1984",
+        "title": "De promotieploeg.",
+        "caption": "Het eerste elftal bij de promotie naar de KNVB in 1984.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      }
+    ]
+  },
+  {
+    "file": "source-reference/public/assets/club-archive/promotie-1993.webp",
+    "asset_path": "/assets/club-archive/promotie-1993.webp",
+    "width": 800,
+    "height": 494,
+    "bytes": 158628,
+    "sha256": "d3f2a10919761b09c177dec0e605f6b915a7e9144f26a49d15fd2450ba04adbd",
+    "used_in_current_seed": true,
+    "uses": [
+      {
+        "type": "moment",
+        "id": "promotie-1993",
+        "title": "Een punt, een groot feest.",
+        "caption": "Het elftal uit seizoen 1992/1993, waarin de ploeg promoveerde naar de vierde klasse KNVB.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      },
+      {
+        "type": "museumstuk",
+        "id": "promotiefoto-1993",
+        "title": "Samen een klasse hoger.",
+        "caption": "Het elftal uit seizoen 1992/1993, waarin de ploeg promoveerde naar de vierde klasse KNVB.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      }
+    ]
+  },
+  {
+    "file": "source-reference/public/assets/club-archive/veteranen-2024.webp",
+    "asset_path": "/assets/club-archive/veteranen-2024.webp",
+    "width": 1818,
+    "height": 1103,
+    "bytes": 508140,
+    "sha256": "f336e02724c4b3e32dfa42753941b368784171c5f41a8f9ca5ca725728f23813",
+    "used_in_current_seed": true,
+    "uses": [
+      {
+        "type": "moment",
+        "id": "houtrust-1975",
+        "title": "Eindelijk een eigen thuis.",
+        "caption": "Gebruikt in de vergelijking; zie vergelijkingstoelichting.",
+        "credit": "De Haagse Voetbalhistorie",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      },
+      {
+        "type": "museumstuk",
+        "id": "zondagelftal-2009",
+        "title": "Voor het clubhuis.",
+        "caption": "Veteranen- en vriendenteam voor het clubhuis. Gepubliceerd bij het interview met Rinus Taal van april 2024; exacte opnamedatum onbekend.",
+        "credit": "De Haagse Voetbalhistorie · interview Rinus Taal",
+        "source_url": "https://dehaagsevoetbalhistorie.nl/club/duindorp_sv/"
+      }
+    ]
+  }
+]
