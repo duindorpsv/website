@@ -8,6 +8,7 @@ Bewijsbestanden:
 
 - `migration-result.json`: upgrade 0018 → 0019, bestaande inhoud intact, zes RLS-tabellen, geen directe providerroltoegang en behoud/idempotentie van aangepaste navigatie.
 - `public-browser.json`: echte publieke Next-routes, 1440/1280/768/390/360 px, leeg jaar 1987 en geen pagina-overflow of browserfouten.
+- `cache-revocation.json`: aanvullende productiebuildcontrole op de image-optimizerroute vóór en na intrekken; de oorspronkelijke vieruurscache wordt afgesloten.
 - `large-upload.json`: een echte 11.466.078-byte WAV bereikt de HTTP-route volledig (hash gelijk) en wordt werkelijk naar AAC/MP4 verwerkt.
 - `public-e2e.json`: productiebuild met complete railbediening, broncontrole, zoomfocus, licht/donker, touch en vijf viewports.
 - `cms-browser.json`: catalogusconcept werkelijk bewaard en opnieuw geladen, vijf viewports en geen browserfouten.
@@ -63,7 +64,7 @@ Deze tabel noemt het concrete regressiebewijs. `E2E` betekent uitvoering tegen h
 | I13 | Werkelijke JPEG/PNG/WebP/AVIF/GIF plus WAV/MP4-decodering; worker-E2E. |
 | I14 | E2E: bestandvolgorde veranderen en bijschrift blijft bij eigen bestand; gekozen volgorde opgeslagen. |
 | I15 | Integratie + verloren antwoord in browser: idempotente batch/upload/ontvangst, één record. |
-| I16 | Browser behoudt invoer bij netwerkfout; servertransacties rollen terug; verlopen uploadopruiming en herstart uitgeputte tijdelijke verwerking. |
+| I16 | Browser behoudt invoer bij netwerkfout; servertransacties rollen terug; verlopen uploadopruiming herstart uitgeputte tijdelijke verwerking en herstel zonder terugkeer van verwijderde bestanden. |
 | I17 | Tijdens actieve verwerking geen Escape-/buitensluitactie; browser-busy en sluitwaarschuwing. |
 | I18 | Vier aanbiedingen gevalideerd; bruikleen daadwerkelijk ontvangen, geen automatische publicatie/overdracht. |
 | M01 | Integratie + tweede gastsessie: ontvangst en afgeleiden blijven privé vóór goedkeuring. |

@@ -1,0 +1,18 @@
+{
+  "environment": "Real isolated production builds and real publication/withdrawal transactions",
+  "reproducedBeforeFix": {
+    "environment": "Isolated production build; real temporary approved and withdrawn archive image",
+    "optimizerBefore": 200,
+    "directAfterWithdrawal": 401,
+    "optimizerAfterWithdrawal": 200,
+    "optimizerCacheControl": "public, max-age=14400, must-revalidate"
+  },
+  "verifiedAfterFix": {
+    "environment": "Isolated production build; real temporary approved and withdrawn archive image",
+    "optimizerBefore": 404,
+    "directAfterWithdrawal": 401,
+    "optimizerAfterWithdrawal": 404,
+    "optimizerCacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "fixed": true
+}
