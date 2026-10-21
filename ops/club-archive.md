@@ -10,6 +10,12 @@ Publieke ingangen:
 
 Beheer: `/beheer#clubarchief`. Alleen clubbrede accounts met **pagina’s lezen/bewerken/publiceren** krijgen de privé-inbox en mutaties. Teamgebonden rollen worden op de server geweigerd. Inzenders hebben geen account nodig. Een bestaande, via Supabase geverifieerde clubsessie vult naam en e-mail in; anoniem publiceren blijft een eigen keuze.
 
+## Databaseverbindingen
+
+De bestaande Supabase-verbinding blijft in session mode op poort 5432. Het productieproject heeft een limiet van 15 sessies per database/gebruiker. Elk Node-proces deelt daarom één raw pool van maximaal 3 verbindingen en één aparte Drizzle-pool van maximaal 1 verbinding over alle Next.js-pagina- en API-bundels. Webserver en worker gebruiken samen maximaal 8 sessies; ook tijdens het vervangen van één proces blijft ruimte over. Extra aanvragen wachten in de bestaande clientpool. De aparte pools behouden de verschillende JSON- en datumserializers. Inactieve verbindingen sluiten na 20 seconden. Hiervoor zijn geen nieuwe GitHub-secrets of variabelen nodig.
+
+Bij `EMAXCONNSESSION` controleer je of er buiten de webserver en worker nog handmatige scripts of oude containers met hetzelfde runtime-account verbonden zijn. Verhoog niet uitsluitend de Supabase-limiet om dubbele applicatiepools te verbergen.
+
 ## Redactionele werkinstructie
 
 1. **Moment maken:** open *Archief & verbindingen → Moment toevoegen*. Vul titel, introductie en verhaal in. Kies de juiste nauwkeurigheid: maand/jaar, alleen jaar, seizoen, circa of onbekend. Voeg bron, personen, teams, verhalen en eventuele museumstukken toe. Bewaar een concept; pas **Publiceren** maakt de gecontroleerde versie zichtbaar.
