@@ -1,4 +1,5 @@
 import {test,expect} from '@playwright/test';
+import {readFileSync} from 'node:fs';
 import {dossierFixture} from '../helpers/match-dossier-fixture';
 
 test('cached matches load KNVB club logos and unavailable images retain a neutral fallback',async({page})=>{
@@ -8,7 +9,8 @@ test('cached matches load KNVB club logos and unavailable images retain a neutra
  await page.route('**/api/sportlink',route=>route.fulfill({json:fixture.snapshot}));
  await page.route('**/api/sportlink/match?**',route=>route.fulfill({json:fixture.payload}));
  await page.route('https://logoapi.voetbal.nl/**',route=>{obsoleteRequests++;return route.abort();});
- await page.route('https://sassets.knvb.nl/**',route=>missing?route.fulfill({status:404}):route.fulfill({contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aMZkAAAAASUVORK5CYII=','base64')}));
+ const image=readFileSync('public/assets/logo.png');
+ await page.route('https://sassets.knvb.nl/**',route=>missing?route.fulfill({status:404}):route.fulfill({contentType:'image/png',body:image}));
  const open=async()=>{
   await page.goto(`/clubmuur/wedstrijden?wedstrijd=${fixture.match.id}`);
   await expect(page.getByRole('dialog')).toBeVisible();
