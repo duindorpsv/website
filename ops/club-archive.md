@@ -53,6 +53,8 @@ Publicaties/moderatie gebruiken één transactie, archief-lock, optimistische re
 
 De seed importeert **16 momenten, 9 digitale museumstukken en 12 historische WebP-bronnen**. Hashes worden met het aangeleverde manifest gecontroleerd. Herkomst, bijschrift en bron-URL blijven bewaard; een onbekende datum wordt niet ingevuld. Herhalen overschrijft geen redactionele veranderingen en maakt geen dubbele assets of relaties. De drie fictieve voorbeeldinzendingen uit het pakket worden nooit automatisch geïmporteerd. De bestaande menuboom krijgt bij de eerste archiefimport de twee ingangen, zonder latere handmatige verwijderingen telkens terug te zetten. Bij een bewust volledig aangepast menu of 50 bestaande submenu-items blijven de footerlinks beschikbaar en kan de redacteur de nieuwe bestemmingen via Navigatie kiezen.
 
+De menu-uitbreiding gebruikt dezelfde vergrendeling als gewone CMS-bewerkingen. Een al bestaande revisie met het huidige versienummer blijft intact; de uitbreiding krijgt een nieuwe versie en revisie. Werkversie en publicatie behouden elk hun eigen overige menu-inhoud. De upgradetest start het echte workerimage met een leeg archief én bestaande menurevisies, zodat deze productiesituatie wordt gecontroleerd.
+
 ## Omgeving, productie en herstel
 
 **Geen nieuwe GitHub-secrets of verplichte variabelen.** De bestaande production-configuratie blijft gelden:

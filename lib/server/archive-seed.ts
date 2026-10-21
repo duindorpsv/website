@@ -34,14 +34,16 @@ export async function seedClubArchive(){
 
 /** One-time extension of existing menus; later editorial removals remain respected. */
 export async function attachArchiveNavigation(tx:any){
- const rows=await tx`select id,draft,live,version from cms_records where module='navigation' and deleted_at is null`;
+ await tx`select pg_advisory_xact_lock(736402)`;
+ const rows=await tx`select id,draft,live,version from cms_records where module='navigation' and deleted_at is null order by id for update`;
  for(const row of rows){
   const extend=(value:any)=>{if(!value?.items)return value;const next=structuredClone(value),all=next.items.flatMap((g:any)=>[g,...(g.children||[])]),group=next.items.find((g:any)=>g.id==='club'||g.href==='/clubmuur/club');if(!group)return next;group.children||=[];
    for(const [suffix,label,path] of [['tijdlijn','Clubarchief · tijdlijn','tijdlijn'],['museum','Digitaal clubmuseum','museum']]){const href=`/clubmuur/club/${path}`;if(all.some((x:any)=>x.href===href)||group.children.length>=50)continue;let id='club-archief-'+suffix,index=2;while(all.some((x:any)=>x.id===id))id='club-archief-'+suffix+'-'+index++;const link={id,label,href,enabled:true};group.children.push(link);all.push(link);}
    return next;
   };
   const draft=extend(row.draft),live=extend(row.live);if(JSON.stringify(draft)===JSON.stringify(row.draft)&&JSON.stringify(live)===JSON.stringify(row.live))continue;
-  const version=row.version+1,publicationId=crypto.randomUUID();await tx`insert into cms_revisions(id,record_id,version,snapshot,label) values (${crypto.randomUUID()},${row.id},${row.version},${tx.json(row.draft)},'Voor clubarchiefintegratie')`;
+  const version=row.version+1,publicationId=crypto.randomUUID();await tx`insert into cms_revisions(id,record_id,version,snapshot,label) values (${crypto.randomUUID()},${row.id},${row.version},${tx.json(row.draft)},'Voor clubarchiefintegratie') on conflict(record_id,version) do nothing`;
+  await tx`insert into cms_revisions(id,record_id,version,snapshot,label) values (${crypto.randomUUID()},${row.id},${version},${tx.json(draft)},'Clubarchief toegevoegd')`;
   if(live)await tx`insert into cms_publications(id,record_id,record_version,snapshot) values (${publicationId},${row.id},${version},${tx.json(live)})`;
   await tx`update cms_records set draft=${tx.json(draft)},live=${live?tx.json(live):null},version=${version},live_id=${live?publicationId:null},updated_at=now() where id=${row.id}`;
  }

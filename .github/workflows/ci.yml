@@ -71,7 +71,7 @@ jobs:
           pnpm exec tsx -e 'import {sqlClient,closeDb} from "./db/index.ts";void(async()=>{if(process.env.APP_ENV!=="test"||process.env.SUPABASE_LOCAL_TESTS!=="true")throw new Error("Isolated fixtures only");await sqlClient()`delete from cms_jobs`;await sqlClient()`delete from cms_heartbeats`;await closeDb();})();'
           # Existing production upgrades skip the first-install seed. Require the real
           # worker image to install historical data and media before readiness succeeds.
-          pnpm exec tsx -e 'import {sqlClient,closeDb} from "./db/index.ts";import {assertLocalSupabaseTests} from "./tests/helpers/supabase-auth.ts";void(async()=>{assertLocalSupabaseTests();const sql=sqlClient();await sql`delete from cms_archive_relations`;await sql`delete from cms_archive_catalog where seed_hash is not null`;await sql`delete from cms_archive_media where id like ${"seed-%"}`;await closeDb();})();'
+          pnpm exec tsx scripts/prepare-archive-upgrade-test.ts
           docker run -d --name duindorp-ci-worker --memory=512m --network host --env-file .runtime/image.env --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges duindorp-ci worker
           docker run -d --name duindorp-ci-web --memory=768m --network host --env-file .runtime/image.env --read-only --tmpfs /tmp --tmpfs /app/.next/cache:uid=1000,gid=1000 --cap-drop ALL --security-opt no-new-privileges duindorp-ci
           pnpm exec playwright install --with-deps chromium --only-shell
