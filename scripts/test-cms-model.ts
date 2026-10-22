@@ -140,7 +140,7 @@ test('links accept supported local/contact/web URLs and reject executable or mal
 
 test('dynamic CMS routes accept news, albums and custom pages without changing legacy route contracts',()=>{
  for(const path of ['nieuws/ons-eerste-verhaal','verhalen/een-column','media/fotos/zaterdag-op-houtrust','club/sponsoren','nieuwe-pagina'])assert.equal(routes.isCmsDynamicPath(path),true,path);
- assert.equal(routes.isClubPagePath('club/sponsoren'),false);assert.equal(routes.clubPageGroup('nieuws/ons-eerste-verhaal'),'nieuws');
+ assert.equal(routes.isClubPagePath('club/sponsoren'),true);assert.equal(routes.clubPageGroup('nieuws/ons-eerste-verhaal'),'nieuws');
 });
 
 test('dynamic CMS route gate rejects traversal, malformed segments, schemes and the admin path',()=>{

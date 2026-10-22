@@ -1,0 +1,17 @@
+import type {CmsMember,CmsPerson} from './types';
+import type {SponsorContactRole} from './sponsorship-types';
+export type DirectoryLabel='volunteer'|'donor'|'supporter'|'honorary';
+export type DirectoryProfile={personId:string;birthDate:string;membership:'playing'|'non-playing'|'none';status:'active'|'former'|'archived';labels:DirectoryLabel[];teamIds:string[];address:string;postalCode:string;city:string;source:'manual'|'sportlink'|'account';sourceUpdatedAt:string;updatedAt:string;sponsorIds:string[]};
+export type DirectoryAssignment={id:string;personId:string;kind:'board'|'committee'|'trainer'|'manager'|'referee'|'volunteer';name:string;teamId:string;committeeId:string;startsAt:string;endsAt:string};
+export type GuardianPermission='schedule'|'attendance'|'forms'|'profile'|'finance';
+export type DirectoryGuardian={id:string;guardianPersonId:string;childPersonId:string;relationship:'parent'|'guardian'|'carer';permissions:GuardianPermission[];status:'pending'|'approved'|'revoked';requestedAt:string;requestedBy:string;approvedAt:string;approvedBy:string};
+export type DirectoryInvitation={mailStatus?:'prepared'|'accepted'|'failed';id:string;personId:string;email:string;scope:'club'|'sponsor';sponsorId:string;sponsorRoles:SponsorContactRole[];token:string;status:'pending'|'accepted'|'revoked';createdAt:string;expiresAt:string;createdBy:string;acceptedAt:string;userId:string};
+export type DirectoryEvent={id:string;personId:string;at:string;actorId:string;action:string};
+export type DirectoryState={version:1;profiles:DirectoryProfile[];assignments:DirectoryAssignment[];guardians:DirectoryGuardian[];invitations:DirectoryInvitation[];events:DirectoryEvent[]};
+export type DirectoryRow={person:CmsPerson;profile:DirectoryProfile;account?:CmsMember;invitation?:DirectoryInvitation;sponsorIds:string[];committeeNames:string[]};
+export type SaveDirectoryPersonInput={person:CmsPerson;profile:DirectoryProfile;sponsorId?:string};
+export type CreateDirectoryInvitationInput={personId:string;email:string;scope:'club'|'sponsor';sponsorId?:string;sponsorRoles?:SponsorContactRole[]};
+export type DirectoryPortalChild={linkId:string;personId:string;name:string;teamIds:string[];relationship:DirectoryGuardian['relationship'];permissions:GuardianPermission[]};
+export type DirectoryPortalProjection={person:Pick<CmsPerson,'id'|'name'|'email'|'phone'>|null;profile:Pick<DirectoryProfile,'membership'|'status'|'labels'|'teamIds'>|null;children:DirectoryPortalChild[];pendingGuardianRequests:{id:string;childName:string;status:DirectoryGuardian['status']}[];sponsorIds:string[];functions:string[]};
+export type DirectoryImportPerson={sportlinkId:string;name:string;email:string;phone:string;birthDate?:string;membership?:DirectoryProfile['membership'];teamIds?:string[]};
+export type DirectoryInvitationView={id:string;personName:string;emailHint:string;scope:DirectoryInvitation['scope'];sponsorName:string;expiresAt:string;status:'pending'|'accepted'|'revoked'|'expired'};

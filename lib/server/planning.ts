@@ -16,8 +16,9 @@ export async function validatePlanningWrite(tx:any,p:Principal,module:string,id:
  if(module==='people'){
   if(candidate.sportlinkId&&action!=='trash'){const [duplicate]=await tx`select id from cms_records where module='people' and deleted_at is null and id<>${id} and upper(btrim(draft->>'sportlinkId'))=${candidate.sportlinkId.trim().toUpperCase()}`;if(duplicate)throw new CmsError('person-source','Deze Sportlink-identiteit is al gekoppeld. Werk het bestaande persoonsprofiel bij.',409,{id:duplicate.id});}
   if(action==='trash'&&(await tx`select id from cms_records where module='activities' and deleted_at is null and draft->>'status'='planned' and draft->>'date'>=${today()} and draft->'personIds' ? ${id} limit 1`).length)throw new CmsError('person-in-use','Deze persoon is gekoppeld aan een toekomstige activiteit. Verwijder eerst die koppeling.',409);
-  if((candidate.backofficeUserId||'')!==(old?.draft.backofficeUserId||'')||action==='restore'&&candidate.backofficeUserId){authorize(p,'users','manage');if(candidate.backofficeUserId&&!(await tx`select u.id from auth_user u join cms_memberships m on m.user_id=u.id where u.id=${candidate.backofficeUserId}`).length)throw new CmsError('account-link','Kies een bestaand CMS-account. Er wordt geen account aangemaakt.',422);}
-  if(candidate.backofficeUserId&&action!=='trash'){const [linked]=await tx`select person_id from cms_person_accounts where user_id=${candidate.backofficeUserId} and person_id<>${id}`;if(linked)throw new CmsError('account-linked','Dit account is al aan een actief persoonsprofiel gekoppeld. Ontkoppel het daar eerst.',409);}
+  const [account]=await tx`select user_id from cms_person_accounts where person_id=${id}`;
+  if(candidate.backofficeUserId&&candidate.backofficeUserId!==account?.user_id)throw new CmsError('central-account-link','Beheer accountkoppelingen in Personen & gebruikers. Websiteprofielen wijzigen geen centrale identiteit.',422);
+  delete candidate.backofficeUserId;
   return;
  }
  if(module==='locations'){
@@ -64,7 +65,8 @@ export async function syncPlanningIndexes(tx:any,module:string,id:string,candida
   await tx`delete from cms_activity_reservations where activity_id=${id}`;
   if(!deleted&&candidate.status==='planned')for(const locationId of candidate.locationIds)await tx`insert into cms_activity_reservations(activity_id,location_id,starts_at,ends_at) values (${id},${locationId},${planningInstant(candidate.date+'T'+candidate.startTime,candidate.occurrence||'reject')},${planningInstant(candidate.date+'T'+candidate.endTime,candidate.occurrence||'reject')})`;
  }
- if(module==='people'){await tx`delete from cms_person_accounts where person_id=${id}`;if(!deleted&&candidate.backofficeUserId)await tx`insert into cms_person_accounts(person_id,user_id) values (${id},${candidate.backofficeUserId})`;}
+ // Canonical person-account links survive website edits and unpublication.
+
 }
 export function publicActivity(value:any,locations:any[]){return {id:value.id,title:value.title,type:value.type,date:value.date,startTime:value.startTime,endTime:value.endTime,description:value.description,...(value.occurrence?{occurrence:value.occurrence}:{}),location:value.sourceData?.side==='away'?value.sourceData.venue||'':(value.locationIds||[]).map((id:string)=>locations.find(location=>location.id===id)?.name).filter(Boolean).join(', ')||value.sourceData?.venue||''};}
 export function planningMigrationReport(rows:any[],people:any[]){

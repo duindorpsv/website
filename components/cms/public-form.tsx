@@ -5,13 +5,13 @@ import {contextualContactForm,submittedFormValues,todayInAmsterdam,validateFormV
 import {useCMS} from './provider';
 import styles from './public-form.module.css';
 
-export function PublicForm({formId,showTitle=true}:{formId:string;showTitle?:boolean}){
+export function PublicForm({formId,showTitle=true,contextMessage=''}:{formId:string;showTitle?:boolean;contextMessage?:string}){
   const {state,preview}=useCMS(),[contactId,setContactId]=useState('contact');
   useEffect(()=>{if(!preview&&formId==='contact')setContactId(contextualContactForm(location.search));},[formId,preview]);
   const target=formId==='contact'?contactId:formId,form=state.forms.find(item=>item.id===target&&item.active);
-  return form?<FormContent key={form.id} form={form} preview={preview} showTitle={showTitle}/>:<p>Dit formulier is tijdelijk niet beschikbaar.</p>;
+  return form?<FormContent key={form.id} form={form} preview={preview} showTitle={showTitle} contextMessage={contextMessage}/>:<p>Dit formulier is tijdelijk niet beschikbaar.</p>;
 }
-function FormContent({form,preview,showTitle}:{form:CmsForm;preview:boolean;showTitle:boolean}){
+function FormContent({form,preview,showTitle,contextMessage}:{form:CmsForm;preview:boolean;showTitle:boolean;contextMessage:string}){
   const prefix=useId(),operation=useRef({id:'',payload:''});
   const [values,setValues]=useState<Record<string,string>>({}),[honeypot,setHoneypot]=useState(''),[busy,setBusy]=useState(false);
   const [message,setMessage]=useState<{text:string;error:boolean}|null>(null),[errors,setErrors]=useState<Record<string,string>>({});
@@ -20,7 +20,7 @@ function FormContent({form,preview,showTitle}:{form:CmsForm;preview:boolean;show
   function focusField(id:string){requestAnimationFrame(()=>document.getElementById(prefix+'-'+id)?.focus());}
   async function submit(event:FormEvent){
     event.preventDefault();if(preview||busy)return;
-    const answers=submittedFormValues(form,values),problems=validateFormValues(form,answers);
+    const answers=submittedFormValues(form,values);if(contextMessage&&form.fields.some(f=>f.id==='message'))answers.message=[answers.message,contextMessage].filter(Boolean).join('\n\n');const problems=validateFormValues(form,answers);
     if(problems.length){setErrors(Object.fromEntries(problems.map(problem=>[problem.fieldId,problem.message])));focusField(problems[0].fieldId);return;}
     const payload=JSON.stringify(answers);
     if(operation.current.payload!==payload||!operation.current.id)operation.current={id:crypto.randomUUID(),payload};
@@ -36,7 +36,7 @@ function FormContent({form,preview,showTitle}:{form:CmsForm;preview:boolean;show
   }
   const autocomplete:Record<string,string>={name:'name',firstName:'given-name',lastName:'family-name',email:'email',phone:'tel',street:'address-line1',postalCode:'postal-code',city:'address-level2',birthDate:'bday',company:'organization',guardianName:'section-guardian name',guardianEmail:'section-guardian email',guardianPhone:'section-guardian tel'};
   return <section className={styles.root}>
-    {showTitle&&<h2 className={styles.title}>{form.name}</h2>}
+    {contextMessage&&<p>{contextMessage}</p>}{showTitle&&<h2 className={styles.title}>{form.name}</h2>}
     <p className={styles.intro}>Velden met een * zijn verplicht.{form.registrationPurpose==='membership'&&' Ben je jonger dan 18? Vul dan ook de gegevens van je ouder of voogd in.'}</p>
     {preview&&<p>Voorvertoning van de werkversie. Verzenden is uitgeschakeld.</p>}
     <form onSubmit={submit} aria-label={form.name} aria-busy={busy}>

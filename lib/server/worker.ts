@@ -1,3 +1,6 @@
+import {processSponsorEnquiry} from './sponsor-enquiries';
+import {deliverSponsorReminder} from './sponsor-reminders';
+import {archiveSponsorAgreement} from './sponsor-files';
 import {processArchiveMedia,cleanArchiveUploads} from './archive-uploads';
 import {dispatchNewsletter,deliverNewsletter} from './newsletter-delivery';
 import {validateMatchPreviewWrite} from './match-previews';
@@ -22,14 +25,17 @@ export async function runOnce(workerId = crypto.randomUUID()) {
     const sql = sqlClient();
     await storageReady();
     await sql `insert into cms_heartbeats(id,at) values ('worker',now()) on conflict(id) do update set at=now()`;
-    const claimed = await sql `update cms_jobs set status='processing',lease_owner=${workerId},lease_until=now()+interval '60 seconds',attempts=attempts+1 where id=(select id from cms_jobs where (status='pending' or (status='processing' and lease_until<now())) and run_at<=now() and attempts<max_attempts order by run_at,id for update skip locked limit 1) returning *`;
+    const claimed = await sql `update cms_jobs set status='processing',lease_owner=${workerId},lease_until=now()+interval '60 seconds',attempts=attempts+1 where id=(select id from cms_jobs where (status='pending' or (status='processing' and lease_until<now())) and run_at<=now() and attempts<max_attempts order by case when kind='auth-code-mail' then 0 when kind in ('publish','sponsor-final-pdf') then 1 when kind='sponsor-notification' then 3 else 2 end,run_at,id for update skip locked limit 1) returning *`;
     const job = claimed[0];
     if (!job)
         return false;
     let status = 'done';
     const renewal=setInterval(()=>{void renewJobLease(job.id,workerId).catch(()=>{});},20000);
     try {
-        if(job.kind==='archive-media')await processArchiveMedia(job.payload.id);
+        if(job.kind==='sponsor-enquiry')await processSponsorEnquiry(job.payload.submissionId);
+        else if(job.kind==='sponsor-notification')await deliverSponsorReminder(job.payload.deliveryId,job.payload.reminderId);
+        else if(job.kind==='sponsor-final-pdf')await archiveSponsorAgreement(job.payload.agreementId,job.payload.actorId);
+        else if(job.kind==='archive-media')await processArchiveMedia(job.payload.id);
         else if(job.kind==='newsletter-dispatch')await dispatchNewsletter(job.payload,job.id,workerId);
         else if(job.kind==='newsletter-delivery')await deliverNewsletter(job.payload,job.id,workerId);
         else if(job.kind==='sportlink-sync')await processSportlinkSync(job.payload,job.id);

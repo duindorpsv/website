@@ -48,6 +48,7 @@ export async function receiveForm(formId: string, body: unknown, ip: string) {
         // The job stores only a reference; historical recipient/definition is in the
         // committed submission, and internal notes never enter notification payloads.
         await tx `insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${'notify:' + data.operationId},'submission-mail',${tx.json({ submissionId: id })}) on conflict(operation_id) do nothing`;
+        if(formId==='sponsorship')await tx`insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${'sponsor-enquiry:'+data.operationId},'sponsor-enquiry',${tx.json({submissionId:id})}) on conflict(operation_id) do nothing`;
         if (form.kind === 'registration' && form.registrationPurpose === 'membership')
             await tx `insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${'register:' + data.operationId},'sportlink-registration',${tx.json({ submissionId: id })}) on conflict(operation_id) do nothing`;
         return { id, status: 'received' };

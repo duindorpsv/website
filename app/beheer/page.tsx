@@ -4,4 +4,4 @@ import {redirect} from 'next/navigation';
 import {principal} from '@/lib/server/permissions';
 export const dynamic='force-dynamic';
 export const metadata={title:'Clubbeheer · Duindorp SV',robots:{index:false,follow:false}};
-export default async function Page(){try{await principal(await headers());}catch(error){redirect('/beheer/login');}return <ClubCMS/>;}
+export default async function Page(){let p;try{p=await principal(await headers());}catch(error){redirect('/beheer/login');}if(!p?.grants.length)redirect('/portaal');return <ClubCMS/>;}
