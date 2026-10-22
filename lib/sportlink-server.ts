@@ -2,7 +2,7 @@ import {withSportlinkReadAge,sportlinkReadMaxAge} from './server/sportlink-read-
 import {writeStoredMatches,canonicalMatches} from './server/match-store';
 import {verifiedSportlinkCatalog} from './server/sportlink-identity';
 import {sportlinkStore, type SportlinkStatement} from './server/sportlink-store';
-import {normalizeSportlink} from './sportlink-normalize';
+import {normalizeSportlink,withStandingOwnership} from './sportlink-normalize';
 import type {SportlinkSnapshot,SportlinkSide} from './sportlink-types';
 import {cachedSportlinkArticle} from './server/sportlink-client';
 import {readSportlinkSettings} from './server/sportlink-config';
@@ -70,7 +70,7 @@ async function persist(data:SportlinkSnapshot,lease:number){
 }
 
 function cachedSnapshot(row:CacheRow,stale=false):SportlinkSnapshot{
- const data=JSON.parse(row.payload_json!) as SportlinkSnapshot;
+ const data=withStandingOwnership(JSON.parse(row.payload_json!) as SportlinkSnapshot);
  return {...data,stale,warning:stale?'Sportlink is tijdelijk niet bereikbaar. Je ziet de laatst opgehaalde gegevens.':null};
 }
 
