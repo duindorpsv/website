@@ -172,4 +172,10 @@ test('sponsor directory: canonical identities, real invitations, bounded scopes,
   }finally{if(original)await sql`update cms_records set draft=${sql.json(original.draft)} where id='site-sportlink'`;else await sql`delete from cms_records where id='site-sportlink'`;}
  });
 
+ await t.test('closing a workspace stream during a pending database read releases safely without an unhandled rejection',async()=>{
+  const {workspaceEvents}=await import('../../lib/server/sponsor-events');let ready!:()=>void,release!:()=>void;const acquired=new Promise<void>(resolve=>ready=resolve),unblock=new Promise<void>(resolve=>release=resolve);
+  const lock=sql.begin(async tx=>{await tx`lock table cms_domain_revision in access exclusive mode`;ready();await unblock;});await acquired;const abort=new AbortController();
+  try{const response=await workspaceEvents(new Request(new URL('/events',base),{headers:{cookie:admin.cookie},signal:abort.signal}));abort.abort();const reader=response.body!.getReader();assert.equal((await reader.read()).done,true);}finally{release();await lock;}await new Promise(resolve=>setTimeout(resolve,50));
+ });
+
 });

@@ -2,6 +2,7 @@ import {z} from 'zod';
 import {sponsorDocumentHash,sponsorSnapshotBytes,calculateSponsorTotals} from './sponsorship';
 import {getSponsorBusinessReadiness,validateSponsorContractTemplate} from './sponsor-contracts';
 const text=z.string(),id=text.min(1),date=text.refine(v=>!v||Number.isFinite(Date.parse(v)),'Ongeldige sponsordatum'),cents=z.number().int().nonnegative().max(1_000_000_000);
+const publicDay=text.refine(v=>!v||/^\d{4}-\d{2}-\d{2}$/.test(v)&&!v.startsWith('0000')&&Number.isFinite(Date.parse(v+'T12:00:00Z'))&&new Date(v+'T12:00:00Z').toISOString().slice(0,10)===v,'Gebruik een geldige kalenderdatum');
 const tax=z.enum(['21','9','0','exempt']);
 const invoiceTotals=z.object({subtotalCents:cents,discountCents:cents,netCents:cents,taxCents:cents,totalCents:cents,taxGroups:z.array(z.object({taxRate:tax,netCents:cents,taxCents:cents}))});
 const unique=<T extends z.ZodTypeAny>(item:T)=>z.array(item).refine(rows=>new Set(rows.map(r=>r.id)).size===rows.length,'Dubbele sponsoridentifiers');
@@ -16,7 +17,7 @@ export const sponsorshipSchema=z.object({
  signingChallenges:unique(signingChallenge).optional(),
  contractTemplates:unique(contractTemplate).optional(),
  businessChangeRequests:unique(z.object({baseIdentity:text.optional(),id,sponsorId:id,userId:id,details:business,reason:text,status:z.enum(['pending','approved','rejected']),createdAt:date,reviewedAt:date,reviewedBy:text,reviewNote:text})).optional(),
- sponsors:unique(z.object({businessDetails:business.optional(),id,name:text,companyNumber:text,vatNumber:text,address:text,postalCode:text,city:text,email:text,phone:text,website:text,description:text,logoUrl:text,ownerId:text,stage:z.enum(['lead','contacted','proposal','active','former']),notes:text,publicProfile:profile,publicEnabled:z.boolean(),publicFrom:date,publicUntil:date,createdAt:date,updatedAt:date,demo:z.boolean()})),
+ sponsors:unique(z.object({businessDetails:business.optional(),id,name:text,companyNumber:text,vatNumber:text,address:text,postalCode:text,city:text,email:text,phone:text,website:text,description:text,logoUrl:text,ownerId:text,stage:z.enum(['lead','contacted','proposal','active','former']),notes:text,publicProfile:profile,publicEnabled:z.boolean(),publicFrom:publicDay,publicUntil:publicDay,createdAt:date,updatedAt:date,demo:z.boolean()})),
  memberships:unique(z.object({id,sponsorId:id,userId:id,roles:z.array(z.enum(['signer','billing','marketing'])).min(1).refine(r=>new Set(r).size===r.length)})),
  items:unique(z.object({id,name:text,description:text,kind:z.enum(['board','shirt','match','website','newsletter','screens','other']),priceCents:cents,taxRate:tax,capacity:z.number().int().nonnegative(),period:z.enum(['season','year','once']),active:z.boolean()})),
  packages:unique(z.object({id,name:text,description:text,itemIds:z.array(id),priceCents:cents,taxRate:tax,active:z.boolean()})),

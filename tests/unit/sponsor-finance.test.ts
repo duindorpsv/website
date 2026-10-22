@@ -33,3 +33,10 @@ test('original UTF-8 document bytes survive JSONB key reordering, schema parsing
  assert.throws(()=>sponsorSnapshotBytes({...agreement,snapshot:{...agreement.snapshot,terms:'Gewijzigd'}}),/overeen/);
  assert.equal(state.sponsors.length,0);assert.equal(state.memberships.length,0);assert.equal(state.agreements.length,0);
 });
+
+test('public sponsor periods reject rollover, year zero and datetime inputs before PostgreSQL date filters',()=>{
+ const sponsor={id:'calendar-proof',name:'Fictieve datumcontrole',companyNumber:'',vatNumber:'',address:'',postalCode:'',city:'',email:'',phone:'',website:'',description:'',logoUrl:'',ownerId:'actor',stage:'lead',notes:'',publicProfile:{name:'Fictief',description:'',website:'',logoUrl:''},publicEnabled:true,publicFrom:'',publicUntil:'',createdAt:'2026-10-22T09:00:00Z',updatedAt:'2026-10-22T09:00:00Z',demo:false};
+ const schema=sponsorshipSchema.innerType().shape.sponsors;
+ for(const date of ['2026-02-31','2025-02-29','0000-01-01','2026-10-22T10:00:00Z'])assert.equal(schema.safeParse([{...sponsor,publicFrom:date}]).success,false);
+ for(const date of ['', '2028-02-29', '2026-10-22'])assert.equal(schema.safeParse([{...sponsor,publicFrom:date}]).success,true);
+});
