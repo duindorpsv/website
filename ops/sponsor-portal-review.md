@@ -8,11 +8,12 @@ De developmentcontrole gebruikt een afzonderlijke echte PostgreSQL 17-/Supabase 
 
 | Bewijs | Resultaat op development |
 | --- | --- |
-| Bestaande en nieuwe unitcontroles | 255 geslaagd, 1 bestaande skip |
+| Bestaande en nieuwe unitcontroles | 258 geslaagd, 1 bestaande skip |
 | TypeScript | geslaagd |
 | Host/deployconfiguratiecontroles | 29 geslaagd |
 | Productiebuild en runtimebundel voor worker/migratie/provisioning | geslaagd in GitHub CI |
 | Gerichte register-/sponsorintegratie | 22 geslaagd |
+| Database-egress | publieke SQL-projectie zonder concepttekst, één zware lezing voor elf bezoeken, wijzigingen en intrekkingen via onafhankelijke verbinding direct zichtbaar; details in `database-egress.md` |
 | Volledige integratiesuite | geslaagd in GitHub CI met Supabase, private S3 en ffmpeg; de minimale lokale stack mist deze twee bestaande afhankelijkheden; de definitieve telling staat bij de feature-PR en de bijbehorende run |
 | Browserflows | desktop 1440×900, tablet 1024×768 en mobiel 390×844; echte login, bedrijfsconcept, registerpaginering, focus/Escape, private upload, bedrijfswissel, bestaande rolleneditor en websiteaanvraag naar CRM |
 | Herstel vóór schema-upgrade | PostgreSQL custom-backup teruggezet op afgeschermde kopie; 0019 → 0020; bestaand account en canonieke koppeling behouden; geen bedrijven/uitnodigingen aangemaakt |

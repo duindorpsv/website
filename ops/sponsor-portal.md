@@ -93,6 +93,8 @@ Migratie `0020_sponsor_directory.sql` breidt de bestaande `cms_person_accounts` 
 
 Voor een later expliciet goedgekeurde uitrol:
 
+Dezelfde productiekandidaat bevat de [beperking van database-egress](database-egress.md), met een gedeelde publieke cache die bij bronwijzigingen direct ongeldig wordt. Private dossiers en rechten worden niet gecachet.
+
 1. Beoordeel de feature-PR en de volledige groene CI-controles; nu niet mergen, omdat `main` automatisch productie uitrolt.
 2. De CI bewaart een gecontroleerd image `candidate-<commit>` en `production-candidate.json` met digest, broncommit en controlerun. Dit is een buildbewijs, geen productie-release-manifest of deployment.
 3. Na latere toestemming gebruikt merge naar `main` de bestaande productie-workflow. Die maakt eerst de externe database-/media-/configbackup, migreert, provisiont en controleert web plus worker. Geen handmatige SQL-reset of nieuwe hostinstallatie nodig.

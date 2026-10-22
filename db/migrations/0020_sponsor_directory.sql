@@ -180,7 +180,7 @@ BEGIN
   EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',name);
   EXECUTE format('REVOKE ALL ON public.%I FROM PUBLIC,anon,authenticated,service_role',name);
  END LOOP;
- FOREACH name IN ARRAY ARRAY['cms_records','auth_user','cms_memberships','cms_grants','cms_person_accounts','cms_directory_profiles','cms_directory_guardians','cms_directory_assignments','cms_directory_invitations','cms_sponsor_companies','cms_sponsor_memberships','cms_sponsor_records'] LOOP
+ FOREACH name IN ARRAY ARRAY['cms_records','auth_user','cms_memberships','cms_grants','cms_person_accounts','cms_directory_profiles','cms_directory_guardians','cms_directory_assignments','cms_directory_invitations','cms_sponsor_companies','cms_sponsor_memberships','cms_sponsor_records','cms_departments','cms_redirects','cms_planning_legacy','cms_archive_catalog','cms_archive_relations','cms_archive_media','cms_archive_batches','cms_archive_contributions','cms_teams'] LOOP
   EXECUTE format('CREATE TRIGGER domain_revision_changed AFTER INSERT OR UPDATE OR DELETE ON public.%I FOR EACH STATEMENT EXECUTE FUNCTION public.cms_portal_changed()',name);
  END LOOP;
 END $privacy$;

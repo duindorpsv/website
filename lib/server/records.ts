@@ -1,4 +1,5 @@
 import {projectPublicSponsors} from './sponsor-public';
+import {publicRecordColumns} from './public-record-columns';
 import {matchPreviewDraftSchema,matchPreviewScheduleSchema,validateMatchPreview} from '../cms/match-preview';
 import {validateMatchPreviewWrite} from './match-previews';
 import {bumpPlanningRevision} from './planning-revision';
@@ -59,7 +60,7 @@ else
 // found without imposing another silent total cap on the people collection.
 async function peopleRecords(sql:any,publicOnly:boolean):Promise<RecordRow[]>{
  const records:RecordRow[]=[];let cursor='';
- while(true){const batch:RecordRow[]=await sql`select * from cms_records where module='people' and id>${cursor} and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`} order by id limit 1000`;records.push(...batch);if(batch.length<1000)return records;cursor=batch[batch.length-1].id;}
+ while(true){const batch:RecordRow[]=await sql`select ${publicOnly?publicRecordColumns(sql):sql`*`} from cms_records where module='people' and id>${cursor} and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`} order by id limit 1000`;records.push(...batch);if(batch.length<1000)return records;cursor=batch[batch.length-1].id;}
 }
 function locationChoice(row:RecordRow){const value=row.draft;return {id:row.id,name:value.name,type:value.type,capacity:value.capacity,active:value.active,color:value.color,parentId:value.parentId||'',description:'',sportlinkFieldName:'',published:false,...(row.deleted_at?{deletedAt:new Date(row.deleted_at).toISOString()}: {})};}
 export async function loadState(publicOnly = false, p?: Principal,transaction?:any,requiredIds:string[]=[]): Promise<{
@@ -67,13 +68,13 @@ export async function loadState(publicOnly = false, p?: Principal,transaction?:a
     versions: Record<string, number>;
 }> {
     const sql:ReturnType<typeof sqlClient> = transaction||sqlClient(), state = emptyState(), versions: Record<string, number> = {};
-    const rows = await sql<RecordRow[]> `with plans as materialized (select distinct on (payload->>'id') payload->>'id' as record_id,run_at from cms_jobs where kind='publish' and status in ('pending','processing') order by payload->>'id',run_at) select cms_records.*,i.record_id is not null as imported,plans.run_at as scheduled_at from cms_records left join cms_news_import_identities i on i.record_id=cms_records.id left join plans on plans.record_id=cms_records.id where ${publicOnly ? sql `live is not null and deleted_at is null` : sql `true`} and ${!publicOnly&&p?sql`(module!='media' or id in (select id from cms_records where module='media' order by updated_at desc,id limit 100) or id in (select target_id from cms_references))`:sql`true`} order by case when deleted_at is not null then 3 when module in ('settings','navigation','hero','heroPhotos','agenda','training') then 0 when module!='media' then 1 else 2 end,updated_at desc,id limit 1500`;
-    const requested=requiredIds.length?await sql<RecordRow[]>`select *,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported from cms_records where id in ${sql([...new Set(requiredIds)])}`:[];
-    const planningRows=await sql<RecordRow[]>`select * from cms_records where module in ('committees','locations','activities') and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`} order by updated_at desc,id limit 22000`;
+    const rows:RecordRow[] = publicOnly?await sql`select ${publicRecordColumns(sql)} from cms_records where live is not null and deleted_at is null order by case when module in ('settings','navigation','hero','heroPhotos','agenda','training') then 0 when module!='media' then 1 else 2 end,updated_at desc,id limit 1500`:await sql<RecordRow[]> `with plans as materialized (select distinct on (payload->>'id') payload->>'id' as record_id,run_at from cms_jobs where kind='publish' and status in ('pending','processing') order by payload->>'id',run_at) select cms_records.*,i.record_id is not null as imported,plans.run_at as scheduled_at from cms_records left join cms_news_import_identities i on i.record_id=cms_records.id left join plans on plans.record_id=cms_records.id where ${publicOnly ? sql `live is not null and deleted_at is null` : sql `true`} and ${!publicOnly&&p?sql`(module!='media' or id in (select id from cms_records where module='media' order by updated_at desc,id limit 100) or id in (select target_id from cms_references))`:sql`true`} order by case when deleted_at is not null then 3 when module in ('settings','navigation','hero','heroPhotos','agenda','training') then 0 when module!='media' then 1 else 2 end,updated_at desc,id limit 1500`;
+    const requested=requiredIds.length?await sql<RecordRow[]>`select ${publicOnly?publicRecordColumns(sql):sql`*,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported`} from cms_records where id in ${sql([...new Set(requiredIds)])} and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`}`:[];
+    const planningRows=await sql<RecordRow[]>`select ${publicOnly?publicRecordColumns(sql):sql`*`} from cms_records where module in ('committees','locations','activities') and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`} order by updated_at desc,id limit 22000`;
     const peopleRows=await peopleRecords(sql,publicOnly);
     // People and planning dependencies must survive the mixed-content bootstrap limit too.
     const refs=[...new Set([...rows.filter(row=>row.module!=='media'&&!row.deleted_at),...planningRows,...peopleRows,...requested].flatMap(row=>referencesIn(publicOnly?row.live:row.draft)))].filter(id=>!rows.some(row=>row.id===id)&&!requested.some(row=>row.id===id));
-    const related=refs.length?await sql<RecordRow[]>`select *,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported from cms_records where id in ${sql(refs)} and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`}`:[];
+    const related=refs.length?await sql<RecordRow[]>`select ${publicOnly?publicRecordColumns(sql):sql`*,exists(select 1 from cms_news_import_identities i where i.record_id=cms_records.id) as imported`} from cms_records where id in ${sql(refs)} and ${publicOnly?sql`live is not null and deleted_at is null`:sql`true`}`:[];
     const records=[...new Map([...rows,...requested,...related,...planningRows,...peopleRows,...(publicOnly?await heroNewsRows(sql):[])].map(row=>[row.id,row])).values()];
     const planningPublicLocations=publicOnly?(await sql`select id,draft->>'name' as name from cms_records where module='locations' and deleted_at is null`):[];
     const locationChoices=!!p&&!publicOnly&&(p.teamScoped?p.teams.some(teamId=>has(p,'pages','read',{teamId})):has(p,'pages','read'));
@@ -119,7 +120,7 @@ export async function loadState(publicOnly = false, p?: Principal,transaction?:a
         }
         (state[row.module as keyof CmsState] as unknown as Record<string, unknown>[]).push(data);
     }
-    const ds = await sql `select * from cms_departments where ${publicOnly ? sql `active=true` : sql `true`} order by id`;
+    const ds = await sql `select ${publicOnly?sql`id,name,description,active,confirmation`:sql`*`} from cms_departments where ${publicOnly ? sql `active=true` : sql `true`} order by id`;
     state.departments = ds.filter(d => publicOnly || !p || has(p, 'forms', 'read') || p.departments.some(assignment=>assignment.id===String(d.id)&&has(p,'submissions','read',{departmentId:assignment.id,kind:assignment.kind}))).map(d => ({ id: String(d.id), name: String(d.name), description: String(d.description), active: !!d.active, confirmation: String(d.confirmation), emails: publicOnly ? [] : d.emails as string[] }));
     const redirects = await sql `select from_path as "from",to_path as "to" from cms_redirects`;
     state.redirects = redirects.map(r => ({ from: String(r.from).replace(/^\/clubmuur\//, ''), to: String(r.to).replace(/^\/clubmuur\//, '') }));
