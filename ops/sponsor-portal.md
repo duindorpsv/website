@@ -1,6 +1,6 @@
 # Sponsorbeheer en Personen & gebruikers
 
-Deze uitbreiding is gebaseerd op de vastgelegde OnzeTrots-bronversie 61 (`a9757baadcd2897be790e12edcdc84f1d389c337`). Zij gebruikt de bestaande Next.js-applicatie, Supabase Database/Auth, Resend en private Hetzner S3-opslag. Er is één productieomgeving. Deze oplevering bereidt een productiebuild voor en start geen deployment.
+Deze uitbreiding is gebaseerd op de vastgelegde OnzeTrots-bronversie 61 (`a9757baadcd2897be790e12edcdc84f1d389c337`). Zij gebruikt de bestaande Next.js-applicatie, Supabase Database/Auth, Resend en private Hetzner S3-opslag. Er is één productieomgeving; uitrollen gebeurt via de bestaande GitHub-productieworkflow.
 
 ## Waar beheer je wat?
 
@@ -83,7 +83,7 @@ Publieke profielen verschijnen alleen na goedkeuring en binnen hun publicatieper
 
 Herinneringen draaien elke vijf minuten in de bestaande worker, ook zonder ingelogde browser. Vernieuwing gebruikt onder andere 90/60/30 dagen; factuur- en taakvensters volgen de sponsorinstellingen. Verzendregistraties en unieke jobnummers voorkomen dubbele herinneringen binnen hetzelfde venster. Actuele rechten worden vóór verzending opnieuw gecontroleerd.
 
-## GitHub-instellingen en latere productie-uitrol
+## GitHub-instellingen en productie-uitrol
 
 **Geen nieuwe verplichte secrets of variabelen.** Behoud de bestaande namen uit [GitHub Environments](github-environments.md): Supabase Database/Auth, `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAIL_FROM`, `APP_BASE_URL`, private Hetzner S3 en bestaande backupinstellingen. Er is geen SMTP, tweede gebruikersdatabase, externe contactenlijst of stagingomgeving nodig.
 
@@ -91,13 +91,13 @@ Supabase openbare registratie blijft uit; e-mailprovider aan, OTP-lengte 8 en ge
 
 Migratie `0020_sponsor_directory.sql` breidt de bestaande `cms_person_accounts` uit en voegt private register-/sponsortabellen toe. Zij controleert conflicterende bestaande koppelingen, bewaart bestaande ID's en verstuurt niets. RLS staat aan; `anon`, `authenticated` en `service_role` hebben geen Data API-toegang tot deze tabellen. De bestaande provisioning verleent alleen het beperkte backendaccount toegang. Een databaseguard verhindert dat een nog draaiende of teruggezette oudere applicatie de centrale accountkoppelingen opnieuw opbouwt uit websiteprofielen; alleen expliciete registerhandelingen kunnen een koppeling vervangen. Originele documentbytes, bewijsrecords, factuurbedragen en definitieve PDF-metadata zijn beschermd tegen overschrijven.
 
-Voor een later expliciet goedgekeurde uitrol:
+Voor een goedgekeurde productie-uitrol:
 
 Dezelfde productiekandidaat bevat de [beperking van database-egress](database-egress.md), met een gedeelde publieke cache die bij bronwijzigingen direct ongeldig wordt. Private dossiers en rechten worden niet gecachet.
 
-1. Beoordeel de feature-PR en de volledige groene CI-controles; nu niet mergen, omdat `main` automatisch productie uitrolt.
+1. Beoordeel de feature-PR en de volledige groene CI-controles. Merge naar `main` start automatisch de productie-uitrol; voer die merge uit zodra de uitrol is goedgekeurd.
 2. De CI bewaart een gecontroleerd image `candidate-<commit>` en `production-candidate.json` met digest, broncommit en controlerun. Dit is een buildbewijs, geen productie-release-manifest of deployment.
-3. Na latere toestemming gebruikt merge naar `main` de bestaande productie-workflow. Die maakt eerst de externe database-/media-/configbackup, migreert, provisiont en controleert web plus worker. Geen handmatige SQL-reset of nieuwe hostinstallatie nodig.
-4. Controleer daarna eigen beheerlogin, één fictieve uitnodiging, beide afzonderlijke ondertekeningen, private download, rolintrekking en workerstatus. Gebruik hiervoor geen overeenkomst of betaling namens een echte derde.
+3. De bestaande productie-workflow controleert de mergecommit en bouwt het release-image. De deploywrapper maakt eerst de externe database-/media-/configbackup, migreert, provisiont en controleert web plus worker. Geen handmatige SQL-reset of nieuwe hostinstallatie nodig.
+4. Controleer daarna de publieke pagina's, portaltoegang en web-/worker-readiness. De volledige uitnodigings-, onderteken-, download- en rolintrekkingsflows worden in de geïsoleerde testomgeving gecontroleerd; maak bij een productiecontrole geen fictieve overeenkomst of betaling namens een echte derde.
 
 De schema-upgrade is op een herstelde afgeschermde kopie getest. Een mislukte applicatiestart gebruikt de bestaande image-/configrollback; de database wordt niet automatisch teruggezet. Herstel van register/sponsoring vereist de volledige PostgreSQL-backup met bestaande Auth-ID's plus private S3-bestanden. Browserexports importeren deze private modules niet stilzwijgend. Bewaar originele UTF-8-snapshotbytes en PDF-bestandshashes; bouw historische hashes niet opnieuw op uit JSONB. Zie [herstelprocedure](rollback-and-restore.md).
