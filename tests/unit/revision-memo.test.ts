@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {RevisionMemo} from '../../lib/server/revision-memo';
+import {publicContentLifetime} from '../../lib/server/public-content-clock';
 
 test('public memo joins concurrent loads, returns isolated copies and observes revisions immediately',async()=>{
  let count=0;const memo=new RevisionMemo<{title:string}>(30000);
@@ -21,4 +22,15 @@ test('an older in-flight publication cannot replace a newer completed snapshot',
  const old=memo.read('1',()=>new Promise<string>(resolve=>release=resolve));
  await Promise.resolve();assert.equal(await memo.read('2',async()=>'nieuw'),'nieuw');release('oud');assert.equal(await old,'oud');
  assert.equal(await memo.read('2',async()=>{throw Error('cache should hold the newer revision');}),'nieuw');
+});
+test('calendar keys and exact pin deadlines refresh time-dependent content without short polling',async()=>{
+ let now=0;const memo=new RevisionMemo<number>(value=>value,()=>now);
+ assert.equal(await memo.read('1|today',async()=>100),100);now=50;
+ assert.equal(await memo.read('1|today',async()=>{throw Error('unnecessary CMS reload');}),100);
+ assert.equal(await memo.read('1|tomorrow',async()=>200),200);
+ const hour=3600000,at=Date.parse('2026-10-22T12:00:00Z');
+ assert.equal(publicContentLifetime([],at),6*hour);
+ assert.equal(publicContentLifetime([{live:{featured:true,publishedAt:'2026-10-15T13:00:00Z'}}],at),hour);
+ assert.equal(publicContentLifetime([{live:{featured:true,featuredUntil:'2026-10-22T12:00:01Z'}}],at),1000);
+ assert.equal(publicContentLifetime([{live:{featured:true,featuredUntil:'2026-10-21T12:00:01Z'}}],at),6*hour);
 });

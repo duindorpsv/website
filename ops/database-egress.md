@@ -7,7 +7,7 @@ De productiecode bevatte twee concrete versterkers: `generateMetadata` en de pag
 ## Wat de verbetering doet
 
 - Metadata en pagina delen één publieke lezing binnen een renderverzoek met React `cache`.
-- De VPS bewaart één publieke websitesnapshot en één publiek archiefsnapshot. Elke lezing controleert eerst alleen `cms_domain_revision.version`. Veranderde versies verversen de inhoud direct. De bovengrens is 30 seconden voor veranderingen door het verstrijken van tijd, zoals uitgelichte berichten, trainingsdagen en sponsorperiodes.
+- De VPS bewaart één publieke websitesnapshot en één publiek archiefsnapshot. Elke lezing controleert eerst alleen `cms_domain_revision.version`. Veranderde versies verversen de inhoud direct. De kopie wordt ook opnieuw gelezen bij een nieuwe Nederlandse/UTC-kalenderdag of het verlopen van de eerstvolgende uitlichting. Bij ongewijzigde inhoud is er een veiligheidsbovengrens van zes uur, zodat een periodieke volledige download niet iedere paar seconden terugkomt.
 - Triggers in migratie 0020 verhogen deze versie binnen dezelfde transactie als de bronwijziging. Ook afdelingen, redirects, planningsmigratie, teams en de archieftabellen zijn gedekt. Wijzigingen in een andere web-/workerverbinding maken de kopie dus ongeldig.
 - Een read-only repeatable-read-transactie houdt versie en inhoud bij elkaar. Gelijktijdige bezoekers delen een lopende opvraging. Fouten worden niet gecachet en iedere caller krijgt een onafhankelijke kopie.
 - Publieke CMS-/hero-/archiefqueries halen de bewerkbare documenten niet op. Alleen de annuleringsstatus van een activiteit wordt nog uit het concept geprojecteerd, omdat een annulering direct publiek moet gelden. Publieke afdelingsqueries halen geen interne e-mailadressen op.

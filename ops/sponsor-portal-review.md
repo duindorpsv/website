@@ -8,7 +8,7 @@ De developmentcontrole gebruikt een afzonderlijke echte PostgreSQL 17-/Supabase 
 
 | Bewijs | Resultaat op development |
 | --- | --- |
-| Bestaande en nieuwe unitcontroles | 258 geslaagd, 1 bestaande skip |
+| Bestaande en nieuwe unitcontroles | 259 geslaagd, 1 bestaande skip |
 | TypeScript | geslaagd |
 | Host/deployconfiguratiecontroles | 29 geslaagd |
 | Productiebuild en runtimebundel voor worker/migratie/provisioning | geslaagd in GitHub CI |
