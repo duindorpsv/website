@@ -63,7 +63,7 @@ test('connected archive: real private uploads, atomic moderation, shared catalog
  const command=(action:string,rest:any={},who=actor)=>mutateArchive(who,{operationId:crypto.randomUUID(),action,expectedVersion:0,...rest});
  const row=async(id:string)=>(await sql`select * from cms_archive_contributions where id=${id}`)[0];
  const review=async(id:string,action:string,extra:any={})=>{const r=await row(id);return command(action,{id,expectedVersion:r.version,data:r.draft,...extra});};
- await seedClubArchive();const initial=await readArchive();assert.equal(initial.state.moments.filter(m=>initial.catalog.some((r:any)=>r.id===m.id&&r.seed_hash)).length,16);assert.equal(initial.state.objects.length,9);
+ await seedClubArchive();const publicInitial=await readArchive();assert.ok(publicInitial.catalog.every((r:any)=>!('draft' in r)&&!('seed_hash' in r)),'public reads must not transfer private archive documents');const initial=await readArchive(sql,true);assert.equal(initial.state.moments.filter(m=>initial.catalog.some((r:any)=>r.id===m.id&&r.seed_hash)).length,16);assert.equal(initial.state.objects.length,9);
  const seedMoment=initial.state.moments[0],seedCatalog=initial.catalog.find((r:any)=>r.id===seedMoment.id)!;
  const seedOriginal=structuredClone(seedCatalog.draft),edited={...seedOriginal,title:seedOriginal.title+' · broncontrole'};
  await command('publish',{kind:'moment',data:edited,expectedVersion:seedCatalog.version,reason:'Controle idempotente import'});
