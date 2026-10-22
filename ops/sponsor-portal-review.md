@@ -11,9 +11,9 @@ De developmentcontrole gebruikt een afzonderlijke echte PostgreSQL 17-/Supabase 
 | Bestaande en nieuwe unitcontroles | 254 geslaagd, 1 bestaande skip |
 | TypeScript | geslaagd |
 | Host/deployconfiguratiecontroles | 29 geslaagd |
-| Runtimebundel voor worker/migratie/provisioning | geslaagd |
+| Productiebuild en runtimebundel voor worker/migratie/provisioning | geslaagd in GitHub CI |
 | Gerichte register-/sponsorintegratie | 18 geslaagd |
-| Volledige integratiesuite | 101 geslaagd; twee bestaande tests vereisen S3 en ffmpeg die in de minimale lokale stack ontbreken; volledige herhaling in GitHub CI |
+| Volledige integratiesuite | 110 geslaagd in de volledige GitHub Supabase/S3-/ffmpeg-omgeving; de minimale lokale stack mist deze twee bestaande afhankelijkheden |
 | Browserflows | desktop 1440×900, tablet 1024×768 en mobiel 390×844; echte login, bedrijfsconcept, registerpaginering, focus/Escape, private upload, bedrijfswissel en websiteaanvraag naar CRM |
 | Herstel vóór schema-upgrade | PostgreSQL custom-backup teruggezet op afgeschermde kopie; 0019 → 0020; bestaand account en canonieke koppeling behouden; geen bedrijven/uitnodigingen aangemaakt |
 | Privacy en database-integriteit | 19 private tabellen met RLS, geen provider Data API-grants; beperkte runtime weigert gewijzigde documentbytes/hash, factuurbedragen, definitieve PDF-metadata en onbevestigde handtekeningen |
