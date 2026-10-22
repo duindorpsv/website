@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {env} from './env';
 import {sqlClient} from '../../db';
 import {workspaceActor,freshActor,workspaceLocks,requireWrite,secureCodeHash} from './sponsor-access';
 import {CmsError} from './errors';
@@ -12,7 +13,7 @@ import {saveNewsletterResource} from './newsletter-workspace';
 export async function sponsorChannelDraft(request:Request,body:unknown){
  verifyOrigin(request);const input=z.object({operationId:z.string().uuid(),companyId:z.string().min(1).max(191),kind:z.enum(['news','newsletter'])}).strict().parse(body),actor=await workspaceActor(request.headers),hash=secureCodeHash('channel',input.operationId,JSON.stringify(input));
  return sqlClient().begin(async tx=>{
-  await workspaceLocks(tx);const p=await freshActor(tx,actor);requireWrite(p,'sponsors');
+  await workspaceLocks(tx);const p=await freshActor(tx,actor);requireWrite(p,'sponsors','create');
   const [existing]=await tx`select * from cms_domain_operations where id=${input.operationId}::uuid`;
   if(existing){if(existing.actor_id!==p.id||existing.request_hash!==hash)throw new CmsError('conflict','Dit verzoeknummer is al gebruikt.',409);return existing.result;}
   const [company]=await tx`select data from cms_sponsor_companies where id=${input.companyId}`;
@@ -27,7 +28,7 @@ export async function sponsorChannelDraft(request:Request,body:unknown){
   }else{
    const state=emptyState();const [settings]=await tx`select data from cms_newsletter_resources where id='newsletter-settings'`;
    if(settings)state.newsletter={campaigns:[],audiences:[],contacts:[],logs:[],settings:settings.data};
-   const campaign=createCampaign(state);id=campaign.id;campaign.name=('Sponsoruitlichting · '+profile.name).slice(0,250);campaign.subject=title;campaign.preheader='Onze partners. Onze club. Onze trots.';campaign.audienceIds=[];campaign.status='draft';campaign.blocks=[{id:crypto.randomUUID(),type:'text',body:textDoc([intro])}];
+   const campaign=createCampaign(state);id=campaign.id;campaign.name=('Sponsoruitlichting · '+profile.name).slice(0,250);campaign.subject=title;campaign.preheader='Onze partners. Onze club. Onze trots.';campaign.audienceIds=[];campaign.status='draft';const destination=profile.website||new URL('/clubmuur/club/sponsoren#'+encodeURIComponent(input.companyId),env().APP_BASE_URL).href;campaign.blocks=[...(profile.logoUrl?[{id:crypto.randomUUID(),type:'image' as const,imageUrl:new URL(profile.logoUrl,env().APP_BASE_URL).href,imageAlt:'Logo '+profile.name,url:destination}]:[]),{id:crypto.randomUUID(),type:'text',body:textDoc([intro])},{id:crypto.randomUUID(),type:'button',title:'Maak kennis met '+profile.name,url:destination}];
    const parsed=newsletterSchema.shape.campaigns.parse([campaign])[0];await saveNewsletterResource(tx,id,'campaign',parsed,0);
   }
   await tx`insert into cms_audit(id,actor_id,action,record_id,request_id,metadata) values (${crypto.randomUUID()},${p.id},'sponsor-editorial-draft',${id},${input.operationId},${tx.json({kind:input.kind,sponsorId:input.companyId})})`;

@@ -212,3 +212,23 @@ BEGIN
 END $body$;
 CREATE TRIGGER sponsor_final_file_immutable BEFORE UPDATE OR DELETE ON cms_sponsor_files FOR EACH ROW EXECUTE FUNCTION cms_preserve_final_sponsor_file();
 REVOKE ALL ON FUNCTION cms_preserve_final_sponsor_file() FROM PUBLIC,anon,authenticated,service_role;
+
+--> statement-breakpoint
+-- BACKWARD-COMPATIBLE CANONICAL IDENTITY GUARD
+-- A still-running/rolled-back older image used to rebuild this table from
+-- website JSON. Only explicit registry bindings may replace a backend link.
+CREATE FUNCTION cms_protect_canonical_account_link() RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog,public AS $body$
+BEGIN
+ IF current_user='duindorp_app' AND current_setting('duindorp.canonical_account_write',true) IS DISTINCT FROM 'register' THEN
+  RAISE EXCEPTION 'Wijzig centrale accountkoppelingen uitsluitend via Personen & gebruikers';
+ END IF;
+ RETURN CASE WHEN TG_OP='DELETE' THEN OLD ELSE NEW END;
+END $body$;
+CREATE TRIGGER canonical_account_link_protected BEFORE UPDATE OR DELETE ON cms_person_accounts FOR EACH ROW EXECUTE FUNCTION cms_protect_canonical_account_link();
+REVOKE ALL ON FUNCTION cms_protect_canonical_account_link() FROM PUBLIC,anon,authenticated,service_role;
+DO $compatibility$
+BEGIN
+ IF EXISTS(SELECT 1 FROM pg_roles WHERE rolname='duindorp_app') AND NOT EXISTS(SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='cms_person_accounts' AND policyname='duindorp_backend') THEN
+  CREATE POLICY duindorp_backend ON public.cms_person_accounts TO duindorp_app USING(true) WITH CHECK(true);
+ END IF;
+END $compatibility$;

@@ -24,6 +24,8 @@ Lijsten beginnen met 25 resultaten; 50 en 100 zijn mogelijk. Het personenregiste
 - **Websitepersonen (`people`)** blijven onder de bestaande bewerk- en publicatieregels vallen. Een private registerwijziging publiceert niets. Gepubliceerde contactgegevens wijzigen vereist ook de bestaande personen- en publicatierechten.
 - **Portaalgebruiker** ziet uitsluitend zichzelf en expliciet goedgekeurde relaties. Een functie of commissielidmaatschap verleent geen backofficerechten.
 
+De bestaande acties Toevoegen, Bewerken, Verwijderen en Publiceren worden ook hier op de server afgedwongen. Beheren omvat alle handelingen binnen de module; clubondertekening en sponsorinstellingen vereisen Beheren. Een rol met alleen toevoegrechten kan bestaande dossiers niet overschrijven of publiceren.
+
 Bedrijfsrollen gelden afzonderlijk per bedrijf:
 
 | Bedrijfsrol | Mogelijkheden |
@@ -87,7 +89,7 @@ Herinneringen draaien elke vijf minuten in de bestaande worker, ook zonder ingel
 
 Supabase openbare registratie blijft uit; e-mailprovider aan, OTP-lengte 8 en geldigheid 600 seconden. De server genereert/verifieert de code met Supabase en verstuurt de clubtemplate via Resend. Voor sponsorcommissie-mail en voorwaarden: Sponsoring → Instellingen. Bestaande secrets blijven uitsluitend in GitHub `production` en de private runtime-configuratie.
 
-Migratie `0020_sponsor_directory.sql` breidt de bestaande `cms_person_accounts` uit en voegt private register-/sponsortabellen toe. Zij controleert conflicterende bestaande koppelingen, bewaart bestaande ID's en verstuurt niets. RLS staat aan; `anon`, `authenticated` en `service_role` hebben geen Data API-toegang tot deze tabellen. De bestaande provisioning verleent alleen het beperkte backendaccount toegang. Originele documentbytes, bewijsrecords, factuurbedragen en definitieve PDF-metadata zijn beschermd tegen overschrijven.
+Migratie `0020_sponsor_directory.sql` breidt de bestaande `cms_person_accounts` uit en voegt private register-/sponsortabellen toe. Zij controleert conflicterende bestaande koppelingen, bewaart bestaande ID's en verstuurt niets. RLS staat aan; `anon`, `authenticated` en `service_role` hebben geen Data API-toegang tot deze tabellen. De bestaande provisioning verleent alleen het beperkte backendaccount toegang. Een databaseguard verhindert dat een nog draaiende of teruggezette oudere applicatie de centrale accountkoppelingen opnieuw opbouwt uit websiteprofielen; alleen expliciete registerhandelingen kunnen een koppeling vervangen. Originele documentbytes, bewijsrecords, factuurbedragen en definitieve PDF-metadata zijn beschermd tegen overschrijven.
 
 Voor een later expliciet goedgekeurde uitrol:
 

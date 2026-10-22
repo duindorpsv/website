@@ -100,8 +100,10 @@ export async function persistDomainStore(tx:any,p:Principal,before:DomainStore,s
  for(const account of state.members){
   const old=original.members.find(m=>m.id===account.id);if(!old)throw new CmsError('validation','Nieuwe accounts ontstaan uitsluitend via e-mailverificatie.',422);
   if(account.personId!==old.personId&&account.personId){
+   await tx`select set_config('duindorp.canonical_account_write','register',true)`;
    await tx`delete from cms_person_accounts where user_id=${account.id}`;
    await tx`insert into cms_person_accounts(person_id,user_id) values (${account.personId},${account.id})`;
+   await tx`select set_config('duindorp.canonical_account_write','',true)`;
   }
   if(account.name!==old.name)await tx`update auth_user set name=${account.name},updated_at=now() where id=${account.id}`;
   if(account.active!==old.active){

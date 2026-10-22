@@ -14,8 +14,8 @@ export type Versions=Record<string,number>;
 export type DomainStore={state:CmsState;versions:Versions;people:Map<string,any>;profiles:Map<string,any>;records:Map<string,any>;accounts:Map<string,any>};
 export type WorkspaceQuery={mode:'directory'|'sponsorship'|'portal'|'accounts';companyId:string;personId:string;search:string;feature:string;source:string;account:string;page:number;pageSize:number};
 export const globalRight=(p:Principal,module:string,action='read')=>!p.teamScoped&&has(p,module,action);
-export const fullDirectory=(p:Principal)=>globalRight(p,'directory')||globalRight(p,'users','manage');
-export const sponsorStaff=(p:Principal)=>globalRight(p,'sponsors');
+export const fullDirectory=(p:Principal)=>globalRight(p,'directory')||globalRight(p,'directory','manage')||globalRight(p,'users','manage');
+export const sponsorStaff=(p:Principal)=>globalRight(p,'sponsors')||globalRight(p,'sponsors','manage');
 const iso=(value:any)=>value?new Date(value).toISOString():'';
 const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const rights:Permission[]=['news','stories','pages','media','people','forms','settings','users','directory','sponsors'];
@@ -48,7 +48,7 @@ export async function readDomainStore(tx:any,p:Principal,options:{peopleIds?:str
  state.sponsorship.sponsors=companies.map((r:any)=>isStaff&&!options.portal||options.portal&&r.id===options.companyId?{...r.data,id:r.id}:minimalCompany(r));
  for(const row of companies)versions['company:'+row.id]=row.version;
  const members=await tx`select u.id,u.name,u.email,u.email_verified,u.banned,u.supabase_user_id,m.role_id,m.active,a.person_id from auth_user u join cms_memberships m on m.user_id=u.id left join cms_person_accounts a on a.user_id=u.id
-  where ${isDirectory&&!options.portal?tx`true`:tx`u.id=${p.id} or ${isStaff&&!options.portal?tx`exists(select 1 from cms_sponsor_memberships sm where sm.user_id=u.id) or exists(select 1 from cms_grants g join cms_roles r on r.id=g.role_id where g.role_id=m.role_id and r.team_scoped=false and g.module in ('sponsors','*') and g.action in ('read','*'))`:tx`false`}`}`;
+  where ${isDirectory&&!options.portal?tx`true`:tx`u.id=${p.id} or ${isStaff&&!options.portal?tx`exists(select 1 from cms_sponsor_memberships sm where sm.user_id=u.id) or exists(select 1 from cms_grants g join cms_roles r on r.id=g.role_id where g.role_id=m.role_id and r.team_scoped=false and g.module in ('sponsors','*') and g.action in ('read','manage','*'))`:tx`false`}`}`;
  const accounts=new Map<string,any>();
  state.members=members.map((r:any):CmsMember=>{accounts.set(r.id,r);return{id:r.id,name:r.name,email:r.email,roleId:r.role_id,active:r.active&&!r.banned,teamIds:[],personId:r.person_id||undefined,verifiedEmailAt:r.email_verified?'verified':undefined};});
  (state as CmsState & {sponsorStaffOptions:{id:string;name:string;active:boolean}[]}).sponsorStaffOptions=state.members.filter(m=>m.active&&state.roles.find(r=>r.id===m.roleId)?.teamScoped===false&&grantRows.some((g:any)=>g.role_id===m.roleId&&['sponsors','*'].includes(g.module)&&['*','create','update','manage'].includes(g.action))).map(({id,name,active})=>({id,name,active}));

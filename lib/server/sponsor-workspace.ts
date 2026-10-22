@@ -16,7 +16,7 @@ export async function workspaceRead(request:Request,portal=false){
   const projection=portal?portalProjection(store,p,q.companyId):staffProjection(store,p,q.mode);
   const [revision]=await tx`select version from cms_domain_revision where id=true`;
   const read=portal?await tx`select reference_id from cms_sponsor_notification_reads where user_id=${p.id}`:[];
-  const abilities=Object.fromEntries(['users','people','directory','sponsors'].map(module=>[module,!p.teamScoped&&p.grants.some(g=>(g.module==='*'||g.module===module)&&(module==='users'?['*','manage']:['*','update','create','manage']).includes(g.action))]));
+  const abilities=Object.fromEntries(['users','people','directory','sponsors'].map(module=>[module,!p.teamScoped&&p.grants.some(g=>(g.module==='*'||g.module===module)&&(module==='users'?['*','manage']:['*','update','create','delete','publish','manage']).includes(g.action))]));
   return {...projection,abilities,personal:'personal' in projection?projection.personal:undefined,notificationReadIds:read.map(r=>r.reference_id),listing,revision:String(revision.version),context:contextFingerprint(p,store)};
  });
 }

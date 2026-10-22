@@ -1,7 +1,7 @@
 'use client';
 import {createContext,useCallback,useContext,useEffect,useRef,useState,type ReactNode} from 'react';
 import type {CmsState,CmsMember,Permission} from '@/lib/cms/types';
-import {captureDomainCommands,domainCommandVersionKey} from '@/lib/cms/domain-commands';
+import {captureDomainCommands} from '@/lib/cms/domain-commands';
 import type {WorkspaceQuery} from '@/lib/server/sponsor-store';
 import type {DirectoryPortalProjection} from '@/lib/cms/directory-types';
 type Listing={listingIds:string[];total:number;page:number;pageSize:number;stats:{total:number;active:number;pending:number;without_account:number}};
@@ -38,9 +38,9 @@ export function SponsorWorkspaceProvider({children,mode='directory',companyId=''
    const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},signal,body:JSON.stringify({operationId,mode:queryRef.current.mode,companyId:queryRef.current.companyId,versions:{...start.versions,...editVersions.current},commands})}),result=await response.json();
    if(!response.ok||result.ok===false)throw new Error(result.message||'Opslaan is mislukt.');if(signal.aborted)return false;
    await reload();if(signal.aborted)return false;
-   // Re-arm only this save's edited resources at their committed version. Other
-   // open drafts keep their original anchors and still detect external edits.
-   for(const command of commands){const key=domainCommandVersionKey(command.name,command.args);if(key)editVersions.current[key]=current.current?.versions[key]||0;if(command.name==='saveDirectoryPerson'){const profileKey='profile:'+(command.args[0] as {person:{id:string}}).person.id;editVersions.current[profileKey]=current.current?.versions[profileKey]||0;}}
+   // A reload may already contain a newer edit from another person. Anchor
+   // this editor to exactly our committed versions, rather than that later read.
+   for(const [key,version] of Object.entries(result.versions||{}))editVersions.current[key]=version as number;
    if(message)notify(message);return true;
   }catch(e){if(!signal.aborted){const message=e instanceof Error?e.message:'Opslaan is mislukt.';setError(message);notify(message);}return false;}finally{busy.current=false;setSaving(false);}
  },[endpoint,reload]);

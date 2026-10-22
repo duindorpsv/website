@@ -17,7 +17,7 @@ export async function freshActor(tx:any,actor:WorkspaceActor){
  if(!valid)throw new CmsError('unauthenticated','Je toegang is gewijzigd. Log opnieuw in.',401);
  return p;
 }
-export function requireWrite(p:Principal,module:string){if(p.teamScoped||!['create','update','manage','*'].some(action=>has(p,module,action)))throw new CmsError('forbidden','Je hebt geen rechten om dit onderdeel te wijzigen.',403);}
+export function requireWrite(p:Principal,module:string,action?:'create'|'update'|'delete'|'publish'|'manage'){const allowed=action?(has(p,module,action)||has(p,module,'manage')):['create','update','manage','*'].some(value=>has(p,module,value));if(p.teamScoped||!allowed)throw new CmsError('forbidden','Je hebt geen rechten voor deze handeling.',403);}
 export function signingEmail(actor:WorkspaceActor,p:Principal){
  if(!actor.session.user.providerEmail||actor.session.user.providerEmail.toLowerCase()!==p.email.toLowerCase())throw new CmsError('email-changed','Je inlogadres is gewijzigd. Laat gebruikersbeheer dit controleren en log opnieuw in.',409);
  return p.email.toLowerCase();

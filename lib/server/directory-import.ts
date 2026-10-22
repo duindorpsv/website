@@ -38,6 +38,7 @@ export async function directoryImportAction(request:Request,body:unknown){
   if(preview.result.applied)return {ok:true,counts:preview.result.counts};
   const rows=z.array(row).parse(preview.result.rows);
   for(const r of rows){const old=before.state.people.find(p=>p.sportlinkId===r.sportlinkId);if(old){requireVersion(preview.result.versions,before.versions,'person:'+old.id);requireVersion(preview.result.versions,before.versions,'profile:'+old.id);}}
+  if(!globalRight(p,'users','manage'))for(const row of rows)requireWrite(p,'directory',before.state.people.some(person=>person.sportlinkId===row.sportlinkId)?'update':'create');
   const state=structuredClone(before.state),counts=withDomainIds(input.previewId,0,()=>importDirectoryPeople(state,p.id,rows));
   for(const person of state.people){const old=before.state.people.find(value=>value.id===person.id);if(old?.published&&JSON.stringify(old)!==JSON.stringify(person)&&(!globalRight(p,'people','update')||!globalRight(p,'people','publish')))throw new CmsError('forbidden','Voor het wijzigen van gepubliceerde contactpersonen zijn bewerk- en publicatierechten nodig.',403);} 
   await persistDomainStore(tx,p,before,state,input.previewId);

@@ -22,7 +22,7 @@ async function fileAccess(tx:any,p:Principal,sponsorId:string,kind:string){
 }
 export async function sponsorUpload(request:Request,sponsorId:string){
  verifyOrigin(request);const actor=await workspaceActor(request.headers),p=actor.p;
- const sql=sqlClient();await fileAccess(sql,p,sponsorId,'material');if(sponsorStaff(p))requireWrite(p,'sponsors');
+ const sql=sqlClient();await fileAccess(sql,p,sponsorId,'material');if(sponsorStaff(p))requireWrite(p,'sponsors','create');
  const bytes=await bodyBytes(request,15*1024*1024);if(!bytes.length)throw new CmsError('upload-empty','Kies een bestand.',422);
  const mime=request.headers.get('content-type')?.split(';')[0]||'',name=(request.headers.get('x-file-name')||'materiaal').replace(/[^\p{L}\p{N} ._()-]/gu,'').slice(0,150)||'materiaal';
  let data:Uint8Array=bytes,type=mime;
@@ -31,7 +31,7 @@ export async function sponsorUpload(request:Request,sponsorId:string){
  }else if(mime!=='application/pdf'||Buffer.from(bytes.subarray(0,5)).toString()!=='%PDF-')throw new CmsError('upload-type','Gebruik PNG, JPG, WebP of PDF.',422);
  const id=randomUUID(),key='sponsorship/'+digestText(sponsorId)+'/materials/'+id+(type==='image/webp'?'.webp':'.pdf');
  await putObject(key,data,type);
- try{await sql.begin(async tx=>{await workspaceLocks(tx);const current=await freshActor(tx,actor);await fileAccess(tx,current,sponsorId,'material');if(sponsorStaff(current))requireWrite(current,'sponsors');await tx`insert into cms_sponsor_files(id,sponsor_id,kind,storage_key,file_hash,bytes,mime,name,created_by) values (${id},${sponsorId},'material',${key},${binaryHash(data)},${data.length},${type},${name},${p.id})`;});}
+ try{await sql.begin(async tx=>{await workspaceLocks(tx);const current=await freshActor(tx,actor);await fileAccess(tx,current,sponsorId,'material');if(sponsorStaff(current))requireWrite(current,'sponsors','create');await tx`insert into cms_sponsor_files(id,sponsor_id,kind,storage_key,file_hash,bytes,mime,name,created_by) values (${id},${sponsorId},'material',${key},${binaryHash(data)},${data.length},${type},${name},${p.id})`;});}
  catch(error){await deleteObject(key);throw error;}
  return {id,url:'/api/sponsorship/files/'+id,name,mime:type};
 }

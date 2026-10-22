@@ -18,7 +18,7 @@ async function recipients(tx:any,state:CmsState,reminder:SponsorReminder){
  const agreement=state.sponsorship!.agreements.find(a=>a.id===reminder.referenceId),task=state.sponsorship!.tasks.find(t=>t.id===reminder.referenceId);
  const staff=reminder.kind==='task'||reminder.kind==='renewal'||agreement?.status==='awaiting-club-signature';
  if(staff){
-  const rows=await tx`select u.id,u.email from auth_user u join cms_memberships m on m.user_id=u.id join cms_roles r on r.id=m.role_id where m.active and not coalesce(u.banned,false) and not r.team_scoped and exists(select 1 from cms_grants g where g.role_id=m.role_id and g.module in ('sponsors','*') and g.action in ('read','*'))`;
+  const rows=await tx`select u.id,u.email from auth_user u join cms_memberships m on m.user_id=u.id join cms_roles r on r.id=m.role_id where m.active and not coalesce(u.banned,false) and not r.team_scoped and exists(select 1 from cms_grants g where g.role_id=m.role_id and g.module in ('sponsors','*') and g.action in ('read','manage','*'))`;
   const owner=task?.ownerId||state.sponsorship!.sponsors.find(s=>s.id===reminder.sponsorId)?.ownerId;return owner&&rows.some((r:any)=>r.id===owner)?rows.filter((r:any)=>r.id===owner):rows;
  }
  const role=reminder.kind==='invoice'?'billing':'signer';

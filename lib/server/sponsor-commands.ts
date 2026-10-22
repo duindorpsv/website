@@ -19,16 +19,30 @@ const directoryCommands=new Set(['saveDirectoryPerson','bindDirectoryAccount','s
 type PreparedMail={to:string;subject:string;text:string;id:string;kind:'invitation'|'signature';link?:{label:string;href:string}};
 const failOtp=()=>new CmsError('otp-invalid','De ondertekeningscode is ongeldig of verlopen. Vraag zo nodig een nieuwe code aan.',422);
 function asError(error:unknown):never{if(error instanceof CmsError)throw error;throw new CmsError('validation',error instanceof Error?error.message:'Controleer de ingevoerde gegevens.',422);}
-function checkCommandRight(p:WorkspaceActor['p'],mode:string,name:string){
+function commandAction(name:string,args:any[],before?:DomainStore):'create'|'update'|'delete'|'publish'|'manage'{
+ if(['tryCountersignSponsorAgreement','saveSponsorSettings'].includes(name)||name==='requestSponsorSigningCode'&&args[1]==='club')return 'manage';
+ if(name==='approveSponsorProfile')return 'publish';
+ if(['removeDirectoryAssignment','revokeDirectoryInvitation','removeSponsorMembership','removeSponsorContractTemplate'].includes(name))return 'delete';
+ if(name==='saveDirectoryPerson')return before?.people.has(args[0].person.id)?'update':'create';
+ if(name==='saveSponsor')return before?.state.sponsorship!.sponsors.some(value=>value.id===args[0].id)?'update':'create';
+ if(name==='saveDirectoryAssignment')return before?.state.directory!.assignments.some(value=>value.id===args[0].id)?'update':'create';
+ if(name==='saveDirectoryGuardian')return before?.state.directory!.guardians.some(value=>value.id===args[0].id)?'update':'create';
+ if(['saveSponsorItem','saveSponsorPackage','saveSponsorContractTemplate','saveSponsorEvent'].includes(name))return before?.records.has(args[0].id)?'update':'create';
+ if(name.startsWith('create')||['addSponsorNote','renewSponsorAgreement','logSponsorReminder','requestSponsorSigningCode'].includes(name))return 'create';
+ return 'update';
+}
+function checkCommandRight(p:WorkspaceActor['p'],mode:string,name:string,args:any[]=[],before?:DomainStore){
  if(mode==='portal'){if(!portalCommands.has(name))throw new CmsError('forbidden','Deze handeling is niet beschikbaar in het portaal.',403);return;}
  if(portalCommands.has(name)&&!['requestSponsorSigningCode'].includes(name)&&name!=='requestDirectoryGuardian')throw new CmsError('forbidden','Gebruik je eigen bedrijfsportaal voor deze handeling.',403);
  if(['saveMembership','removeSponsorMembership'].includes(name)&&globalRight(p,'users','manage'))return;
  if(directoryCommands.has(name)){
-  if(['bindDirectoryAccount','setDirectoryAccountActive'].includes(name)){if(!globalRight(p,'users','manage'))throw new CmsError('forbidden','Alleen gebruikersbeheer kan accounts wijzigen.',403);}
-  else if(['saveDirectoryPerson','createDirectoryInvitation','revokeDirectoryInvitation'].includes(name)){if(!fullDirectory(p))requireWrite(p,'sponsors');else if(!globalRight(p,'users','manage'))requireWrite(p,'directory');}
-  else if(!globalRight(p,'users','manage'))requireWrite(p,'directory');
- }else requireWrite(p,'sponsors');
+  if(['bindDirectoryAccount','setDirectoryAccountActive'].includes(name)){if(!globalRight(p,'users','manage'))throw new CmsError('forbidden','Alleen gebruikersbeheer kan accounts wijzigen.',403);return;}
+  if(globalRight(p,'users','manage'))return;
+  const contact=['saveDirectoryPerson','createDirectoryInvitation','revokeDirectoryInvitation'].includes(name),module=contact&&!fullDirectory(p)?'sponsors':'directory';
+  requireWrite(p,module,commandAction(name,args,before));
+ }else requireWrite(p,'sponsors',commandAction(name,args,before));
 }
+
 function assertPortalCompany(before:DomainStore,companyId:string,name:string,args:any[]){
  if(name==='requestDirectoryGuardian')return;
  if(!companyId||!before.state.sponsorship!.memberships.some(m=>m.sponsorId===companyId)){
@@ -40,6 +54,13 @@ function assertPortalCompany(before:DomainStore,companyId:string,name:string,arg
  if(actual!==companyId||name==='requestSponsorSigningCode'&&args[1]!=='sponsor')throw new CmsError('forbidden','Deze handeling hoort niet bij het gekozen sponsorbedrijf.',403);
 }
 
+async function committedVersions(tx:any,commands:{name:string;args:any[]}[],before:DomainStore){
+ const keys=new Set(commands.map(command=>domainCommandVersionKey(command.name,command.args)).filter(Boolean));
+ for(const command of commands){if(command.name==='saveDirectoryPerson')keys.add('profile:'+command.args[0].person.id);if(command.name==='bindDirectoryAccount'){for(const id of [command.args[0],before.accounts.get(command.args[1])?.person_id].filter(Boolean)){keys.add('person:'+id);keys.add('profile:'+id);}}}
+ const tables:Record<string,[string,string]>={person:['cms_records','id'],profile:['cms_directory_profiles','person_id'],company:['cms_sponsor_companies','id'],record:['cms_sponsor_records','id'],membership:['cms_sponsor_memberships','id'],guardian:['cms_directory_guardians','id'],assignment:['cms_directory_assignments','id']},versions:Record<string,number>={};
+ for(const key of keys){const separator=key.indexOf(':'),definition=tables[key.slice(0,separator)];if(!definition)continue;const [row]=await tx`select version from ${tx(definition[0])} where ${tx(definition[1])}=${key.slice(separator+1)}`;versions[key]=row?.version||0;}
+ return versions;
+}
 async function existingOperation(id:string,actorId:string,hash:string){const [old]=await sqlClient()`select * from cms_domain_operations where id=${id}::uuid`;if(!old)return null;if(old.actor_id!==actorId||old.request_hash!==hash)throw new CmsError('operation-conflict','Dit verzoeknummer is al gebruikt.',409);if(old.result.mailStatus==='prepared')throw new CmsError('mail-pending','De mailaanvraag is nog niet bevestigd. Vernieuw het scherm; vraag zo nodig een nieuwe uitnodiging of code aan.',409);if(old.result.mailStatus==='failed')throw new CmsError('mail-failed','De e-mail kon niet worden bevestigd. Vraag een nieuwe link of code aan.',503);return old.result;}
 export async function workspaceCommands(request:Request,value:unknown,portal=false){
  const input=commandEnvelope.parse(value);if((input.mode==='portal')!==portal)throw new CmsError('forbidden','Deze werkplek is niet beschikbaar.',403);
@@ -74,7 +95,7 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
    for(const r of rows){if((state.sponsorship as any)[r.kind].some((v:any)=>v.id===r.id))continue;(state.sponsorship as any)[r.kind].push({...r.data,id:r.id});extraIds.add(r.id);}
   }
   for(const command of commands){
-   const {name,args,offset}=command;checkCommandRight(p,input.mode,name);if(portal){assertPortalCompany(before,input.companyId,name,args);
+   const {name,args,offset}=command;checkCommandRight(p,input.mode,name,args,before);if(portal){assertPortalCompany(before,input.companyId,name,args);
     const roles=state.sponsorship!.memberships.find(m=>m.userId===p.id&&m.sponsorId===input.companyId)?.roles||[];
     const wanted=['acceptSponsorProposal','requestSponsorSigningCode','trySignSponsorAgreement'].includes(name)?['signer']:name==='requestSponsorBusinessChange'?['signer','billing']:['requestSponsorProfile','saveSponsorMaterial'].includes(name)?['marketing']:[];
     if(wanted.length&&!roles.some(r=>wanted.includes(r)))throw new CmsError('forbidden','Je hebt niet de benodigde bedrijfsrol.',403);
@@ -87,6 +108,10 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
    const key=domainCommandVersionKey(name,args);if(key)requireVersion(input.versions,before.versions,key);
    if(name==='saveDirectoryGuardian'){
     const value=args[0],old=state.directory!.guardians.find(g=>g.id===value.id);value.requestedBy=old?.requestedBy||p.id;value.requestedAt=old?.requestedAt||new Date().toISOString();
+   }
+   if(name==='saveSponsor'){
+    const value=args[0],old=before.state.sponsorship!.sponsors.find(company=>company.id===value.id),profileKeys=['name','description','website','logoUrl'] as const;
+    if((old?.publicEnabled||false)!==value.publicEnabled||value.publicEnabled&&(!old||old.publicFrom!==value.publicFrom||old.publicUntil!==value.publicUntil||profileKeys.some(key=>old.publicProfile[key]!==value.publicProfile[key])))requireWrite(p,'sponsors','publish');
    }
    if(name==='saveDirectoryPerson'){
     requireVersion(input.versions,before.versions,'profile:'+args[0].person.id);
@@ -142,7 +167,7 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
   }
   await persistDomainStore(tx,p,before,state,input.operationId);
   for(const a of state.sponsorship!.agreements)if(a.status==='signed'&&before.state.sponsorship!.agreements.find(v=>v.id===a.id)?.status!=='signed')await tx`insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${'sponsor-pdf-'+a.id},'sponsor-final-pdf',${tx.json({agreementId:a.id,actorId:p.id})}) on conflict(operation_id) do nothing`;
-  const response={ok:true,mailStatus:mails.length?'prepared':'none'};
+  const response={ok:true,mailStatus:mails.length?'prepared':'none',versions:await committedVersions(tx,commands,before)};
   await tx`insert into cms_domain_operations(id,actor_id,request_hash,result) values (${input.operationId}::uuid,${p.id},${hash},${tx.json(response)})`;
   return response;
  });
