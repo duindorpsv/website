@@ -4,7 +4,8 @@ import {ArrowLeft,ArrowRight,Check,Clock3,LoaderCircle,Mail,RotateCw,ShieldCheck
 import {authClient} from '@/lib/auth-client';
 import styles from './login.module.css';
 
-export function Login(){
+export function Login({destination='/beheer'}:{destination?:'/beheer'|'/portaal'|'/sponsorportaal'}){
+ const portal=destination!=='/beheer';
  const [email,setEmail]=useState(''),[code,setCode]=useState(''),[sent,setSent]=useState(false),[message,setMessage]=useState(''),[hasError,setHasError]=useState(false),[busy,setBusy]=useState(false),[wait,setWait]=useState(0);
  useEffect(()=>{if(wait<=0)return;const timer=setTimeout(()=>setWait(wait-1),1000);return()=>clearTimeout(timer);},[wait]);
  async function requestCode(){
@@ -14,13 +15,13 @@ export function Login(){
  }
  async function submit(event:FormEvent){
   event.preventDefault();if(!sent)return requestCode();setBusy(true);setMessage('');setHasError(false);
-  try{const result=await authClient.verifyEmailCode({email,code});if(result.error)throw new Error(result.error.message);location.assign('/beheer');}
+  try{const result=await authClient.verifyEmailCode({email,code});if(result.error)throw new Error(result.error.message);location.assign(destination);}
   catch(error){setHasError(true);setMessage(error instanceof Error?error.message:'Inloggen is niet gelukt.');setCode('');}finally{setBusy(false);}
  }
  return <main className={styles.page}>
   <div className={styles.topbar}>
    <a href="/" className={styles.backLink}><ArrowLeft size={16} aria-hidden="true"/>Terug naar de website</a>
-   <span className={styles.topbarLabel}>CLUBBEHEER</span>
+   <span className={styles.topbarLabel}>{portal?'MIJN DUINDORP':'CLUBBEHEER'}</span>
   </div>
   <div className={styles.shell}>
    <section className={styles.clubPanel} aria-label="Duindorp SV">
@@ -39,9 +40,9 @@ export function Login(){
    <section className={styles.formPanel} aria-labelledby="login-title">
     <div className={styles.formContent}>
      <div className={styles.mailIcon} aria-hidden="true"><Mail size={25} strokeWidth={1.7}/></div>
-     <p className={styles.eyebrow}>WELKOM BIJ CLUBBEHEER</p>
+     <p className={styles.eyebrow}>{portal?'WELKOM BIJ MIJN DUINDORP':'WELKOM BIJ CLUBBEHEER'}</p>
      <h1 id="login-title" className={styles.title}>{sent?'Check je e-mail.':'Welkom terug.'}</h1>
-     <p className={styles.intro}>{sent?'Vul de achtcijferige inlogcode in die je per e-mail ontvangt.':'Beheer wat onze club bijzonder maakt. Log eenvoudig in met een code per e-mail.'}</p>
+     <p className={styles.intro}>{sent?'Vul de achtcijferige inlogcode in die je per e-mail ontvangt.':portal?'Jouw club en sponsorafspraken op één plek. Log in met je persoonlijke e-mailadres.':'Beheer wat onze club bijzonder maakt. Log eenvoudig in met een code per e-mail.'}</p>
      <ol className={styles.steps} aria-label="Inlogstappen">
       <li className={sent?styles.completedStep:styles.activeStep} aria-current={!sent?'step':undefined}>
        <span>{sent?<Check size={13} aria-hidden="true"/>:1}</span>E-mailadres

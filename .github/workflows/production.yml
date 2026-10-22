@@ -10,6 +10,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   checks:
+    permissions:
+      contents: read
+      packages: write
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/ci.yml
   build:

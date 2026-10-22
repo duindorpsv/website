@@ -1,5 +1,7 @@
-import {readArchive,archiveResolve} from '@/lib/server/club-archive';
-import {loadState} from '@/lib/server/records';
+import {cache} from 'react';
+import {archiveResolve} from '@/lib/server/club-archive';
+import {loadPublicState,loadPublicArchive} from '@/lib/server/public-content';
+const publicState=cache(loadPublicState),publicArchive=cache(loadPublicArchive),archiveItem=cache(archiveResolve);
 import {sqlClient} from '@/db';
 import {permanentRedirect} from 'next/navigation';
 export const dynamic='force-dynamic';
@@ -12,10 +14,10 @@ import {HERO_VISIT_COOKIE,HERO_PHOTO_COOKIE,pickHeroLayout,pickHeroPhoto,resolve
 import {getHeroSelection} from '@/lib/cms/hero-portraits';
 export async function generateMetadata({params}:{params:Promise<{concept:string;view?:string[]}>}){
  const {concept,view}=await params;if(concept!=='clubmuur')return {};
- const path=clubPathFromSegments(view)||'home';const {state}=await loadState(true);
+ const path=clubPathFromSegments(view)||'home';const {state}=await publicState();
  const article=state.articles.find(a=>a.live&&`${a.live.contentType==='story'?'verhalen':'nieuws'}/${a.live.slug}`===path)?.live;
  const page=state.pages.find(p=>p.live?.slug===path)?.live;
- const archiveMatch=/^club\/(tijdlijn|museum)\/([^/]+)$/.exec(path),archive=archiveMatch?await archiveResolve(archiveMatch[1]==='museum'?'object':'moment',archiveMatch[2]):null;
+ const archiveMatch=/^club\/(tijdlijn|museum)\/([^/]+)$/.exec(path),archive=archiveMatch?await archiveItem(archiveMatch[1]==='museum'?'object':'moment',archiveMatch[2]):null;
  const live=article||page;const title=archive?.title||live?.seo.title||live?.title||clubContentTitles[path]||(path.startsWith('teams/')?'Teaminformatie':'Onze Trots');
  const description=archive?.intro||live?.seo.description||live?.intro||state.settings.siteDescription;
  const canonical=new URL(path==='home'?'/clubmuur':`/clubmuur/${path}`,process.env.APP_BASE_URL||'http://localhost:3000').href;
@@ -36,8 +38,8 @@ export default async function Page({ params,searchParams }: { params: Promise<{c
  if(concept!=='clubmuur')notFound();
  const archivePath=/^club\/(tijdlijn|museum)(?:\/|$)/.test(path);
  let archiveState;
- if(archivePath||path==='home'){archiveState=(await readArchive()).state;if(path.split('/').length===3){const item=await archiveResolve(path.startsWith('club/museum')?'object':'moment',path.split('/')[2]);if(!item)notFound();if(item.slug!==path.split('/')[2])permanentRedirect('/clubmuur/'+(path.startsWith('club/museum')?'club/museum/':'club/tijdlijn/')+item.slug);}}
- const {state}=await loadState(true);
+ if(archivePath||path==='home'){archiveState=await publicArchive();if(path.split('/').length===3){const item=await archiveItem(path.startsWith('club/museum')?'object':'moment',path.split('/')[2]);if(!item)notFound();if(item.slug!==path.split('/')[2])permanentRedirect('/clubmuur/'+(path.startsWith('club/museum')?'club/museum/':'club/tijdlijn/')+item.slug);}}
+ const {state}=await publicState();
  const known=state.pages.some(p=>p.live?.slug===path)||state.articles.some(a=>a.live&&`${a.live.contentType==='story'?'verhalen':'nieuws'}/${a.live.slug}`===path)||state.albums.some(a=>`media/fotos/${a.slug}`===path);
  if(!isClubPagePath(path)&&!known)notFound();
  if(/^(nieuws|verhalen)\//.test(path)&&!known)notFound();

@@ -1,4 +1,5 @@
 'use client';
+import {SponsorPublicPage} from './sponsor-public';
 import {ArchiveProvider} from './club-archive-provider';
 import {ClubArchivePage,ArchiveHomeWidget} from './club-archive';
 import {siteText} from '@/lib/cms/site-copy';
@@ -46,6 +47,7 @@ function CmsRoutedContent({path}:{path:string}){
  if(path==='nieuws')return <CmsNewsIndex/>;
  if(path==='verhalen')return <CmsStoriesIndex/>;
  if(path.startsWith('verhalen/'))return <CmsArticleView slug={path.slice('verhalen/'.length)} contentType="story"/>;
+ if(path==='club/sponsoren'||path==='club/word-sponsor')return <SponsorPublicPage enquiry={path==='club/word-sponsor'}/>;
  if(path==='media/fotos')return <CmsAlbumIndex/>;
  if(path.startsWith('media/fotos/'))return <CmsAlbumView slug={path.slice('media/fotos/'.length)}/>;
  const record=state.pages.find(page=>page.live?.slug===path)||state.pages.find(page=>page.slug===path);

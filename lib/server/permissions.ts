@@ -33,7 +33,7 @@ export async function principal(headers: Headers): Promise<Principal> {
 }
 /** Navigation uses these same grants as server authorization, including stories. */
 export function cmsPermissions(p:Principal):Permission[]{
- const modules:Permission[]=['news','stories','pages','media','people','forms','settings','users'];
+ const modules:Permission[]=['news','stories','pages','media','people','forms','settings','users','directory','sponsors'];
  const permissions=modules.filter(module=>p.grants.some(grant=>grant.module==='*'||grant.module===module||module==='forms'&&grant.module==='submissions'));
  if(p.grants.some(grant=>grant.action==='publish'||grant.action==='*'))permissions.push('publish');
  return permissions;

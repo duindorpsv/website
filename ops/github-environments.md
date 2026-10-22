@@ -70,3 +70,7 @@ De Environment staat alleen `main` toe. Als een reviewer is ingesteld, wacht de 
 ## Nieuwsbriefbeheer
 
 De campagne-module gebruikt dezelfde `RESEND_API_KEY`, `MAIL_FROM` en `APP_BASE_URL`; er zijn geen nieuwe verplichte GitHub secrets of variabelen. **Nieuwsbrieven → Instellingen → Koppelen via bestaande Resend-sleutel** maakt of hergebruikt de bezorgwebhook. Daarvoor moet de bestaande Resend-sleutel webhookbeheerrechten hebben. Een beperkte verzendsleutel kan wel mails aanbieden. De UI toont apart of bezorgmeldingen gekoppeld zijn; provideracceptatie wordt niet als bezorging gepresenteerd. Contacten en doelgroepen blijven in het eigen CMS, er zijn geen externe providerlijsten nodig. Zie [de beheerdershandleiding](newsletters.md) voor de eenmalige inrichting en echte testmailcontrole.
+
+## Sponsorportaal en centraal register
+
+Het sponsorportaal gebruikt dezelfde Supabase-sessies, Resend-sleutel en private Hetzner S3-bucket. Er zijn **geen nieuwe verplichte GitHub secrets of variabelen**, geen SMTP en geen stagingomgeving. Houd Supabase OTP op acht cijfers/600 seconden en publieke registratie uit. `SUPABASE_SECRET_KEY` blijft alleen server-side en beveiligt ook de afzonderlijke ondertekeningschallenges. Ontvangers, voorwaarden en herinneringsdagen worden bij Sponsoring → Instellingen beheerd. De bestaande backup moet de nieuwe private tabellen en bijbehorende S3-objecten meenemen. Zie [inrichting en beheer](sponsor-portal.md).

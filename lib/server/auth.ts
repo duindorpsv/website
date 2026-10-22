@@ -25,14 +25,20 @@ async function verified(client:SupabaseClient){
  const session=live.data?.[0];if(!session||Date.now()-new Date(session.created_at).getTime()>12*3600_000)return null;
  const [revoked]=await sql`select user_id from cms_auth_revocations where user_id=${profile.id} and invalid_before>=${session.created_at}`;
  if(revoked)return null;
- return {user:{id:String(profile.id),name:String(profile.name),email:String(profile.email)},session:{id:sessionId.data,createdAt:new Date(session.created_at).getTime()}};
+ return {user:{id:String(profile.id),name:String(profile.name),email:String(profile.email),providerEmail:user.data.user.email||''},session:{id:sessionId.data,createdAt:new Date(session.created_at).getTime()}};
 }
 async function createUser({body}:{body:{email:string;name:string;password:string;role?:string}}){
  const input=z.object({email:emailInput,name:z.string().min(1).max(120),password:z.string().min(12),role:z.string().optional()}).parse(body);
  const admin=supabaseAdmin(),result=await admin.auth.admin.createUser({email:input.email,password:input.password,email_confirm:true,user_metadata:{name:input.name}});
  if(result.error||!result.data.user)throw new CmsError('account-create','Het account kon niet worden aangemaakt.',422);
  const user=result.data.user,sql=sqlClient();
- try{await sql`insert into auth_user(id,supabase_user_id,name,email,email_verified,role) values (${user.id},${user.id}::uuid,${input.name},${user.email!},true,${input.role==='admin'?'admin':'user'})`;}
+ try{await sql.begin(async tx=>{
+  await tx`insert into auth_user(id,supabase_user_id,name,email,email_verified,role) values (${user.id},${user.id}::uuid,${input.name},${user.email!},true,${input.role==='admin'?'admin':'user'})`;
+  const personId='person-account-'+user.id;
+  await tx`insert into cms_records(id,module,title,draft,status) values (${personId},'people',${input.name},${tx.json({id:personId,name:input.name,role:'',group:'',teamId:'',bio:'',mediaId:'',email:user.email!,phone:'',showContact:false,published:false,order:0})},'draft')`;
+  await tx`insert into cms_person_accounts(person_id,user_id) values (${personId},${user.id})`;
+  await tx`insert into cms_directory_profiles(person_id,data) values (${personId},${tx.json({personId,birthDate:'',membership:'none',status:'active',labels:[],teamIds:[],address:'',postalCode:'',city:'',source:'account',sourceUpdatedAt:'',updatedAt:new Date().toISOString(),sponsorIds:[]})})`;
+ });}
  catch(error){await admin.auth.admin.deleteUser(user.id);throw error;}
  return {user:{id:user.id,email:user.email!,name:input.name}};
 }

@@ -25,7 +25,7 @@ test('all CMS modules keep navigation and account controls usable on a narrow sc
  test.setTimeout(120000);
  await loginWithEmailCode(page,owner.email);
  await page.setViewportSize({width:320,height:844});
- const modules=[['overzicht','Overzicht'],['nieuws','Nieuws'],['verhalen','Verhalen & columns'],['paginas','Pagina’s'],['personen','Personen'],['commissies','Commissies'],['media','Mediabibliotheek'],['albums','Fotoalbums'],['homepage','Homepage'],['trainingen','Trainingen'],['jaaragenda','Jaaragenda'],['locaties','Velden & ruimtes'],['reserveringen','Reserveringen'],['sportlink','Sportlink'],['navigatie','Navigatie'],['documenten','Documenten'],['formulieren','Formulieren & inbox'],['rollen','Gebruikers & rollen'],['instellingen','Instellingen & koppelingen'],['herstel','Prullenbak & back-up']];
+ const modules=[['overzicht','Overzicht'],['nieuws','Nieuws'],['verhalen','Verhalen & columns'],['paginas','Pagina’s'],['personen','Websiteprofielen'],['register','Personen & gebruikers'],['sponsoring','Sponsoring'],['commissies','Commissies'],['media','Mediabibliotheek'],['albums','Fotoalbums'],['homepage','Homepage'],['trainingen','Trainingen'],['jaaragenda','Jaaragenda'],['locaties','Velden & ruimtes'],['reserveringen','Reserveringen'],['sportlink','Sportlink'],['navigatie','Navigatie'],['documenten','Documenten'],['formulieren','Formulieren & inbox'],['rollen','Gebruikers & rollen'],['instellingen','Instellingen & koppelingen'],['herstel','Prullenbak & back-up']];
  for(const [id,label] of modules){
   await page.goto('/beheer#'+id);
   await expect(page.locator('.dd-breadcrumb>b')).toHaveText(label);

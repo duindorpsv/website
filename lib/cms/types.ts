@@ -1,7 +1,7 @@
 import type {JSONContent} from '@tiptap/react';
 export type CmsDoc = JSONContent;
 export type ContentStatus = 'draft'|'review'|'scheduled'|'published'|'archived';
-export type Permission = 'news'|'stories'|'pages'|'media'|'people'|'forms'|'settings'|'users'|'publish';
+export type Permission = 'news'|'stories'|'pages'|'media'|'people'|'forms'|'settings'|'users'|'directory'|'sponsors'|'publish';
 export type SEO = {title:string;description:string;noIndex:boolean};
 export type Revision<T> = {id:string;at:string;label:string;data:T};
 export type ContentType = 'news'|'story';
@@ -25,12 +25,12 @@ export type FormField = {id:string;label:string;type:FormFieldType;required:bool
 export type CmsForm = {id:string;published?:boolean;registrationPurpose?:'membership'|'activity'|'volunteer';consentVersion?:string;kind:FormKind;name:string;departmentId:string;active:boolean;retentionDays:number;fields:FormField[]};
 export type CmsSubmission = {id:string;kind:FormKind;formName:string;answers:FormAnswer[];formId:string;departmentId:string;name:string;email:string;message:string;createdAt:string;status:SubmissionStatus;note:string;demo:boolean};
 export type CmsRole = {id:string;name:string;description:string;permissions:Permission[];teamScoped:boolean};
-export type CmsMember = {id:string;name:string;email:string;roleId:string;teamIds:string[];active:boolean};
+export type CmsMember = {id:string;name:string;email:string;roleId:string;teamIds:string[];active:boolean;personId?:string;verifiedEmailAt?:string};
 export type CmsDocument = {id:string;title:string;url:string;category:string;published:boolean;deletedAt?:string};
 export type CmsSettings = {sponsors?:import('./site-sponsors').SiteSponsor[];siteCopy?:Partial<Record<import('./site-copy').SiteCopyKey,string>>;clubName:string;siteDescription:string;contactEmail:string;season:string;newsCategories:string[];teams:{id:string;name:string}[];homepageArticleIds:string[];homepageStoryIds:string[];homepageAlbumIds:string[];homepagePhotoIds:string[];homepageHeading:string;newsletterEnabled:boolean;newsletterLabel:string;socials:{label:string;url:string}[]};
 export type CmsAudit = {id:string;at:string;action:string;role:string};
 export type CmsRedirect = {from:string;to:string};
-export type CmsState = {newsletter?:import('./newsletter-types').NewsletterState;matchPreviews:CmsMatchPreview[];planning:CmsPlanning;appearance?:{heroSlider?:import('./hero-slider').CmsHeroSlider;heroPortraits?:import('./hero-portraits').HeroPortrait[];training?:import('../clubmuur-training').ClubTrainingRecord[];heroPhotos?:import('../clubmuur-layouts').HeroPhotoId[];agenda?:import('../club-agenda').ClubAgendaEvent[];hero?:import('../clubmuur-config').HeroCardConfig[];navigation?:import('../clubmuur-navigation').ClubNavigationItem[]};schemaVersion:1;articles:CmsArticle[];pages:CmsPage[];people:CmsPerson[];media:CmsMedia[];folders:CmsFolder[];albums:CmsAlbum[];departments:CmsDepartment[];forms:CmsForm[];submissions:CmsSubmission[];roles:CmsRole[];members:CmsMember[];documents:CmsDocument[];settings:CmsSettings;redirects:CmsRedirect[];audit:CmsAudit[]};
+export type CmsState = {publicSponsorCatalog?:{items:{id:string;name:string}[];packages:{id:string;name:string;description:string;itemIds:string[];priceCents:number}[]};publicSponsors?:{id:string;name:string;description:string;website:string;logoUrl:string}[];directory?:import('./directory-types').DirectoryState;sponsorship?:import('./sponsorship-types').SponsorshipState;directoryBootstrapVersion?:1;accountDirectoryVersion?:1;newsletter?:import('./newsletter-types').NewsletterState;matchPreviews:CmsMatchPreview[];planning:CmsPlanning;appearance?:{heroSlider?:import('./hero-slider').CmsHeroSlider;heroPortraits?:import('./hero-portraits').HeroPortrait[];training?:import('../clubmuur-training').ClubTrainingRecord[];heroPhotos?:import('../clubmuur-layouts').HeroPhotoId[];agenda?:import('../club-agenda').ClubAgendaEvent[];hero?:import('../clubmuur-config').HeroCardConfig[];navigation?:import('../clubmuur-navigation').ClubNavigationItem[]};schemaVersion:1;articles:CmsArticle[];pages:CmsPage[];people:CmsPerson[];media:CmsMedia[];folders:CmsFolder[];albums:CmsAlbum[];departments:CmsDepartment[];forms:CmsForm[];submissions:CmsSubmission[];roles:CmsRole[];members:CmsMember[];documents:CmsDocument[];settings:CmsSettings;redirects:CmsRedirect[];audit:CmsAudit[]};
 export type CmsCommand = {action:'save'|'publish'|'unpublish'|'trash'|'restore'|'schedule'|'cancelSchedule';scheduledAt?:string;expectedVersion?:number};
 export type CmsUpdate = (recipe:(draft:CmsState)=>void,action?:string,commands?:Record<string,CmsCommand>)=>Promise<boolean>;
 

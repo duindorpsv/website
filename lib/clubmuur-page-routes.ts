@@ -1,5 +1,5 @@
 export const clubContentPaths=[
- 'club/tijdlijn','club/museum','club','club/ons-verhaal','club/bestuur','club/commissies','club/jeugdorganisatie','club/vertrouwenspersoon',
+ 'club/tijdlijn','club/museum','club','club/sponsoren','club/word-sponsor','club/ons-verhaal','club/bestuur','club/commissies','club/jeugdorganisatie','club/vertrouwenspersoon',
  'club/accommodatie','club/lidmaatschap','club/vrijwilligers','club/clubwaarden','club/documenten','club/contact',
  'teams/trainingen','teams/walking-football',
  'wedstrijden/informatie','wedstrijden/afgelastingen','wedstrijden/oefenwedstrijd',
@@ -22,7 +22,7 @@ export function isClubContentPath(path:string){return /^club\/(tijdlijn|museum)\
 export function clubPageGroup(path:string):'club'|'teams'|'wedstrijden'|'nieuws'{const group=path.split('/')[0];return group==='media'||group==='nieuws'||group==='verhalen'?'nieuws':group==='teams'?'teams':group==='wedstrijden'?'wedstrijden':'club';}
 
 export const clubContentTitles:Record<string,string>={
- 'club/tijdlijn':'Clubarchief & tijdlijn','club/museum':'Clubmuseum','club':'Onze club','club/ons-verhaal':'Ons verhaal','club/bestuur':'Het bestuur','club/commissies':'Onze commissies','club/jeugdorganisatie':'Jeugdorganisatie','club/vertrouwenspersoon':'Vertrouwenspersoon',
+ 'club/sponsoren':'Onze sponsoren','club/word-sponsor':'Word sponsor','club/tijdlijn':'Clubarchief & tijdlijn','club/museum':'Clubmuseum','club':'Onze club','club/ons-verhaal':'Ons verhaal','club/bestuur':'Het bestuur','club/commissies':'Onze commissies','club/jeugdorganisatie':'Jeugdorganisatie','club/vertrouwenspersoon':'Vertrouwenspersoon',
  'club/accommodatie':'Accommodatie & route','club/lidmaatschap':'Lidmaatschap & kleding','club/vrijwilligers':'Vrijwilligers','club/clubwaarden':'Clubwaarden','club/documenten':'Clubdocumenten','club/contact':'Contact',
  'teams':'Onze teams','teams/trainingen':'Trainingstijden','teams/walking-football':'Walking Football','wedstrijden':'Wedstrijdcentrum','wedstrijden/informatie':'Wedstrijdinformatie','wedstrijden/afgelastingen':'Afgelastingen','wedstrijden/oefenwedstrijd':'Oefenwedstrijd aanvragen',
  'nieuws':'Nieuws','verhalen':'Verhalen & columns','media/fotos':'Foto’s van de club','media/club-tv':'Duindorp SV-TV','media/nieuwsbrief':'Nieuwsbrief',
