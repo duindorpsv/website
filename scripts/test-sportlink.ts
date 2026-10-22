@@ -5,7 +5,7 @@ import test from 'node:test';
 import type { SportlinkStanding } from '../lib/sportlink-types';
 
 // A URL import lets Node execute the TypeScript directly without changing the app tsconfig.
-const { centeredStandings, normalizeSportlink } = await import(new URL('../lib/sportlink-normalize.ts', import.meta.url).href) as typeof import('../lib/sportlink-normalize');
+const { centeredStandings, normalizeSportlink, withStandingOwnership } = await import(new URL('../lib/sportlink-normalize.ts', import.meta.url).href) as typeof import('../lib/sportlink-normalize');
 const now = new Date('2026-10-09T22:30:00Z');
 const team = { teamcode: 218380, lokaleteamcode: -1, teamnaam: 'Duindorp sv 1', poulecode: 826233, competitiesoort: 'regulier', klassepoule: '4e klasse C', geslacht: 'man', leeftijdscategorie: 'Senioren' };
 const standing = { positie: 5, teamnaam: 'Duindorp sv 1', clubrelatiecode: 'BBGV51U', eigenteam: 'true', gespeeldewedstrijden: 3, gewonnen: 2, gelijk: 0, verloren: 1, doelpuntenvoor: 7, doelpuntentegen: 8, doelsaldo: -1, punten: 6 };
@@ -27,6 +27,50 @@ test('teams are unique by both codes, retain all poules, and select the regular 
   assert.deepEqual(snapshot.firstTeam?.competitions.map(item => item.id), ['827204', '826233']);
   assert.equal(snapshot.competition?.id, '826233');
   assert.equal(snapshot.competition?.type, 'regulier');
+});
+
+test('a standing without teamcode retains own-team identity after resolving its real match ID', () => {
+  const input = {...empty(), verifiedClubCode: 'BBGV51U'};
+  input.leagueResults = [game(1, '2026-10-01T14:30:00+0200')];
+  const snapshot = normalizeSportlink(input, now);
+  assert.equal(snapshot.standings[0].team.id, '218380');
+  assert.equal(snapshot.standings[0].team.own, true);
+  assert.equal(snapshot.standings[0].team.logoUrl, '/assets/logo.png');
+  assert.deepEqual(snapshot.standings[0].form, ['W']);
+});
+
+test('a claimed own flag or matching name cannot override an opposing team ID or club', () => {
+  const input = {...empty(), verifiedClubCode: 'BBGV51U', standings: [
+    {...standing, teamcode: '128614'},
+    {...standing, teamcode: '218380', clubrelatiecode: 'OTHER'},
+    {...standing, teamnaam: 'Unresolved team', clubrelatiecode: 'OTHER'},
+  ]};
+  input.leagueResults = [game(1, '2026-10-01T14:30:00+0200')];
+  assert.deepEqual(normalizeSportlink(input, now).standings.map(row => row.team.own), [false, false, false]);
+});
+
+test('retained standings recover their highlight from catalog IDs without a provider refresh or cache mutation', () => {
+  const input = {...empty(), verifiedClubCode: 'BBGV51U'};
+  input.leagueResults = [game(1, '2026-10-01T14:30:00+0200')];
+  const snapshot = {...normalizeSportlink(input, now), clubCode: input.verifiedClubCode, stale: true, warning: 'Saved data'};
+  snapshot.standings[0].team.own = false;
+  snapshot.standings[0].team.logoUrl = null;
+  const original = JSON.stringify(snapshot);
+  const repaired = withStandingOwnership(snapshot);
+  assert.equal(repaired.standings[0].team.own, true);
+  assert.equal(repaired.standings[0].team.logoUrl, '/assets/logo.png');
+  assert.equal(repaired.stale, true);
+  assert.equal(repaired.updatedAt, snapshot.updatedAt);
+  assert.deepEqual(repaired.standings[0].form, ['W']);
+  assert.equal(JSON.stringify(snapshot), original);
+  for (const side of [
+    {id: '128614', clubCode: 'BBGV51U'},
+    {id: '218380', clubCode: 'OTHER'},
+    {id: 'BBGV51U:duindorp sv 1', clubCode: 'BBGV51U'},
+  ]) {
+    const incorrect = {...snapshot, standings: [{...snapshot.standings[0], team: {...snapshot.standings[0].team, ...side, own: true}}]};
+    assert.equal(withStandingOwnership(incorrect).standings[0].team.own, false);
+  }
 });
 
 test('a supplied 0–0 is a draw only when completed; abandoned, cancelled and missing scores do not invent form', () => {

@@ -1,5 +1,14 @@
 # Uitvoerlog
 
+## 22 oktober 2026 — eigen team in de ranglijst
+
+De live stand gaf Duindorp SV 1 ten onrechte `own: false`, ondanks het juiste
+teamnummer. De normalisatie en het lezen van opgeslagen standen herstellen
+dit met de bestaande teamcatalogus en clubcontrole. De blauwe rij en het
+vastzetten bij beide scrollranden werken daarmee weer. De volledige lokale
+testsuite, typecheck, runtimebuild en drie gerichte browserproeven slagen;
+normale CI en productiecontrole volgen. Zie [eigen team in de ranglijst](standing-own-team.md).
+
 > Actuele inrichting vanaf 18 oktober 2026: development-VPS → main → uitsluitend GitHub Environment `production`; websitemail via Resend API en lokaal abonnee-/onderwerpbeheer. De staging-/SMTP-verwijzingen hieronder beschrijven eerdere inventarisatie en testresultaten. De actuele procedure en exacte instellingen staan in [github-environments.md](github-environments.md) en [first-deploy.md](first-deploy.md). Eerder voorbereide stagingresources zijn niet automatisch verwijderd.
 
 ## Bron en runtime
