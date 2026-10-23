@@ -75,7 +75,7 @@
  .cm-opening[data-hero-layout="05"] .cm-player{width:min(82%,450px)}
  .cm-opening[data-hero-layout="04"] .cm-player{width:min(100%,760px)}
 }
-@media(max-width:370px){.cm-together .cm-band-line{display:none}.cm-together h2{font-size:21px}.cm-band-since{font-size:7px}}
+@media(max-width:370px){.cm-together .cm-band-line{display:none}.cm-together h2{font-size:16.5px}.cm-band-since{font-size:7px}}
 .lab-caption .lab-hero-choice{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:0}
 .lab-caption .lab-hero-choice select{padding:7px 10px;font-size:11px}
 .lab-caption:has(.lab-hero-choice){gap:18px;flex-wrap:wrap}

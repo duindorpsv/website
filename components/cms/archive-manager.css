@@ -10,7 +10,7 @@
 .ca-submit-header{padding:35px 40px 32px;background:#03438a url('/assets/clubmuur-wall.webp') center/cover;position:relative;text-align:left!important;color:white;isolation:isolate}
 .ca-submit-header:before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,#03438aef,#072f5df0)}
 .ca-submit-eyebrow{font-size:10px;font-weight:800;letter-spacing:.16em;color:#b5caff;display:block;margin-bottom:12px;padding-right:30px}
-.ca-submit-header [data-slot=dialog-title]{font-family:'Barlow Condensed',sans-serif;font-size:clamp(27px,4vw,40px);letter-spacing:-.035em;line-height:1.1;font-weight:900;padding-right:15px}
+.ca-submit-header [data-slot=dialog-title]{font-family:'Rubik Distressed',sans-serif;font-size:clamp(27px,4vw,40px);letter-spacing:-.035em;line-height:1.1;font-weight:900;padding-right:15px}
 .ca-submit-header [data-slot=dialog-description]{font-size:13px;line-height:1.7;color:#e3ebff;max-width:580px;margin-top:10px}
 .ca-submit-steps{padding:22px 40px!important;list-style:none!important;display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:16px;background:white;border-bottom:1px solid #e4e8ee;margin:0!important}
 .ca-submit-steps li{display:flex;align-items:center;gap:9px;font-size:11px;color:#8b95a1;min-width:0}

@@ -10,7 +10,7 @@
 .cm-brand small{font-size:8px;line-height:9px;letter-spacing:.105em;margin:0;font-weight:800}
 .cm-brand .cm-brand-year{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;margin:0;padding:0 0 0 17px;border-left:1px solid currentColor;border-color:color-mix(in srgb,currentColor 23%,transparent);height:38px;line-height:1;opacity:.75}
 .cm-brand-year>span{font-size:8px;line-height:10px;letter-spacing:.15em;padding-top:1px}
-.cm-brand-year b{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;line-height:18px;letter-spacing:.025em}
+.cm-brand-year b{font-family:'Rubik Distressed',sans-serif;font-size:22px;font-weight:700;line-height:18px;letter-spacing:.025em}
 .cm-main-nav{padding:0;border:0;background:none;box-shadow:none;border-radius:0;gap:27px;margin-left:auto;height:100%;align-items:center}
 .cm-main-nav a{display:flex;align-items:center;height:100%;font-size:13px;font-weight:700;padding:0;border-radius:0;white-space:nowrap;letter-spacing:0}
 .cm-main-nav a:hover,.cm-main-nav a[aria-current]{background:none;box-shadow:none;color:var(--header-ink)}
@@ -26,7 +26,7 @@
 .cm-header--clubblauw .cm-join{background:#fff!important;color:#073567!important}
 .cm-header--clubblauw .cm-main-nav{gap:32px}
 .cm-header--tribune .cm-main-nav{gap:30px}
-.cm-header--tribune .cm-main-nav a{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-size:25px;font-weight:700;letter-spacing:.012em}
+.cm-header--tribune .cm-main-nav a{font-family:'Rubik Distressed',sans-serif;text-transform:uppercase;font-size:25px;font-weight:700;letter-spacing:.012em}
 .cm-header--tribune .cm-brand strong{font-size:29px}
 .cm-header--tribune .cm-brand small{font-size:7px}
 .cm-header--tribune .cm-join{height:42px;background:transparent!important;color:var(--header-ink)!important;border:1px solid currentColor!important}
@@ -56,13 +56,13 @@
 .cm-header--clubband .cm-brand{gap:14px}
 .cm-header--clubband .cm-brand>img{width:41px;height:48px}
 .cm-header--clubband .cm-brand-copy{display:grid;grid-template-columns:max-content;grid-template-rows:max-content max-content;align-content:space-between;row-gap:0;height:36px}
-.cm-header--clubband .cm-brand strong{font-family:'Clubband Name','Barlow Condensed',sans-serif;font-size:34px;line-height:.716;letter-spacing:.06em;white-space:nowrap}
+.cm-header--clubband .cm-brand strong{font-family:'Clubband Name','Rubik Distressed',sans-serif;font-size:clamp(22px,2vw,34px);line-height:.763;letter-spacing:.06em;white-space:nowrap}
 .cm-header--clubband .cm-brand small{display:flex;justify-content:space-between;width:0;min-width:100%;font-family:'Clubband Slogan','Manrope',sans-serif;font-size:7.3px;line-height:.75;letter-spacing:0}
 .cm-header--clubband .cm-brand-year{height:36px;opacity:1;border-left:2px solid #ffffff50;padding-left:18px}
 .cm-header--clubband .cm-brand-year>span{font-family:'Clubband Est','Manrope',sans-serif;font-size:9px;font-weight:400;line-height:.749510204;letter-spacing:.17em;padding-top:0}
-.cm-header--clubband .cm-brand-year b{font-family:'Clubband Year','Barlow Condensed',sans-serif;font-size:24px;line-height:.722;letter-spacing:.035em}
+.cm-header--clubband .cm-brand-year b{font-family:'Clubband Year','Rubik Distressed',sans-serif;font-size:24px;line-height:.744;letter-spacing:.035em}
 .cm-header--clubband .cm-main-nav{gap:clamp(20px,2vw,34px)}
-.cm-header--clubband .cm-main-nav a{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-size:25px;font-weight:700;letter-spacing:.012em}
+.cm-header--clubband .cm-main-nav a{font-family:'Rubik Distressed',sans-serif;text-transform:uppercase;font-size:25px;font-weight:700;letter-spacing:.012em}
 .cm-header--clubband .cm-main-nav a:after{bottom:15px;height:3px}
 .cm-header--clubband .cm-join{height:43px;background:#fff!important;color:var(--cm-club-blue)!important;border:1px solid #fff!important;box-shadow:0 3px 12px #00173530;border-radius:2px!important}
 .cm-header--clubband .cm-join:hover{background:#eaf2ff!important;box-shadow:0 6px 18px #00173540}
@@ -75,7 +75,7 @@
  .cm-header--middenstip .cm-header-inner{gap:16px}.cm-header--middenstip .cm-main-nav{gap:15px}.cm-header--middenstip .cm-main-nav a{font-size:11px}
  .cm-header--kustlijn .cm-main-nav{gap:14px}.cm-header--kustlijn .cm-main-nav a{font-size:11px}
  .cm-header--clubband .cm-header-inner{gap:20px}.cm-header--clubband .cm-main-nav{gap:18px}.cm-header--clubband .cm-main-nav a{font-size:21px}
- .cm-header--clubband .cm-brand strong{font-size:29px}.cm-header--clubband .cm-brand small{font-size:6.4px}.cm-header--clubband .cm-brand{gap:10px}
+ .cm-header--clubband .cm-brand strong{font-size:clamp(22px,2vw,29px)}.cm-header--clubband .cm-brand small{font-size:6.4px}.cm-header--clubband .cm-brand{gap:10px}
 }
 @media(max-width:999px){
  .cm-header-inner{display:flex!important;gap:10px!important}.cm-main-nav{display:none!important}
@@ -88,10 +88,10 @@
  .cm-header--middenstip .cm-brand,.cm-header--middenstip .cm-header-controls{grid-column:auto}
  .cm-header--clubband .cm-brand{gap:9px}.cm-header--clubband .cm-brand>img{width:30px;height:38px}
  .cm-header--clubband .cm-brand-copy{height:27px}
- .cm-header--clubband .cm-brand strong{font-size:25px!important;letter-spacing:.045em!important}
+ .cm-header--clubband .cm-brand strong{font-size:clamp(18px,4.9vw,25px)!important;letter-spacing:.045em!important}
  .cm-header--clubband .cm-brand small{font-size:5.35px!important;letter-spacing:0!important}
  .cm-header--clubband .cm-brand-year{height:27px;padding-left:12px}
- .cm-header--clubband .cm-brand-year>span{font-size:7px}.cm-header--clubband .cm-brand-year b{font-size:20px}
+ .cm-header--clubband .cm-brand-year>span{font-size:7px}.cm-header--clubband .cm-brand-year b{font-size:17px}
 }
 @media(max-width:540px){.cm-join{display:none!important}}
 @media(max-width:370px){.cm-brand .cm-brand-lockup{column-gap:8px}.cm-brand .cm-brand-year{padding-left:8px}.cm-brand strong{font-size:19px!important}.cm-brand small{font-size:5.5px!important}.cm-header--vaandel .cm-brand{padding-right:25px}.cm-header--vaandel .cm-header-inner{padding-right:12px}.cm-header-controls{gap:2px}}
