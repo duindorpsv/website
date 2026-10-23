@@ -64,11 +64,11 @@
 .photoShade { background: linear-gradient(180deg, #062a61d9 0%, #123e6c25 37%, #082851c9 68%, #061d3ff5 100%); }
 .brand { display: inline-flex; align-items: center; gap: 13px; width: fit-content; color: #fff; text-decoration: none; }
 .brand img { width: 54px; height: 62px; object-fit: contain; }
-.brand > span { font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-size: 29px; font-weight: 800; line-height: 1; letter-spacing: .035em; }
+.brand > span { font-family: 'Rubik Distressed', 'Arial Narrow', sans-serif; font-size: 29px; font-weight: 800; line-height: 1; letter-spacing: .035em; }
 .brand small { display: block; margin-top: 9px; color: #d4e2f6; font-family: 'Manrope', Arial, sans-serif; font-size: 8px; font-weight: 600; letter-spacing: .16em; }
 .clubCopy { padding-top: 100px; }
 .clubEyebrow { display: block; margin-bottom: 19px; color: #dbe6f6; font-size: 9px; font-weight: 800; letter-spacing: .2em; }
-.clubCopy h2 { margin: 0; color: #fff; font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-size: clamp(56px, 5.6vw, 76px); font-weight: 800; line-height: .98; letter-spacing: -.015em; }
+.clubCopy h2 { margin: 0; color: #fff; font-family: 'Rubik Distressed', 'Arial Narrow', sans-serif; font-size: clamp(56px, 5.6vw, 76px); font-weight: 800; line-height: .98; letter-spacing: -.015em; }
 .clubCopy h2 span { color: #f5d875; }
 .clubCopy p { max-width: 260px; margin: 24px 0 0; color: #cbd9ed; font-size: 12px; line-height: 1.8; }
 

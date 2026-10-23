@@ -1,7 +1,7 @@
 .nk-club-screen{height:100%;width:100%;position:relative;color:#fff;font-family:Manrope,Arial,sans-serif;isolation:isolate;box-sizing:border-box}
 .nk-club-screen *{box-sizing:border-box}
 .nk-club-screen h1,.nk-club-screen h2,.nk-club-screen p{margin:0}
-.nk-club-screen h1,.nk-club-screen h2{font-family:'Barlow Condensed','Arial Narrow',sans-serif;text-transform:uppercase;font-weight:800}
+.nk-club-screen h1,.nk-club-screen h2{font-family:'Rubik Distressed','Arial Narrow',sans-serif;text-transform:uppercase;font-weight:800}
 .nk-club-screen h1{font-size:108px;line-height:.94;letter-spacing:-1px}
 .nk-club-screen h1 em,.nk-club-screen h2 em{font-style:normal}
 .nk-eyebrow{display:block;font-weight:800;font-size:17px;letter-spacing:3.4px;line-height:1.6}
@@ -11,7 +11,7 @@
 .nk-menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;height:440px}
 .nk-menu-card{background:#fff;color:#133a66;border-radius:6px;padding:32px 30px 22px;display:flex;flex-direction:column;overflow:hidden;position:relative;border-top:7px solid #b9d9ed}
 .nk-menu-category{display:flex;align-items:center;gap:17px;border-bottom:2px solid #e1e7ec;padding-bottom:22px}
-.nk-menu-category>span{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:25px;line-height:45px;text-align:center;min-width:45px;background:#e8f0f8;color:#03438a;border-radius:50%}
+.nk-menu-category>span{font-family:'Rubik Distressed',sans-serif;font-weight:800;font-size:25px;line-height:45px;text-align:center;min-width:45px;background:#e8f0f8;color:#03438a;border-radius:50%}
 .nk-menu-category h2{font-size:45px;line-height:1}
 .nk-menu-items{padding-top:11px}
 .nk-menu-item{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:26px;line-height:1.2;padding:12px 0;border-bottom:1px solid #e6ebef;letter-spacing:-.55px}
@@ -19,7 +19,7 @@
 .nk-menu-note{font-size:17px;color:#637991;margin-top:auto!important;padding-top:13px}
 .nk-menu-combo{height:153px;background:#d9ecf7;color:#073b74;margin-top:26px;border-radius:6px;display:flex;align-items:center;gap:25px;padding:23px 31px;position:relative;overflow:hidden}
 .nk-combo-icon{width:84px;flex-shrink:0}.nk-combo-icon svg{width:80px;fill:none;stroke:currentColor;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
-.nk-menu-combo .nk-eyebrow{font-size:15px;letter-spacing:2px}.nk-menu-combo h2{font-size:53px;line-height:1.15;white-space:nowrap}.nk-menu-combo>strong{font-size:72px;letter-spacing:-3px;margin-left:auto;white-space:nowrap;font-family:'Barlow Condensed',sans-serif}.nk-combo-caption{font-size:23px;line-height:1.55;border-left:1px solid #03438a30;padding-left:35px;margin-left:30px;font-weight:600}
+.nk-menu-combo .nk-eyebrow{font-size:15px;letter-spacing:2px}.nk-menu-combo h2{font-size:53px;line-height:1.15;white-space:nowrap}.nk-menu-combo>strong{font-size:72px;letter-spacing:-3px;margin-left:auto;white-space:nowrap;font-family:'Rubik Distressed',sans-serif}.nk-combo-caption{font-size:23px;line-height:1.55;border-left:1px solid #03438a30;padding-left:35px;margin-left:30px;font-weight:600}
 .nk-header-label{font-size:16px;letter-spacing:3px;font-weight:800;align-self:flex-end;margin-bottom:10px}
 .nk-news-layout{height:calc(100% - 164px);display:grid;grid-template-columns:1.92fr 1fr;gap:25px}
 .nk-walking-feature{position:relative;overflow:hidden;background:#ecf3f8;border-radius:6px;color:#123f70;padding:31px 39px}
@@ -27,9 +27,9 @@
 .nk-walking-feature h2{font-size:77px;line-height:.97;position:relative;z-index:2;letter-spacing:-.4px}.nk-walking-feature h2 em{color:#0961ae}
 .nk-walking-feature>p{font-size:23px;line-height:1.55;margin-top:19px;position:relative;z-index:2}
 .nk-training-date{position:absolute;top:33px;right:34px;background:#03438a;color:#fff;padding:12px 22px;display:flex;align-items:center;gap:15px;border-radius:3px;z-index:4;transform:rotate(3deg)}
-.nk-training-date>strong{font-size:79px;font-family:'Barlow Condensed',sans-serif;font-weight:800;line-height:1}.nk-training-date>div{display:grid;gap:4px}.nk-training-date span{font-size:12px;letter-spacing:1.5px;font-weight:800}.nk-training-date b{font-size:21px;font-weight:700}
+.nk-training-date>strong{font-size:79px;font-family:'Rubik Distressed',sans-serif;font-weight:800;line-height:1}.nk-training-date>div{display:grid;gap:4px}.nk-training-date span{font-size:12px;letter-spacing:1.5px;font-weight:800}.nk-training-date b{font-size:21px;font-weight:700}
 .nk-walking-people{width:650px;height:450px;object-fit:contain;object-position:center bottom;position:absolute;bottom:30px;right:16px;z-index:3;filter:drop-shadow(0 10px 5px #183e7420)}
-.nk-walking-word{position:absolute;bottom:61px;left:20px;font-size:204px;color:#dae7f1;font-family:'Barlow Condensed',sans-serif;font-weight:900;line-height:1;letter-spacing:-5px}
+.nk-walking-word{position:absolute;bottom:61px;left:20px;font-size:204px;color:#dae7f1;font-family:'Rubik Distressed',sans-serif;font-weight:900;line-height:1;letter-spacing:-5px}
 .nk-walking-foot{position:absolute;bottom:0;left:0;right:0;height:50px;padding:13px 39px;background:#d5e4ef;font-size:18px;font-weight:700;z-index:5}
 .nk-notice-stack{display:grid;grid-template-rows:1.12fr 1fr;gap:24px}
 .nk-club-notice{position:relative;padding:25px 31px;border-radius:6px;overflow:hidden}
@@ -41,14 +41,14 @@
 .nk-partner-grid{height:464px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:20px}
 .nk-partner-tile{background:#fff;display:flex;align-items:center;justify-content:center;border-radius:5px;padding:47px;box-shadow:0 5px 0 #002c5f55}
 .nk-partner-tile img{max-width:100%;max-height:116px;width:100%;height:116px;object-fit:contain}.nk-partner-tile .nk-logo-square{width:130px;max-height:143px;height:143px}.nk-partner-tile .nk-logo-dg{max-width:405px}
-.nk-partner-thanks{height:150px;display:flex;align-items:center;gap:28px}.nk-thanks-rule{width:75px;height:4px;background:#a4cbe9}.nk-partner-thanks p{font-size:29px;font-weight:500;line-height:1.4}.nk-partner-thanks b{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:66px;font-weight:800;transform:rotate(-5deg);mask-image:url('/assets/type-distress.svg');mask-size:260px 142px;mask-repeat:repeat}
+.nk-partner-thanks{height:150px;display:flex;align-items:center;gap:28px}.nk-thanks-rule{width:75px;height:4px;background:#a4cbe9}.nk-partner-thanks p{font-size:29px;font-weight:500;line-height:1.4}.nk-partner-thanks b{margin-left:auto;font-family:'Rubik Distressed',sans-serif;font-size:66px;font-weight:800;transform:rotate(-5deg);mask-image:url('/assets/type-distress.svg');mask-size:260px 142px;mask-repeat:repeat}
 .nk-welkom{overflow:hidden}.nk-welcome-wordmark{width:820px;height:285px;background:#fff;mask:url('/assets/clubmuur-lettering.webp') center/contain no-repeat;-webkit-mask:url('/assets/clubmuur-lettering.webp') center/contain no-repeat;position:absolute;left:-12px;top:-15px;transform:rotate(-3deg);z-index:3}
 .nk-welcome-copy{position:absolute;top:287px;left:18px;z-index:4}.nk-welcome-copy .nk-eyebrow{font-size:15px;letter-spacing:3px;color:#b8d6ed;margin-bottom:13px}.nk-welcome-copy h1{font-size:97px;line-height:.95}.nk-welcome-copy p{font-size:25px;line-height:1.5;margin-top:24px}.nk-welcome-copy h1 em{color:#b9d9ee}
 .nk-welcome-halo{position:absolute;width:840px;height:840px;background:radial-gradient(ellipse,#3a75a0 0,#0f508d 50%,#03438a00 72%);right:-20px;bottom:-200px;z-index:0}
-.nk-welcome-year{font-family:'Barlow Condensed',sans-serif;font-size:340px;line-height:1;font-weight:900;position:absolute;right:0;top:0;color:transparent;-webkit-text-stroke:1px #8fc7ef40;z-index:0}
+.nk-welcome-year{font-family:'Rubik Distressed',sans-serif;font-size:340px;line-height:1;font-weight:900;position:absolute;right:0;top:0;color:transparent;-webkit-text-stroke:1px #8fc7ef40;z-index:0}
 .nk-welcome-players{position:absolute;right:-30px;bottom:77px;width:980px;height:653px;object-fit:contain;object-position:bottom;z-index:2;filter:drop-shadow(-8px 6px 5px #00274f25)}
 .nk-welcome-values{position:absolute;bottom:0;left:0;right:0;z-index:5;background:#fff;color:#164269;display:flex;justify-content:space-between;gap:20px;border-radius:5px;padding:27px 34px;height:87px;align-items:center}
-.nk-welcome-values>div{display:flex;align-items:center;gap:17px;font-size:23px;white-space:nowrap}.nk-welcome-values span{font-family:'Barlow Condensed',sans-serif;font-size:28px;color:#6389ad;font-weight:700}
+.nk-welcome-values>div{display:flex;align-items:center;gap:17px;font-size:23px;white-space:nowrap}.nk-welcome-values span{font-family:'Rubik Distressed',sans-serif;font-size:28px;color:#6389ad;font-weight:700}
 /* Keep every notice inside its fixed landscape card, including its caption. */
 .nk-club-screen:not(.nk-portrait) .nk-club-notice{padding:24px 30px}
 .nk-club-screen:not(.nk-portrait) .nk-notice-index{font-size:13px;line-height:1.3;margin-bottom:10px}
