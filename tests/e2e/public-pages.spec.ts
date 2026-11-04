@@ -2,6 +2,34 @@ import {test,expect} from '@playwright/test';
 
 const pages=['club','club/ons-verhaal','club/bestuur','club/commissies','club/jeugdorganisatie','club/vertrouwenspersoon','club/accommodatie','club/lidmaatschap','club/vrijwilligers','club/clubwaarden','club/documenten','club/contact','teams','teams/trainingen','teams/walking-football','wedstrijden','wedstrijden/informatie','wedstrijden/afgelastingen','nieuws','verhalen','media/fotos','media/nieuwsbrief'];
 
+test('anonymous WhatsApp previews use the public article hero image without JavaScript',async({browser,baseURL})=>{
+ const context=await browser.newContext({baseURL,userAgent:'WhatsApp/2.23',javaScriptEnabled:false});
+ try{
+  const page=await context.newPage();
+  const indexResponse=await page.goto('/clubmuur/verhalen');
+  expect(indexResponse?.status()).toBe(200);
+  const story=page.locator('.cmsp-editorial-photo:has(img)').first();
+  await expect(story).toBeVisible();
+  const href=await story.getAttribute('href');
+  expect(href).toBeTruthy();
+  const response=await page.goto(new URL(href!,page.url()).href);
+  expect(response?.status()).toBe(200);
+  const hero=page.locator('.cmsp-article-cover img');
+  await expect(hero).toBeVisible();
+  const imageSrc=await hero.getAttribute('src');
+  expect(imageSrc).toBeTruthy();
+  const expectedImage=new URL(imageSrc!,page.url()).href;
+  await expect(page.locator('head meta[property="og:image"]')).toHaveAttribute('content',expectedImage);
+  await expect(page.locator('head meta[name="twitter:image"]')).toHaveAttribute('content',expectedImage);
+  await expect(page.locator('head meta[name="twitter:card"]')).toHaveAttribute('content','summary_large_image');
+  const imageResponse=await context.request.get(expectedImage);
+  expect(imageResponse.status()).toBe(200);
+  expect(imageResponse.headers()['content-type']).toMatch(/^image\//i);
+ }finally{
+  await context.close();
+ }
+});
+
 test('published club pages remain readable on desktop and mobile after the prototype layout comparison',async({page})=>{
  test.setTimeout(150000);
  await page.emulateMedia({reducedMotion:'reduce'});
