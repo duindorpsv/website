@@ -239,7 +239,7 @@ function _importDirectoryPeople(state: CmsState, userId: string, rows: Directory
     if (row.city !== undefined)
         profile.city = row.city;
     if (row.sourceFields !== undefined)
-        profile.sourceFields = { ...profile.sourceFields, ...clone(row.sourceFields) };
+        profile.sourceFields = clone(row.sourceFields);
     event(state, person.id, userId, 'Sportlink-brongegevens bijgewerkt');
 } return { created, updated }; }
 export const saveDirectoryPerson = (...args: Parameters<typeof _saveDirectoryPerson>): ReturnType<typeof _saveDirectoryPerson> => domainMutation('saveDirectoryPerson', args, () => _saveDirectoryPerson(...args));
