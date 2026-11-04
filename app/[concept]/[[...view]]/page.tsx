@@ -12,16 +12,22 @@ import { ClubSite } from '@/components/club-site';
 import {cookies} from 'next/headers';
 import {HERO_VISIT_COOKIE,HERO_PHOTO_COOKIE,pickHeroLayout,pickHeroPhoto,resolveHeroLayout,resolveHeroPhoto} from '@/lib/clubmuur-layouts';
 import {getHeroSelection} from '@/lib/cms/hero-portraits';
-export async function generateMetadata({params}:{params:Promise<{concept:string;view?:string[]}>}){
+import {publicShareImage} from '@/lib/cms/share-metadata';
+import type {Metadata} from 'next';
+export async function generateMetadata({params}:{params:Promise<{concept:string;view?:string[]}>}):Promise<Metadata>{
  const {concept,view}=await params;if(concept!=='clubmuur')return {};
  const path=clubPathFromSegments(view)||'home';const {state}=await publicState();
- const article=state.articles.find(a=>a.live&&`${a.live.contentType==='story'?'verhalen':'nieuws'}/${a.live.slug}`===path)?.live;
- const page=state.pages.find(p=>p.live?.slug===path)?.live;
+ const article=state.articles.find(a=>!a.deletedAt&&a.live&&`${a.live.contentType==='story'?'verhalen':'nieuws'}/${a.live.slug}`===path)?.live;
+ const page=state.pages.find(p=>!p.deletedAt&&p.live?.slug===path)?.live;
  const archiveMatch=/^club\/(tijdlijn|museum)\/([^/]+)$/.exec(path),archive=archiveMatch?await archiveItem(archiveMatch[1]==='museum'?'object':'moment',archiveMatch[2]):null;
  const live=article||page;const title=archive?.title||live?.seo.title||live?.title||clubContentTitles[path]||(path.startsWith('teams/')?'Teaminformatie':'Onze Trots');
  const description=archive?.intro||live?.seo.description||live?.intro||state.settings.siteDescription;
- const canonical=new URL(path==='home'?'/clubmuur':`/clubmuur/${path}`,process.env.APP_BASE_URL||'http://localhost:3000').href;
- return {title:`${title} · Duindorp SV`,description,alternates:{canonical},openGraph:{title,description,url:canonical,type:article?'article':'website'},robots:{index:process.env.APP_ENV==='production'&&!live?.seo.noIndex,follow:process.env.APP_ENV==='production'}};
+ const baseUrl=process.env.APP_BASE_URL||'http://localhost:3000';
+ const canonical=new URL(path==='home'?'/clubmuur':`/clubmuur/${path}`,baseUrl).href;
+ const archiveState=archiveMatch?(await publicArchive()):undefined;
+ const archiveCover=archiveMatch?(archiveMatch[1]==='museum'?archiveState?.objects:archiveState?.moments)?.find(item=>item.id===archive?.id||item.slug===archiveMatch[2]):undefined;
+ const image=publicShareImage(state,path,baseUrl,archiveCover);
+ return {title:`${title} · Duindorp SV`,description,alternates:{canonical},openGraph:{title,description,url:canonical,type:article?'article':'website',images:[image]},twitter:{card:'summary_large_image',title,description,images:[image]},robots:{index:process.env.APP_ENV==='production'&&!live?.seo.noIndex,follow:process.env.APP_ENV==='production'}};
 }
 export default async function Page({ params,searchParams }: { params: Promise<{concept:string;view?:string[]}>;searchParams:Promise<{header?:string;hero?:string;photo?:string}> }) {
  const {concept,view}=await params;
