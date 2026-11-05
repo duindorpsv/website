@@ -1,4 +1,5 @@
 import {domainCommandVersionKey} from '../cms/domain-commands';
+import {queueSponsorDocumentMail} from './sponsor-document-mail';
 import {queueSponsorReminder} from './sponsor-reminders';
 import {randomBytes,randomInt} from 'node:crypto';
 import {sqlClient} from '../../db';
@@ -80,7 +81,7 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
   return {...c,args:schema.parse(c.args) as any[]};
  });
  // Cached results still require current session validity and current command rights.
- await sqlClient().begin(async tx=>{const p=await freshActor(tx,actor);for(const command of commands)if(donorCommands.has(command.name)||command.name==='saveInvoiceNumberingSettings')checkCommandRight(p,input.mode,command.name,command.args);});
+ await sqlClient().begin(async tx=>{const p=await freshActor(tx,actor);for(const command of commands)if(donorCommands.has(command.name)||command.name==='saveInvoiceNumberingSettings'||command.name==='sendSponsorDocumentEmail')checkCommandRight(p,input.mode,command.name,command.args);});
  const cached=await existingOperation(input.operationId,actor.p.id,hash);if(cached)return cached;
  if(commands.some(c=>c.name==='requestSponsorSigningCode'||c.name.startsWith('try'))&&commands.length!==1)throw new CmsError('validation','Voer de ondertekenstap afzonderlijk uit.',422);
  const signing=commands.find(c=>c.name==='trySignSponsorAgreement'||c.name==='tryCountersignSponsorAgreement');
@@ -99,11 +100,13 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
  let result:any;try{result=await sqlClient().begin(async tx=>{
   await workspaceLocks(tx);const p=await freshActor(tx,actor);
   const [old]=await tx`select * from cms_domain_operations where id=${input.operationId}::uuid`;
-  if(old){if(old.actor_id!==p.id||old.request_hash!==hash)throw new CmsError('operation-conflict','Dit verzoeknummer is al gebruikt.',409);for(const command of commands)if(donorCommands.has(command.name)||command.name==='saveInvoiceNumberingSettings')checkCommandRight(p,input.mode,command.name,command.args);return old.result;}
+  if(old){if(old.actor_id!==p.id||old.request_hash!==hash)throw new CmsError('operation-conflict','Dit verzoeknummer is al gebruikt.',409);for(const command of commands)if(donorCommands.has(command.name)||command.name==='saveInvoiceNumberingSettings'||command.name==='sendSponsorDocumentEmail')checkCommandRight(p,input.mode,command.name,command.args);return old.result;}
   const before=await readDomainStore(tx,p,{portal,companyId:input.companyId});
   const state=structuredClone(before.state);
   const logoUploads=new Set<string>();
   const extraIds=new Set<string>();
+  let documentMailStatus='none';
+  const documentMailIntents:{id:string;phase:'proposal'|'agreement'|'signed'}[]=[];
   if(portal&&commands.some(c=>c.name==='acceptSponsorProposal')){
    const rows=await tx`select id,kind,data from cms_sponsor_records where kind in ('items','packages','proposals','agreements') and (sponsor_id is null or sponsor_id<>${input.companyId})`;
    for(const r of rows){if((state.sponsorship as any)[r.kind].some((v:any)=>v.id===r.id))continue;(state.sponsorship as any)[r.kind].push({...r.data,id:r.id});extraIds.add(r.id);}
@@ -173,6 +176,7 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
      if(name==='saveInvoiceNumberingSettings')await validateStoredNumbering(tx,state.sponsorship!);
      if(name==='sendDonorInvoice'){const invoice=state.sponsorship!.donors!.invoices.find(row=>row.id===args[0])!;await queueDonorInvoiceMail(tx,invoice,p.id,input.operationId);}
      if(donorCommands.has(name)||name==='saveInvoiceNumberingSettings')await tx`insert into cms_audit(id,actor_id,action,record_id,request_id,metadata) values (${crypto.randomUUID()},${p.id},${name},null,${input.operationId},${tx.json({reference:typeof args[0]==='string'?args[0]:args[0]?.id||null,...(name==='markDonorInvoicePaid'?{paymentReference:args[1],method:'manual'}:{}),...(name==='cancelDonorInvoice'?{reason:args[1]}:{})})})`;
+     if(name==='sendSponsorDocumentEmail')documentMailIntents.push({id:args[0],phase:args[1]==='agreement'&&changed.status==='signed'?'signed':args[1]});
      if(name==='logSponsorReminder')await queueSponsorReminder(tx,state,args[0],input.operationId);
      if(name==='createDirectoryInvitation'){
       const token=randomBytes(32).toString('hex');changed.token=digestText(token);
@@ -197,8 +201,10 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
   }
   await persistDomainStore(tx,p,before,state,input.operationId,uploaded);
   await claimSponsorLogoUploads(tx,actor,logoUploads);
+  for(const intent of documentMailIntents)documentMailStatus=(await queueSponsorDocumentMail(tx,intent.id,intent.phase,input.operationId,p.id)).status;
   for(const a of state.sponsorship!.agreements)if(a.status==='signed'&&before.state.sponsorship!.agreements.find(v=>v.id===a.id)?.status!=='signed')await tx`insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${'sponsor-pdf-'+a.id},'sponsor-final-pdf',${tx.json({agreementId:a.id,actorId:p.id})}) on conflict(operation_id) do nothing`;
-  const response={ok:true,mailStatus:mails.length?'prepared':commands.some(command=>command.name==='sendDonorInvoice')?'queued':'none',issuedDonorInvoices:commands.filter(command=>command.name==='issueDonorInvoice').map(command=>state.sponsorship!.donors!.invoices.find(invoice=>invoice.contributionId===command.args[0]&&invoice.status!=='cancelled')?.id).filter((id):id is string=>typeof id==='string'),versions:await committedVersions(tx,commands,before)};
+  for(const agreement of state.sponsorship!.agreements)if(agreement.status==='signed'&&!before.state.sponsorship!.agreements.some(old=>old.id===agreement.id&&old.status==='signed'))await queueSponsorDocumentMail(tx,agreement.id,'signed',input.operationId,p.id,false);
+  const response={ok:true,mailStatus:mails.length?'prepared':commands.some(command=>command.name==='sendDonorInvoice')?'queued':documentMailStatus,issuedDonorInvoices:commands.filter(command=>command.name==='issueDonorInvoice').map(command=>state.sponsorship!.donors!.invoices.find(invoice=>invoice.contributionId===command.args[0]&&invoice.status!=='cancelled')?.id).filter((id):id is string=>typeof id==='string'),versions:await committedVersions(tx,commands,before)};
   await tx`insert into cms_domain_operations(id,actor_id,request_hash,result) values (${input.operationId}::uuid,${p.id},${hash},${tx.json(response)})`;
   return response;
  });}catch(error){await Promise.allSettled(uploaded.map(key=>deleteObject(key)));throw error;}

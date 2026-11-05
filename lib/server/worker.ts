@@ -1,5 +1,6 @@
 import {processSponsorEnquiry} from './sponsor-enquiries';
 import {deliverSponsorReminder} from './sponsor-reminders';
+import {deliverSponsorDocumentMail} from './sponsor-document-mail';
 import {archiveSponsorAgreement} from './sponsor-files';
 import {deliverDonorInvoice} from './donor-invoices';
 import {cleanSponsorLogoUploads} from './sponsor-logos';
@@ -36,6 +37,7 @@ export async function runOnce(workerId = crypto.randomUUID()) {
     try {
         if(job.kind==='sponsor-enquiry')await processSponsorEnquiry(job.payload.submissionId);
         else if(job.kind==='sponsor-notification')await deliverSponsorReminder(job.payload.deliveryId,job.payload.reminderId);
+        else if(job.kind==='sponsor-document-mail')await deliverSponsorDocumentMail(job.payload.deliveryId);
         else if(job.kind==='sponsor-final-pdf')await archiveSponsorAgreement(job.payload.agreementId,job.payload.actorId);
         else if(job.kind==='donor-invoice-mail')await deliverDonorInvoice(job.payload.invoiceId,job.payload.actorId,`<${job.operation_id}@duindorp.invalid>`);
         else if(job.kind==='archive-media')await processArchiveMedia(job.payload.id);

@@ -44,6 +44,6 @@ export function domainCommandVersionKey(name:string,args:any[]){
  if(name==='approveDirectoryGuardian')return 'guardian:'+args[0];
  if(name==='saveMembership')return 'membership:'+args[0].id;
  if(name==='removeSponsorMembership')return 'membership:'+args[0];
- if(name.startsWith('saveSponsor')||['reviewSponsorBusinessChange','approveSponsorProfile','sendSponsorProposal','createSponsorAgreement','updateSponsorTask','recordSponsorManualPayment','removeSponsorContractTemplate'].includes(name))return 'record:'+(typeof args[0]==='string'?args[0]:args[0]?.id||'sponsor-settings');
+ if(name.startsWith('saveSponsor')||['reviewSponsorBusinessChange','approveSponsorProfile','sendSponsorProposal','sendSponsorDocumentEmail','createSponsorAgreement','updateSponsorTask','recordSponsorManualPayment','removeSponsorContractTemplate'].includes(name))return 'record:'+(typeof args[0]==='string'?args[0]:args[0]?.id||'sponsor-settings');
  return '';
 }
