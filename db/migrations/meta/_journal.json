@@ -148,6 +148,13 @@
       "when": 1792645537977,
       "tag": "0020_sponsor_directory",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793878361900,
+      "tag": "0021_sponsor_logo_uploads",
+      "breakpoints": true
     }
   ]
 }

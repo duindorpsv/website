@@ -1,12 +1,26 @@
 import type {CmsState} from './types';
-import type {SponsorAgreement,SponsorTotals} from './sponsorship-types';
-import {calculateSponsorTotals,canAccessSponsor,readSponsorship,sponsorDocumentHash,sponsorSnapshotBytes} from './sponsorship';
+import type {SponsorAgreement,SponsorProposalSnapshot,SponsorTotals} from './sponsorship-types';
+import {calculateSponsorProposalTotals,getSponsorLinePricing,canAccessSponsor,readSponsorship,sponsorDocumentHash,sponsorSnapshotBytes,calculateSponsorTotals} from './sponsorship';
 import type {jsPDF} from 'jspdf';
 
 /** The same renderer is used by the portal, backoffice and the downloadable example. */
 export type SponsorPdfAssets={logoPng:Uint8Array;bodyFont:Uint8Array;boldFont:Uint8Array;headingFont:Uint8Array;brushFont:Uint8Array};
 export type SponsorPdfOptions={assets?:SponsorPdfAssets};
-const BLUE=[22,79,211] as const,INK=[15,27,47] as const,MUTED=[90,105,128] as const,LIGHT=[240,245,253] as const,LINE=[216,226,242] as const,WHITE=[255,255,255] as const;
+/** Price presentation uses the captured agreement only; discounts retain their own labels. */
+export function sponsorPdfPricingRows(snapshot:SponsorProposalSnapshot):{label:string;amountCents:number}[]{
+ const totals=snapshot.contract?.totals||calculateSponsorProposalTotals(snapshot),gross=snapshot.lines.reduce((sum,line)=>sum+line.quantity*line.unitPriceCents,0),setup=snapshot.lines.reduce((sum,line)=>sum+(line.setupCostCents||0),0),itemDiscount=snapshot.lines.reduce((sum,line)=>sum+(line.lineDiscountCents||0),0);
+ const rows=[{label:'Tegenprestaties',amountCents:gross}];
+ if(setup)rows.push({label:'Eenmalige opmaakkosten',amountCents:setup});
+ if(snapshot.packageSurchargeCents)rows.push({label:'Afzonderlijke pakketmeerprijs',amountCents:snapshot.packageSurchargeCents});
+ if(itemDiscount)rows.push({label:'Itemkortingen',amountCents:-itemDiscount});
+ if(snapshot.packageDiscountCents)rows.push({label:'Pakketkorting',amountCents:-snapshot.packageDiscountCents});
+ if(snapshot.discountCents)rows.push({label:'Aanvullende voorstelkorting',amountCents:-snapshot.discountCents});
+ rows.push({label:'Sponsorbijdrage exclusief btw',amountCents:totals.netCents});
+ for(const group of totals.taxGroups)rows.push({label:group.taxRate==='exempt'?'Vrijgesteld van btw':`Btw ${group.taxRate}% over ${currency(group.netCents)}`,amountCents:group.taxCents});
+ return rows;
+}
+
+const BLUE=[25,83,179] as const,INK=[20,47,79] as const,MUTED=[91,111,134] as const,LIGHT=[242,246,251] as const,LINE=[214,225,237] as const,WHITE=[255,255,255] as const,PAPER=[250,249,247] as const;
 const MARGIN=17,PAGE_WIDTH=210,PAGE_HEIGHT=297,WIDTH=PAGE_WIDTH-2*MARGIN,CONTENT_END=269;
 const currency=(cents:number)=>new Intl.NumberFormat('nl-NL',{style:'currency',currency:'EUR'}).format(cents/100);
 const clean=(value:unknown)=>String(value??'').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'').replace(/[\u2010-\u2015\u2212]/g,'-').replace(/\u00a0/g,' ').replace(/\t/g,'  ').trim();
@@ -43,18 +57,28 @@ class AgreementLayout{
  rule(y:number,x=MARGIN,width=WIDTH){this.doc.setDrawColor(...LINE);this.doc.setLineWidth(.25);this.doc.line(x,y,x+width,y);}
  roughStripe(x:number,y:number,width:number,height:number,color:readonly number[]){this.fill(color);this.doc.lines([[width*.15,-height*.22],[width*.16,height*.1],[width*.2,-height*.12],[width*.21,height*.17],[width*.28,-height*.08],[-width*.015,height*.7],[-width*.24,height*.06],[-width*.23,-height*.02],[-width*.2,height*.17],[-width*.15,-height*.08],[-width*.165,height*.04]],x,y,[1,1],'F',true);}
  cover(){
-  this.fill(INK);this.doc.rect(0,0,PAGE_WIDTH,79,'F');this.fill(BLUE);this.doc.triangle(127,0,210,0,210,79,'F');this.doc.rect(190,0,20,79,'F');
-  // Restrained, deterministic ink flecks keep the club's brush character off the reading area.
-  this.fill([36,58,92]);for(let i=0;i<50;i++){const x=138+(i*37%58),y=27+(i*17%43),size=.25+(i%4)*.19;this.doc.rect(x,y,size*2.2,size,'F');}
-  this.font('heading',16,WHITE);this.text('DUINDORP SV',MARGIN,14);this.font('bold',7.2,[166,190,230]);this.text('SAMEN LANGS DE LIJN. SINDS 1950.',MARGIN,20);
-  this.font('heading',32,WHITE);this.text('SPONSOR',MARGIN,37);this.text('OVEREENKOMST.',MARGIN,49);
-  this.roughStripe(MARGIN,55,88,3,BLUE);this.font('brush',12,WHITE);this.text('Onze club. Onze trots.',MARGIN,66);
-  this.fill(WHITE);this.doc.circle(183,17,12,'F');this.doc.addImage(this.assets.logoPng,'PNG',174.5,7,17,20,undefined,'FAST');
-  this.font('bold',8,WHITE);this.text(this.agreement.number,193,64,{align:'right'});this.font('body',7.2,[213,227,252]);this.text(`VERSIE ${this.agreement.version}  /  ${this.agreement.status==='signed'?'ONDERTEKEND':this.agreement.status==='cancelled'?'GEANNULEERD':this.agreement.status==='awaiting-club-signature'?'WACHT OP DE CLUB':'TER ONDERTEKENING'}`,193,70,{align:'right'});
-  this.y=91;
+  this.fill(PAPER);this.doc.rect(0,0,PAGE_WIDTH,75,'F');
+  this.fill(BLUE);this.doc.rect(0,0,4,75,'F');
+  this.font('heading',15,INK);this.text('DUINDORP SV',MARGIN,13);
+  this.font('bold',6.8,MUTED);this.text('ONZE CLUB. ONZE TROTS.  /  SINDS 1950',MARGIN,19);
+  this.doc.addImage(this.assets.logoPng,'PNG',175,9,17,20,undefined,'FAST');
+  this.font('heading',31,INK);this.text('SPONSOR',MARGIN,36);
+  this.font('heading',31,BLUE);this.text('OVEREENKOMST.',MARGIN,49);
+  this.font('brush',11,INK);this.text('Samen bouwen aan onze trots.',MARGIN,63);
+  this.font('bold',7.5,INK);this.text(this.agreement.number,PAGE_WIDTH-MARGIN,59,{align:'right'});
+  this.font('body',6.7,MUTED);this.text(`VERSIE ${this.agreement.version}  /  ${this.agreement.status==='signed'?'ONDERTEKEND':this.agreement.status==='cancelled'?'GEANNULEERD':this.agreement.status==='awaiting-club-signature'?'WACHT OP DE CLUB':'TER ONDERTEKENING'}`,PAGE_WIDTH-MARGIN,65,{align:'right'});
+  this.roughStripe(MARGIN,71,WIDTH,1.6,BLUE);
+  // Deterministic, restrained print texture is confined to the title band.
+  this.fill([224,230,237]);for(let i=0;i<44;i++){const x=145+(i*29%48),y=32+(i*13%20),size=.18+(i%3)*.14;this.doc.rect(x,y,size*2,size,'F');}
+  this.y=86;
  }
  nextPage(label='DE AFSPRAKEN'){
-  this.doc.addPage();this.fill(INK);this.doc.rect(0,0,PAGE_WIDTH,26,'F');this.fill(BLUE);this.doc.rect(0,25,PAGE_WIDTH,1.8,'F');this.font('heading',15,WHITE);this.text('DUINDORP SV',MARGIN,12);this.font('body',7.2,[191,208,237]);this.text(label,MARGIN,19);this.font('bold',8,WHITE);this.text(this.agreement.number,PAGE_WIDTH-MARGIN,13,{align:'right'});this.font('body',7,[191,208,237]);this.text(`Versie ${this.agreement.version}`,PAGE_WIDTH-MARGIN,19,{align:'right'});this.y=39;
+  this.doc.addPage();this.fill(BLUE);this.doc.rect(0,0,PAGE_WIDTH,2.5,'F');
+  this.font('heading',15,INK);this.text('DUINDORP SV',MARGIN,14);
+  this.font('bold',6.7,BLUE);this.text(label,MARGIN,21);
+  this.font('bold',7.7,INK);this.text(this.agreement.number,PAGE_WIDTH-MARGIN,14,{align:'right'});
+  this.font('body',6.7,MUTED);this.text(`Sponsorovereenkomst / versie ${this.agreement.version}`,PAGE_WIDTH-MARGIN,21,{align:'right'});
+  this.rule(27);this.y=39;
  }
  ensure(height:number,label?:string){if(this.y+height>CONTENT_END)this.nextPage(label);}
  heading(value:string,kicker?:string){this.ensure(kicker?25:18);if(kicker){this.font('bold',7.5,BLUE);this.text(kicker,MARGIN,this.y);this.y+=7;}this.font('heading',22,INK);const lines=this.wrap(value,WIDTH);for(const line of lines){this.ensure(11);this.font('heading',22,INK);this.text(line,MARGIN,this.y);this.y+=9;}this.y+=2;}
@@ -64,65 +88,102 @@ class AgreementLayout{
   this.y+=gap;
  }
  parties(){
-  this.heading('Samen maken we het mogelijk.','DE PARTIJEN');
-  const contract=this.snapshot.contract,company=contract?.company;
-  const left=[{label:'DE VERENIGING',value:'Duindorp SV'},{label:'CLUB',value:'Sportpark Houtrust · Den Haag'},{label:'DOCUMENT',value:`Sponsorovereenkomst ${this.agreement.number}`}];
-  const right=[{label:'DE SPONSOR',value:company?.legalName||this.snapshot.sponsorName},{label:'VESTIGINGSADRES',value:company?[company.address,`${company.postalCode} ${company.city}`.trim(),company.country].filter(Boolean).join('\n'):this.snapshot.sponsorAddress},{label:'CONTACT',value:company?[company.contactName,company.contactFunction,company.contactEmail].filter(Boolean).join('\n'):this.snapshot.sponsorEmail}];
+  this.heading('Samen verbonden met de club.','DE PARTIJEN');
+  const company=this.snapshot.contract?.company,vars=this.snapshot.contract?.variables;
+  const left=[{label:'DE VERENIGING',value:vars?.['club.naam']||'Duindorp SV'},
+   {label:'VESTIGINGSADRES',value:vars?.['club.adres']||'Sportpark Houtrust - Den Haag'},
+   {label:vars?.['club.vertegenwoordiger']?'VERTEGENWOORDIGD DOOR':'DOCUMENT',value:vars?.['club.vertegenwoordiger']?[vars['club.vertegenwoordiger'],vars['club.functie']].filter(Boolean).join(' - '):`Sponsorovereenkomst ${this.agreement.number}`}];
+  const right=[{label:'DE SPONSOR',value:company?.legalName||this.snapshot.sponsorName},
+   {label:'VESTIGINGSADRES',value:company?[company.address,`${company.postalCode} ${company.city}`.trim(),company.country].filter(Boolean).join('\n'):this.snapshot.sponsorAddress},
+   {label:'VERTEGENWOORDIGD DOOR',value:company?[company.contactName,company.contactFunction].filter(Boolean).join(' - '):this.snapshot.sponsorEmail}];
   const gap=7,col=(WIDTH-gap)/2,x2=MARGIN+col+gap;
-  const height=(fields:typeof left)=>fields.reduce((sum,f)=>{this.font(f.label==='DE SPONSOR'||f.label==='DE VERENIGING'?'bold':'body',f.label.startsWith('DE ')?11:8.7);return sum+7+this.wrap(f.value,col-12).length*4.7+5;},0)+4;
-  const h=Math.max(height(left),height(right));if(h>135){for(const field of [...left,...right]){this.ensure(18);this.font('bold',7,BLUE);this.text(field.label,MARGIN,this.y);this.y+=6;this.paragraph(field.value,{size:9,gap:6});}this.y+=3;}else{this.ensure(h+6);this.fill(LIGHT);this.doc.rect(MARGIN,this.y-3,col,h,'F');this.doc.rect(x2,this.y-3,col,h,'F');const top=this.y+4;
-  const draw=(fields:typeof left,x:number)=>{let y=top;for(const field of fields){this.font('bold',6.8,MUTED);this.text(field.label,x+6,y);y+=5.5;this.font(field.label.startsWith('DE ')?'bold':'body',field.label.startsWith('DE ')?11:8.7);const lines=this.wrap(field.value,col-12);this.doc.text(lines,x+6,y,{lineHeightFactor:1.5});y+=lines.length*4.7+5;}};
-  draw(left,MARGIN);draw(right,x2);this.y+=h+7;}
-  if(company){const ids=[company.registrationExempt?`Geen KVK: ${company.registrationExemptionReason}`:`KVK ${company.companyNumber}`,company.vatNumber?`Btw ${company.vatNumber}`:company.vatStatus==='exempt'?'Btw-status: vrijgesteld':'Btw-status: niet van toepassing',`Facturatie: ${company.invoiceEmail}`].filter(Boolean).join('  |  ');this.paragraph(ids,{size:7.4,color:MUTED,gap:5});}
+  const height=(fields:typeof left)=>fields.reduce((sum,field)=>{this.font(field.label.startsWith('DE ')?'bold':'body',field.label.startsWith('DE ')?10:8.2);return sum+6+this.wrap(field.value,col-12).length*4.3+4;},0)+5;
+  const h=Math.max(height(left),height(right));
+  if(h>130){for(const field of [...left,...right]){this.ensure(18);this.font('bold',7,BLUE);this.text(field.label,MARGIN,this.y);this.y+=6;this.paragraph(field.value,{size:9,gap:6});}this.y+=3;}
+  else {this.ensure(h+5);this.fill(LIGHT);this.doc.rect(MARGIN,this.y-3,col,h,'F');this.doc.rect(x2,this.y-3,col,h,'F');
+   const draw=(fields:typeof left,x:number)=>{let y=this.y+4;for(const field of fields){this.font('bold',6.5,MUTED);this.text(field.label,x+6,y);y+=5.2;this.font(field.label.startsWith('DE ')?'bold':'body',field.label.startsWith('DE ')?10:8.2);const lines=this.wrap(field.value,col-12);this.doc.text(lines,x+6,y,{lineHeightFactor:1.45});y+=lines.length*4.3+4;}};
+   draw(left,MARGIN);draw(right,x2);this.y+=h+7;}
+  if(company){const ids=[company.registrationExempt?`Geen KVK: ${company.registrationExemptionReason}`:`KVK ${company.companyNumber}`,company.vatNumber?`Btw ${company.vatNumber}`:company.vatStatus==='exempt'?'Btw-status: vrijgesteld':'Btw-status: niet van toepassing',`Facturatie: ${company.invoiceEmail}`].filter(Boolean).join('  |  ');this.paragraph(ids,{size:7.1,color:MUTED,gap:5});}
  }
  keyFacts(){
-  const snapshot=this.snapshot,contract=snapshot.contract;
-  const cols=[{label:'SEIZOEN',value:snapshot.season},{label:'LOOPTIJD',value:`${date(snapshot.startDate)}\nt/m ${date(snapshot.endDate)}`},{label:'SAMENWERKING',value:contract?.packageName||snapshot.name}];this.font('bold',8.6,INK);const max=Math.max(...cols.map(field=>this.wrap(field.value,WIDTH/3-6).length*4.5));if(max>40){for(const field of cols){this.ensure(18);this.font('bold',6.8,BLUE);this.text(field.label,MARGIN,this.y);this.y+=6;this.paragraph(field.value,{size:8.6,bold:true,gap:6});}return;}this.ensure(max+21);this.rule(this.y-1);cols.forEach((field,i)=>{const x=MARGIN+i*(WIDTH/3);this.font('bold',6.8,BLUE);this.text(field.label,x,this.y+5);this.font('bold',8.6,INK);const lines=this.wrap(field.value,WIDTH/3-6);this.doc.text(lines,x,this.y+12,{lineHeightFactor:1.45});});this.y+=max+21;
+  const snapshot=this.snapshot,totals=snapshot.contract?.totals||calculateSponsorProposalTotals(snapshot);
+  const cols=[{label:'LOOPTIJD',value:`${date(snapshot.startDate)}\nt/m ${date(snapshot.endDate)}`},{label:'SAMENWERKING',value:snapshot.contract?.packageName||snapshot.name},{label:'SPONSORBIJDRAGE',value:`${currency(totals.totalCents)}\ninclusief btw`}];
+  this.font('bold',8.6,INK);const max=Math.max(...cols.map(field=>this.wrap(field.value,WIDTH/3-6).length*4.5));
+  if(max>40){for(const field of cols){this.ensure(18);this.font('bold',6.8,BLUE);this.text(field.label,MARGIN,this.y);this.y+=6;this.paragraph(field.value,{size:8.6,bold:true,gap:6});}return;}
+  this.ensure(max+21);this.rule(this.y-1);cols.forEach((field,i)=>{const x=MARGIN+i*(WIDTH/3);this.font('bold',6.8,BLUE);this.text(field.label,x,this.y+5);this.font('bold',8.6,INK);const lines=this.wrap(field.value,WIDTH/3-6);this.doc.text(lines,x,this.y+12,{lineHeightFactor:1.45});});this.y+=max+21;
  }
- tableHeader(){this.ensure(14,'SPONSORITEMS');this.fill(INK);this.doc.rect(MARGIN,this.y-4,WIDTH,10,'F');this.font('bold',6.9,WHITE);this.text('SPONSORITEM',MARGIN+4,this.y+2);this.text('AANTAL',119,this.y+2,{align:'right'});this.text('PER STUK',146,this.y+2,{align:'right'});this.text('BTW',163,this.y+2,{align:'right'});this.text('EXCL. BTW',PAGE_WIDTH-MARGIN-4,this.y+2,{align:'right'});this.y+=12;}
+ tableHeader(){this.ensure(14,'SPONSORPRESTATIES');this.fill(INK);this.doc.rect(MARGIN,this.y-4,WIDTH,10,'F');this.font('bold',6.7,WHITE);this.text('OMSCHRIJVING',MARGIN+4,this.y+2);this.text('AANTAL',119,this.y+2,{align:'right'});this.text('TARIEF',146,this.y+2,{align:'right'});this.text('BTW',163,this.y+2,{align:'right'});this.text('REGELTOTAAL',PAGE_WIDTH-MARGIN-4,this.y+2,{align:'right'});this.y+=12;}
+ amount(value:number,x:number,y:number,width=27,bold=false){let size=8.2;const label=currency(value);this.font(bold?'bold':'body',size);while(this.doc.getTextWidth(label)>width&&size>6){size-=.25;this.font(bold?'bold':'body',size);}this.text(label,x,y,{align:'right'});}
  items(){
-  this.ensure(65,'SPONSORING IN HET KORT');this.heading('Jouw bijdrage. Onze mogelijkheden.','SPONSORING IN HET KORT');this.tableHeader();
+  const first=this.snapshot.lines[0];let firstHeight=20;
+  if(first){this.font('bold',8.5);const title=this.wrap(first.name,87).length*4.5;this.font('body',7.4);const detail=[first.addition,first.description,first.periodLabel,first.startDate&&first.endDate?`${date(first.startDate)} t/m ${date(first.endDate)}`:'',first.setupCostCents?'Eenmalige opmaak: '+currency(first.setupCostCents):'',first.lineDiscountCents?(first.lineDiscountLabel||'Itemkorting')+': '+currency(first.lineDiscountCents):''].filter(Boolean).join('\n');firstHeight=Math.max(16,title+this.wrap(detail,87).length*3.8+7);}
+  this.ensure(Math.min(185,firstHeight+42),'SPONSORPRESTATIES');this.heading('Zichtbaar verbonden.','SPONSORPRESTATIES EN BIJDRAGE');this.tableHeader();
   this.snapshot.lines.forEach((line,index)=>{
-   this.font('bold',8.7);const titleLines=this.wrap(line.name,87);this.font('body',7.6,MUTED);const descriptionLines=line.description?this.wrap(line.description,87):[];
-   const titleHeight=titleLines.length*4.6,descriptionHeight=descriptionLines.length*3.9,baseHeight=Math.max(15,titleHeight+descriptionHeight+6);
-   if(baseHeight<180){if(this.y+baseHeight>CONTENT_END){this.nextPage('SPONSORITEMS - VERVOLG');this.tableHeader();}if(index%2===0){this.fill(LIGHT);this.doc.rect(MARGIN,this.y-5,WIDTH,baseHeight,'F');}this.font('bold',8.7);this.doc.text(titleLines,MARGIN+4,this.y,{lineHeightFactor:1.5});this.font('body',7.6,MUTED);if(descriptionLines.length)this.doc.text(descriptionLines,MARGIN+4,this.y+titleHeight+.6,{lineHeightFactor:1.45});this.font('body',8.4,INK);this.text(String(line.quantity),119,this.y,{align:'right'});this.text(currency(line.unitPriceCents),146,this.y,{align:'right'});this.font('body',line.taxRate==='exempt'?6.4:8.1);this.text(taxLabel(line.taxRate),163,this.y,{align:'right'});this.font('bold',8.4);this.text(currency(line.quantity*line.unitPriceCents),PAGE_WIDTH-MARGIN-4,this.y,{align:'right'});this.y+=baseHeight;}
-   else {this.ensure(22);this.font('bold',8.7);this.paragraph(`${line.name} | ${line.quantity} x ${currency(line.unitPriceCents)} | ${taxLabel(line.taxRate)} btw | ${currency(line.quantity*line.unitPriceCents)} excl. btw`,{bold:true,size:8.7,gap:2});this.paragraph(line.description,{size:7.7,color:MUTED,gap:5});this.rule(this.y);this.y+=6;}
+   const price=getSponsorLinePricing(line),period=[line.periodLabel,line.startDate&&line.endDate?`${date(line.startDate)} t/m ${date(line.endDate)}`:''].filter(Boolean).join(' / ');
+   const details=[line.addition,line.description,period?`Periode: ${period}`:'',price.setupCostCents?`Eenmalige opmaak: ${currency(price.setupCostCents)}`:'',price.lineDiscountCents?`${line.lineDiscountLabel||'Itemkorting'}: - ${currency(price.lineDiscountCents)}`:''].filter(Boolean).join('\n');
+   this.font('bold',8.5);const titleLines=this.wrap(line.name,87);this.font('body',7.4,MUTED);const descriptionLines=details?this.wrap(details,87):[];
+   const titleHeight=titleLines.length*4.5,descriptionHeight=descriptionLines.length*3.8,baseHeight=Math.max(16,titleHeight+descriptionHeight+7);
+   if(baseHeight<180){
+    if(this.y+baseHeight>CONTENT_END){this.nextPage('SPONSORPRESTATIES - VERVOLG');this.tableHeader();}
+    if(index%2===0){this.fill(LIGHT);this.doc.rect(MARGIN,this.y-5,WIDTH,baseHeight,'F');}
+    this.font('bold',8.5);this.doc.text(titleLines,MARGIN+4,this.y,{lineHeightFactor:1.5});
+    if(descriptionLines.length){this.font('body',7.4,MUTED);this.doc.text(descriptionLines,MARGIN+4,this.y+titleHeight+.5,{lineHeightFactor:1.45});}
+    this.font('body',8.1,INK);this.text(String(line.quantity),119,this.y,{align:'right'});this.amount(line.unitPriceCents,146,this.y,25);
+    this.font('body',line.taxRate==='exempt'?6.3:8,INK);this.text(taxLabel(line.taxRate),163,this.y,{align:'right'});
+    this.amount(price.netCents,PAGE_WIDTH-MARGIN-4,this.y,24,true);this.y+=baseHeight;
+   }else{
+    this.ensure(24);this.paragraph(`${line.name} | ${line.quantity} x ${currency(line.unitPriceCents)} | ${taxLabel(line.taxRate)} btw`,{bold:true,size:8.7,gap:2});this.paragraph(details,{size:7.7,color:MUTED,gap:3});this.paragraph(`Regeltotaal exclusief btw: ${currency(price.netCents)}`,{bold:true,size:8.4,gap:5});this.rule(this.y);this.y+=6;
+   }
   });this.y+=5;
+  this.paragraph('De tarieven blijven per onderdeel zichtbaar. Itemkortingen staan bij de betreffende prestatie; een pakketkorting en aanvullende voorstelkorting staan afzonderlijk in de prijsopbouw.',{size:7.5,color:MUTED,gap:5});
  }
  totals(){
-  const totals: SponsorTotals=this.snapshot.contract?.totals||calculateSponsorTotals(this.snapshot.lines,this.snapshot.discountCents);
-  const rows=[['Subtotaal exclusief btw',currency(totals.subtotalCents)],...(totals.discountCents?[['Afgesproken korting',`- ${currency(totals.discountCents)}`]]:[]),['Sponsorbijdrage exclusief btw',currency(totals.netCents)],...totals.taxGroups.map(group=>[group.taxRate==='exempt'?'Vrijgesteld van btw':`Btw ${group.taxRate}% over ${currency(group.netCents)}`,currency(group.taxCents)])];
-  this.font('body',7.7);const prepared=rows.map(([label,value])=>({label:this.wrap(label,48),value})),h=prepared.reduce((sum,row)=>sum+Math.max(7,row.label.length*4.2),0)+24;this.ensure(h+8,'BEDRAGEN');const x=94,w=99;this.fill(LIGHT);this.doc.rect(x,this.y-4,w,h,'F');let y=this.y+3;
+  const snapshot=this.snapshot,totals:SponsorTotals=snapshot.contract?.totals||calculateSponsorProposalTotals(snapshot);
+  const rows=sponsorPdfPricingRows(snapshot).map(row=>[row.label,row.amountCents<0?`- ${currency(-row.amountCents)}`:currency(row.amountCents)]);
+  this.font('body',7.7);const prepared=rows.map(([label,value])=>({label:this.wrap(label,58),value})),h=prepared.reduce((sum,row)=>sum+Math.max(7,row.label.length*4.2),0)+24;
+  this.ensure(h+8,'PRIJSOPBOUW');const x=84,w=109;this.fill(LIGHT);this.doc.rect(x,this.y-4,w,h,'F');let y=this.y+3;
   for(const row of prepared){this.font('body',7.7,MUTED);this.doc.text(row.label,x+5,y,{lineHeightFactor:1.5});let size=8.4;this.font('bold',size,INK);while(this.doc.getTextWidth(row.value)>35&&size>6.2){size-=.3;this.font('bold',size,INK);}this.text(row.value,x+w-5,y,{align:'right'});y+=Math.max(7,row.label.length*4.2);}
   this.fill(BLUE);this.doc.rect(x,y-1,w,14,'F');this.font('bold',8,WHITE);this.text('TOTAAL INCLUSIEF BTW',x+5,y+7);this.font('heading',17,WHITE);this.text(currency(totals.totalCents),x+w-5,y+8,{align:'right'});this.y+=h+7;
-  this.paragraph(this.snapshot.paymentTerms,{size:8.3,color:MUTED,gap:2});
+  this.paragraph(snapshot.paymentTerms,{size:8.1,color:MUTED,gap:2});
  }
  clauses(){
   this.nextPage('DE OVEREENKOMST');const contract=this.snapshot.contract;
-  this.heading(contract?.title||'Onze afspraken.','DE OVEREENKOMST');
-  if(contract){this.paragraph(`Vastgelegde template: ${contract.templateName} · versie ${contract.templateVersion}. Bedrijfsgegevens en bedragen zijn opgeslagen op ${date(this.snapshot.capturedAt,true)}.`,{size:7.4,color:MUTED,gap:8});}
+  this.heading(contract?.title||'Onze afspraken.');
+  if(contract){this.paragraph(`Vastgelegde template: ${contract.templateName} · versie ${contract.templateVersion}. Bedrijfsgegevens en bedragen zijn opgeslagen op ${date(this.snapshot.capturedAt,true)}.`,{size:7.4,color:MUTED,gap:6});}
   const source=contract?.body||this.snapshot.terms;
   for(const paragraph of clean(source).split(/\n\s*\n/)){
    const lines=paragraph.split('\n');const first=lines[0]?.replace(/^#{1,3}\s*/,'')||'';const isHeading=/^#{1,3}\s|^\d+[.)]\s/.test(lines[0]||'')&&first.length<125;
-   if(isHeading){this.ensure(20);this.font('heading',15,INK);const titleLines=this.wrap(first,WIDTH);for(const title of titleLines){this.ensure(7);this.text(title,MARGIN,this.y);this.y+=6.5;}if(lines.length>1)this.paragraph(lines.slice(1).join('\n'),{size:9,gap:7});else this.y+=3;}
-   else this.paragraph(paragraph,{size:9,gap:7});
+   if(isHeading){this.ensure(20);this.font('heading',15,INK);const titleLines=this.wrap(first,WIDTH);for(const title of titleLines){this.ensure(7);this.text(title,MARGIN,this.y);this.y+=6.5;}if(lines.length>1)this.paragraph(lines.slice(1).join('\n'),{size:8.8,gap:5});else this.y+=2;}
+   else this.paragraph(paragraph,{size:8.8,gap:5});
   }
   if(!contract){this.heading('Betaling');this.paragraph(this.snapshot.paymentTerms,{size:9,gap:8});}
  }
  signatures(){
-  this.ensure(58,'ONDERTEKENING');this.y+=3;this.rule(this.y);this.y+=12;this.heading('Vastgelegd met vertrouwen.','ONDERTEKENING & DOCUMENTCONTROLE');
-  if(!this.agreement.signatures.length){this.paragraph(this.agreement.status==='cancelled'?'Deze overeenkomst is geannuleerd. Er is geen ondertekening vastgelegd.':'Deze overeenkomst wacht op ondertekening. Er is nog geen handtekening vastgelegd.',{size:9.2,bold:true,gap:7});}
-  const dual=this.agreement.signatures.every(s=>s.verification==='email-otp'&&!s.demo)&&this.agreement.signingMode==='dual-email-otp'&&this.agreement.signatures.length===2&&this.agreement.signatures.some(row=>row.party==='sponsor')&&this.agreement.signatures.some(row=>row.party==='club');
-  const columns=dual?(['sponsor','club'] as const).map(party=>{const signature=this.agreement.signatures.find(row=>row.party===party)!;this.font('heading',16);const name=this.wrap(signature.name,76);this.font('body',7.7);const lines=this.wrap([`Functie: ${signature.function}`,`Ondertekend: ${date(signature.at,true)}`,`Verificatieadres: ${signature.email||'Niet vastgelegd'}`,`OTP bevestigd: ${signature.verifiedAt?date(signature.verifiedAt,true):'Niet vastgelegd'}`,`Gebruiker: ${signature.userId}`,`IP: ${signature.ipAddress||'Niet vastgelegd'}`,`Uitdrukkelijke instemming: ${signature.consent?'ja':'niet vastgelegd'}`].join('\n'),76);return {party,name,lines,height:24+name.length*6+lines.length*4.1};}):[];
+  this.nextPage('ONDERTEKENING EN BEWIJS');this.heading('Akkoord. Met vertrouwen.','DEZELFDE VERSIE, TWEE PARTIJEN');
+  this.paragraph(`Behorende bij versie ${this.agreement.version} van sponsorovereenkomst ${this.agreement.number}.`,{size:8.5,color:MUTED,gap:8});
+  if(this.agreement.status==='cancelled')this.paragraph('Deze overeenkomst is geannuleerd. Onderstaande registratie behoort bij deze vastgelegde documentversie.',{size:9,bold:true,gap:8});
+  const dual=this.agreement.signingMode==='dual-email-otp';
+  const columns=dual?(['sponsor','club'] as const).map(party=>{
+   const signature=this.agreement.signatures.find(row=>row.party===party);
+   const name=signature?.name||(party==='sponsor'?(this.snapshot.contract?.company.legalName||this.snapshot.sponsorName):(this.snapshot.contract?.variables['club.naam']||'Duindorp SV'));
+   this.font('heading',16);const names=this.wrap(name,76);this.font('body',7.7);
+   const detail=signature?[`Functie: ${signature.function}`,`Ondertekend: ${date(signature.at,true)}`,`Verificatieadres: ${signature.email||'Niet vastgelegd'}`,`OTP bevestigd: ${signature.verifiedAt?date(signature.verifiedAt,true):'Niet vastgelegd'}`,`Gebruiker: ${signature.userId}`,`IP: ${signature.ipAddress||'Niet vastgelegd'}`,`Uitdrukkelijke instemming: ${signature.consent?'ja':'niet vastgelegd'}`].join('\n'):'Nog niet ondertekend.\n\n'+(party==='sponsor'?'Naam, tijdstip en verificatie worden na het definitieve akkoord toegevoegd.':'De vereniging tekent nadat de sponsor deze documentversie heeft bevestigd.');
+   const lines=this.wrap(detail,76);return {party,names,lines,height:27+names.length*6+lines.length*4.1,signed:!!signature};
+  }):[];
   const columnHeight=Math.max(0,...columns.map(column=>column.height));
-  if(dual&&columnHeight<140){this.ensure(columnHeight+13,'ONDERTEKENING');const y=this.y;columns.forEach((column,i)=>{const x=MARGIN+i*(WIDTH/2+3);this.fill(LIGHT);this.doc.rect(x,y-3,WIDTH/2-3,columnHeight,'F');this.font('bold',7.1,BLUE);this.text(column.party==='sponsor'?'NAMENS DE SPONSOR':'NAMENS DUINDORP SV',x+6,y+5);this.font('heading',16,INK);this.doc.text(column.name,x+6,y+14,{lineHeightFactor:1.05});this.font('body',7.7,INK);this.doc.text(column.lines,x+6,y+21+column.name.length*6,{lineHeightFactor:1.5});});this.y+=columnHeight+6;this.paragraph('Beide partijen hebben afzonderlijk ingestemd met dezelfde documentversie. Beide ondertekeningen zijn bevestigd met een eigen, eenmalige e-mailcode voor dit document.',{size:7.2,color:MUTED,gap:3});}
-  else for(const signature of this.agreement.signatures){
-   this.ensure(70,'ONDERTEKENING - VERVOLG');this.font('bold',7.1,BLUE);this.text(signature.party==='club'?'NAMENS DUINDORP SV':signature.party==='sponsor'?'NAMENS DE SPONSOR':'EERDER VASTGELEGDE ONDERTEKENING',MARGIN,this.y);this.y+=7;this.font('heading',17,INK);for(const line of this.wrap(signature.name,WIDTH)){this.ensure(8);this.font('heading',17,INK);this.text(line,MARGIN,this.y);this.y+=7;}this.y+=1;
-   const detail=[`${signature.name} - ${signature.function}`,`Ondertekend op ${date(signature.at,true)} (Nederlandse tijd)`,...(signature.email?[`Verificatieadres: ${signature.email}`]:[]),...(signature.verifiedAt?[`OTP bevestigd op ${date(signature.verifiedAt,true)}`]:[]),`Gebruikersreferentie: ${signature.userId}`,`IP-adres: ${signature.ipAddress||'Niet vastgelegd'}`,`Uitdrukkelijke instemming: ${signature.consent?'ja':'niet vastgelegd'}`];this.paragraph(detail.join('\n'),{size:8.1,gap:3});
-   this.paragraph(signature.verification==='email-otp'?'Bevestigd met een eigen eenmalige e-mailcode voor deze documentversie.':'Historisch ondertekenbewijs; geen volledige tweezijdige e-mailverificatie vastgelegd.',{size:7.5,color:MUTED,gap:8});
+  if(dual&&columnHeight<160){
+   this.ensure(columnHeight+13,'ONDERTEKENING');const y=this.y;
+   columns.forEach((column,i)=>{const x=MARGIN+i*(WIDTH/2+3),w=WIDTH/2-3;this.fill(LIGHT);this.doc.rect(x,y-3,w,columnHeight,'F');this.fill(column.signed?BLUE:LINE);this.doc.rect(x,y-3,w,1.2,'F');this.font('bold',7.1,BLUE);this.text(column.party==='sponsor'?'DE SPONSOR':'DUINDORP SV',x+6,y+6);this.font('heading',16,INK);this.doc.text(column.names,x+6,y+16,{lineHeightFactor:1.05});this.font('body',7.7,INK);this.doc.text(column.lines,x+6,y+23+column.names.length*6,{lineHeightFactor:1.5});});
+   this.y+=columnHeight+8;
+  }else {
+   if(!this.agreement.signatures.length)this.paragraph(this.agreement.status==='cancelled'?'Er is geen ondertekening vastgelegd.':'Deze overeenkomst wacht op ondertekening. Er is nog geen handtekening vastgelegd.',{size:9.2,bold:true,gap:7});
+   for(const signature of this.agreement.signatures){this.ensure(30,'ONDERTEKENING - VERVOLG');this.font('bold',7.1,BLUE);this.text(signature.party==='club'?'NAMENS DUINDORP SV':signature.party==='sponsor'?'NAMENS DE SPONSOR':'EERDER VASTGELEGDE ONDERTEKENING',MARGIN,this.y);this.y+=7;this.paragraph(signature.name,{bold:true,size:12,gap:5});const detail=[`${signature.name} - ${signature.function}`,`Ondertekend op ${date(signature.at,true)} (Nederlandse tijd)`,...(signature.email?[`Verificatieadres: ${signature.email}`]:[]),...(signature.verifiedAt?[`OTP bevestigd op ${date(signature.verifiedAt,true)}`]:[]),`Gebruikersreferentie: ${signature.userId}`,`IP-adres: ${signature.ipAddress||'Niet vastgelegd'}`,`Uitdrukkelijke instemming: ${signature.consent?'ja':'niet vastgelegd'}`];this.paragraph(detail.join('\n'),{size:8.1,gap:8});}
+   if(dual&&this.agreement.status!=='cancelled')for(const party of ['sponsor','club'] as const)if(!this.agreement.signatures.some(row=>row.party===party))this.paragraph(`${party==='club'?'Namens Duindorp SV':'Namens de sponsor'}: wacht op ondertekening en afzonderlijke OTP-bevestiging.`,{size:8.5,bold:true,color:MUTED,gap:7});
   }
-  if(this.agreement.signingMode==='dual-email-otp'&&this.agreement.status!=='cancelled')for(const party of ['sponsor','club'] as const)if(!this.agreement.signatures.some(row=>row.party===party)){this.ensure(20);this.paragraph(`${party==='club'?'Namens Duindorp SV':'Namens de sponsor'}: wacht op ondertekening en afzonderlijke OTP-bevestiging.`,{size:8.5,bold:true,color:MUTED,gap:7});}
-  this.ensure(23);this.font('bold',7.1,MUTED);this.text('SHA-256 VAN DE VASTGELEGDE DOCUMENTINHOUD',MARGIN,this.y);this.y+=6;this.paragraph(this.agreement.documentHash,{size:7,color:MUTED,gap:3});
+  if(this.agreement.signatures.length)this.paragraph(this.agreement.signatures.every(signature=>signature.verification==='email-otp'&&!signature.demo)?'Iedere geregistreerde partij heeft afzonderlijk ingestemd met deze documentversie. De e-mailcode bevestigt toegang tot het eigen verificatieadres.':'Deze versie bevat historisch ondertekenbewijs. Alleen registraties met een vastgelegde eigen e-mailverificatie gelden als bevestigd met een eenmalige e-mailcode.',{size:7.2,color:MUTED,gap:8});
+  this.ensure(40);this.rule(this.y);this.y+=9;this.font('bold',7.1,BLUE);this.text('DOCUMENTCONTROLE',MARGIN,this.y);this.y+=7;
+  this.paragraph('SHA-256 van de vastgelegde overeenkomsttekst en prijsspecificatie',{size:7.3,color:MUTED,gap:3});this.paragraph(this.agreement.documentHash,{size:7.1,bold:true,color:INK,gap:7});
+  this.paragraph('Gewone elektronische ondertekening met bewijsregistratie. Een e-mailcode bevestigt toegang tot de mailbox. Dit document bevat geen gekwalificeerde handtekening of gekwalificeerd tijdstempel.',{size:7.3,color:MUTED,gap:6});
   this.paragraph('Bewaar dit document met de afzonderlijke verificatiebewijzen. De documenthash en de bestandshash van de PDF zijn verschillende controles.',{size:7.1,color:MUTED,gap:1});
  }
  footer(){
@@ -153,14 +214,14 @@ export async function buildSponsorInvoicePdf(invoice:import('./sponsorship-types
  sponsorSnapshotBytes(agreement);assert(invoice.agreementId===agreement.id,'De factuur hoort niet bij deze overeenkomst.');
  const assets=options.assets||await browserAssets(),{jsPDF}=await import('jspdf'),doc=new jsPDF({unit:'mm',format:'a4',compress:true,putOnlyUsedFonts:true});
  for(const [name,style,file,bytes] of [['ClubBody','normal','invoice-body.ttf',assets.bodyFont],['ClubBody','bold','invoice-bold.ttf',assets.boldFont],['ClubHeading','normal','invoice-heading.ttf',assets.headingFont]] as const){doc.addFileToVFS(file,base64(bytes));doc.addFont(file,name,style);}
- const total=invoice.totals||calculateSponsorTotals(invoice.lines,invoice.discountCents);assert(total.totalCents===invoice.totalCents,'De vastgelegde factuurbedragen kloppen niet.');
+ const total=invoice.totals||calculateSponsorTotals(invoice.lines,invoice.discountCents,invoice.packageDiscountCents||0,invoice.packageSurchargeCents||0);assert(total.totalCents===invoice.totalCents,'De vastgelegde factuurbedragen kloppen niet.');
  let y=25;const add=(value:string,size=10,bold=false)=>{doc.setFont('ClubBody',bold?'bold':'normal');doc.setFontSize(size);const lines=doc.splitTextToSize(clean(value),174) as string[];for(const line of lines){if(y>265){doc.addPage();y=25;}doc.text(line,18,y);y+=size*.5;}y+=3;};
  doc.setFillColor(...BLUE);doc.rect(0,0,210,43,'F');doc.setTextColor(...WHITE);doc.setFont('ClubHeading','normal');doc.setFontSize(25);doc.text('DUINDORP SV',18,20);doc.setFont('ClubBody','bold');doc.setFontSize(9);doc.text('SPONSORFACTUUR',18,31);doc.addImage(assets.logoPng,'PNG',174,7,19,24);doc.setTextColor(...INK);y=56;
  add(invoice.number,21,true);add(`Factuurdatum: ${date(invoice.issueDate)}\nVervaldatum: ${date(invoice.dueDate)}${invoice.installment?'\nTermijn '+invoice.installment.index+' van '+invoice.installment.count:''}`,10);
- const company=agreement.snapshot.contract?.company;add(agreement.snapshot.sponsorName+'\n'+agreement.snapshot.sponsorAddress+'\n'+(company?.invoiceEmail||agreement.snapshot.sponsorEmail),11,true);
+ const company=agreement.snapshot.contract?.company;add((company?.legalName||agreement.snapshot.sponsorName)+'\n'+agreement.snapshot.sponsorAddress+'\n'+(company?.invoiceEmail||agreement.snapshot.sponsorEmail),11,true);
  add(`Overeenkomst ${agreement.number} · versie ${agreement.version}`,9);y+=3;
- for(const line of invoice.lines){add(`${line.quantity} × ${line.name} — ${currency(line.quantity*line.unitPriceCents)} excl. btw (${taxLabel(line.taxRate)})`,10,true);if(line.description)add(line.description,9);}
- y+=4;add('Subtotaal exclusief btw: '+currency(total.subtotalCents));if(total.discountCents)add('Korting: '+currency(total.discountCents));add('Netto: '+currency(total.netCents));for(const group of total.taxGroups)add((group.taxRate==='exempt'?'Vrijgesteld':'Btw '+group.taxRate+'%')+': '+currency(group.taxCents));add('Totaal inclusief btw: '+currency(total.totalCents),14,true);
+ for(const line of invoice.lines){const price=getSponsorLinePricing(line);add(`${line.quantity} × ${line.name} — ${currency(price.grossCents)} excl. btw (${taxLabel(line.taxRate)})`,10,true);if(line.addition)add(line.addition,9);if(line.description)add(line.description,9);if(line.periodLabel||line.startDate)add([line.periodLabel,line.startDate&&line.endDate?date(line.startDate)+' t/m '+date(line.endDate):''].filter(Boolean).join(' · '),9);if(price.lineDiscountCents)add((line.lineDiscountLabel||'Itemkorting')+': − '+currency(price.lineDiscountCents),9);if(price.setupCostCents)add('Eenmalige opmaak: '+currency(price.setupCostCents),9);}
+ y+=4;add('Tegenprestaties: '+currency(invoice.lines.reduce((sum,line)=>sum+line.quantity*line.unitPriceCents,0)));if(total.setupCostCents)add('Eenmalige opmaakkosten: '+currency(total.setupCostCents));if(total.itemDiscountCents)add('Itemkortingen: − '+currency(total.itemDiscountCents));if(invoice.packageSurchargeCents)add('Afzonderlijke pakketmeerprijs: '+currency(invoice.packageSurchargeCents));if(invoice.packageDiscountCents)add('Pakketkorting: − '+currency(invoice.packageDiscountCents));if(invoice.discountCents)add('Aanvullende voorstelkorting: − '+currency(invoice.discountCents));add('Netto: '+currency(total.netCents));for(const group of total.taxGroups)add((group.taxRate==='exempt'?'Vrijgesteld':'Btw '+group.taxRate+'%')+': '+currency(group.taxCents));add('Totaal inclusief btw: '+currency(total.totalCents),14,true);
  add('Betaalafspraken',12,true);add(agreement.snapshot.paymentTerms||'Neem voor de betaalgegevens contact op met de sponsorcommissie.');if(invoice.status==='paid')add('Ontvangst geregistreerd op '+date(invoice.paidAt),10,true);
  const count=doc.getNumberOfPages();for(let i=1;i<=count;i++){doc.setPage(i);doc.setDrawColor(...LINE);doc.line(18,279,192,279);doc.setFont('ClubBody','normal');doc.setFontSize(8);doc.setTextColor(...MUTED);doc.text(invoice.number+' · Duindorp SV',18,286);doc.text(i+' / '+count,192,286,{align:'right'});}
  doc.setProperties({title:'Sponsorfactuur '+invoice.number,author:'Duindorp SV',creator:'Duindorp SV'});return new Uint8Array(doc.output('arraybuffer'));

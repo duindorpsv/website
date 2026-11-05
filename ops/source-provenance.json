@@ -5,5 +5,15 @@
   "verifiedFiles": 583,
   "browserExportSupplied": false,
   "d1ExportSupplied": false,
-  "targetRepository": "duindorpsv/website"
+  "targetRepository": "duindorpsv/website",
+  "sponsorship": {
+    "sourceCommit": "bdaefabaf5fa4fc62f104ed8246ee859d7be575a",
+    "sitesVersion": 64,
+    "capturedAt": "2026-11-05",
+    "archiveSha256": "c04303153890c468afb70c2c9a924400cd8058ba2b7286d20abaecaedf02fc1d",
+    "verifiedFiles": 778,
+    "screenshots": 48,
+    "templateSha256": "6e5ab6dc6f6816477715c57349c971148754b9d7f5b1b684e1f203a6015d5cce",
+    "integrationReport": "ops/sponsoring-v64.md"
+  }
 }

@@ -27,7 +27,7 @@ export async function sponsorUpload(request:Request,sponsorId:string){
  const mime=request.headers.get('content-type')?.split(';')[0]||'',name=(request.headers.get('x-file-name')||'materiaal').replace(/[^\p{L}\p{N} ._()-]/gu,'').slice(0,150)||'materiaal';
  let data:Uint8Array=bytes,type=mime;
  if(['image/png','image/jpeg','image/webp'].includes(mime)){
-  try{data=await sharp(bytes,{limitInputPixels:30_000_000}).rotate().resize({width:2500,height:2500,fit:'inside',withoutEnlargement:true}).webp({quality:88}).toBuffer();type='image/webp';}catch{throw new CmsError('upload-image','Deze afbeelding kan niet veilig worden verwerkt.',422);}
+  try{const source=sharp(bytes,{limitInputPixels:30_000_000}),metadata=await source.metadata();if(!['png','jpeg','webp'].includes(metadata.format||''))throw new Error('Invalid image');data=await source.rotate().resize({width:2500,height:2500,fit:'inside',withoutEnlargement:true}).webp({quality:88}).toBuffer();type='image/webp';}catch{throw new CmsError('upload-image','Deze afbeelding kan niet veilig worden verwerkt.',422);}
  }else if(mime!=='application/pdf'||Buffer.from(bytes.subarray(0,5)).toString()!=='%PDF-')throw new CmsError('upload-type','Gebruik PNG, JPG, WebP of PDF.',422);
  const id=randomUUID(),key='sponsorship/'+digestText(sponsorId)+'/materials/'+id+(type==='image/webp'?'.webp':'.pdf');
  await putObject(key,data,type);
@@ -75,7 +75,7 @@ export async function archiveSponsorAgreement(id:string,actorId:string){
  });if(!inserted.length)await deleteObject(key);}catch(error){await deleteObject(key);throw error;}
 }
 export async function publicSponsorLogo(id:string){
- const [file]=await sqlClient()`select f.* from cms_sponsor_files f join cms_sponsor_companies c on c.id=f.sponsor_id where f.id=${id} and f.mime='image/webp' and f.kind='material' and c.data->>'publicEnabled'='true' and c.data#>>'{publicProfile,logoUrl}'=${'/api/sponsorship/logos/'+id} and (coalesce(c.data->>'publicFrom','')='' or (c.data->>'publicFrom')::date<=current_date) and (coalesce(c.data->>'publicUntil','')='' or (c.data->>'publicUntil')::date>=current_date)`;
+ const [file]=await sqlClient()`select f.* from cms_sponsor_files f join cms_sponsor_companies c on c.id=f.sponsor_id where f.id=${id} and f.mime='image/webp' and f.kind in ('material','logo') and c.data->>'publicEnabled'='true' and c.data#>>'{publicProfile,logoUrl}'=${'/api/sponsorship/logos/'+id} and (coalesce(c.data->>'publicFrom','')='' or (c.data->>'publicFrom')::date<=current_date) and (coalesce(c.data->>'publicUntil','')='' or (c.data->>'publicUntil')::date>=current_date)`;
  if(!file)throw new CmsError('missing','Logo niet beschikbaar.',404);const bytes=await getObject(file.storage_key);if(binaryHash(bytes)!==file.file_hash)throw new CmsError('file-integrity','Logo niet beschikbaar.',409);
  return new Response(bytes as BodyInit,{headers:{'Content-Type':'image/webp','Cache-Control':'public, max-age=300','X-Content-Type-Options':'nosniff'}});
 }

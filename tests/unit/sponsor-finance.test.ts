@@ -20,16 +20,16 @@ test('whole-cent discounts, separate zero/exempt groups and monthly instalments 
 });
 test('template shortcodes are bounded, text-only and single-pass even when the company name contains HTML or another shortcode',()=>{
  const template={...createDefaultSponsorContractTemplate(),title:'{{bedrijf.naam}}',body:'{{bedrijf.naam}} — {{club.naam}}'};
- assert.equal(SPONSOR_CONTRACT_SHORTCODES.length,22);
+ assert.equal(SPONSOR_CONTRACT_SHORTCODES.length,37);
  const rendered=renderSponsorContractTemplate(template,{'bedrijf.naam':'<script>{{club.naam}}</script>','club.naam':'Duindorp SV'});
  assert.equal(rendered.title,'<script>{{club.naam}}</script>');assert.equal(rendered.body,'<script>{{club.naam}}</script> — Duindorp SV');
  assert.throws(()=>validateSponsorContractTemplate({...template,body:'{{onbekend}}'}),/Onbekende/);assert.throws(()=>validateSponsorContractTemplate({...template,body:'{{bedrijf.naam}'}),/gesloten/);
 });
 test('original UTF-8 document bytes survive JSONB key reordering, schema parsing and repeated export; semantic edits fail',()=>{
- const state=createSponsorshipSeed(),snapshot={name:'Overeenkomst ééntje',sponsorName:'Fictief BV',sponsorAddress:'Test',sponsorEmail:'fictief@example.invalid',season:'2026',startDate:'2026-01-01',endDate:'2026-12-31',paymentTerms:'30 dagen',terms:'Één afspraak',lines:[],discountCents:0,capturedAt:'2026-10-22T09:00:00.000Z'},bytes=JSON.stringify(snapshot);
+ const state=createSponsorshipSeed(),snapshot={name:'Overeenkomst ééntje',sponsorName:'Fictief BV',sponsorAddress:'Test',sponsorEmail:'fictief@example.invalid',season:'2026',startDate:'2026-01-01',endDate:'2026-12-31',paymentTerms:'30 dagen',terms:'Één afspraak',lines:[{...lines[0]}],discountCents:0,capturedAt:'2026-10-22T09:00:00.000Z'},bytes=JSON.stringify(snapshot);
  const agreement:SponsorAgreement={id:'legacy',sponsorId:'company',proposalId:'proposal',number:'DSV-HIST',version:1,status:'awaiting-signature',snapshot:Object.fromEntries(Object.entries(snapshot).reverse()) as typeof snapshot,snapshotBytes:bytes,hashFormat:'json-utf8-v1',documentHash:sponsorDocumentHash(bytes),signatures:[],createdAt:'2026-10-22T09:00:00.000Z',signedAt:''};
  assert.equal(sponsorSnapshotBytes(agreement),bytes);
- const parsed=sponsorshipSchema.innerType().shape.agreements.parse([agreement])[0];assert.equal(sponsorSnapshotBytes(parsed),bytes);assert.equal(sponsorSnapshotBytes(JSON.parse(JSON.stringify(parsed))),bytes);
+ const parsed=sponsorshipSchema.innerType().shape.agreements.parse([agreement])[0];assert.equal(sponsorSnapshotBytes(parsed),bytes);assert.deepEqual(Object.keys(parsed.snapshot.lines[0]),['id','itemId','name','description','quantity','unitPriceCents','taxRate']);assert.equal(sponsorSnapshotBytes(JSON.parse(JSON.stringify(parsed))),bytes);
  assert.throws(()=>sponsorSnapshotBytes({...agreement,snapshot:{...agreement.snapshot,terms:'Gewijzigd'}}),/overeen/);
  assert.equal(state.sponsors.length,0);assert.equal(state.memberships.length,0);assert.equal(state.agreements.length,0);
 });
