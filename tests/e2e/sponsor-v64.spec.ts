@@ -5,10 +5,21 @@ import {readFile} from 'node:fs/promises';
 import {loginWithEmailCode} from './login-fixture';
 import {clearBrowserLoginLimits,capturedEmailCode} from '../helpers/email-code';
 import {assertLocalSupabaseTests} from '../helpers/supabase-auth';
+import {getAuth} from '../../lib/server/auth';
+import {sqlClient,closeDb} from '../../db';
 import type {Sponsor,SponsorItem,SponsorPackage,SponsorProposal} from '../../lib/cms/sponsorship-types';
 assertLocalSupabaseTests();
-const accounts=JSON.parse(readFileSync(process.env.SPONSOR_V64_ACCOUNT_FILE||'.runtime/sponsor-browser-accounts.json','utf8')) as {id:string;email:string;name:string;role:string}[];
-const admin=accounts.find(account=>account.role==='admin')!,contact=accounts.find(account=>account.role==='sponsor')!,club=accounts.find(account=>account.role==='sponsorcommissie')!;
+type TestAccount={id:string;email:string;name:string};
+const admin=JSON.parse(readFileSync(process.env.SPONSOR_E2E_ACCOUNT_FILE||'.runtime/e2e-account.json','utf8')) as TestAccount;
+const sql=sqlClient();let contact:TestAccount,club:TestAccount;
+test.beforeAll(async()=>{
+ for(const role of ['sponsor','sponsorcommissie'] as const){
+  const account=(await getAuth().api.createUser({body:{email:'sponsor-v64-'+role+'-'+crypto.randomUUID()+'@example.invalid',name:role==='sponsor'?'Fictief Duinzicht contact':'Fictief clubondertekenaar',password:crypto.randomUUID()+crypto.randomUUID()}})).user;
+  await sql`insert into cms_memberships(user_id,role_id) values (${account.id},${role})`;
+  if(role==='sponsor')contact=account;else club=account;
+ }
+});
+test.afterAll(closeDb);
 const run=crypto.randomUUID().slice(0,6),companyName='Fictief Duinzicht Webservices '+run,proposalName='Wijkpartner · persoonlijke afspraken '+run;
 const evidence='.runtime/sponsor-evidence/v64';
 const origin=()=>new URL(process.env.APP_BASE_URL!).origin;
