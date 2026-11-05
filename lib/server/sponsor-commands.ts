@@ -4,10 +4,15 @@ import {randomBytes,randomInt} from 'node:crypto';
 import {sqlClient} from '../../db';
 import * as directory from '../cms/directory';
 import * as sponsorship from '../cms/sponsorship';
+import * as donors from '../cms/donors';
+import * as numbering from '../cms/invoice-numbering';
+import {reserveNewInvoiceNumbers,validateStoredNumbering} from './invoice-numbers';
+import {queueDonorInvoiceMail} from './donor-invoices';
+import {deleteObject} from './storage';
 import {withDomainIds} from '../cms/domain-commands';
 import type {SponsorSigningParty} from '../cms/sponsorship-types';
 import {commandEnvelope,commandArgs} from './sponsor-command-input';
-import {workspaceActor,freshActor,requireWrite,workspaceLocks,workspaceRate,secureCodeHash,codeMatches,signingEmail,trustedAddress,type WorkspaceActor} from './sponsor-access';
+import {workspaceActor,freshActor,requireWrite,requireDonorRight,workspaceLocks,workspaceRate,secureCodeHash,codeMatches,signingEmail,trustedAddress,type WorkspaceActor} from './sponsor-access';
 import {readDomainStore,digestText,fullDirectory,globalRight,sponsorStaff,type DomainStore} from './sponsor-store';
 import {persistDomainStore,requireVersion} from './sponsor-persistence';
 import {CmsError} from './errors';
@@ -16,6 +21,7 @@ import {requestKey} from './request-key';
 import {env} from './env';
 import {checkSponsorLogoReference,claimSponsorLogoUploads} from './sponsor-logos';
 const portalCommands=new Set(['acceptSponsorProposal','requestSponsorBusinessChange','requestSponsorProfile','saveSponsorMaterial','registerSponsorEvent','cancelSponsorEvent','requestDirectoryGuardian','requestSponsorSigningCode','trySignSponsorAgreement']);
+const donorCommands=new Set(['saveDonor','saveDonorContribution','issueDonorInvoice','markDonorInvoicePaid','cancelDonorInvoice','sendDonorInvoice']);
 const directoryCommands=new Set(['saveDirectoryPerson','bindDirectoryAccount','setDirectoryAccountActive','createDirectoryInvitation','revokeDirectoryInvitation','saveDirectoryGuardian','approveDirectoryGuardian','saveDirectoryAssignment','removeDirectoryAssignment','importDirectoryPeople']);
 type PreparedMail={to:string;subject:string;text:string;id:string;kind:'invitation'|'signature';link?:{label:string;href:string}};
 const failOtp=()=>new CmsError('otp-invalid','De ondertekeningscode is ongeldig of verlopen. Vraag zo nodig een nieuwe code aan.',422);
@@ -33,6 +39,9 @@ function commandAction(name:string,args:any[],before?:DomainStore):'create'|'upd
  return 'update';
 }
 function checkCommandRight(p:WorkspaceActor['p'],mode:string,name:string,args:any[]=[],before?:DomainStore){
+ if(mode==='donors'&&!donorCommands.has(name)&&name!=='saveInvoiceNumberingSettings')throw new CmsError('forbidden','Deze handeling hoort niet bij Donateurs.',403);
+ if(donorCommands.has(name)){if(mode==='portal')throw new CmsError('forbidden','Deze handeling is niet beschikbaar in het portaal.',403);requireDonorRight(p,['saveDonor','saveDonorContribution'].includes(name)?'manage':'invoice');return;}
+ if(name==='saveInvoiceNumberingSettings'){if(mode==='portal')throw new CmsError('forbidden','Deze handeling is niet beschikbaar in het portaal.',403);if(args[0]?.donors)requireDonorRight(p,'settings');if(args[0]?.sponsors)requireWrite(p,'sponsors','manage');return;}
  if(mode==='portal'){if(!portalCommands.has(name))throw new CmsError('forbidden','Deze handeling is niet beschikbaar in het portaal.',403);return;}
  if(portalCommands.has(name)&&!['requestSponsorSigningCode'].includes(name)&&name!=='requestDirectoryGuardian')throw new CmsError('forbidden','Gebruik je eigen bedrijfsportaal voor deze handeling.',403);
  if(['saveMembership','removeSponsorMembership'].includes(name)&&globalRight(p,'users','manage'))return;
@@ -66,11 +75,13 @@ async function existingOperation(id:string,actorId:string,hash:string){const [ol
 export async function workspaceCommands(request:Request,value:unknown,portal=false){
  const input=commandEnvelope.parse(value);if((input.mode==='portal')!==portal)throw new CmsError('forbidden','Deze werkplek is niet beschikbaar.',403);
  const actor=await workspaceActor(request.headers),hash=secureCodeHash('operation',input.operationId,JSON.stringify(input));
- const cached=await existingOperation(input.operationId,actor.p.id,hash);if(cached)return cached;
  const commands=input.commands.map(c=>{
   const schema=commandArgs[c.name];if(!schema)throw new CmsError('unknown-command','Deze handeling wordt niet ondersteund.',422);
   return {...c,args:schema.parse(c.args) as any[]};
  });
+ // Cached results still require current session validity and current command rights.
+ await sqlClient().begin(async tx=>{const p=await freshActor(tx,actor);for(const command of commands)if(donorCommands.has(command.name)||command.name==='saveInvoiceNumberingSettings')checkCommandRight(p,input.mode,command.name,command.args);});
+ const cached=await existingOperation(input.operationId,actor.p.id,hash);if(cached)return cached;
  if(commands.some(c=>c.name==='requestSponsorSigningCode'||c.name.startsWith('try'))&&commands.length!==1)throw new CmsError('validation','Voer de ondertekenstap afzonderlijk uit.',422);
  const signing=commands.find(c=>c.name==='trySignSponsorAgreement'||c.name==='tryCountersignSponsorAgreement');
  let attempted:any;
@@ -84,10 +95,11 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
   if(!attempted||!codeMatches(attempted.code_hash,secureCodeHash('signature',attempted.id,proof.verificationCode)))throw failOtp();
  }
  const mails:PreparedMail[]=[];
- const result=await sqlClient().begin(async tx=>{
+ const uploaded:string[]=[];
+ let result:any;try{result=await sqlClient().begin(async tx=>{
   await workspaceLocks(tx);const p=await freshActor(tx,actor);
   const [old]=await tx`select * from cms_domain_operations where id=${input.operationId}::uuid`;
-  if(old){if(old.actor_id!==p.id||old.request_hash!==hash)throw new CmsError('operation-conflict','Dit verzoeknummer is al gebruikt.',409);return old.result;}
+  if(old){if(old.actor_id!==p.id||old.request_hash!==hash)throw new CmsError('operation-conflict','Dit verzoeknummer is al gebruikt.',409);for(const command of commands)if(donorCommands.has(command.name)||command.name==='saveInvoiceNumberingSettings')checkCommandRight(p,input.mode,command.name,command.args);return old.result;}
   const before=await readDomainStore(tx,p,{portal,companyId:input.companyId});
   const state=structuredClone(before.state);
   const logoUploads=new Set<string>();
@@ -142,6 +154,8 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
     if(existing.some((r:any)=>r.person_id!==v.personId||r.banned||!r.active))throw new CmsError('email-claimed','Dit inlogadres is niet beschikbaar voor deze persoon. Laat gebruikersbeheer dit beoordelen.',409);
     const reserved=await tx`select person_id from cms_directory_invitations where email=${v.email} and status='pending' and expires_at>now() and person_id<>${v.personId}`;if(reserved.length)throw new CmsError('email-claimed','Dit inlogadres is al gereserveerd voor een andere persoon.',409);
    }
+   const invoiceIds=new Set([...state.sponsorship!.invoices,...(state.sponsorship!.donors?.invoices||[])].map(row=>row.id));
+   const previousNumbering=numbering.getInvoiceNumbering(state.sponsorship!);
    try{
     if(signing){
      signingEmail(actor,p);const [id,proof]=args,party:SponsorSigningParty=name==='trySignSponsorAgreement'?'sponsor':'club';
@@ -152,9 +166,13 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
      const signature=agreement.signatures.at(-1)!;
      await tx`insert into cms_sponsor_signatures(id,agreement_id,user_id,party,document_hash,challenge_id,proof) values (${signature.id},${id},${p.id},${party},${agreement.documentHash},${consumed.id},${tx.json(signature)})`;
     }else{
-     const fn=({...directory,...sponsorship} as unknown as Record<string,Function>)[name];
+     const fn=({...directory,...sponsorship,...donors,...numbering} as unknown as Record<string,Function>)[name];
      if(!fn)throw new CmsError('unknown-command','Deze handeling bestaat niet.',422);
      const changed=withDomainIds(input.operationId,offset,()=>fn(state,p.id,...args));
+     if([...state.sponsorship!.invoices,...(state.sponsorship!.donors?.invoices||[])].some(row=>!invoiceIds.has(row.id)))await reserveNewInvoiceNumbers(tx,state.sponsorship!,previousNumbering,invoiceIds);
+     if(name==='saveInvoiceNumberingSettings')await validateStoredNumbering(tx,state.sponsorship!);
+     if(name==='sendDonorInvoice'){const invoice=state.sponsorship!.donors!.invoices.find(row=>row.id===args[0])!;await queueDonorInvoiceMail(tx,invoice,p.id,input.operationId);}
+     if(donorCommands.has(name)||name==='saveInvoiceNumberingSettings')await tx`insert into cms_audit(id,actor_id,action,record_id,request_id,metadata) values (${crypto.randomUUID()},${p.id},${name},null,${input.operationId},${tx.json({reference:typeof args[0]==='string'?args[0]:args[0]?.id||null,...(name==='markDonorInvoicePaid'?{paymentReference:args[1],method:'manual'}:{}),...(name==='cancelDonorInvoice'?{reason:args[1]}:{})})})`;
      if(name==='logSponsorReminder')await queueSponsorReminder(tx,state,args[0],input.operationId);
      if(name==='createDirectoryInvitation'){
       const token=randomBytes(32).toString('hex');changed.token=digestText(token);
@@ -170,20 +188,20 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
    }catch(error){asError(error);}
   }
   for(const kind of ['items','packages','proposals','agreements'] as const)state.sponsorship![kind]=state.sponsorship![kind].filter(v=>!extraIds.has(v.id)) as never;
-  for(const kind of ['agreements','invoices'] as const){
+  for(const kind of ['agreements'] as const){
    const fresh=state.sponsorship![kind].filter(value=>!before.records.has(value.id));if(!fresh.length)continue;
-   const prefix=(kind==='agreements'?'DSV-':'DSV-F-')+new Date().getFullYear()+'-';
+   const prefix='DSV-'+new Date().getFullYear()+'-';
    const used=await tx`select data->>'number' as number from cms_sponsor_records where kind=${kind} and data->>'number' like ${prefix+'%'}`;
    let sequence=used.reduce((highest:number,r:any)=>{const value=Number(String(r.number).slice(prefix.length));return Number.isSafeInteger(value)?Math.max(highest,value):highest;},0);
    for(const value of fresh)value.number=prefix+String(++sequence).padStart(3,'0');
   }
-  await persistDomainStore(tx,p,before,state,input.operationId);
+  await persistDomainStore(tx,p,before,state,input.operationId,uploaded);
   await claimSponsorLogoUploads(tx,actor,logoUploads);
   for(const a of state.sponsorship!.agreements)if(a.status==='signed'&&before.state.sponsorship!.agreements.find(v=>v.id===a.id)?.status!=='signed')await tx`insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${'sponsor-pdf-'+a.id},'sponsor-final-pdf',${tx.json({agreementId:a.id,actorId:p.id})}) on conflict(operation_id) do nothing`;
-  const response={ok:true,mailStatus:mails.length?'prepared':'none',versions:await committedVersions(tx,commands,before)};
+  const response={ok:true,mailStatus:mails.length?'prepared':commands.some(command=>command.name==='sendDonorInvoice')?'queued':'none',issuedDonorInvoices:commands.filter(command=>command.name==='issueDonorInvoice').map(command=>state.sponsorship!.donors!.invoices.find(invoice=>invoice.contributionId===command.args[0]&&invoice.status!=='cancelled')?.id).filter((id):id is string=>typeof id==='string'),versions:await committedVersions(tx,commands,before)};
   await tx`insert into cms_domain_operations(id,actor_id,request_hash,result) values (${input.operationId}::uuid,${p.id},${hash},${tx.json(response)})`;
   return response;
- });
+ });}catch(error){await Promise.allSettled(uploaded.map(key=>deleteObject(key)));throw error;}
  if(mails.length){
   try{
    for(const mail of mails){

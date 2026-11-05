@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {sponsorshipEntitySchemas as s} from '../cms/sponsorship-schema';
+import {donorEntitySchemas,invoiceNumberSeriesSchema,sponsorshipEntitySchemas as s} from '../cms/sponsorship-schema';
 import {directorySchema} from '../cms/directory-schema';
 const d=directorySchema.innerType().shape;
 const tuple=(schemas:[z.ZodTypeAny,...z.ZodTypeAny[]])=>z.preprocess(value=>Array.isArray(value)?[...value,...Array(Math.max(0,schemas.length-value.length)).fill(undefined)]:value,z.tuple(schemas));
@@ -9,6 +9,10 @@ const person=z.object({id,name:z.string().trim().min(1).max(500),role:text.defau
 const signature=z.object({name:z.string().max(500).optional(),function:z.string().trim().min(1).max(200),consent:z.literal(true),verificationCode:z.string().regex(/^\d{8}$/),challengeId:id});
 const business=z.unknown().transform((v,ctx)=>{const schema=s.businessChangeRequests.unwrap().innerType().element.shape.details;const parsed=schema.safeParse(v);if(!parsed.success){ctx.addIssue({code:'custom',message:'Controleer de bedrijfsgegevens.'});return z.NEVER;}return parsed.data;});
 export const commandArgs:Record<string,z.ZodTypeAny>={
+ saveDonor:tuple([entity(donorEntitySchemas.people)]),saveDonorContribution:tuple([entity(donorEntitySchemas.contributions)]),
+ issueDonorInvoice:tuple([id,z.object({issueDate:z.string().regex(/^\d{4}-\d{2}-\d{2}$/),dueDate:z.string().regex(/^\d{4}-\d{2}-\d{2}$/)}).strict()]),
+ markDonorInvoicePaid:tuple([id,z.string().trim().min(1).max(500)]),cancelDonorInvoice:tuple([id,z.string().trim().min(1).max(1000)]),sendDonorInvoice:tuple([id]),
+ saveInvoiceNumberingSettings:tuple([z.object({sponsors:invoiceNumberSeriesSchema.optional(),donors:invoiceNumberSeriesSchema.optional()}).strict().refine(value=>!!value.sponsors||!!value.donors,'Kies een factuurreeks.')]),
  saveDirectoryPerson:tuple([z.object({person,profile:entity(d.profiles),sponsorId:id.optional()})]),
  bindDirectoryAccount:tuple([id,id]),setDirectoryAccountActive:tuple([id,z.boolean()]),
  createDirectoryInvitation:tuple([z.object({personId:id,email,scope:z.enum(['club','sponsor']),sponsorId:id.optional(),sponsorRoles:z.array(z.enum(['signer','billing','marketing'])).max(3).optional()})]),
@@ -25,4 +29,4 @@ export const commandArgs:Record<string,z.ZodTypeAny>={
  addSponsorNote:tuple([id,z.string().max(500),text.optional()]),requestSponsorProfile:tuple([id,z.object({name:z.string().max(500),description:text,website:z.string().max(2000),logoUrl:z.string().max(2000)})]),approveSponsorProfile:tuple([id,z.boolean().optional()]),
  saveSponsorMaterial:tuple([id,z.object({logoUrl:z.string().max(2000).optional(),note:text.optional(),proofUrl:z.string().max(2000).optional()}).strict()]),registerSponsorEvent:tuple([id,id,z.number().int().min(1).max(20).optional()]),cancelSponsorEvent:tuple([id,id]),renewSponsorAgreement:tuple([id]),logSponsorReminder:tuple([id]),saveSponsorSettings:tuple([s.settings]),saveSponsorEvent:tuple([entity(s.events)])
 };
-export const commandEnvelope=z.object({operationId:z.string().uuid(),mode:z.enum(['directory','sponsorship','portal']),companyId:z.string().max(191).default(''),versions:z.record(z.number().int().nonnegative()).default({}),commands:z.array(z.object({name:z.string().max(80),args:z.array(z.unknown()).max(6),offset:z.number().int().min(0).max(10000)}).strict()).min(1).max(100)}).strict();
+export const commandEnvelope=z.object({operationId:z.string().uuid(),mode:z.enum(['directory','sponsorship','donors','portal']),companyId:z.string().max(191).default(''),versions:z.record(z.number().int().nonnegative()).default({}),commands:z.array(z.object({name:z.string().max(80),args:z.array(z.unknown()).max(6),offset:z.number().int().min(0).max(10000)}).strict()).min(1).max(100)}).strict();

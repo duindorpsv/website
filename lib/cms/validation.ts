@@ -19,7 +19,7 @@ const id=text.min(1);
 const number=z.number().finite();
 const date=text.refine(value=>Number.isFinite(Date.parse(value)),'Ongeldige datum');
 const optionalDate=text.refine(value=>!value||Number.isFinite(Date.parse(value)),'Ongeldige datum');
-const permissions=['news','stories','pages','media','people','forms','settings','users','directory','sponsors','publish'] as const;
+const permissions=['news','stories','pages','media','people','forms','settings','users','directory','sponsors','publish','donors','donors-manage','donors-invoice','donors-settings'] as const;
 const statuses=z.enum(['draft','review','scheduled','published','archived']);
 const seo=z.object({title:text,description:text,noIndex:z.boolean()});
 const widget=z.object({committeeId:text.optional(),contentType:z.enum(['news','story']).optional(),title:text.optional(),text:text.optional(),refId:text.optional(),ids:z.array(text).optional(),url:text.optional(),label:text.optional(),layout:text.optional(),items:z.array(z.object({title:text,text,url:text.optional()})).optional()});
@@ -65,8 +65,9 @@ export function parseCmsState(raw:string):CmsState{
   if(!result.success){const problem=result.error.issues[0];throw new Error(`Dit CMS-bestand is onvolledig of ongeldig${problem?.path.length?` (${problem.path.join('.')})`:''}.`);}
   const state=result.data as CmsState;
   const admin=state.roles.find(role=>role.id==='admin');
-  if(!admin||admin.teamScoped||!permissions.filter(permission=>!['stories','directory','sponsors'].includes(permission)).every(permission=>admin.permissions.includes(permission)))throw new Error('De volledige beheerdersrol ontbreekt in dit CMS-bestand.');
-  if(!state.members.some(member=>member.active&&state.roles.some(role=>role.id===member.roleId&&!role.teamScoped&&permissions.filter(permission=>!['stories','directory','sponsors'].includes(permission)).every(permission=>role.permissions.includes(permission)))))throw new Error('Een actief beheerdersprofiel ontbreekt in dit CMS-bestand.');
+  const requiredLegacyPermissions=permissions.filter(permission=>!['stories','directory','sponsors'].includes(permission)&&!permission.startsWith('donors'));
+  if(!admin||admin.teamScoped||!requiredLegacyPermissions.every(permission=>admin.permissions.includes(permission)))throw new Error('De volledige beheerdersrol ontbreekt in dit CMS-bestand.');
+  if(!state.members.some(member=>member.active&&state.roles.some(role=>role.id===member.roleId&&!role.teamScoped&&requiredLegacyPermissions.every(permission=>role.permissions.includes(permission)))))throw new Error('Een actief beheerdersprofiel ontbreekt in dit CMS-bestand.');
   if(state.members.some(member=>!state.roles.some(role=>role.id===member.roleId)))throw new Error('Een profiel verwijst naar een ontbrekende rol.');
   validateDirectoryLinks(state);
   return state;

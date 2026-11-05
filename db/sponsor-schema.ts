@@ -24,3 +24,7 @@ export const domainOperations=pgTable('cms_domain_operations',{id:uuid('id').pri
 export const domainRevision=pgTable('cms_domain_revision',{id:boolean('id').primaryKey().default(true),version:bigint('version',{mode:'number'}).notNull().default(0)}).enableRLS();
 
 export const directoryFamilyCodes=pgTable('cms_directory_family_codes',{personId:text('person_id').primaryKey().references(()=>records.id),codeHash:text('code_hash').notNull().unique(),expiresAt:time('expires_at').notNull(),createdBy:text('created_by').notNull().references(()=>user.id)}).enableRLS();
+
+// Permanent reservations cover both invoice sources, including cancellations.
+export const invoiceNumbers=pgTable('cms_invoice_numbers',{numberKey:text('number_key').primaryKey(),number:text('number').notNull(),recordId:text('record_id').notNull().unique(),source:text('source').notNull(),createdAt:time('created_at').notNull().defaultNow()}).enableRLS();
+export const donorInvoiceDocuments=pgTable('cms_donor_invoice_documents',{invoiceId:text('invoice_id').primaryKey().references(()=>sponsorRecords.id),snapshotBytes:text('snapshot_bytes').notNull(),documentHash:text('document_hash').notNull(),storageKey:text('storage_key').notNull().unique(),fileHash:text('file_hash').notNull(),bytes:bigint('bytes',{mode:'number'}).notNull(),createdBy:text('created_by').notNull().references(()=>user.id),createdAt:time('created_at').notNull().defaultNow()}).enableRLS();
