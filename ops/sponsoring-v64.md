@@ -65,6 +65,8 @@ B10 is eveneens gericht gecorrigeerd: de bestaande serverversie bundelde alle in
 
 Alle elf beheerweergaven en zes portaalpagina's zijn daarnaast direct als gepaarde contactbladen bekeken; het rapport staat bij de captures als `v64/visual-pages-review.md`. De aanvullende modalvergelijking en de vernieuwde M04-, M06b-, foutvrije M06c- en M20a-toestanden staan in `v64-extra/visual-remaining-modals.md`. De definitieve lokale browserherhaling slaagt met 3/3, zonder skips of retries, inclusief de instellingenopslag en vijf breedtes; het daadwerkelijke JSON-resultaat staat in `.runtime/sponsoring-v64-e2e-final-report.json`.
 
+De laatste visuele controle corrigeert ook de ontbrekende rijopmaak in het aanvullende clubmomentbeheer: elke opgeslagen bijeenkomst heeft nu een eigen brede rij met afzonderlijke titel en datum/capaciteit. Lange titels breken binnen de rij; het bestaande bewerken blijft dezelfde handeling.
+
 ## Behouden infrastructuur en grenzen
 
 Geen tweede gebruikersstelsel, mailprovider, productiebucket of betaalprovider toegevoegd. Bestaande accounts, centrale persoons-ID's, sessies, nieuwsbrief, Sportlink, sitecontent en worker blijven in gebruik. Online betaling blijft uitgeschakeld zolang een geverifieerde providerkoppeling ontbreekt. Onderteken- en mailtests gebruiken fictieve accounts en uitsluitend de afgeschermde testontvanger.

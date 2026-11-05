@@ -85,7 +85,7 @@ Herinneringen draaien elke vijf minuten in de bestaande worker, ook zonder ingel
 
 ## GitHub-instellingen en productie-uitrol
 
-**Geen nieuwe verplichte secrets of variabelen.** Behoud de bestaande namen uit [GitHub Environments](github-environments.md): Supabase Database/Auth, `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAIL_FROM`, `APP_BASE_URL`, private Hetzner S3 en bestaande backupinstellingen. Er is geen SMTP, tweede gebruikersdatabase, externe contactenlijst of stagingomgeving nodig.
+**Geen nieuwe verplichte secrets of variabelen.** Behoud de bestaande namen uit [GitHub Environments](github-environments.md): Supabase Database/Auth, `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAIL_FROM`, `APP_BASE_URL`, private Hetzner S3 en bestaande backupinstellingen. Er is geen SMTP, tweede gebruikersdatabase of externe contactenlijst nodig. De voor v64 gevraagde staging-oplevering vereist wel de bestaande stagingomgeving op de huidige runtime aan te sluiten; de ontbrekende instellingen en uitrolroute staan in [het overdrachtsrapport](sponsoring-v64.md).
 
 Supabase openbare registratie blijft uit; e-mailprovider aan, OTP-lengte 8 en geldigheid 600 seconden. De server genereert/verifieert de code met Supabase en verstuurt de clubtemplate via Resend. Voor sponsorcommissie-mail en voorwaarden: Sponsoring → Instellingen. Bestaande secrets blijven uitsluitend in GitHub `production` en de private runtime-configuratie.
 

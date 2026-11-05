@@ -15,3 +15,11 @@
 
 /* The reference headings use the local condensed club face inside sponsor portals. */
 .sb-modal :is(h1,h2,h3){font-family:'Sponsor Club Condensed','Arial Narrow',sans-serif}
+
+/* Keep saved club moments readable as separate rows, including long titles. */
+.sb-manager .sb-event-row{display:flex;align-items:center;gap:12px;width:100%;min-width:0;padding:14px 0;border:0;border-bottom:1px solid var(--sb-line);background:transparent;color:var(--sb-ink);text-align:left;cursor:pointer}
+.sb-manager .sb-event-row>svg{flex:none;color:var(--sb-blue)}
+.sb-manager .sb-event-row>span{min-width:0;overflow-wrap:anywhere}
+.sb-manager .sb-event-row strong{display:block;font-size:12px;line-height:1.6}
+.sb-manager .sb-event-row small{display:block;margin-top:3px;color:var(--sb-muted);font-size:10px;line-height:1.7}
+.sb-manager .sb-event-row:hover{background:#f6f9fc}
