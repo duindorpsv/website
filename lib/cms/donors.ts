@@ -34,12 +34,15 @@ function contributionFinancialIdentity(value:DonorContribution){return JSON.stri
 function _saveDonorContribution(state:CmsState,actorId:string,value:DonorContribution):DonorContribution{
  requireDonors(state,actorId,'manage');
  const data=ensureDonors(state),previous=data.contributions.find(row=>row.id===value.id),donor=data.people.find(row=>row.id===value.donorId),item=ensureSponsorship(state).items.find(row=>row.id===value.itemId);
- ensure(value.id&&typeof value.id==='string'&&value.id.length<=150&&/^[a-zA-Z0-9][a-zA-Z0-9._:-]*$/.test(value.id),'De bijdrage heeft geen geldige referentie.');ensure(donor,'Kies een bestaande donateur.');ensure(donor.active||!!previous,'Deze donateur is niet actief.');ensure(value.itemId===''||item?.isDonorItem&&(item.active||previous?.itemId===item.id),'Kies een actief donateuritem uit de sponsorcatalogus.');
+ ensure(value.id&&typeof value.id==='string'&&value.id.length<=150&&/^[a-zA-Z0-9][a-zA-Z0-9._:-]*$/.test(value.id),'De bijdrage heeft geen geldige referentie.');ensure(donor,'Kies een bestaande donateur.');ensure(donor.active||!!previous,'Deze donateur is niet actief.');
  ensure(validDate(value.startDate)&&(value.endDate===''||validDate(value.endDate)&&value.startDate<=value.endDate),'Kies een geldige begin- en einddatum.');ensure(['active','ended'].includes(value.status),'Kies een geldige bijdrstatus.');
- const next={...clone(value),description:clean(value.description,1000,'de omschrijving'),createdAt:previous?.createdAt||stamp(),updatedAt:stamp()};
+ const next={...clone(value),description:clean(value.description,1000,'de omschrijving'),createdAt:previous?.createdAt||stamp(),updatedAt:stamp()},sameFinancial=!!previous&&contributionFinancialIdentity(previous)===contributionFinancialIdentity(next);
+ // Ending an existing commitment remains possible after the catalogue marker
+ // changes. This exception never permits a new or financially altered source.
+ ensure(next.itemId===''||item&&(item.isDonorItem&&(item.active||previous?.itemId===item.id)||sameFinancial),'Kies een actief donateuritem uit de sponsorcatalogus.');
  ensure(next.itemId!==''||next.description,'Vul een omschrijving voor de vrije bijdrage in.');
  calculateSponsorTotals([contributionLine(next,item?.name||next.description||'Vrije bijdrage')]);
- if(previous&&data.invoices.some(row=>row.contributionId===previous.id&&row.status!=='cancelled'))ensure(contributionFinancialIdentity(previous)===contributionFinancialIdentity(next),'Deze bijdrage is al gefactureerd. Maak voor een nieuwe periode of ander bedrag een nieuwe bijdrage aan.');
+ if(previous&&data.invoices.some(row=>row.contributionId===previous.id&&row.status!=='cancelled'))ensure(sameFinancial,'Deze bijdrage is al gefactureerd. Maak voor een nieuwe periode of ander bedrag een nieuwe bijdrage aan.');
  record(data.contributions,next);return clone(next);
 }
 function _issueDonorInvoice(state:CmsState,actorId:string,contributionId:string,input:{issueDate:string;dueDate:string}):DonorInvoice{

@@ -48,6 +48,15 @@ test('issued recipient, issuer and prices remain fixed while later entity and cl
  const corrupt=structuredClone(original);corrupt.totalCents++;assert.equal(donorInvoiceSchema.safeParse(corrupt).success,false);assert.doesNotMatch(getDonorInvoiceHtml(s,actor,original.id),/Voorbeeldfactuur|Betaald \(demo\)/);const stored=readDonors(s).invoices[0];stored.issuer={legalName:'',address:'',companyNumber:'',email:''};s.sponsorship!.settings.committeeEmail='live-committee@example.invalid';s.sponsorship!.settings.contractClubDetails={legalName:'HUIDIGE CLUB',email:'live-club@example.invalid'};const html=getDonorInvoiceHtml(s,actor,stored.id);assert.ok(!html.includes('live-committee@example.invalid'));assert.ok(!html.includes('live-club@example.invalid'));assert.ok(!html.includes('HUIDIGE CLUB'));
 });
 
+test('ending a previously invoiced contribution survives catalogue unmarking without permitting new or changed finances',()=>{
+ const s=state(),data=s.sponsorship!;saveDonor(s,actor,donor());data.items=[{id:'historical-donor-item',name:'Vastgelegd donoritem',description:'',kind:'board',priceCents:2500,taxRate:'exempt',capacity:0,period:'season',active:true,isDonorItem:true}];
+ const source=saveDonorContribution(s,actor,{...contribution(),itemId:data.items[0].id,quantity:1,unitPriceCents:2500,taxRate:'exempt'}),invoice=issueDonorInvoice(s,actor,source.id,dates),snapshot=JSON.stringify(invoice);
+ data.items[0].isDonorItem=false;data.items[0].active=false;
+ const ended=saveDonorContribution(s,actor,{...source,status:'ended'});assert.equal(ended.status,'ended');assert.equal(readDonors(s).contributions[0].status,'ended');assert.equal(JSON.stringify(readDonors(s).invoices[0]),snapshot);assert.equal(sponsorshipSchema.safeParse(data).success,true);
+ for(const changed of [{...source,id:'new-unmarked-source'},{...ended,unitPriceCents:2501},{...ended,quantity:2},{...ended,endDate:'2027-01-01'},{...ended,itemId:''}])assert.throws(()=>saveDonorContribution(s,actor,changed));
+ assert.equal(readDonors(s).contributions.length,1);assert.deepEqual(readDonors(s).contributions[0],ended);data.items=[];assert.throws(()=>saveDonorContribution(s,actor,{...ended,status:'active'}),/donateuritem/);assert.equal(JSON.stringify(readDonors(s).invoices[0]),snapshot);
+});
+
 test('manual receipt, delivery intent and cancellation preserve immutable invoice content and reserved numbers',()=>{
  const s=direct(),first=issueDonorInvoice(s,actor,'contribution-test',dates),financial=JSON.stringify([first.number,first.recipient,first.issuer,first.lines,first.totals]);
  const command=captureDomainCommands('send-test-operation',()=>sendDonorInvoice(s,actor,first.id));assert.equal(command.commands[0].name,'sendDonorInvoice');assert.equal(readDonors(s).invoices[0].mailStatus,undefined);
