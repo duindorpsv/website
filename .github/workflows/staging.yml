@@ -1,0 +1,171 @@
+name: Build and deploy staging
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Inventory is read-only; deploy activates the current tested staging commit
+        type: choice
+        required: true
+        default: inventory
+        options: [inventory, deploy]
+permissions:
+  contents: read
+concurrency:
+  group: duindorp-staging
+  cancel-in-progress: false
+jobs:
+  checks:
+    permissions:
+      contents: read
+      packages: write
+    if: github.ref == 'refs/heads/staging'
+    uses: ./.github/workflows/ci.yml
+  build:
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'workflow_dispatch' && inputs.operation == 'deploy'
+    needs: checks
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - id: source
+        run: echo "tree=$(git rev-parse 'HEAD^{tree}')" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/duindorpsv/website:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            nl.duindorpsv.source-tree=${{ steps.source.outputs.tree }}
+          provenance: mode=max
+      - env:
+          DEPLOY_TARGET: staging
+          IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+          BUILD_RUN_ID: ${{ github.run_id }}
+        run: python3 ops/scripts/release.py create release.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release
+          path: release.json
+          retention-days: 90
+          overwrite: true
+  deploy:
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'workflow_dispatch' && inputs.operation == 'deploy'
+    needs: build
+    runs-on: [self-hosted, linux, x64, duindorpsv-staging]
+    environment: staging
+    permissions:
+      actions: read
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release
+      - name: Deploy verified staging artifact
+        env:
+          DEPLOY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CFG_APP_BASE_URL: ${{ vars.APP_BASE_URL }}
+          CFG_S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+          CFG_S3_REGION: ${{ vars.S3_REGION }}
+          CFG_S3_BUCKET: ${{ vars.S3_BUCKET }}
+          CFG_MAIL_FROM: ${{ vars.MAIL_FROM }}
+          CFG_TEST_MAIL_TO: ${{ vars.TEST_MAIL_TO }}
+          CFG_NEWS_IMPORT_MAX_MB: ${{ vars.NEWS_IMPORT_MAX_MB }}
+          CFG_NEWS_IMPORT_MAX_UNPACKED_MB: ${{ vars.NEWS_IMPORT_MAX_UNPACKED_MB }}
+          CFG_NEWS_IMPORT_MAX_ENTRIES: ${{ vars.NEWS_IMPORT_MAX_ENTRIES }}
+          CFG_TRUST_PROXY_IP: ${{ vars.TRUST_PROXY_IP }}
+          CFG_RESTIC_REPOSITORY: ${{ vars.RESTIC_REPOSITORY }}
+          CFG_BACKUP_S3_REGION: ${{ vars.BACKUP_S3_REGION }}
+          CFG_DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          CFG_MIGRATION_DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
+          CFG_SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          CFG_APP_DATABASE_PASSWORD: ${{ secrets.APP_DATABASE_PASSWORD }}
+          CFG_RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          CFG_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          CFG_SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+          CFG_SUPABASE_DB_CA_CERT_B64: ${{ vars.SUPABASE_DB_CA_CERT_B64 }}
+          CFG_S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          CFG_S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          CFG_RESTIC_PASSWORD: ${{ secrets.RESTIC_PASSWORD }}
+          CFG_BACKUP_S3_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
+          CFG_BACKUP_S3_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
+          CFG_SPORTLINK_CLIENT_ID: ${{ secrets.SPORTLINK_CLIENT_ID }}
+        run: |
+          python3 - <<'PY' | sudo -n -u duindorpsv-staging /usr/local/libexec/duindorp/duindorp-deploy-staging
+          import json,os
+          configuration={key[4:]:value for key,value in os.environ.items() if key.startswith('CFG_')}
+          print(json.dumps({'release':json.load(open('release.json')),'token':os.environ['DEPLOY_TOKEN'],'configuration':configuration}))
+          PY
+  acceptance:
+    needs: deploy
+    runs-on: ubuntu-24.04
+    environment: staging-acceptance
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release
+      - name: Require configured human staging acceptance
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PYCODE'
+          import json,os,urllib.request
+          request=urllib.request.Request('https://api.github.com/repos/duindorpsv/website/environments/staging-acceptance',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
+          with urllib.request.urlopen(request,timeout=15) as response: environment=json.load(response)
+          assert any(rule.get('type')=='required_reviewers' and rule.get('reviewers') for rule in environment.get('protection_rules',[])), 'Configure required reviewers before staging acceptance'
+          PYCODE
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: staging-approved
+          path: release.json
+          retention-days: 90
+  inventory:
+    if: github.ref == 'refs/heads/staging' && (github.event_name == 'push' || inputs.operation == 'inventory')
+    runs-on: [self-hosted, linux, x64, duindorpsv-staging]
+    environment: staging
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    steps:
+      - name: Read only staging host metadata without checkout or credentials
+        run: |
+          python3 -I - <<'PYCODE'
+          import json,os,pathlib,pwd,shutil,stat,subprocess
+          result={'identityMatchesRunner':pwd.getpwuid(os.getuid()).pw_name=='runner-duindorpsv-staging'}
+          if not result['identityMatchesRunner']:raise SystemExit('Unexpected staging runner identity')
+          result['prerequisites']={name:bool(shutil.which(name)) for name in ['python3','docker','restic','rclone','sudo']}
+          for name in ['duindorpsv-staging','runner-duindorpsv-staging']:
+            try:
+              account=pwd.getpwnam(name)
+              result[name]={'present':True,'nonRoot':account.pw_uid>0,'expectedHome':account.pw_dir=='/home/'+name}
+            except KeyError:result[name]={'present':False}
+          result['paths']={}
+          for name in ['/usr/local/libexec/duindorp/duindorp-deploy-staging','/usr/local/libexec/duindorp/staging-v5','/etc/duindorp/staging/deploy.json','/var/lib/duindorp/staging/active.json','/var/lib/duindorp/staging/current.json','/etc/sudoers.d/duindorp-staging']:
+            try:
+              entry=pathlib.Path(name).lstat()
+              result['paths'][name]={'present':True,'symlink':stat.S_ISLNK(entry.st_mode),'rootOwned':entry.st_uid==0,'mode':oct(stat.S_IMODE(entry.st_mode))}
+            except FileNotFoundError:result['paths'][name]={'present':False}
+            except PermissionError:result['paths'][name]={'unreadable':True}
+          unit='actions.runner.duindorpsv-website.duindorpsv-staging-01.service'
+          service=subprocess.run(['systemctl','show',unit,'--property=User','--property=ActiveState'],capture_output=True,text=True,timeout=10)
+          fields=dict(line.split('=',1) for line in service.stdout.splitlines() if '=' in line)
+          result['runnerService']={'querySucceeded':service.returncode==0,'active':fields.get('ActiveState')=='active','expectedUser':fields.get('User')=='runner-duindorpsv-staging'}
+          grant=subprocess.run(['sudo','-n','-l','-u','duindorpsv-staging','/usr/local/libexec/duindorp/duindorp-deploy-staging'],capture_output=True,text=True,timeout=10)
+          result['fixedDeployGrantPresent']=grant.returncode==0
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PYCODE

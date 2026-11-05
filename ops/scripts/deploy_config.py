@@ -10,6 +10,7 @@ import stat
 import ssl
 import tempfile
 from urllib.parse import parse_qs, unquote, urlsplit
+from release import deployment_target
 
 SECRETS = (
     'DATABASE_URL', 'MIGRATION_DATABASE_URL', 'APP_DATABASE_PASSWORD', 'SUPABASE_SECRET_KEY',
@@ -24,6 +25,7 @@ VARIABLES = (
     'RESTIC_REPOSITORY', 'BACKUP_S3_REGION',
     'NEWS_IMPORT_MAX_MB', 'NEWS_IMPORT_MAX_UNPACKED_MB', 'NEWS_IMPORT_MAX_ENTRIES',
 )
+STAGING_VARIABLES = ('TEST_MAIL_TO',)
 REQUIRED = (
     'APP_BASE_URL', 'DATABASE_URL', 'MIGRATION_DATABASE_URL', 'APP_DATABASE_PASSWORD', 'SUPABASE_SECRET_KEY',
     'SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_DB_CA_CERT_B64', 'S3_ENDPOINT', 'S3_REGION', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY',
@@ -54,14 +56,15 @@ def https_origin(value, key):
 
 
 def validate_configuration(values, target, installed):
-    require(target == 'production', 'Invalid deployment target')
-    require(isinstance(values, dict) and not set(values) - set(SECRETS + VARIABLES),
+    deployment_target(target)
+    allowed = SECRETS + VARIABLES + (STAGING_VARIABLES if target == 'staging' else ())
+    require(isinstance(values, dict) and not set(values) - set(allowed),
             'Unknown deployment configuration keys')
     for key, value in values.items():
         require(isinstance(value, str) and len(value.encode()) <= 4096
                 and not any(ord(c) < 32 or ord(c) == 127 for c in value),
                 'Invalid configuration value: ' + key)
-    result = {key: values.get(key, '') for key in SECRETS + VARIABLES}
+    result = {key: values.get(key, '') for key in allowed}
     for key, default in {'S3_REGION': 'eu-west-1', 'TRUST_PROXY_IP': 'false',
                          'NEWS_IMPORT_MAX_MB': '512',
                          'NEWS_IMPORT_MAX_UNPACKED_MB': '2048', 'NEWS_IMPORT_MAX_ENTRIES': '10000'}.items():
@@ -126,6 +129,9 @@ def validate_configuration(values, target, installed):
     require(result['TRUST_PROXY_IP'] in ('true', 'false'), 'Invalid TRUST_PROXY_IP')
     require(bool(re.fullmatch(r'[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+', result['MAIL_FROM'])),
             'MAIL_FROM must be an email address')
+    if target == 'staging':
+        require(bool(re.fullmatch(r'[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+', result['TEST_MAIL_TO'])),
+                'Staging requires TEST_MAIL_TO')
     require(result['RESTIC_REPOSITORY'].startswith('s3:https://'),
             'RESTIC_REPOSITORY must use an external S3 HTTPS repository')
     try:
@@ -138,8 +144,8 @@ def validate_configuration(values, target, installed):
     require(valid and not any(c.isspace() for c in result['RESTIC_REPOSITORY']),
             'Invalid RESTIC_REPOSITORY')
     if backup.hostname == endpoint.hostname and backup.path.split('/')[1] == result['S3_BUCKET']:
-        require(backup.path == '/' + result['S3_BUCKET'] + '/.duindorp-backups/production',
-                'A shared media/backup bucket requires the reserved .duindorp-backups/production prefix')
+        require(backup.path == '/' + result['S3_BUCKET'] + '/.duindorp-backups/' + target,
+                'A shared media/backup bucket requires its own reserved backup prefix')
     return result
 
 
@@ -214,6 +220,8 @@ def generation_files(values, target):
                     'MAIL_FROM', 'TRUST_PROXY_IP', 'SPORTLINK_CLIENT_ID',
                     'NEWS_IMPORT_MAX_MB', 'NEWS_IMPORT_MAX_UNPACKED_MB', 'NEWS_IMPORT_MAX_ENTRIES')
     runtime = {key: values[key] for key in runtime_keys if values[key] != ''}
+    if target == 'staging':
+        runtime['TEST_MAIL_TO'] = values['TEST_MAIL_TO']
     runtime.update(APP_ENV=target, MEDIA_DRIVER='s3', DATABASE_CA_CERT_B64=values['SUPABASE_DB_CA_CERT_B64'])
     migration = {'MIGRATION_DATABASE_URL': values['MIGRATION_DATABASE_URL'],
                  'DATABASE_CA_CERT_B64': values['SUPABASE_DB_CA_CERT_B64'],

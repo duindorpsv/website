@@ -5,5 +5,5 @@ import {bodyJson,errorResponse} from '@/lib/server/errors';
 import {env} from '@/lib/server/env';
 export async function POST(request:Request){try{verifyOrigin(request);const input:any=await bodyJson(request),headers=new Headers(request.headers);let token='';if(!archiveOwner(headers)){token=archiveCookie();headers.set('cookie',(headers.get('cookie')||'')+'; '+ARCHIVE_COOKIE+'='+token);}
  const result=input.action==='batch'?await archiveBatch(headers,{operationId:input.operationId,data:input.data,manifest:input.manifest},requestKey(request,'clubarchief')):await archiveSession(headers);
- return Response.json(result,{headers:{'Cache-Control':'no-store',...(token?{'Set-Cookie':`${ARCHIVE_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800${env().APP_ENV==='production'?'; Secure':''}`}:{})}});
+ return Response.json(result,{headers:{'Cache-Control':'no-store',...(token?{'Set-Cookie':`${ARCHIVE_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800${new URL(env().APP_BASE_URL).protocol==='https:'?'; Secure':''}`}:{})}});
 }catch(e){return errorResponse(e);}}

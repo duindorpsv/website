@@ -52,3 +52,19 @@ test('Hetzner policy permission and transport failures keep readiness closed',as
  }) as any);
  for(name of ['AccessDenied','NoSuchBucket','TimeoutError'])await assert.rejects(storageReady(),error=>(error as Error).name===name);
 });
+
+test('staging enforces private S3 readiness before serving media',async t=>{
+ Object.assign(process.env,{APP_ENV:'staging',TEST_MAIL_TO:'staging-test@example.org'});
+ let publicPolicy=false;const commands:string[]=[];
+ t.mock.method(S3Client.prototype,'send',(async(command:any)=>{
+  commands.push(command.constructor.name);
+  if(command instanceof GetBucketAclCommand)return privateAcl;
+  if(command instanceof GetBucketPolicyCommand){
+   if(publicPolicy)return {Policy:JSON.stringify({Statement:{Effect:'Allow',Principal:'*',Action:'s3:GetObject',Resource:'*'}})};
+   throw Object.assign(new Error('No policy'),{name:'NoSuchBucketPolicy'});
+  }
+  return {};
+ }) as any);
+ await storageReady();assert.deepEqual(commands,['HeadBucketCommand','GetBucketAclCommand','GetBucketPolicyCommand']);
+ publicPolicy=true;await assert.rejects(storageReady(),/privébucket zonder publieke policy/);
+});

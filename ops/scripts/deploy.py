@@ -13,7 +13,7 @@ import urllib.request
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from release import api, validate, REGISTRY
+from release import api, validate, REGISTRY, deployment_target
 from deploy_config import (ConfigurationError, atomic_private, compose_environment,
                            fingerprint, private_directory,
                            read_generation, read_private, require, validate_configuration,
@@ -33,10 +33,12 @@ def command(arguments, environment, input=None):
 
 
 def verify(release, token, target):
+    expected = deployment_target(target)
+    validate(release, target)
     run = api('actions/runs/' + str(release['runId']), token)
-    if (target != 'production' or run['head_sha'] != release['sourceSha'] or run['head_branch'] != 'main'
-            or run['event'] not in ('push', 'workflow_dispatch')
-            or run['path'] != '.github/workflows/production.yml'
+    if (run['head_sha'] != release['sourceSha'] or run['head_branch'] != expected['branch']
+            or run['event'] not in (('workflow_dispatch',) if target == 'staging' else ('push', 'workflow_dispatch'))
+            or run['path'] != expected['workflow']
             or run.get('conclusion') not in (None, 'success')):
         raise ValueError('Build provenance rejected')
     # A deploy-only rerun reuses checks/build from an earlier attempt. Select the
@@ -59,10 +61,10 @@ def verify(release, token, target):
     artifacts = api('actions/runs/' + str(release['runId']) + '/artifacts', token)['artifacts']
     artifact = next((a for a in artifacts if a['name'] == 'release' and not a['expired']), None)
     if not artifact:
-        raise ValueError('Verified production release artifact absent')
+        raise ValueError('Verified release artifact absent')
     with zipfile.ZipFile(io.BytesIO(api('actions/artifacts/' + str(artifact['id']) + '/zip',
                                      token, binary=True))) as archive:
-        binding = validate(json.loads(archive.read('release.json')))
+        binding = validate(json.loads(archive.read('release.json')), target)
     if binding != release:
         raise ValueError('Digest is not bound to the trusted build artifact')
 
@@ -86,12 +88,13 @@ def ready(port, digest):
 
 
 def deploy(target, request):
-    if (target != 'production'
+    if (target not in ('production', 'staging')
             or pwd.getpwuid(os.getuid()).pw_name != 'duindorpsv-' + target):
         raise PermissionError('Deployment identity rejected')
     if not isinstance(request, dict) or set(request) != {'release', 'token', 'configuration'}:
         raise ValueError('Invalid request')
-    release = validate(request['release'])
+    expected = deployment_target(target)
+    release = validate(request['release'], target)
     token = request['token']
     require(isinstance(token, str) and 1 < len(token) < 4096, 'Invalid deployment token')
     config = installed_configuration(target)
@@ -110,15 +113,15 @@ def deploy(target, request):
         if latest.exists() and int(read_private(latest)) > release['runId']:
             raise ValueError('Stale deployment rejected')
         if previous:
-            previous_release = validate(previous['release'])
+            previous_release = validate(previous['release'], target)
             if (previous_release['runId'] > release['runId']
                     or (previous_release['runId'] == release['runId'] and previous_release != release)):
                 raise ValueError('Stale deployment rejected')
         verify(release, token, target)
-        sha = api('git/ref/heads/main', token)['object']['sha']
+        sha = api('git/ref/heads/' + expected['branch'], token)['object']['sha']
         if (sha != release['sourceSha']
                 or api('git/commits/' + sha, token)['tree']['sha'] != release['treeSha']):
-            raise ValueError('Current main commit differs from tested release')
+            raise ValueError('Current deployment branch differs from tested release')
         if previous:
             old_values = read_generation(state, previous['configuration'])
             for key in ('DATABASE_URL', 'MIGRATION_DATABASE_URL', 'APP_DATABASE_PASSWORD', 'SUPABASE_URL'):

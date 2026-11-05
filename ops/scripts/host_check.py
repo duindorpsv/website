@@ -17,7 +17,7 @@ def require(condition, message):
 
 
 def validate_target(target, port, base_url):
-    require(target == "production", "Choose production")
+    require(target in ("production", "staging"), "Choose production or staging")
     require(port.isascii() and port.isdecimal() and 1024 <= int(port) <= 65535,
             "Use an unprivileged web port between 1024 and 65535")
     url = urlsplit(base_url)
@@ -115,7 +115,7 @@ def check(target, port, base_url):
 
 if __name__ == "__main__":
     try:
-        require(len(sys.argv) == 4, "Usage: host_check.py production PORT HTTPS_ORIGIN")
+        require(len(sys.argv) == 4, "Usage: host_check.py production|staging PORT HTTPS_ORIGIN")
         check(*sys.argv[1:])
     except (ValueError, KeyError, OSError, subprocess.SubprocessError) as error:
         # No command stdout/stderr: Docker info can contain private proxy settings.

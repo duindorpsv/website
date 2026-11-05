@@ -1,6 +1,7 @@
 import {processSponsorEnquiry} from './sponsor-enquiries';
 import {deliverSponsorReminder} from './sponsor-reminders';
 import {archiveSponsorAgreement} from './sponsor-files';
+import {cleanSponsorLogoUploads} from './sponsor-logos';
 import {processArchiveMedia,cleanArchiveUploads} from './archive-uploads';
 import {dispatchNewsletter,deliverNewsletter} from './newsletter-delivery';
 import {validateMatchPreviewWrite} from './match-previews';
@@ -125,7 +126,7 @@ export async function retain() { const sql = sqlClient(); await sql.begin(async 
     await tx `delete from cms_jobs where payload->>'submissionId'=${row.id}`;
     await tx `delete from cms_submissions where id=${row.id}`;
     await tx `insert into cms_audit(id,action,record_id,request_id) values (${crypto.randomUUID()},'retention-delete',${row.id},${crypto.randomUUID()})`;
-} }); await sql `delete from cms_rate_limits where expires_at<now()`; await sql`delete from cms_jobs where kind='auth-code-mail' and status in ('done','failed','cancelled') and created_at<now()-interval '1 day'`; await sql`delete from cms_auth_login_challenges where expires_at<now()`; await sql`delete from cms_auth_email_sessions where created_at<now()-interval '12 hours'`; await cleanExpiredNews(); await cleanArchiveUploads(); }
+} }); await sql `delete from cms_rate_limits where expires_at<now()`; await sql`delete from cms_jobs where kind='auth-code-mail' and status in ('done','failed','cancelled') and created_at<now()-interval '1 day'`; await sql`delete from cms_auth_login_challenges where expires_at<now()`; await sql`delete from cms_auth_email_sessions where created_at<now()-interval '12 hours'`; await cleanExpiredNews(); await cleanArchiveUploads(); await cleanSponsorLogoUploads(); }
 export async function cleanOrphans(){
     const sql=sqlClient(),objects=await sql`select storage_key,variants from cms_media_objects`;
     const kept=new Set<string>();for(const object of objects){kept.add(object.storage_key);for(const variant of object.variants||[])kept.add(variant.key);}

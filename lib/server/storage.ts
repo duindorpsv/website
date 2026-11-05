@@ -12,9 +12,9 @@ export async function storageReady(){
  if(c.MEDIA_DRIVER==='s3'){
   const client=s3(),Bucket=c.S3_BUCKET;
   await client.send(new HeadBucketCommand({Bucket}));
-  // Production uses Hetzner. Its visibility is controlled by both ACLs and
+  // Hosted environments use Hetzner. Visibility is controlled by both ACLs and
   // bucket policies; HeadBucket alone also succeeds for a public bucket.
-  if(c.APP_ENV==='production'){
+  if(c.APP_ENV==='production'||c.APP_ENV==='staging'){
    const acl=await client.send(new GetBucketAclCommand({Bucket}));
    if(!acl.Grants?.length||acl.Grants.some(grant=>grant.Grantee?.Type!=='CanonicalUser'||!grant.Grantee.ID))throw new Error('S3 vereist een privébucket zonder publieke ACL.');
    let policy:string|undefined;
@@ -29,7 +29,7 @@ export async function storageReady(){
  }else{await mkdir(resolve(c.MEDIA_ROOT),{recursive:true});await access(resolve(c.MEDIA_ROOT));}
 }
 export async function listObjects(prefix:string):Promise<{key:string;at:Date}[]> {
-  if(!['originals/','variants/','documents/','archive/'].includes(prefix))throw new Error('Ongeldig opruimprefix.');
+  if(!['originals/','variants/','documents/','archive/','sponsorship/logos/'].includes(prefix))throw new Error('Ongeldig opruimprefix.');
   if(env().MEDIA_DRIVER==='s3'){
     const result:{key:string;at:Date}[]=[];let cursor:string|undefined;
     do{const page=await s3().send(new ListObjectsV2Command({Bucket:env().S3_BUCKET,Prefix:prefix,ContinuationToken:cursor,MaxKeys:1000}));for(const item of page.Contents||[])if(item.Key&&item.LastModified)result.push({key:item.Key,at:item.LastModified});cursor=page.IsTruncated?page.NextContinuationToken:undefined;}while(cursor);

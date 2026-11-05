@@ -14,6 +14,7 @@ import {CmsError} from './errors';
 import {sponsorMail} from './sponsor-mail';
 import {requestKey} from './request-key';
 import {env} from './env';
+import {checkSponsorLogoReference,claimSponsorLogoUploads} from './sponsor-logos';
 const portalCommands=new Set(['acceptSponsorProposal','requestSponsorBusinessChange','requestSponsorProfile','saveSponsorMaterial','registerSponsorEvent','cancelSponsorEvent','requestDirectoryGuardian','requestSponsorSigningCode','trySignSponsorAgreement']);
 const directoryCommands=new Set(['saveDirectoryPerson','bindDirectoryAccount','setDirectoryAccountActive','createDirectoryInvitation','revokeDirectoryInvitation','saveDirectoryGuardian','approveDirectoryGuardian','saveDirectoryAssignment','removeDirectoryAssignment','importDirectoryPeople']);
 type PreparedMail={to:string;subject:string;text:string;id:string;kind:'invitation'|'signature';link?:{label:string;href:string}};
@@ -89,6 +90,7 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
   if(old){if(old.actor_id!==p.id||old.request_hash!==hash)throw new CmsError('operation-conflict','Dit verzoeknummer is al gebruikt.',409);return old.result;}
   const before=await readDomainStore(tx,p,{portal,companyId:input.companyId});
   const state=structuredClone(before.state);
+  const logoUploads=new Set<string>();
   const extraIds=new Set<string>();
   if(portal&&commands.some(c=>c.name==='acceptSponsorProposal')){
    const rows=await tx`select id,kind,data from cms_sponsor_records where kind in ('items','packages','proposals','agreements') and (sponsor_id is null or sponsor_id<>${input.companyId})`;
@@ -100,10 +102,20 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
     const wanted=['acceptSponsorProposal','requestSponsorSigningCode','trySignSponsorAgreement'].includes(name)?['signer']:name==='requestSponsorBusinessChange'?['signer','billing']:['requestSponsorProfile','saveSponsorMaterial'].includes(name)?['marketing']:[];
     if(wanted.length&&!roles.some(r=>wanted.includes(r)))throw new CmsError('forbidden','Je hebt niet de benodigde bedrijfsrol.',403);
    }
-   for(const url of [args[0]?.publicProfile?.logoUrl,args[0]?.logoUrl,args[1]?.logoUrl,args[1]?.proofUrl].filter(Boolean)){
-    if(typeof url!=='string'||url.startsWith('data:'))throw new CmsError('upload-required','Upload het bestand naar de beveiligde opslag.',422);
-    const match=/^\/api\/sponsorship\/(?:logos|files)\/([a-zA-Z0-9-]+)$/.exec(url);
-    if(match){const company=name==='updateSponsorTask'?state.sponsorship!.tasks.find(t=>t.id===args[0])?.sponsorId:typeof args[0]==='string'?args[0]:args[0]?.id;const [file]=await tx`select sponsor_id,mime from cms_sponsor_files where id=${match[1]}`;if(!file||file.sponsor_id!==company||url.includes('/logos/')&&file.mime!=='image/webp')throw new CmsError('file-scope','Dit bestand hoort niet bij het gekozen bedrijf.',403);}
+   for(const [source,field] of [[args[0]?.publicProfile,'logoUrl'],[args[0],'logoUrl'],[args[1],'logoUrl'],[args[1],'proofUrl']] as const){
+    const url=source?.[field];if(!url)continue;
+    if(typeof url!=='string'||/^data:/i.test(url))throw new CmsError('upload-required','Upload het bestand naar de beveiligde opslag.',422);
+    let target:URL;try{target=new URL(url,env().APP_BASE_URL);}catch{throw new CmsError('validation','Gebruik een geldige bestands- of afbeeldingslink.',422);}
+    const local=target.origin===new URL(env().APP_BASE_URL).origin;
+    const match=local?/^\/api\/sponsorship\/(logos|files|previews)\/([a-zA-Z0-9-]+)$/.exec(target.pathname):null;
+    if(local&&/^\/api\/sponsorship\/(?:logos|files|previews)\//.test(target.pathname)&&!match)throw new CmsError('file-scope','Gebruik de beveiligde bestandslink voor deze relatie.',422);
+    if(match){const company=name==='updateSponsorTask'?state.sponsorship!.tasks.find(t=>t.id===args[0])?.sponsorId:typeof args[0]==='string'?args[0]:args[0]?.id;
+     if(field==='logoUrl'||match[1]==='logos'){const temporary=await checkSponsorLogoReference(tx,actor,p,match[2],company,['saveSponsor','requestSponsorProfile','saveSponsorMaterial'].includes(name));if(temporary)logoUploads.add(match[2]);}
+     else{const [file]=await tx`select sponsor_id from cms_sponsor_files where id=${match[2]}`;if(!file||file.sponsor_id!==company)throw new CmsError('file-scope','Dit bestand hoort niet bij het gekozen bedrijf.',403);}
+     // Store internal references without a host, query or fragment so the
+     // same stable file keeps working after promotion from dev to staging.
+     source[field]=field==='logoUrl'?'/api/sponsorship/logos/'+match[2]:target.pathname;
+    }
    }
    const key=domainCommandVersionKey(name,args);if(key)requireVersion(input.versions,before.versions,key);
    if(name==='saveDirectoryGuardian'){
@@ -166,6 +178,7 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
    for(const value of fresh)value.number=prefix+String(++sequence).padStart(3,'0');
   }
   await persistDomainStore(tx,p,before,state,input.operationId);
+  await claimSponsorLogoUploads(tx,actor,logoUploads);
   for(const a of state.sponsorship!.agreements)if(a.status==='signed'&&before.state.sponsorship!.agreements.find(v=>v.id===a.id)?.status!=='signed')await tx`insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${'sponsor-pdf-'+a.id},'sponsor-final-pdf',${tx.json({agreementId:a.id,actorId:p.id})}) on conflict(operation_id) do nothing`;
   const response={ok:true,mailStatus:mails.length?'prepared':'none',versions:await committedVersions(tx,commands,before)};
   await tx`insert into cms_domain_operations(id,actor_id,request_hash,result) values (${input.operationId}::uuid,${p.id},${hash},${tx.json(response)})`;

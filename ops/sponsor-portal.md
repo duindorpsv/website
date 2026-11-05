@@ -1,6 +1,6 @@
 # Sponsorbeheer en Personen & gebruikers
 
-Deze uitbreiding is gebaseerd op de vastgelegde OnzeTrots-bronversie 61 (`a9757baadcd2897be790e12edcdc84f1d389c337`). Zij gebruikt de bestaande Next.js-applicatie, Supabase Database/Auth, Resend en private Hetzner S3-opslag. Er is één productieomgeving; uitrollen gebeurt via de bestaande GitHub-productieworkflow.
+Deze uitbreiding is gebaseerd op de vastgelegde OnzeTrots-bronversie 64 (`bdaefabaf5fa4fc62f104ed8246ee859d7be575a`). Zij gebruikt de bestaande Next.js-applicatie, Supabase Database/Auth, Resend en private Hetzner S3-opslag. De actieve productieomgeving gebruikt de bestaande GitHub-productieworkflow. De afzonderlijke stagingroute is verouderd en mist huidige configuratie; zie [v64-inventarisatie en verificatie](sponsoring-v64.md). Productie-uitrol valt buiten deze opdracht.
 
 ## Waar beheer je wat?
 
@@ -61,8 +61,8 @@ CSV gebruikt de bestaande kolommen `bronId;naam;email;telefoon`. JSON accepteert
 
 1. Maak de relatie aan; onvolledige formele bedrijfsgegevens mogen als concept worden bewaard.
 2. Vul de formele partij, vestigingsadres, registratie/btw, contactpersoon en factuuradres in en bevestig deze.
-3. Beheer losse items, capaciteit, prijzen en pakketten. Capaciteit 0 betekent onbeperkt. Verzonden voorstellen en overeenkomsten reserveren overlappende plekken; omzetten telt dezelfde toezegging één keer.
-4. Maak een voorstel met looptijd, regels, eventuele korting en een overeenkomsttemplate. De 22 shortcodes worden gecontroleerd en één keer als tekst ingevuld. Versturen zet bedrijfsgegevens, bedragen en template-inhoud vast.
+3. Beheer losse items, capaciteit, prijzen en pakketten. De catalogusprijs blijft op iedere voorstelregel staan; pakketkorting of pakketmeerprijs is afzonderlijk zichtbaar. Persoonlijke naam, toevoeging, regelperiode, itemkorting en eenmalige opmaak horen bij het voorstel. Een volgend seizoen krijgt een eigen regelperiode; opmaak en eerdere itemkorting worden daarbij niet automatisch herhaald. Capaciteit 0 betekent onbeperkt. Verzonden voorstellen en overeenkomsten reserveren overlappende plekken; omzetten telt dezelfde toezegging één keer.
+4. Maak een voorstel met looptijd, regels, eventuele korting en een overeenkomsttemplate. De 37 shortcodes worden gecontroleerd en één keer als tekst ingevuld. Versturen zet bedrijfsgegevens, bedragen en template-inhoud vast.
 5. Maak de overeenkomst van dat voorstel. Bedrijf of template later wijzigen herschrijft bestaande documenten niet. Een verouderde formele partij vereist een actueel voorstel.
 6. Eerst tekent de gekoppelde sponsorondertekenaar. Daarna tekent een ander commissieaccount namens de club. Beide vragen een eigen e-mailcode aan, geven expliciete instemming en bevestigen dezelfde documenthash.
 7. Na beide bewijzen ontstaat de uitvoering en archiveert de worker de definitieve PDF. De PDF-knop kan kort melden dat archivering nog loopt. Nieuwe facturen zijn pas na beide echte ondertekeningen mogelijk.
@@ -73,11 +73,11 @@ Formele wijzigingen vanuit het portaal zijn wijzigingsverzoeken. Goedkeuren wijz
 
 ## Facturen, bestanden en communicatie
 
-Facturen ondersteunen 1, 2, 3, 4, 6 of 12 termijnen. Alle netto-, btw- en totaalcenten worden exact verdeeld. Download een echte factuur-PDF. Registreer uitsluitend werkelijk ontvangen bedragen met **Ontvangst registreren** en een bank-/boekingsreferentie; herhaalde verzoeken boeken niet dubbel.
+Facturen ondersteunen 1, 2, 3, 4, 6 of 12 termijnen. Alle netto-, btw- en totaalcenten worden exact verdeeld; eenmalige opmaak staat uitsluitend op termijn 1. Download een echte factuur-PDF. Registreer uitsluitend werkelijk ontvangen bedragen met **Ontvangst registreren** en een bank-/boekingsreferentie; herhaalde verzoeken boeken niet dubbel.
 
 Er is geen bestaande geverifieerde Mollie-configuratie aangetroffen. Online betalen is daarom uitgeschakeld, ook als een browser een betalingsparameter meestuurt. Er zijn geen verzonnen betaaltransacties of productiebetalingen. Eventuele toekomstige Mollie-integratie vereist een afzonderlijke geverifieerde serverkoppeling.
 
-Materialen accepteren maximaal 15 MB PNG, JPEG, WebP of PDF. Afbeeldingen worden werkelijk gedecodeerd en veilig naar WebP omgezet. Originelen, bewijsstukken, overeenkomsten en facturen blijven privé. Alleen een expliciet goedgekeurd logo kan via de publieke logoroute zichtbaar worden. Bedrijf of rechten wisselen wist open formulieren en lopende browseracties; upload/download controleert toegang opnieuw na verwerking.
+Logo’s accepteren maximaal 8 MB PNG, JPEG of WebP en worden na echte bestandscontrole opnieuw gecodeerd naar maximaal 640 px. De selectie blijft tijdelijk tot de relatie of het publieke profiel succesvol is opgeslagen; annuleren, verlopen en afgebroken verzoeken worden opgeruimd. Overig materiaal accepteert maximaal 15 MB PNG, JPEG, WebP of PDF. Afbeeldingen worden werkelijk gedecodeerd en veilig naar WebP omgezet. Originelen, bewijsstukken, overeenkomsten en facturen blijven privé. Alleen een expliciet goedgekeurd logo kan via de publieke logoroute zichtbaar worden. Bedrijf of rechten wisselen wist open formulieren en lopende browseracties; upload/download controleert toegang opnieuw na verwerking.
 
 Publieke profielen verschijnen alleen na goedkeuring en binnen hun publicatieperiode. Een sponsorrelatie geeft geen nieuwsbriefinschrijving of marketingtoestemming. De tab **Kanalen** maakt een nieuwsbericht ter beoordeling of een nieuwsbriefconcept zonder doelgroep; redactie houdt publicatie- en verzendrechten. Sponsorinteresse blijft in de bestaande Formulieren & inbox en wordt daarnaast idempotent een CRM-lead. Het bestaande formulier gebruikt de ontvangers van de sponsorafdeling.
 
@@ -85,7 +85,7 @@ Herinneringen draaien elke vijf minuten in de bestaande worker, ook zonder ingel
 
 ## GitHub-instellingen en productie-uitrol
 
-**Geen nieuwe verplichte secrets of variabelen.** Behoud de bestaande namen uit [GitHub Environments](github-environments.md): Supabase Database/Auth, `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAIL_FROM`, `APP_BASE_URL`, private Hetzner S3 en bestaande backupinstellingen. Er is geen SMTP, tweede gebruikersdatabase, externe contactenlijst of stagingomgeving nodig.
+**Geen nieuwe verplichte secrets of variabelen.** Behoud de bestaande namen uit [GitHub Environments](github-environments.md): Supabase Database/Auth, `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAIL_FROM`, `APP_BASE_URL`, private Hetzner S3 en bestaande backupinstellingen. Er is geen SMTP, tweede gebruikersdatabase of externe contactenlijst nodig. De voor v64 gevraagde staging-oplevering vereist wel de bestaande stagingomgeving op de huidige runtime aan te sluiten; de ontbrekende instellingen en uitrolroute staan in [het overdrachtsrapport](sponsoring-v64.md).
 
 Supabase openbare registratie blijft uit; e-mailprovider aan, OTP-lengte 8 en geldigheid 600 seconden. De server genereert/verifieert de code met Supabase en verstuurt de clubtemplate via Resend. Voor sponsorcommissie-mail en voorwaarden: Sponsoring → Instellingen. Bestaande secrets blijven uitsluitend in GitHub `production` en de private runtime-configuratie.
 

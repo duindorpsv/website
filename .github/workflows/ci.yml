@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    branches: [main, staging]
   workflow_call:
 permissions:
   contents: read
@@ -93,8 +93,8 @@ jobs:
             sleep 1
           done
           curl --fail --silent http://127.0.0.1:3000/health/ready >/dev/null
-      - name: Store verified production candidate without deployment
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'codex/sponsor-portal-directory'
+      - name: Store verified candidate without deployment
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && contains(fromJSON('["codex/sponsor-portal-directory", "codex/sponsoring-v64"]'), github.head_ref)
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
