@@ -22,3 +22,6 @@
 .sp-doc-lines .sp-line-incentive{color:#467b5d;font-weight:700}.sp-doc-lines td>strong+small{margin-top:5px}.sp-doc-lines td:nth-child(3)>small{display:block;min-width:125px;font-size:9px;color:#6b7e92;line-height:1.8}
 
 .sp-modal-controls{display:contents}.sp-modal :is(button,input,select,textarea):disabled{opacity:.45;cursor:not-allowed}
+
+/* Keep long business and invoice dialogs actionable while their body scrolls. */
+.sp-modal-footer{flex:none;border-top:1px solid var(--sp-border);padding:16px 26px;background:#fff}.sp-modal-footer .sp-actions{margin-top:0!important}.sp-modal-footer .sp-business-form-actions{padding-top:0;border-top:0}@media(max-width:540px){.sp-modal-footer{padding:14px 17px}}
