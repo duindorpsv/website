@@ -1,6 +1,6 @@
 import {processSponsorEnquiry} from './sponsor-enquiries';
 import {deliverSponsorReminder} from './sponsor-reminders';
-import {deliverSponsorDocumentMail} from './sponsor-document-mail';
+import {deliverSponsorDocumentMail,markSponsorDocumentMailExhausted} from './sponsor-document-mail';
 import {archiveSponsorAgreement} from './sponsor-files';
 import {deliverDonorInvoice} from './donor-invoices';
 import {cleanSponsorLogoUploads} from './sponsor-logos';
@@ -119,6 +119,7 @@ export async function runOnce(workerId = crypto.randomUUID()) {
         const wait = Math.min(3600, 30 * 2 ** Math.max(0, job.attempts - 1));
         const code = error instanceof Error && 'code' in error ? String(error.code) : 'processing-failed';
         await sql `update cms_jobs set status=${permanent ? 'failed' : 'pending'},lease_until=null,lease_owner=null,last_error=${code.slice(0, 100)},run_at=now()+${wait}*interval '1 second' where id=${job.id} and lease_owner=${workerId} and status='processing'`;
+        if(permanent&&job.kind==='sponsor-document-mail')await markSponsorDocumentMailExhausted(job.payload.deliveryId,job.id);
         if (job.kind === 'submission-mail')
             await sql `update cms_submissions set delivery_status=${permanent ? 'failed' : 'retry'} where id=${job.payload.submissionId}`;
         if(permanent&&['news-analyze','news-import'].includes(job.kind))await failNewsJob(job.payload.sessionId,'De achtergrondtaak kon niet worden afgerond. Eerder opgeslagen berichten blijven behouden; probeer de mislukte geselecteerde berichten opnieuw.');

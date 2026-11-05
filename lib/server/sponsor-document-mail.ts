@@ -77,3 +77,10 @@ export async function deliverSponsorDocumentMail(deliveryId:string){
   throw error;
  }
 }
+/** A permanently exhausted archive/mail job must not remain displayed as queued. */
+export async function markSponsorDocumentMailExhausted(deliveryId:string,jobId:string){
+ await sqlClient().begin(async tx=>{await workspaceLocks(tx);
+  const changed=await tx`update cms_sponsor_deliveries set status='failed' where id=${deliveryId} and status not in ('accepted','cancelled') and not exists(select 1 from cms_jobs where kind='sponsor-document-mail' and payload->>'deliveryId'=${deliveryId} and id<>${jobId} and status in ('pending','processing')) returning id`;
+  if(changed.length)await tx`update cms_domain_revision set version=version+1 where id=true`;
+ });
+}
