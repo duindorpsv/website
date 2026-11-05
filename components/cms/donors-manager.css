@@ -13,3 +13,7 @@
 .dc-mail-status{font-size:11px;color:#60758c;line-height:1.7}
 /* Keep the accessible actions heading inside the horizontal table viewport. */
 .dc-table th{position:relative}
+/* Preserve the reference total alignment beside the additional real mail actions. */
+.dc-document-top{justify-content:flex-start;flex-wrap:wrap}
+.dc-document-top>strong{order:2;margin-left:auto}
+.dc-invoice-actions{order:1}
