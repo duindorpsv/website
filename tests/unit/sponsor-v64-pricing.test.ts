@@ -4,6 +4,7 @@ import type {CmsState} from '../../lib/cms/types';
 import type {SponsorLine,SponsorAgreement} from '../../lib/cms/sponsorship-types';
 import * as model from '../../lib/cms/sponsorship';
 import * as contracts from '../../lib/cms/sponsor-contracts';
+import {captureDomainCommands} from '../../lib/cms/domain-commands';
 import {emptyState} from '../../lib/server/records';
 import {sponsorshipSchema} from '../../lib/cms/sponsorship-schema';
 
@@ -169,4 +170,15 @@ test('backup invoice totals must match fixed line amounts and the complete plan 
 
 test('malformed nested shortcode delimiters cannot become a second template syntax',()=>{
  const template=contracts.createDefaultSponsorContractTemplate();for(const body of ['{{{bedrijf.naam}}}','{{bedrijf.naam}}}','{{bedrijf.naam','bedrijf.naam}}'])assert.throws(()=>contracts.validateSponsorContractTemplate({...template,body}),/gesloten/);
+});
+
+
+test('portal acceptance queues intent with a hidden catalog while the server still enforces signer rights and capacity',()=>{
+ const s=state(),data=model.ensureSponsorship(s);data.items[0].capacity=1;const sent=proposal(s,[line()]);model.sendSponsorProposal(s,committee,sent.id);
+ const portal=structuredClone(s);portal.sponsorship!.items=[];portal.sponsorship!.packages=[];const before=JSON.stringify(portal);
+ const captured=captureDomainCommands('portal-acceptance',()=>model.acceptSponsorProposal(portal,signer,sent.id));
+ assert.deepEqual(captured.commands,[{name:'acceptSponsorProposal',args:[sent.id],offset:0}]);assert.equal(captured.value.status,'sent','The preview must not claim acceptance before the server response');assert.equal(JSON.stringify(portal),before,'Hidden catalog data is neither needed nor added to the client state');
+ const membership=data.memberships.find(row=>row.userId===signer)!;membership.roles=['marketing'];assert.throws(()=>model.acceptSponsorProposal(s,signer,sent.id),/tekenbevoegd/);assert.equal(sent.status,'sent');membership.roles=['signer'];
+ sent.reservedUntil='2000-01-01T00:00:00.000Z';const competing=proposal(s,[line('last-available-place')]);model.sendSponsorProposal(s,committee,competing.id);
+ assert.throws(()=>model.acceptSponsorProposal(s,signer,sent.id),/beschikbaar/);assert.equal(sent.status,'sent','The server rejects an expired offer after its last place was reserved elsewhere');
 });

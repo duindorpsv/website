@@ -7,7 +7,7 @@ import {sqlClient,closeDb} from '../../db';
 import {workspaceCommands} from '../../lib/server/sponsor-commands';
 import {workspaceRead} from '../../lib/server/sponsor-workspace';
 import {sponsorLogoUpload,sponsorLogoPreview,cancelSponsorLogoUpload,cleanSponsorLogoUploads} from '../../lib/server/sponsor-logos';
-import {sponsorDownload,publicSponsorLogo} from '../../lib/server/sponsor-files';
+import {sponsorDownload,sponsorUpload,publicSponsorLogo} from '../../lib/server/sponsor-files';
 import {getObject} from '../../lib/server/storage';
 import type {Sponsor} from '../../lib/cms/sponsorship-types';
 import {GET as sponsorHttpGet,POST as sponsorHttpPost,DELETE as sponsorHttpDelete} from '../../app/api/sponsorship/[...path]/route';
@@ -67,6 +67,31 @@ test('temporary sponsor logos remain context-bound until a successful relationsh
   await expectError(await http('notifications',actor.cookie,'POST',{companyId:42,ids:[]}),422,'validation');
   await expectError(await http('logo-uploads/'+missing,'','POST','pixels'),401,'unauthenticated');
   await expectError(await http('logo-uploads/'+missing,'','DELETE'),401,'unauthenticated');
+ });
+ await t.test('current company contacts can preview only the approved canonical logo while public and private file scopes stay separate',async()=>{
+  const signer=await fixture('sponsor'),billing=await fixture('sponsor'),marketing=await fixture('sponsor');
+  for(const [contact,role] of [[signer,'signer'],[billing,'billing'],[marketing,'marketing']] as const)await sql`insert into cms_sponsor_memberships(id,sponsor_id,user_id,roles) values (${crypto.randomUUID()},${sponsorId},${contact.id},${[role]})`;
+  const logo=(cookie:string,id:string,preview=true)=>sponsorHttpGet(new Request(new URL('/api/sponsorship/'+(preview?'previews/':'files/')+id,base),{headers:{cookie}}),{params:Promise.resolve({path:[preview?'previews':'files',id]})});
+  assert.equal((await logo(signer.cookie,uploaded.id)).status,403,'Internal relationship logo alone does not grant the contact access');
+  const current=await workspaceRead(new Request(new URL('/workspace?mode=sponsorship',base),{headers:{cookie:actor.cookie}})),original=current.state.sponsorship!.sponsors.find(row=>row.id===sponsorId)!;
+  await save(actor.cookie,{...original,publicProfile:{...original.publicProfile,logoUrl:uploaded.url}});
+  for(const contact of [signer,billing]){const response=await logo(contact.cookie,uploaded.id);assert.equal(response.status,200);assert.equal(response.headers.get('content-type'),'image/webp');assert.equal(response.headers.get('cache-control'),'private, no-store');assert.match(response.headers.get('content-disposition')||'',/^inline;/);assert.equal((await logo(contact.cookie,uploaded.id,false)).status,403);}
+  await assert.rejects(publicSponsorLogo(uploaded.id),(error:any)=>error.status===404);
+  const raw=await sponsorUpload(request(actor.cookie,'POST',png),sponsorId);
+  assert.equal((await logo(signer.cookie,raw.id)).status,403,'Unreviewed material stays marketing-only');
+  assert.equal((await logo(marketing.cookie,raw.id)).status,200);
+  // Previously stored approved logos have kind material; the exact canonical
+  // profile reference, rather than the file kind alone, determines eligibility.
+  await save(actor.cookie,{...original,publicProfile:{...original.publicProfile,logoUrl:'/api/sponsorship/logos/'+raw.id}});
+  assert.equal((await logo(signer.cookie,raw.id)).status,200);
+  assert.equal((await logo(signer.cookie,uploaded.id)).status,403,'Replacing the approved identity revokes the old preview');
+  assert.equal((await logo(marketing.cookie,uploaded.id)).status,200,'Marketing retains its existing material access');
+  assert.equal((await logo(signer.cookie,raw.id,false)).status,403,'Canonical preview does not broaden private downloads');
+  await sql`delete from cms_sponsor_memberships where user_id=${signer.id} and sponsor_id=${sponsorId}`;
+  assert.equal((await logo(signer.cookie,raw.id)).status,403);
+  await sql`update cms_memberships set active=false where user_id=${billing.id}`;
+  assert.equal((await logo(billing.cookie,raw.id)).status,403);
+  await assert.rejects(publicSponsorLogo(raw.id),(error:any)=>error.status===404);
  });
  await t.test('explicit cancellation and expiry remove only temporary objects, including a pending new relationship',async()=>{
   const cancelled=await sponsorLogoUpload(request(actor.cookie,'POST',png),crypto.randomUUID()),[cancelledRow]=await sql`select storage_key from cms_sponsor_logo_uploads where id=${cancelled.id}`;

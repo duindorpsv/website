@@ -41,11 +41,11 @@ Lokale bewijspaden: `.runtime/sponsoring-v64-{unit,typecheck,build,runtime,ops,i
 | Controle | Daadwerkelijk resultaat |
 | --- | --- |
 | Referentiechecks en typecheck | 210/210; typecheck geslaagd in afzonderlijke checkout |
-| Doelapp-unittests | 302 geslaagd; één reeds bestaande skip |
+| Doelapp-unittests | 303 geslaagd; één reeds bestaande skip |
 | Doelapp-typecheck, productiebuild, runtimebundle | Geslaagd |
 | Operationele regressies | 29/29 |
-| Volledige sponsorintegratie op lokale Supabase | 22/22, inclusief exact opgegeven €705/€148,05/€853,05-scenario, twee eigen OTP's, historische bytes, PDF en termijnen |
-| Tijdelijke logo's en HTTP-foutafhandeling | 8/8, inclusief claim/annuleren-race, sessie/bedrijfsgrenzen en correcte 400/401/403/404/422-responses |
+| Volledige sponsorintegratie op lokale Supabase | 23/23, inclusief exact opgegeven €705/€148,05/€853,05-scenario, twee eigen OTP's, historische bytes, PDF en termijnen |
+| Tijdelijke logo's en HTTP-foutafhandeling | 9/9, inclusief claim/annuleren-race, beperkte interne toegang tot het canoniek goedgekeurde profielbeeld, sessie/bedrijfsgrenzen en correcte 400/401/403/404/422-responses |
 | Bestaande archiefdecoder | Gerichte echte audio/video-test geslaagd met tijdelijke ffmpeg/ffprobe buiten de repository |
 | Bestaande privé-S3 | Gerichte MEDIA05 geslaagd met echte AWS Signature V4-verzoeken, weigering van ongetekende/verkeerd getekende verzoeken; tijdelijke geïsoleerde adapter daarna opgeruimd |
 

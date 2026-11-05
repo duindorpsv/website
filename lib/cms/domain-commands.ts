@@ -17,9 +17,13 @@ export function captureDomainCommands<T>(id:string,run:()=>T){
 }
 export function domainMutation<T>(name:string,args:unknown[],run:()=>T):T{
  if(!depth&&recorder)recorder.push({name,args:structuredClone(args.slice(2)),offset:sequence});
- // OTP verification is exclusively server-side. A UI recipe only previews
- // the return shape; update() succeeds after the real server response.
+ // The portal omits catalog/reservation data and OTP evidence. These UI
+ // recipes record intent; update() succeeds only after server authorization.
  if(recorder&&!depth&&['bindDirectoryAccount','saveDirectoryGuardian'].includes(name))return structuredClone(args[2]) as T;
+ if(recorder&&!depth&&name==='acceptSponsorProposal'){
+  const state=args[0] as {sponsorship?:{proposals:{id:string}[]}};
+  return structuredClone(state.sponsorship?.proposals.find(proposal=>proposal.id===args[2])) as T;
+ }
  if(recorder&&!depth&&['trySignSponsorAgreement','tryCountersignSponsorAgreement'].includes(name)){
   const state=args[0] as {sponsorship?:{agreements:{id:string}[]}};
   return {ok:true,agreement:state.sponsorship?.agreements.find(a=>a.id===args[2])} as T;

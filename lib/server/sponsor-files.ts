@@ -35,11 +35,22 @@ export async function sponsorUpload(request:Request,sponsorId:string){
  catch(error){await deleteObject(key);throw error;}
  return {id,url:'/api/sponsorship/files/'+id,name,mime:type};
 }
-async function authorizedFile(actor:WorkspaceActor,id:string){return sqlClient().begin(async tx=>{const p=await freshActor(tx,actor);const [file]=await tx`select * from cms_sponsor_files where id=${id}`;if(!file)throw new CmsError('missing','Bestand niet gevonden.',404);await fileAccess(tx,p,file.sponsor_id,file.kind);return file;});}
+async function authorizedFile(actor:WorkspaceActor,id:string,inline=false){return sqlClient().begin(async tx=>{
+ const p=await freshActor(tx,actor),[file]=await tx`select * from cms_sponsor_files where id=${id}`;
+ if(!file)throw new CmsError('missing','Bestand niet gevonden.',404);
+ if(inline&&file.mime==='image/webp'&&['logo','material'].includes(file.kind)){
+  // The approved company identity is visible to each current contact inside
+  // the portal, independently of public publication dates. This exception
+  // never grants downloads or access to another unreviewed/private image.
+  const [approved]=await tx`select 1 from cms_sponsor_companies c join cms_sponsor_memberships m on m.sponsor_id=c.id where c.id=${file.sponsor_id} and m.user_id=${p.id} and m.roles && array['signer','billing','marketing']::text[] and c.data#>>'{publicProfile,logoUrl}'=${'/api/sponsorship/logos/'+id}`;
+  if(approved)return file;
+ }
+ await fileAccess(tx,p,file.sponsor_id,file.kind);return file;
+});}
 export async function sponsorDownload(request:Request,id:string,inline=false){
- const actor=await workspaceActor(request.headers),file=await authorizedFile(actor,id),bytes=await getObject(file.storage_key);
+ const actor=await workspaceActor(request.headers),file=await authorizedFile(actor,id,inline),bytes=await getObject(file.storage_key);
  if(binaryHash(bytes)!==file.file_hash)throw new CmsError('file-integrity','Het bestand kon niet worden gecontroleerd.',409);
- const current=await workspaceActor(request.headers);if(current.p.id!==actor.p.id)throw new CmsError('forbidden','Je toegang is gewijzigd.',403);await authorizedFile(current,id);
+ const current=await workspaceActor(request.headers);if(current.p.id!==actor.p.id)throw new CmsError('forbidden','Je toegang is gewijzigd.',403);await authorizedFile(current,id,inline);
  return new Response(bytes as BodyInit,{headers:{'Content-Type':file.mime,'Content-Disposition':`${inline&&file.mime==='image/webp'?'inline':'attachment'}; filename="${file.mime==='application/pdf'?'Duindorp-SV-document.pdf':'Duindorp-SV-materiaal.webp'}"`,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Content-Security-Policy':"sandbox; default-src 'none'"}});
 }
 async function pdfAssets(){const root=join(process.cwd(),'public');const [logoPng,bodyFont,boldFont,headingFont,brushFont]=await Promise.all(['assets/logo.png','fonts/club-font-4.ttf','fonts/club-font-7.ttf','fonts/club-font-3.ttf','fonts/club-font-9.ttf'].map(path=>readFile(join(root,path))));return {logoPng,bodyFont,boldFont,headingFont,brushFont};}
