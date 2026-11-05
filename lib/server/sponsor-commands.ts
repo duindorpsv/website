@@ -1,4 +1,5 @@
 import {domainCommandVersionKey} from '../cms/domain-commands';
+import {queueSponsorDocumentMail} from './sponsor-document-mail';
 import {queueSponsorReminder} from './sponsor-reminders';
 import {randomBytes,randomInt} from 'node:crypto';
 import {sqlClient} from '../../db';
@@ -66,6 +67,8 @@ async function existingOperation(id:string,actorId:string,hash:string){const [ol
 export async function workspaceCommands(request:Request,value:unknown,portal=false){
  const input=commandEnvelope.parse(value);if((input.mode==='portal')!==portal)throw new CmsError('forbidden','Deze werkplek is niet beschikbaar.',403);
  const actor=await workspaceActor(request.headers),hash=secureCodeHash('operation',input.operationId,JSON.stringify(input));
+ // A replay must not reveal a usable send result after staff/session revocation.
+ if(input.commands.some(command=>command.name==='sendSponsorDocumentEmail'))await sqlClient().begin(async tx=>{const p=await freshActor(tx,actor);checkCommandRight(p,input.mode,'sendSponsorDocumentEmail');});
  const cached=await existingOperation(input.operationId,actor.p.id,hash);if(cached)return cached;
  const commands=input.commands.map(c=>{
   const schema=commandArgs[c.name];if(!schema)throw new CmsError('unknown-command','Deze handeling wordt niet ondersteund.',422);
@@ -92,6 +95,8 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
   const state=structuredClone(before.state);
   const logoUploads=new Set<string>();
   const extraIds=new Set<string>();
+  let documentMailStatus='none';
+  const documentMailIntents:{id:string;phase:'proposal'|'agreement'|'signed'}[]=[];
   if(portal&&commands.some(c=>c.name==='acceptSponsorProposal')){
    const rows=await tx`select id,kind,data from cms_sponsor_records where kind in ('items','packages','proposals','agreements') and (sponsor_id is null or sponsor_id<>${input.companyId})`;
    for(const r of rows){if((state.sponsorship as any)[r.kind].some((v:any)=>v.id===r.id))continue;(state.sponsorship as any)[r.kind].push({...r.data,id:r.id});extraIds.add(r.id);}
@@ -155,6 +160,7 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
      const fn=({...directory,...sponsorship} as unknown as Record<string,Function>)[name];
      if(!fn)throw new CmsError('unknown-command','Deze handeling bestaat niet.',422);
      const changed=withDomainIds(input.operationId,offset,()=>fn(state,p.id,...args));
+     if(name==='sendSponsorDocumentEmail')documentMailIntents.push({id:args[0],phase:args[1]==='agreement'&&changed.status==='signed'?'signed':args[1]});
      if(name==='logSponsorReminder')await queueSponsorReminder(tx,state,args[0],input.operationId);
      if(name==='createDirectoryInvitation'){
       const token=randomBytes(32).toString('hex');changed.token=digestText(token);
@@ -179,8 +185,10 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
   }
   await persistDomainStore(tx,p,before,state,input.operationId);
   await claimSponsorLogoUploads(tx,actor,logoUploads);
+  for(const intent of documentMailIntents)documentMailStatus=(await queueSponsorDocumentMail(tx,intent.id,intent.phase,input.operationId,p.id)).status;
   for(const a of state.sponsorship!.agreements)if(a.status==='signed'&&before.state.sponsorship!.agreements.find(v=>v.id===a.id)?.status!=='signed')await tx`insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${'sponsor-pdf-'+a.id},'sponsor-final-pdf',${tx.json({agreementId:a.id,actorId:p.id})}) on conflict(operation_id) do nothing`;
-  const response={ok:true,mailStatus:mails.length?'prepared':'none',versions:await committedVersions(tx,commands,before)};
+  for(const agreement of state.sponsorship!.agreements)if(agreement.status==='signed'&&!before.state.sponsorship!.agreements.some(old=>old.id===agreement.id&&old.status==='signed'))await queueSponsorDocumentMail(tx,agreement.id,'signed',input.operationId,p.id,false);
+  const response={ok:true,mailStatus:mails.length?'prepared':documentMailStatus,versions:await committedVersions(tx,commands,before)};
   await tx`insert into cms_domain_operations(id,actor_id,request_hash,result) values (${input.operationId}::uuid,${p.id},${hash},${tx.json(response)})`;
   return response;
  });
