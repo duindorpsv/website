@@ -12,9 +12,9 @@ export async function storageReady(){
  if(c.MEDIA_DRIVER==='s3'){
   const client=s3(),Bucket=c.S3_BUCKET;
   await client.send(new HeadBucketCommand({Bucket}));
-  // Production uses Hetzner. Its visibility is controlled by both ACLs and
+  // Hosted environments use Hetzner. Visibility is controlled by both ACLs and
   // bucket policies; HeadBucket alone also succeeds for a public bucket.
-  if(c.APP_ENV==='production'){
+  if(c.APP_ENV==='production'||c.APP_ENV==='staging'){
    const acl=await client.send(new GetBucketAclCommand({Bucket}));
    if(!acl.Grants?.length||acl.Grants.some(grant=>grant.Grantee?.Type!=='CanonicalUser'||!grant.Grantee.ID))throw new Error('S3 vereist een privébucket zonder publieke ACL.');
    let policy:string|undefined;

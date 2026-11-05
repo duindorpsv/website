@@ -69,10 +69,35 @@ test('invalid recipients, reply-to and header injection never reach Resend',asyn
  let called=false;globalThis.fetch=async()=>{called=true;throw new Error('Unexpected network');};
  for(const change of [{to:[]},{to:['invalid']},{replyTo:'invalid'},{subject:'Hello\r\nBCC: bad@example.org'},{messageId:'id\nother'}])await assert.rejects(sendMail({...input,...change}),(e:any)=>e.code==='mail-invalid');assert.equal(called,false);
 });
-test('production rejects test redirection and requires Resend, HTTPS and S3; staging is unsupported',()=>{
+test('production rejects test redirection and requires Resend, HTTPS and S3',()=>{
  Object.assign(process.env,{APP_ENV:'production',APP_BASE_URL:'https://club.example.org',MEDIA_DRIVER:'s3'});assert.throws(env,/TEST_MAIL_TO/);process.env.TEST_MAIL_TO='';assert.equal(env().APP_ENV,'production');
  process.env.RESEND_API_KEY='';assert.throws(env,/RESEND_API_KEY/);process.env.RESEND_API_KEY=settings.RESEND_API_KEY;process.env.APP_BASE_URL='http://club.example.org';assert.throws(env,/HTTPS/);
- process.env.APP_BASE_URL='https://club.example.org';process.env.MEDIA_DRIVER='filesystem';assert.throws(env,/S3/);process.env.APP_ENV='staging';assert.throws(env,/APP_ENV/);
+ process.env.APP_BASE_URL='https://club.example.org';process.env.MEDIA_DRIVER='filesystem';assert.throws(env,/S3/);
+});
+
+test('staging redirects every recipient and scopes Resend operations to staging',async()=>{
+ production();Object.assign(process.env,{APP_ENV:'staging',TEST_MAIL_TO:settings.TEST_MAIL_TO});
+ const operation=createHash('sha256').update('staging\0'+input.messageId).digest('hex');let calls=0;
+ globalThis.fetch=async(url,options)=>{
+  calls++;assert.equal(url,'https://api.resend.com/emails');
+  assert.equal((options?.headers as Record<string,string>)['Idempotency-Key'],`cms/${operation}/0`);
+  const body=JSON.parse(String(options?.body));assert.deepEqual(body.to,[settings.TEST_MAIL_TO]);
+  assert.ok(input.to.every(address=>!String(options?.body).includes(address)));
+  assert.deepEqual(body.tags,[{name:'cms_operation',value:operation}]);return Response.json(receipt());
+ };
+ await sendMail(input);assert.equal(calls,1);
+});
+
+test('staging fails closed without the safe recipient or hosted security configuration',async()=>{
+ production();Object.assign(process.env,{APP_ENV:'staging',TEST_MAIL_TO:settings.TEST_MAIL_TO});
+ let calls=0;globalThis.fetch=async()=>{calls++;throw new Error('Unexpected network');};
+ for(const [key,value,pattern] of [
+  ['TEST_MAIL_TO','',/TEST_MAIL_TO/],['APP_BASE_URL','http://club.example.org',/HTTPS/],
+  ['DATABASE_CA_CERT_B64','',/DATABASE_CA_CERT_B64/],['MEDIA_DRIVER','filesystem',/S3/],
+  ['SUPABASE_SECRET_KEY','',/SUPABASE_SECRET_KEY/],['RESEND_API_KEY','',/RESEND_API_KEY/],
+  ['TEST_MAIL_API_URL','http://127.0.0.1:62623',/testmailserver/],
+ ] as const){const previous=process.env[key];process.env[key]=value;await assert.rejects(sendMail(input),pattern);process.env[key]=previous;}
+ assert.equal(calls,0);
 });
 
 test('branded HTML travels to Resend alongside the plain-text alternative',async()=>{

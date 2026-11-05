@@ -29,7 +29,7 @@ REAL_COMMAND = deploy.command
 def settings(target='production'):
     app_password='application-example-' + 'b' * 32
     project='abcdefghijklmnopqrst'
-    return dict(APP_BASE_URL='https://' + target + '.example.org',
+    values = dict(APP_BASE_URL='https://' + target + '.example.org',
                 DATABASE_URL='postgres://duindorp_app:'+app_password+'@db.'+project+'.supabase.co:5432/postgres?sslmode=verify-full',
                 MIGRATION_DATABASE_URL='postgres://postgres:migration-example-'+'a'*32+'@db.'+project+'.supabase.co:5432/postgres?sslmode=verify-full',
                 APP_DATABASE_PASSWORD=app_password,
@@ -43,18 +43,21 @@ def settings(target='production'):
                 RESTIC_PASSWORD='synthetic-restic-' + 'd' * 32,
                 BACKUP_S3_ACCESS_KEY_ID='synthetic-backup-key',
                 BACKUP_S3_SECRET_ACCESS_KEY='synthetic-backup-secret')
+    if target == 'staging':
+        values['TEST_MAIL_TO'] = 'staging-test@example.org'
+    return values
 
 
-def release(run=10):
+def release(run=10, target='production'):
     return dict(schemaVersion=1, repository='duindorpsv/website',
-                workflow='.github/workflows/production.yml', runId=run,
+                workflow=manifests.deployment_target(target)['workflow'], runId=run,
                 sourceSha='a' * 40, treeSha='b' * 40, digest='sha256:' + str(run % 10) * 64,
                 migrationHash='c' * 64, configVersion=5)
 
 
 class ConfigurationTests(unittest.TestCase):
     def test_requirements_defaults_and_environment_separation(self):
-        for target in ('production',):
+        for target in ('production', 'staging'):
             installed = {'baseUrl': settings(target)['APP_BASE_URL']}
             values = configuration.validate_configuration(settings(target), target, installed)
             self.assertEqual(values['RESEND_API_KEY'], 'synthetic-resend-key')
@@ -126,6 +129,36 @@ class ConfigurationTests(unittest.TestCase):
         values = dict(settings(), RESTIC_REPOSITORY='s3:https://fsn1.your-objectstorage.com/cms-production/.duindorp-backups/production')
         self.assertEqual(configuration.validate_configuration(values, 'production', {'baseUrl': values['APP_BASE_URL']})['RESTIC_REPOSITORY'], values['RESTIC_REPOSITORY'])
 
+    def test_staging_requires_test_recipient_and_separate_shared_bucket_backup_prefix(self):
+        values = settings('staging')
+        installed = {'baseUrl': values['APP_BASE_URL']}
+        for recipient in ('', 'invalid', 'a@example.org\nBcc: real@example.org'):
+            with self.subTest(recipient=recipient), self.assertRaises(ValueError):
+                configuration.validate_configuration({**values, 'TEST_MAIL_TO': recipient}, 'staging', installed)
+        prefix = 's3:https://fsn1.your-objectstorage.com/cms-staging/.duindorp-backups/'
+        for wrong in ('production', '', 'staging/other'):
+            with self.subTest(prefix=wrong), self.assertRaises(ValueError):
+                configuration.validate_configuration({**values, 'RESTIC_REPOSITORY': prefix + wrong}, 'staging', installed)
+        result = configuration.validate_configuration({**values, 'RESTIC_REPOSITORY': prefix + 'staging'}, 'staging', installed)
+        self.assertIn('TEST_MAIL_TO="staging-test@example.org"', configuration.generation_files(result, 'staging')['runtime.env'])
+        for legacy in ('DATABASE_PASSWORD', 'AUTH_SESSION_SECRET', 'SMTP_HOST', 'DOCKER_HOST'):
+            with self.subTest(legacy=legacy), self.assertRaises(ValueError):
+                configuration.validate_configuration({**values, legacy: 'obsolete'}, 'staging', installed)
+
+    def test_staging_push_is_read_only_and_deployment_requires_explicit_dispatch(self):
+        source = (ROOT / '.github/workflows/staging.yml').read_text()
+        for job in ('build', 'deploy'):
+            block = source.split('  ' + job + ':\n', 1)[1].split('\n  ', 1)[0]
+            self.assertIn("github.event_name == 'workflow_dispatch' && inputs.operation == 'deploy'", block)
+        inventory = source.split('  inventory:\n', 1)[1]
+        self.assertIn('environment: staging', inventory)
+        self.assertNotIn('checkout@', inventory)
+        self.assertNotIn('secrets.', inventory)
+        self.assertNotIn('sudo -n -u ', inventory)
+        self.assertIn("python3 -I - <<'PYCODE'", inventory)
+        self.assertIn("['sudo','-n','-l'", inventory)
+        self.assertNotIn('commit.message', source)
+
     def test_generation_rejects_symlinks_and_modified_files(self):
         values = configuration.validate_configuration(settings(), 'production', {'baseUrl': settings()['APP_BASE_URL']})
         with tempfile.TemporaryDirectory() as temporary:
@@ -144,17 +177,18 @@ class ConfigurationTests(unittest.TestCase):
                     configuration.generation_path(state, identifier)
 
     def test_workflow_payload_preserves_values_and_uses_only_expected_settings(self):
-        for target in ('production',):
+        for target in ('production', 'staging'):
             source = (ROOT / '.github/workflows' / (target + '.yml')).read_text()
-            self.assertIn('branches: [main]', source)
-            self.assertIn("if: github.ref == 'refs/heads/main'", source)
-            self.assertIn('environment: production', source)
-            self.assertIn('sudo -n -u duindorpsv-production /usr/local/libexec/duindorp/duindorp-deploy-production', source)
-            self.assertNotIn('staging', source)
+            branch = manifests.deployment_target(target)['branch']
+            self.assertIn('branches: [' + branch + ']', source)
+            self.assertIn("if: github.ref == 'refs/heads/" + branch + "'", source)
+            self.assertIn('environment: ' + target, source)
+            self.assertIn('sudo -n -u duindorpsv-' + target + ' /usr/local/libexec/duindorp/duindorp-deploy-' + target, source)
+            if target == 'production':
+                self.assertNotIn('staging', source)
             self.assertNotIn('SMTP_', source)
-            self.assertFalse((ROOT / '.github/workflows/staging.yml').exists())
             mappings = re.findall(r'CFG_(\w+): \$\{\{ (vars|secrets)\.(\w+) \}\}', source)
-            self.assertEqual({name for name, _, _ in mappings}, set(configuration.SECRETS + configuration.VARIABLES))
+            self.assertEqual({name for name, _, _ in mappings}, set(configuration.SECRETS + configuration.VARIABLES + (configuration.STAGING_VARIABLES if target == 'staging' else ())))
             for name, kind, lookup in mappings:
                 self.assertEqual(name, lookup)
                 self.assertEqual(kind, 'secrets' if name in configuration.SECRETS else 'vars')
@@ -211,16 +245,17 @@ class ConfigurationTests(unittest.TestCase):
 
 
 class DeploymentTests(unittest.TestCase):
+    target = 'production'
     def setUp(self):
         self.stack = ExitStack()
         self.addCleanup(self.stack.close)
         self.directory = Path(self.stack.enter_context(tempfile.TemporaryDirectory()))
-        self.installed = dict(baseUrl=settings()['APP_BASE_URL'], webPort=3112,
+        self.installed = dict(baseUrl=settings(self.target)['APP_BASE_URL'], webPort=3112,
                               dockerHost='unix:///run/user/' + str(os.getuid()) + '/docker.sock')
         self.stack.enter_context(patch.object(deploy, 'STATE_ROOT', self.directory))
         self.stack.enter_context(patch.object(deploy, 'installed_configuration', return_value=self.installed))
         self.stack.enter_context(patch.object(deploy.pwd, 'getpwuid', return_value=SimpleNamespace(
-            pw_name='duindorpsv-production', pw_dir=str(self.directory))))
+            pw_name='duindorpsv-' + self.target, pw_dir=str(self.directory))))
         self.verify = self.stack.enter_context(patch.object(deploy, 'verify'))
         self.stack.enter_context(patch.object(deploy, 'api', side_effect=lambda path, token:
             {'object': {'sha': 'a' * 40}} if 'git/ref/' in path else {'tree': {'sha': 'b' * 40}}))
@@ -235,77 +270,77 @@ class DeploymentTests(unittest.TestCase):
         self.addCleanup(os.umask, self.previous_umask)
 
     def request(self, run=10, **changes):
-        return {'release': release(run), 'token': 'synthetic-job-token',
-                'configuration': {**settings(), **changes}}
+        return {'release': release(run, self.target), 'token': 'synthetic-job-token',
+                'configuration': {**settings(self.target), **changes}}
 
     def current(self):
-        return json.loads((self.directory / 'production/current.json').read_text())
+        return json.loads((self.directory / (self.target + '/current.json')).read_text())
 
     def test_first_boot_backs_up_before_migration_and_activates_after_health(self):
-        deploy.deploy('production', self.request())
+        deploy.deploy(self.target, self.request())
         calls = [args for args, _, _ in self.calls]
         backup_index = next(i for i, args in enumerate(calls) if args[0].endswith('/backup.sh'))
         migrate_index = next(i for i, args in enumerate(calls) if args[-1] == 'migration' and 'run' in args)
         seed_index = next(i for i, args in enumerate(calls) if args[-1] == 'seed')
         self.assertLess(backup_index, migrate_index)
         self.assertLess(migrate_index, seed_index)
-        self.assertEqual(self.current()['release'], release())
-        self.health.assert_called_once_with(3112, release()['digest'])
+        self.assertEqual(self.current()['release'], release(target=self.target))
+        self.health.assert_called_once_with(3112, release(target=self.target)['digest'])
         self.assertTrue(all(settings()['SUPABASE_SECRET_KEY'] not in str(args) for args in calls))
 
     def test_same_image_new_configuration_can_be_deployed_and_identical_retry_is_noop(self):
-        deploy.deploy('production', self.request())
+        deploy.deploy(self.target, self.request())
         old = self.current()
         self.calls.clear()
-        deploy.deploy('production', self.request(MAIL_FROM='changed@example.org'))
+        deploy.deploy(self.target, self.request(MAIL_FROM='changed@example.org'))
         new = self.current()
         self.assertEqual(old['release'], new['release'])
         self.assertNotEqual(old['configuration'], new['configuration'])
-        self.assertEqual(json.loads((self.directory / 'production/previous.json').read_text()), old)
+        self.assertEqual(json.loads((self.directory / (self.target + '/previous.json')).read_text()), old)
         self.assertFalse(any(args[-1] == 'seed' for args, _, _ in self.calls))
         backup_env = next(env for args, env, _ in self.calls if args[0].endswith('/backup.sh'))
         self.assertEqual(backup_env['DUINDORP_SNAPSHOT_CONFIGURATION'], old['configuration'])
         self.calls.clear()
-        deploy.deploy('production', self.request(MAIL_FROM='changed@example.org'))
+        deploy.deploy(self.target, self.request(MAIL_FROM='changed@example.org'))
         self.assertEqual(self.calls, [])
 
     def test_failed_health_restores_previous_image_and_configuration(self):
-        deploy.deploy('production', self.request())
+        deploy.deploy(self.target, self.request())
         old = self.current()
         self.calls.clear()
         self.health.side_effect = [RuntimeError('unhealthy'), None]
         with self.assertRaises(RuntimeError):
-            deploy.deploy('production', self.request(11, MAIL_FROM='changed@example.org'))
+            deploy.deploy(self.target, self.request(11, MAIL_FROM='changed@example.org'))
         self.assertEqual(self.current(), old)
         last_env = self.calls[-1][1]
         self.assertIn(old['configuration'], last_env['RUNTIME_ENV_FILE'])
         self.assertEqual(last_env['APP_IMAGE'], manifests.REGISTRY + '@' + old['release']['digest'])
 
     def test_unsafe_rotations_and_stale_jobs_do_not_change_containers(self):
-        deploy.deploy('production', self.request())
+        deploy.deploy(self.target, self.request())
         self.calls.clear()
         for change in ({'APP_DATABASE_PASSWORD': 'different-' + 'x' * 32},
                        {'DATABASE_PASSWORD': 'different-' + 'x' * 32},
                        {'AUTH_SESSION_SECRET': 'different-' + 'x' * 32},
                        {'S3_BUCKET': 'another-bucket'}):
             with self.assertRaises(ValueError):
-                deploy.deploy('production', self.request(11, **change))
+                deploy.deploy(self.target, self.request(11, **change))
         with self.assertRaises(ValueError):
-            deploy.deploy('production', self.request(9))
+            deploy.deploy(self.target, self.request(9))
         self.assertEqual(self.calls, [])
-        (self.directory / 'production/latest-run-id').write_text('20')
+        (self.directory / (self.target + '/latest-run-id')).write_text('20')
         with self.assertRaises(ValueError):
-            deploy.deploy('production', self.request(11))
+            deploy.deploy(self.target, self.request(11))
 
     def test_bad_configuration_and_untrusted_artifacts_never_reach_docker(self):
         with self.assertRaises(ValueError):
-            deploy.deploy('production', self.request(DOCKER_HOST='unix:///var/run/docker.sock'))
+            deploy.deploy(self.target, self.request(DOCKER_HOST='unix:///var/run/docker.sock'))
         self.verify.assert_not_called()
         self.verify.side_effect = ValueError('untrusted')
         with self.assertRaises(ValueError):
-            deploy.deploy('production', self.request())
+            deploy.deploy(self.target, self.request())
         self.assertEqual(self.calls, [])
-        self.assertFalse((self.directory / 'production/configuration').exists())
+        self.assertFalse((self.directory / (self.target + '/configuration')).exists())
 
     def test_failed_backup_stops_migrations_and_web_activation(self):
         def fail_backup(args, environment, input=None):
@@ -314,15 +349,15 @@ class DeploymentTests(unittest.TestCase):
             self.calls.append((args, environment, input))
             return json.dumps({'org.opencontainers.image.revision': 'a' * 40, 'nl.duindorpsv.source-tree': 'b' * 40}) if 'inspect' in args else ''
         with patch.object(deploy, 'command', side_effect=fail_backup), self.assertRaises(RuntimeError):
-            deploy.deploy('production', self.request())
-        self.assertFalse((self.directory / 'production/current.json').exists())
+            deploy.deploy(self.target, self.request())
+        self.assertFalse((self.directory / (self.target + '/current.json')).exists())
         self.assertFalse(any('run' in args for args, _, _ in self.calls))
         self.health.assert_not_called()
 
     def test_older_main_commit_and_wrong_image_tree_cannot_activate(self):
         with patch.object(deploy, 'api', return_value={'object': {'sha': 'f' * 40}}):
             with self.assertRaises(ValueError):
-                deploy.deploy('production', self.request())
+                deploy.deploy(self.target, self.request())
         self.assertEqual(self.calls, [])
         def wrong_tree(args, environment, input=None):
             self.calls.append((args, environment, input))
@@ -330,15 +365,27 @@ class DeploymentTests(unittest.TestCase):
                                'nl.duindorpsv.source-tree': 'f' * 40}) if 'inspect' in args else ''
         with patch.object(deploy, 'command', side_effect=wrong_tree):
             with self.assertRaises(ValueError):
-                deploy.deploy('production', self.request())
+                deploy.deploy(self.target, self.request())
         self.assertFalse(any('up' in args or 'run' in args for args, _, _ in self.calls))
-        self.assertFalse((self.directory / 'production/current.json').exists())
+        self.assertFalse((self.directory / (self.target + '/current.json')).exists())
 
-    def test_staging_is_rejected_even_for_the_old_application_account(self):
-        account = SimpleNamespace(pw_name='duindorpsv-staging', pw_dir=str(self.directory))
-        with patch.object(deploy.pwd, 'getpwuid', return_value=account):
-            with self.assertRaises(PermissionError):
-                deploy.deploy('staging', self.request())
+    def test_cross_environment_manifest_never_reaches_docker(self):
+        wrong = 'staging' if self.target == 'production' else 'production'
+        request = self.request()
+        request['release'] = release(target=wrong)
+        with self.assertRaises(ValueError):
+            deploy.deploy(self.target, request)
+        self.assertEqual(self.calls, [])
+
+    def test_legacy_state_blocks_before_provenance_and_configuration_writes(self):
+        state = self.directory / self.target
+        state.mkdir(mode=0o700)
+        (state / 'active.json').write_text('legacy state must be preserved')
+        with self.assertRaisesRegex(ValueError, 'Legacy deployment state'):
+            deploy.deploy(self.target, self.request())
+        self.assertEqual((state / 'active.json').read_text(), 'legacy state must be preserved')
+        self.assertFalse((state / 'configuration').exists())
+        self.verify.assert_not_called()
         self.assertEqual(self.calls, [])
 
     def test_child_failure_never_exposes_captured_secrets(self):
@@ -348,26 +395,57 @@ class DeploymentTests(unittest.TestCase):
                 REAL_COMMAND(['docker'], {})
 
     def test_operator_rollback_keeps_matching_config_and_stale_run_protection(self):
-        deploy.deploy('production', self.request())
+        deploy.deploy(self.target, self.request())
         old = self.current()
-        deploy.deploy('production', self.request(11, MAIL_FROM='changed@example.org'))
+        deploy.deploy(self.target, self.request(11, MAIL_FROM='changed@example.org'))
         current = self.current()
         with patch.object(rollback, 'STATE_ROOT', self.directory), \
              patch.object(rollback, 'installed_configuration', return_value=self.installed), \
              patch.object(rollback, 'command') as command, \
              patch.object(rollback, 'ready', side_effect=RuntimeError('not ready')) as health:
             with self.assertRaises(RuntimeError):
-                rollback.rollback('production')
+                rollback.rollback(self.target)
             self.assertEqual(self.current(), current)
             health.side_effect = None
-            rollback.rollback('production')
+            rollback.rollback(self.target)
             self.assertEqual(self.current(), old)
             self.assertIn(old['configuration'], command.call_args.args[1]['RUNTIME_ENV_FILE'])
         with self.assertRaises(ValueError):
-            deploy.deploy('production', self.request(10))
+            deploy.deploy(self.target, self.request(10))
+
+
+class StagingDeploymentTests(DeploymentTests):
+    target = 'staging'
 
 
 class ProvenanceTests(unittest.TestCase):
+    def test_staging_binding_rejects_production_and_feature_builds(self):
+        item = release(target='staging')
+        archive = io.BytesIO()
+        with zipfile.ZipFile(archive, 'w') as contents:
+            contents.writestr('release.json', json.dumps(item))
+        run = dict(head_sha=item['sourceSha'], head_branch='staging', event='workflow_dispatch',
+                   path='.github/workflows/staging.yml', conclusion=None)
+        def api(path, token, binary=False):
+            if binary:
+                return archive.getvalue()
+            if '/jobs?' in path:
+                return {'total_count': 2, 'jobs': [dict(id=i, run_attempt=1, name=name, conclusion='success')
+                        for i, name in enumerate(('checks / verify', 'build'))]}
+            if path.endswith('/artifacts'):
+                return {'artifacts': [dict(name='release', id=1, expired=False)]}
+            return run
+        with patch.object(deploy, 'api', side_effect=api):
+            deploy.verify(item, 'synthetic', 'staging')
+            for field, bad in [('head_branch', 'main'), ('head_branch', 'codex/sponsoring-v64'),
+                               ('path', '.github/workflows/production.yml'), ('event', 'pull_request'), ('event', 'push')]:
+                with self.subTest(field=field, bad=bad), patch.dict(run, {field: bad}), self.assertRaises(ValueError):
+                    deploy.verify(item, 'synthetic', 'staging')
+            with self.assertRaises(ValueError):
+                deploy.verify(release(), 'synthetic', 'staging')
+            with self.assertRaises(ValueError):
+                deploy.verify(item, 'synthetic', 'production')
+
     def test_only_main_production_builds_with_successful_latest_checks_are_accepted(self):
         item = release()
         archive = io.BytesIO()

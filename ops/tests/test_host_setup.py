@@ -58,8 +58,7 @@ class HostSetupTests(unittest.TestCase):
                         host_check.validate_engine({**info, capability: value}, expected)
 
     def test_accepts_only_expected_target_port_and_https_origin(self):
-        with self.assertRaises(ValueError):
-            host_check.validate_target("staging", "3112", "https://staging.duindorpsv.nl")
+        host_check.validate_target("staging", "3112", "https://staging.example.org")
         host_check.validate_target("production", "3113", "https://duindorpsv.nl/")
         bad = [("../production", "3112", "https://example.org"),
                ("production", "443", "https://example.org"),
@@ -76,7 +75,7 @@ class HostSetupTests(unittest.TestCase):
                 host_check.validate_target(*args)
 
     def test_deploy_accepts_application_identity_then_validates_input(self):
-        for target in ("production",):
+        for target in ("production", "staging"):
             account = SimpleNamespace(pw_name="duindorpsv-" + target)
             with self.subTest(target=target), patch.object(deploy.pwd, "getpwuid", return_value=account):
                 with self.assertRaisesRegex(ValueError, "Invalid request"):

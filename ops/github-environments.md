@@ -1,6 +1,6 @@
 # GitHub Environment: production
 
-Duindorp SV heeft één deploymentdoel: `production`. De development-VPS is de werkplek. GitHub controleert een PR, bouwt na de merge naar `main` een image en levert dat image met een vast digest op de productie-VPS. Daar draaien alleen web en worker; **database en inloggen met e-mailcode gebruiken het eigen Supabase-project; privébestanden blijven in de bestaande Hetzner S3-bucket**. Alle website-, welkom- en inlogmails gaan via de Resend HTTPS API. Nieuwsbriefabonnees worden in het CMS beheerd.
+Dit document beschrijft deploymentdoel `production`. De afzonderlijk voorbereide `staging`-route, zijn testontvanger en geïsoleerde hosthelpers staan in [staging.md](staging.md). De development-VPS is de werkplek. GitHub controleert een PR, bouwt na de merge naar `main` een image en levert dat image met een vast digest op de productie-VPS. Daar draaien alleen web en worker; **database en inloggen met e-mailcode gebruiken het eigen Supabase-project; privébestanden blijven in de bestaande Hetzner S3-bucket**. Alle website-, welkom- en inlogmails gaan via de Resend HTTPS API. Nieuwsbriefabonnees worden in het CMS beheerd.
 
 De Supabase-omzetting gebruikt configuratieversie **5**. De oude release met een lokale PostgreSQL-container is geannuleerd en mag niet worden ingezet. De onderstaande configuratie vervangt de vorige handleiding.
 
@@ -45,7 +45,7 @@ Gebruik percent-encoding voor bijzondere tekens in database-URL's. `APP_DATABASE
 
 Base64 maken zonder het certificaat of een sleutel af te drukken: `base64 -w0 SUPABASE-CA.crt > supabase-ca.base64`. Plak de inhoud van dat bestand in de variable. Op macOS: `base64 < SUPABASE-CA.crt | tr -d '\n' > supabase-ca.base64`.
 
-`DATABASE_PASSWORD` en `AUTH_SESSION_SECRET` worden in versie 5 niet meer gelezen. Oude SMTP-, SendGrid-, externe contactenlijst- of staginginstellingen zijn niet nodig. Bewaar oude backup-/MFA-herstelgegevens zolang de oude installatie nog moet kunnen worden hersteld.
+`DATABASE_PASSWORD` en `AUTH_SESSION_SECRET` worden in versie 5 niet meer gelezen. Oude SMTP-, SendGrid- en externe contactenlijstinstellingen zijn niet nodig. Staging gebruikt de huidige namen in zijn eigen Environment plus het verplichte `TEST_MAIL_TO`; zie de afzonderlijke procedure. Bewaar oude backup-/MFA-herstelgegevens zolang de oude installatie nog moet kunnen worden hersteld.
 
 De gereserveerde prefix `.duindorp-backups/` wordt uitgesloten van de mediabackup. Zo neemt een backup nooit eerdere backups opnieuw mee wanneer dezelfde Hetzner-bucket wordt gebruikt. Restic versleutelt de backup met `RESTIC_PASSWORD`; de backupcredentials blijven gescheiden van de runtime. Een aparte backupbucket blijft mogelijk.
 
@@ -73,4 +73,4 @@ De campagne-module gebruikt dezelfde `RESEND_API_KEY`, `MAIL_FROM` en `APP_BASE_
 
 ## Sponsorportaal en centraal register
 
-Het sponsorportaal gebruikt dezelfde Supabase-sessies, Resend-sleutel en private Hetzner S3-bucket. Er zijn **geen nieuwe verplichte GitHub secrets of variabelen**, geen SMTP en geen stagingomgeving. Houd Supabase OTP op acht cijfers/600 seconden en publieke registratie uit. `SUPABASE_SECRET_KEY` blijft alleen server-side en beveiligt ook de afzonderlijke ondertekeningschallenges. Ontvangers, voorwaarden en herinneringsdagen worden bij Sponsoring → Instellingen beheerd. De bestaande backup moet de nieuwe private tabellen en bijbehorende S3-objecten meenemen. Zie [inrichting en beheer](sponsor-portal.md).
+Het sponsorportaal gebruikt dezelfde Supabase-sessies, Resend-sleutel en private Hetzner S3-bucket. De module introduceert **geen nieuwe verplichte productie-secrets of variabelen** en geen SMTP. De afzonderlijke stagingruntime vereist de bestaande veilige `TEST_MAIL_TO`-afbakening. Houd Supabase OTP op acht cijfers/600 seconden en publieke registratie uit. `SUPABASE_SECRET_KEY` blijft alleen server-side en beveiligt ook de afzonderlijke ondertekeningschallenges. Ontvangers, voorwaarden en herinneringsdagen worden bij Sponsoring → Instellingen beheerd. De bestaande backup moet de nieuwe private tabellen en bijbehorende S3-objecten meenemen. Zie [inrichting en beheer](sponsor-portal.md).

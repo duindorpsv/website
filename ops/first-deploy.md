@@ -1,6 +1,6 @@
 # Duindorp SV in productie zetten
 
-De website gebruikt **Supabase voor database en inloggen**, de **bestaande Hetzner S3-bucket voor bestanden** en de **Resend API voor e-mail**. Er is alleen GitHub Environment `production`.
+De website gebruikt **Supabase voor database en inloggen**, de **bestaande Hetzner S3-bucket voor bestanden** en de **Resend API voor e-mail**. Deze procedure geldt uitsluitend voor GitHub Environment `production`; de afzonderlijke voorbereide stagingroute staat in [staging.md](staging.md).
 
 Iedereen, ook beheerders, logt in met een **achtcijferige code per e-mail**. Er is geen wachtwoord- of authenticatorstap. Nieuwe CMS-gebruikers worden door een beheerder aangemaakt. Openbare registratie blijft uit. Er zijn geen bestaande gebruikers die voor deze eerste ingebruikname moeten worden gemigreerd.
 

@@ -1,6 +1,6 @@
 import {z} from 'zod';
 const config=z.object({
-  APP_ENV:z.enum(['development','test','production']).default('development'),
+  APP_ENV:z.enum(['development','test','staging','production']).default('development'),
   APP_BASE_URL:z.string().url(), DATABASE_URL:z.string().min(1),
   DATABASE_CA_CERT_B64:z.string().optional(),
   SUPABASE_URL:z.string().url().optional(), SUPABASE_PUBLISHABLE_KEY:z.string().min(1).optional(), SUPABASE_SECRET_KEY:z.string().min(1).optional(),
@@ -16,13 +16,15 @@ export function env(){
   const parsed=config.safeParse(process.env);
   if(!parsed.success)throw new Error(`Omgevingsconfiguratie ongeldig: ${parsed.error.issues.map(i=>i.path.join('.')).join(', ')}`);
   const value=parsed.data;
-  if(value.APP_ENV==='production'&&new URL(value.APP_BASE_URL).protocol!=='https:')throw new Error('Productie vereist een HTTPS-siteadres.');
-  if(value.APP_ENV==='production'&&(!value.SUPABASE_URL||!value.SUPABASE_PUBLISHABLE_KEY||!value.SUPABASE_SECRET_KEY))throw new Error('Productie vereist Supabase Database en Auth.');
-  if(value.APP_ENV==='production'&&!value.DATABASE_CA_CERT_B64)throw new Error('Productie vereist DATABASE_CA_CERT_B64 voor gecontroleerde TLS.');
-  if(value.APP_ENV==='production'&&value.MEDIA_DRIVER!=='s3')throw new Error('Productie vereist duurzame S3-opslag.');
+  const hosted=value.APP_ENV==='production'||value.APP_ENV==='staging',label=value.APP_ENV==='staging'?'Staging':'Productie';
+  if(hosted&&new URL(value.APP_BASE_URL).protocol!=='https:')throw new Error(`${label} vereist een HTTPS-siteadres.`);
+  if(hosted&&(!value.SUPABASE_URL||!value.SUPABASE_PUBLISHABLE_KEY||!value.SUPABASE_SECRET_KEY))throw new Error(`${label} vereist Supabase Database en Auth.`);
+  if(hosted&&!value.DATABASE_CA_CERT_B64)throw new Error(`${label} vereist DATABASE_CA_CERT_B64 voor gecontroleerde TLS.`);
+  if(hosted&&value.MEDIA_DRIVER!=='s3')throw new Error(`${label} vereist duurzame S3-opslag.`);
   if(value.APP_ENV==='production'&&value.TEST_MAIL_TO)throw new Error('TEST_MAIL_TO moet leeg zijn in productie.');
+  if(value.APP_ENV==='staging'&&!value.TEST_MAIL_TO)throw new Error('Staging vereist TEST_MAIL_TO als afgeschermde testontvanger.');
   if(value.APP_ENV!=='test'&&value.TEST_MAIL_API_URL)throw new Error('Een testmailserver is uitsluitend in tests toegestaan.');
-  if(value.APP_ENV==='production'&&(!value.RESEND_API_KEY||!value.MAIL_FROM))throw new Error('Productie vereist RESEND_API_KEY en MAIL_FROM.');
+  if(hosted&&(!value.RESEND_API_KEY||!value.MAIL_FROM))throw new Error(`${label} vereist RESEND_API_KEY en MAIL_FROM.`);
   if(value.MEDIA_DRIVER==='s3'&&(!value.S3_BUCKET||!value.S3_ACCESS_KEY_ID||!value.S3_SECRET_ACCESS_KEY))throw new Error('S3-configuratie ontbreekt.');
   return value;
 }

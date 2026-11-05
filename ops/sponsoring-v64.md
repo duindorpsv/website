@@ -14,13 +14,13 @@ Ontwerpbron: het aangeleverde pakket van 5 november 2026, Sites-versie 64, commi
 | PDF | Serverrenderer, echte bytes, private definitieve archivering | `lib/cms/sponsor-pdf.ts`, fictieve PDF-voorbeelden | Exacte v64-huisstijl en regel-/kortingsspecificatie; echte bewijsregistratie behouden | Geen documentherschrijving | PDF-rendercontrole, lange tekst, accenten, gemengde btw, ondertekenstatussen |
 | Ondertekenen | Twee verschillende accounts, echte server-OTP, limieten, documenthash en transacties | `sponsorship.ts`, `sponsor-portal.tsx` | Bestaande beveiligde flow hergebruiken | Geen | Volgorde, verval, verkeerde code, replay, gewijzigde context, immutable bewijs |
 | Facturen, uitvoering, publicatie en herinneringen | Werkende serverflows, worker, publieke whitelist, betaalprovider uitgeschakeld | `sponsorship.ts`, `sponsorship-channels.tsx` | v64-bedragen laten doorwerken; opmaak op eerste termijn | Optionele JSON-velden | Exacte centen/btw per termijn, publicatiegoedkeuring/periode, deduplicatie |
-| Development en staging | Huidige featurebasis gelijk aan `origin/main`; oude stagingbranch en online stagingrunner bestaan | Bestaande GitHub-workflows en `ops/scripts/` | Development testen; stagingcompatibiliteit en namen inventariseren | Alleen na expliciete test/staging-contextcontrole | Productiebranch/workflow niet triggeren; uitgerolde SHA/readiness controleren indien configuratie beschikbaar |
+| Development en staging | Huidige featurebasis gelijk aan `origin/main`; oude stagingbranch en online stagingrunner bestaan | Bestaande GitHub-workflows en `ops/scripts/` | Development testen; afzonderlijke stagingworkflow, eigen beheerhulpmiddelen en veilige testmail voorbereiden | Alleen na expliciete test/staging-contextcontrole | Gescheiden branch-/workflow-/omgevingsidentiteiten; uitgerolde SHA/readiness controleren indien configuratie beschikbaar |
 
 ## Omgevingsinventarisatie
 
 Gecontroleerd via GitHub op 5 november 2026, uitsluitend namen/aanwezigheid. `main` pusht automatisch naar productie. Werkbranch: `codex/sponsoring-v64`. Productie-uitrol is niet geautoriseerd.
 
-GitHub kent `production`, `staging` en `staging-acceptance`; de bestaande stagingrunner is online. De stagingbranch is nog van de oude PostgreSQL/SMTP-architectuur. De huidige versie-5 deploymentwrapper accepteert uitsluitend `production`. Dit is geen bruikbare uitrolroute voor de huidige app zonder een gerichte staging-update.
+GitHub kent `production`, `staging` en `staging-acceptance`; de bestaande stagingrunner is online. De stagingbranch is nog van de oude PostgreSQL/SMTP-architectuur. De oorspronkelijke versie-5 deploymentwrapper accepteert uitsluitend `production`. Deze wijziging voegt een afzonderlijke stagingroute toe, met vaste koppeling `staging` → `staging.yml` en gescheiden beheerhulpmiddelen. Een stagingpush voert controles en een alleen-lezen inventarisatie uit; daadwerkelijk uitrollen vereist een afzonderlijke handmatige deployopdracht.
 
 In `staging` zijn alleen de secrets `APP_DATABASE_PASSWORD`, `AUTH_SESSION_SECRET`, `DATABASE_PASSWORD` en `RESTIC_PASSWORD` en de variabelen `NEWSLETTER_PROVIDER`, `S3_REGION`, `SMTP_PORT`, `SMTP_SECURE`, `TRUST_PROXY_IP` aanwezig. De oude auth-/SMTP-instellingen vervangen de huidige Supabase-/Resend-configuratie niet.
 
@@ -41,10 +41,10 @@ Lokale bewijspaden: `.runtime/sponsoring-v64-{unit,typecheck,build,runtime,ops,i
 | Controle | Daadwerkelijk resultaat |
 | --- | --- |
 | Referentiechecks en typecheck | 210/210; typecheck geslaagd in afzonderlijke checkout |
-| Doelapp-unittests | 303 geslaagd; één reeds bestaande skip |
+| Doelapp-unittests | 310 geslaagd; één reeds bestaande skip na de aanvullende maatwerk-/stagingcontroles |
 | Doelapp-typecheck, productiebuild, runtimebundle | Geslaagd |
-| Operationele regressies | 29/29 |
-| Volledige sponsorintegratie op lokale Supabase | 23/23, inclusief exact opgegeven €705/€148,05/€853,05-scenario, twee eigen OTP's, historische bytes, PDF en termijnen |
+| Operationele regressies | 49/49, inclusief afzonderlijke stagingprovenance en hostinstallatie zonder productiewijzigingen |
+| Volledige sponsorintegratie op lokale Supabase | 24/24 na de maatwerkuitbreiding, inclusief exact opgegeven €705/€148,05/€853,05-scenario, twee eigen OTP's, historische bytes, PDF en termijnen |
 | Tijdelijke logo's en HTTP-foutafhandeling | 9/9, inclusief claim/annuleren-race, beperkte interne toegang tot het canoniek goedgekeurde profielbeeld, sessie/bedrijfsgrenzen en correcte 400/401/403/404/422-responses |
 | Bestaande archiefdecoder | Gerichte echte audio/video-test geslaagd met tijdelijke ffmpeg/ffprobe buiten de repository |
 | Bestaande privé-S3 | Gerichte MEDIA05 geslaagd met echte AWS Signature V4-verzoeken, weigering van ongetekende/verkeerd getekende verzoeken; tijdelijke geïsoleerde adapter daarna opgeruimd |
@@ -67,8 +67,18 @@ Alle elf beheerweergaven en zes portaalpagina's zijn daarnaast direct als gepaar
 
 De laatste visuele controle corrigeert ook de ontbrekende rijopmaak in het aanvullende clubmomentbeheer: elke opgeslagen bijeenkomst heeft nu een eigen brede rij met afzonderlijke titel en datum/capaciteit. Lange titels breken binnen de rij; het bestaande bewerken blijft dezelfde handeling.
 
+## Aanvullende oplevering: maatwerk en stagingvoorbereiding
+
+De knop “Voorstel opbouwen” bij “Maatwerk · zelf items kiezen” gaf aantoonbaar HTTP 422: de component stuurde de bedoelde lege pakketkeuze, maar de API accepteerde alleen een niet-lege pakket-ID. Alleen dat optionele opdrachtargument accepteert nu ook exact `''`. De validatie van bedrijfs-ID's en niet-lege pakket-ID's blijft behouden. Een leeg concept mag worden aangemaakt; bewaren zonder regels wordt nog steeds afgewezen.
+
+Twee nieuwe browserproeven zijn lokaal geslaagd op de opnieuw gebouwde app. De beheerproef gebruikt de echte maatwerkknop, voegt een persoonlijke regel met twee stuks en eenmalige opmaak toe, bewaart het concept en controleert de waarden na een paginaherlading. De publieke proef selecteert een fictief pakket “Maatwerk”, verstuurt de aanvraag met de gekozen pakketcontext en controleert zowel de echte inboxrij als het door de worker opgeslagen sponsordossier. Screenshots en geschoonde JSON-bewijzen staan in `.runtime/sponsor-evidence/maatwerk/`; het browserrapport in `.runtime/sponsoring-maatwerk-e2e-report.json`. De volledige lokale unitsuite slaagt nu met 310 tests en één bestaande skip; typecheck, productiebuild en runtimebundle zijn opnieuw geslaagd. De definitieve volledige CI-herhaling hoort bij de actuele PR-commit.
+
+Staging heeft nu ook runtimeondersteuning: HTTPS, Supabase/Auth, geverifieerde database-TLS, private S3 en Resend blijven verplicht. `TEST_MAIL_TO` is daar verplicht; alle oorspronkelijke ontvangers worden vervangen door deze ene testontvanger en mailoperaties krijgen een afzonderlijke staging-idempotentiesleutel. De 21 gerichte mail-/opslag-/databaseproeven slagen, inclusief weigering van ontbrekende configuratie en een publieke bucket. De HTTPS-archiefsessie krijgt eveneens een Secure-cookie. Dit zijn lokale configuratie- en contractcontroles, geen bewijs van een externe stagingverbinding.
+
+De staginginstaller gebruikt een eigen, op inhoudshash vastgelegde helperdirectory en een eigen wrapper. Een oude `active.json` blokkeert installatie/uitrol totdat een beheerder de bestaande toestand heeft beoordeeld; deze wordt niet gewist. De productie-workflow en bestaande productie-installatie blijven behouden. De oude stagingworkflow staat in GitHub als verwijderd geregistreerd. Na een gecontroleerde branchupdate kan de nieuwe pushworkflow opnieuw worden geregistreerd; of handmatige dispatch dan beschikbaar komt moet op GitHub worden geverifieerd. Er is hiervoor geen wijziging of push naar `main` uitgevoerd.
+
 ## Behouden infrastructuur en grenzen
 
 Geen tweede gebruikersstelsel, mailprovider, productiebucket of betaalprovider toegevoegd. Bestaande accounts, centrale persoons-ID's, sessies, nieuwsbrief, Sportlink, sitecontent en worker blijven in gebruik. Online betaling blijft uitgeschakeld zolang een geverifieerde providerkoppeling ontbreekt. Onderteken- en mailtests gebruiken fictieve accounts en uitsluitend de afgeschermde testontvanger.
 
-Staging blijft geblokkeerd door de hierboven benoemde ontbrekende configuratie en de verouderde deploymentwrapper. De externe handeling is: de bestaande stagingomgeving voorzien van eigen passende Database/Auth-, Resend-, opslag-, backup- en testontvangerconfiguratie onder dezelfde namen, en de bestaande stagingwrapper/workflow op de huidige versie-5 runtime aansluiten. Kopieer geen productiedatabase of productiesecrets om deze blokkade te omzeilen. Productiebranch, productieomgeving en productiegegevens zijn niet gewijzigd.
+Staging blijft geblokkeerd door de hierboven benoemde ontbrekende configuratie en de nog niet bijgewerkte host-/branchinstallatie. De externe handeling is: de bestaande stagingomgeving voorzien van eigen passende Database/Auth-, Resend-, opslag-, backup- en testontvangerconfiguratie onder dezelfde namen, de oude hosttoestand beoordelen en de voorbereide staginginstaller/branchupdate uitvoeren. Daarna moeten handmatige workflowbeschikbaarheid, deployment, readiness, uitgerolde SHA en de volledige fictieve acceptatieflow op de echte staging-URL worden gecontroleerd. Kopieer geen productiedatabase of productiesecrets om dit te omzeilen. Productiebranch, productieomgeving en productiegegevens zijn niet gewijzigd.

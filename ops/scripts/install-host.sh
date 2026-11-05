@@ -8,6 +8,7 @@ if [[ $# -lt 3 || $# -gt 4 || ${4:-} != '' && ${4:-} != '--check' ]]; then
 fi
 [[ $(id -u) == 0 ]] || { printf 'Run with sudo\n' >&2; exit 64; }
 target=$1
+[[ $target == production ]] || { printf 'Use install-staging-host.py for the isolated staging helpers\n' >&2; exit 64; }
 web_port=$2
 base_url=$3
 for binary in python3 runuser docker systemctl ss visudo restic rclone; do

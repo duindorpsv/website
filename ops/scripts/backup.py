@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from deploy_config import (ConfigurationError, generation_path, read_generation,
                            read_private, require, validate_configuration)
 
@@ -23,7 +24,7 @@ def quiet(arguments, environment):
 
 
 def backup(target, identifier, environment, initialize=False):
-    require(target == 'production'
+    require(target in ('production', 'staging')
             and pwd.getpwuid(os.getuid()).pw_name == 'duindorpsv-' + target,
             'Backup identity rejected')
     state = STATE_ROOT / target
