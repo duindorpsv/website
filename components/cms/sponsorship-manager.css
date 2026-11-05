@@ -12,3 +12,6 @@
 
 /* Fieldset keeps native controls busy without changing the approved layout. */
 .sb-modal-controls{display:contents}.sb-modal .cms-button:disabled{opacity:.42;cursor:not-allowed}.sb-modal :is(input,select,textarea){min-width:0}.sb-modal>header>div{min-width:0;overflow-wrap:anywhere}.sb-modal-actions>.cms-button{max-width:100%;overflow-wrap:anywhere}@media(prefers-reduced-motion:reduce){.sb-line-details>summary>svg{transition:none}}
+
+/* The reference headings use the local condensed club face inside sponsor portals. */
+.sb-modal :is(h1,h2,h3){font-family:'Sponsor Club Condensed','Arial Narrow',sans-serif}

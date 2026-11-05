@@ -32,11 +32,26 @@ Een referentietest bewijst geen staging-uitrol; een aangeboden testmail bewijst 
 
 De referentiecheckout is afzonderlijk geïnstalleerd met `pnpm@11.25.0 --frozen-lockfile`. De voorgeschreven referentiesuite slaagt met 210/210 tests. De referentietypecheck slaagt nadat uitsluitend in die tijdelijke checkout een lege `.openai/hosting.json` met `d1: null` en `r2: null` is toegevoegd: de hostingidentiteit ontbreekt bewust in het pakket. Er is geen Site geregistreerd en geen runtimebinding overgezet naar de doelapp. Beide voorgeschreven referentie-PDF-commands zijn uitgevoerd.
 
-Op de afgeschermde lokale sponsor-teststack zijn migraties 0000–0021, provisioning en seed uitgevoerd. Herhaald migreren slaagt. De nieuwe tabel heeft RLS, intrekking van Data API-rechten en uitsluitend een policy/grants voor het bestaande beperkte backendaccount. Een applicatierollback laat de additieve tabel en opgeslagen bestanden staan; er is geen destructieve down-migratie.
+Op de afgeschermde lokale sponsor-teststack is het bestaande migratiejournaal gecontroleerd en uitgebreid tot en met 0021; provisioning en seed zijn uitgevoerd. Herhaald migreren slaagt. De nieuwe tabel heeft RLS, intrekking van Data API-rechten en uitsluitend een policy/grants voor het bestaande beperkte backendaccount. Een applicatierollback laat de additieve tabel en opgeslagen bestanden staan; er is geen destructieve down-migratie.
 
 De doelapp produceert echte PDF-bytes met lokale fonts en logo. Vijf uitsluitend fictieve layoutscenario's zijn gegenereerd: ongetekend, één partij, beide partijen, geannuleerd en een stresstest met lange namen, 28 regels, veel voorwaarden en vier btwbehandelingen. De eerste vier hebben zes pagina's, de stresstest negentien. Alle pagina's zijn gerenderd; tekstbegrenzingen vallen binnen het papier. De volledige stressreeks en normale prijs-/bewijspagina zijn visueel nagekeken. De layoutfixtures bevatten alleen in-memory testbewijs; daadwerkelijke OTP-testbewijzen komen uit de afzonderlijke integratie-/browserflow.
 
 Lokale bewijspaden: `.runtime/sponsoring-v64-{unit,typecheck,build,runtime,ops,integration}.log`, `.runtime/sponsor-v64-logo-integration.log` en `.runtime/sponsoring-v64-evidence/pdf/`. GitHub CI gebruikt de bestaande geïsoleerde Supabase Database/Auth/S3-stack, codec-installatie en containercontroles. Resultaten van nog lopende controles worden niet als geslaagd opgevoerd.
+
+| Controle | Daadwerkelijk resultaat |
+| --- | --- |
+| Referentiechecks en typecheck | 210/210; typecheck geslaagd in afzonderlijke checkout |
+| Doelapp-unittests | 302 geslaagd; één reeds bestaande skip |
+| Doelapp-typecheck, productiebuild, runtimebundle | Geslaagd |
+| Operationele regressies | 29/29 |
+| Volledige sponsorintegratie op lokale Supabase | 22/22, inclusief exact opgegeven €705/€148,05/€853,05-scenario, twee eigen OTP's, historische bytes, PDF en termijnen |
+| Tijdelijke logo's en HTTP-foutafhandeling | 8/8, inclusief claim/annuleren-race, sessie/bedrijfsgrenzen en correcte 400/401/403/404/422-responses |
+| Bestaande archiefdecoder | Gerichte echte audio/video-test geslaagd met tijdelijke ffmpeg/ffprobe buiten de repository |
+| Bestaande privé-S3 | Gerichte MEDIA05 geslaagd met echte AWS Signature V4-verzoeken, weigering van ongetekende/verkeerd getekende verzoeken; tijdelijke geïsoleerde adapter daarna opgeruimd |
+
+De eerste brede lokale integratierun had 118 geslaagde controles en vier gerapporteerde failures (inclusief de bovenliggende sponsor-testgroep): een herinneringsfixture die na twee seizoenen buiten het venster viel en twee ontbrekende lokale voorzieningen (S3 en codecs). De herinnering gebruikt nu een afzonderlijk werkelijk via test-OTP getekend aflopend document. Beide voorzieningen zijn echt gebruikt bij de gerichte herhalingen; er zijn geen tests overgeslagen om deze fouten te verhullen. De GitHub-controle voert de volledige suite opnieuw samen uit met de oorspronkelijke CI-infrastructuur.
+
+Bij visuele vergelijking bleek de huidige website globaal Rubik Distressed te gebruiken terwijl de referentie op sponsor-modalheaders en het portaalmerk Barlow Condensed toepast. Die sponsoronderdelen krijgen een eigen alias voor dezelfde bestaande lokale fontbytes; overige website-/CMS-typografie blijft behouden. Het clublogo en alle tien referentiefontbestanden zijn bytegelijk gecontroleerd. De vaste modalactiebalk en interne scroll corrigeren de onbedoelde afkapping rond M10. De browserflow verifieert ook lege/ongeldige regeldatums, herberekenen van een aangeboden item en chronologisch kiezen van de eerste regelperiode.
 
 ## Behouden infrastructuur en grenzen
 

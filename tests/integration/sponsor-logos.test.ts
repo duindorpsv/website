@@ -10,11 +10,12 @@ import {sponsorLogoUpload,sponsorLogoPreview,cancelSponsorLogoUpload,cleanSponso
 import {sponsorDownload,publicSponsorLogo} from '../../lib/server/sponsor-files';
 import {getObject} from '../../lib/server/storage';
 import type {Sponsor} from '../../lib/cms/sponsorship-types';
+import {GET as sponsorHttpGet,POST as sponsorHttpPost,DELETE as sponsorHttpDelete} from '../../app/api/sponsorship/[...path]/route';
 
 assertLocalSupabaseTests();const sql=sqlClient();after(closeDb);
 const base=process.env.APP_BASE_URL!,origin=new URL(base).origin;
 const request=(cookie:string,method='GET',body?:BodyInit)=>new Request(new URL('/api/sponsorship/test',base),{method,headers:{cookie,origin,'content-type':'image/png','x-file-name':'Fictief transparant logo.png'},...(body?{body}:{})});
-async function fixture(){const email='logo-'+crypto.randomUUID()+'@example.invalid';const {user}=await getAuth().api.createUser({body:{email,name:'Fictieve logobeheerder',password:crypto.randomUUID()+crypto.randomUUID()}});await sql`insert into cms_memberships(user_id,role_id) values (${user.id},'sponsorcommissie')`;return {...user,cookie:authCookies(await loginEmail(email))};}
+async function fixture(role='sponsorcommissie'){const email='logo-'+crypto.randomUUID()+'@example.invalid';const {user}=await getAuth().api.createUser({body:{email,name:'Fictieve logobeheerder',password:crypto.randomUUID()+crypto.randomUUID()}});await sql`insert into cms_memberships(user_id,role_id) values (${user.id},${role})`;return {...user,cookie:authCookies(await loginEmail(email))};}
 const company=(id:string,ownerId:string,logoUrl:string):Sponsor=>({id,name:'Fictief logotestbedrijf',companyNumber:'',vatNumber:'',address:'',postalCode:'',city:'',email:'',phone:'',website:'',description:'Fictief voor geïsoleerde tests',logoUrl,ownerId,stage:'lead',notes:'',publicProfile:{name:'Fictief logotestbedrijf',description:'',website:'',logoUrl:''},publicEnabled:false,publicFrom:'',publicUntil:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),demo:false});
 async function save(cookie:string,value:Sponsor){
  const current=await workspaceRead(new Request(new URL('/workspace?mode=sponsorship',base),{headers:{cookie}}));
@@ -48,6 +49,24 @@ test('temporary sponsor logos remain context-bound until a successful relationsh
   assert.equal((await sql`select data->>'publicEnabled' as public from cms_sponsor_companies where id=${sponsorId}`)[0].public,'false');await assert.rejects(publicSponsorLogo(uploaded.id),(error:any)=>error.status===404);
   const response=await sponsorDownload(request(actor.cookie),uploaded.id,true);assert.equal(response.headers.get('content-type'),'image/webp');
   await cancelSponsorLogoUpload(request(actor.cookie,'DELETE'),uploaded.id);assert.ok((await getObject(file.storage_key)).length);assert.equal((await sql`select id from cms_sponsor_files where id=${uploaded.id}`).length,1);
+ });
+ await t.test('HTTP delegates preserve 401, 403, 404 and body-validation errors as private JSON responses',async()=>{
+  const outsider=await fixture('sponsor'),missing=crypto.randomUUID();
+  async function http(path:string,cookie='',method:'GET'|'POST'|'DELETE'='GET',body?:unknown){
+   const handler=method==='GET'?sponsorHttpGet:method==='POST'?sponsorHttpPost:sponsorHttpDelete;
+   const req=new Request(new URL('/api/sponsorship/'+path,base),{method,headers:{cookie,origin,'content-type':'application/json'},...(body!==undefined?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});
+   return handler(req,{params:Promise.resolve({path:path.split('/')})});
+  }
+  async function expectError(response:Response,status:number,code:string){assert.equal(response.status,status);assert.match(response.headers.get('content-type')||'',/application\/json/);assert.equal(response.headers.get('cache-control'),'no-store');assert.equal((await response.json()).code,code);}
+  await expectError(await http('logos/'+uploaded.id),404,'missing');
+  await expectError(await http('logos/'+missing),404,'missing');
+  for(const path of ['files/'+uploaded.id,'previews/'+uploaded.id,'logo-uploads/'+missing,'agreements/'+missing+'/pdf','invoices/'+missing+'/pdf','events'])await expectError(await http(path),401,'unauthenticated');
+  await expectError(await http('files/'+uploaded.id,outsider.cookie),403,'forbidden');
+  for(const path of ['files/'+missing,'previews/'+missing,'logo-uploads/'+missing,'agreements/'+missing+'/pdf','invoices/'+missing+'/pdf'])await expectError(await http(path,actor.cookie),404,'missing');
+  await expectError(await http('notifications',actor.cookie,'POST','{'),400,'invalid-json');
+  await expectError(await http('notifications',actor.cookie,'POST',{companyId:42,ids:[]}),422,'validation');
+  await expectError(await http('logo-uploads/'+missing,'','POST','pixels'),401,'unauthenticated');
+  await expectError(await http('logo-uploads/'+missing,'','DELETE'),401,'unauthenticated');
  });
  await t.test('explicit cancellation and expiry remove only temporary objects, including a pending new relationship',async()=>{
   const cancelled=await sponsorLogoUpload(request(actor.cookie,'POST',png),crypto.randomUUID()),[cancelledRow]=await sql`select storage_key from cms_sponsor_logo_uploads where id=${cancelled.id}`;
