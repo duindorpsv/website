@@ -5,6 +5,7 @@ import {assertLocalSupabaseTests,loginEmail,authCookies} from '../helpers/supaba
 import {getAuth} from '../../lib/server/auth';
 import {sqlClient,closeDb} from '../../db';
 import {workspaceCommands} from '../../lib/server/sponsor-commands';
+import {POST as sponsorWorkspacePost} from '../../app/api/cms/sponsor-workspace/route';
 import {workspaceRead} from '../../lib/server/sponsor-workspace';
 import {invitationHandler} from '../../lib/server/directory-invitations';
 import {directoryPersonTemplate,directoryProfileTemplate} from '../../lib/cms/directory';
@@ -43,6 +44,18 @@ test('sponsor directory: canonical identities, real invitations, bounded scopes,
   await assert.rejects(read(marketing.cookie,true,otherId),/geen toegang/);
   await assert.rejects(command(marketing.cookie,'requestSponsorBusinessChange',[companyId,business,'reden'],true,companyId),/bedrijfsrol/);
   await assert.rejects(command(staff.cookie,'setDirectoryAccountActive',[admin.id,false]),/gebruikersbeheer/);
+ });
+ await t.test('the HTTP command accepts an explicit empty package for a custom draft, persists its edited lines and rejects invalid packages',async()=>{
+  const customCompanyId=crypto.randomUUID();await command(staff.cookie,'saveSponsor',[company(customCompanyId,staff.id)]);
+  async function http(name:string,args:unknown[]){const state=await read(staff.cookie),body={operationId:crypto.randomUUID(),mode:'sponsorship',companyId:'',versions:state.versions,commands:[{name,args,offset:0}]};return sponsorWorkspacePost(request('/api/cms/sponsor-workspace',staff.cookie,body));}
+  const created=await http('createSponsorProposal',[customCompanyId,'']);assert.equal(created.status,200);assert.equal((await created.json()).ok,true);
+  let proposal=(await read(staff.cookie)).state.sponsorship!.proposals.find(row=>row.sponsorId===customCompanyId)!;assert.ok(proposal);assert.equal(proposal.packageId,'');assert.equal(proposal.status,'draft');assert.deepEqual(proposal.lines,[]);assert.equal(proposal.snapshot,undefined);
+  const incomplete=await http('saveSponsorProposal',[proposal]);assert.equal(incomplete.status,422);assert.match((await incomplete.json()).message,/minimaal één sponsoritem/);
+  const itemId=crypto.randomUUID(),item={id:itemId,name:'Maatwerk catalogusitem',description:'Fictief voor HTTP-regressie',kind:'website',priceCents:12345,taxRate:'9',capacity:0,period:'season',active:true};assert.equal((await http('saveSponsorItem',[item])).status,200);
+  const edited={...proposal,name:'Persoonlijk maatwerk via dezelfde HTTP-opdracht',lines:[{id:crypto.randomUUID(),itemId,name:'Persoonlijke maatwerkregel',description:'Specifieke prestatie',addition:'Afzonderlijk overeengekomen',quantity:2,unitPriceCents:12345,taxRate:'9'}]};assert.equal((await http('saveSponsorProposal',[edited])).status,200);
+  proposal=(await read(staff.cookie)).state.sponsorship!.proposals.find(row=>row.id===proposal.id)!;assert.equal(proposal.name,edited.name);assert.equal(proposal.packageId,'');assert.deepEqual(proposal.lines,edited.lines);assert.equal(proposal.status,'draft');assert.equal(proposal.snapshot,undefined);assert.equal(calculateSponsorProposalTotals(proposal).totalCents,26912);
+  for(const packageId of ['missing-package-'+crypto.randomUUID(),'ongeldig pakket']){const rejected=await http('createSponsorProposal',[customCompanyId,packageId]);assert.equal(rejected.status,422);const problem=await rejected.json();assert.equal(problem.code,'validation');if(packageId.startsWith('missing-'))assert.match(problem.message,/beschikbaar pakket/);}
+  const proposals=(await read(staff.cookie)).state.sponsorship!.proposals.filter(row=>row.sponsorId===customCompanyId);assert.equal(proposals.length,1,'Invalid package requests never create another draft');assert.equal(proposals[0].id,proposal.id);assert.deepEqual(proposals[0].lines,edited.lines);
  });
  await t.test('invitation tokens are hashed; real Supabase email OTP creates exactly the stored person and company roles',async()=>{
   const personId=crypto.randomUUID(),email='invite-'+crypto.randomUUID()+'@example.invalid';
