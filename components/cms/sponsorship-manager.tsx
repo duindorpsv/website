@@ -46,7 +46,7 @@ function Badge({ children, tone = '' }: {
 }) { return <span className={`sb-badge ${tone}`}>{children}</span>; }
 function DocumentMailStatus({data,id,phase}:{data:SponsorshipState;id:string;phase:'proposal'|'agreement'|'signed'}){
  const mail=data.documentMails?.find(row=>row.referenceId===id&&row.phase===phase);
- return <small data-mail-status={mail?.status||'none'}>{!mail?'Nog geen documentmail aangevraagd':mail.status==='accepted'?`E-mail door Resend geaccepteerd (${mail.accepted}/${mail.recipients}); aflevering niet bevestigd`:mail.status==='queued'?'E-mail in de verzendwachtrij':mail.status==='failed'?`E-mail niet bevestigd (${mail.failed} mislukt); controleer de verzending`:'E-mail geannuleerd: documentstatus of toegang gewijzigd'}</small>;
+ return <small data-mail-status={mail?.status||'none'}>{!mail?'Nog geen documentmail aangevraagd':mail.status==='accepted'?`E-mail door Resend geaccepteerd (${mail.accepted}/${mail.recipients}); aflevering niet bevestigd`:mail.status==='partial'?`E-mail gedeeltelijk door Resend geaccepteerd (${mail.accepted}/${mail.recipients}); overige levering geannuleerd, aflevering niet bevestigd`:mail.status==='queued'?'E-mail in de verzendwachtrij':mail.status==='failed'?`E-mail niet bevestigd (${mail.failed} mislukt, ${mail.accepted} geaccepteerd); controleer de verzending`:'E-mail geannuleerd: documentstatus of toegang gewijzigd'}</small>;
 }
 function Field({ label, children, hint, full = false }: {
     label: string;

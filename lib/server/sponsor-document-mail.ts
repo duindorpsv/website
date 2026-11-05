@@ -34,14 +34,14 @@ export async function queueSponsorDocumentMail(tx:any,id:string,phase:DocumentMa
   }
  }
  if(queued){await tx`update cms_domain_revision set version=version+1 where id=true`;await tx`insert into cms_audit(id,actor_id,action,record_id,request_id,metadata) values (${crypto.randomUUID()},${actorId},'sponsor-document-mail-queued',null,${operationId},${tx.json({referenceId:id,phase,recipientCount:queued})})`;}
- const [summary]=await tx`select count(*) filter(where status='queued')::int as pending from cms_sponsor_deliveries where reference_id=${id} and kind=${'document-'+phase}`;
- return {queued,status:summary.pending?'queued' as const:'accepted' as const};
+ const summary=(await readSponsorDocumentMails(tx,[record.sponsor_id])).find(row=>row.referenceId===id&&row.phase===phase);
+ return {queued,status:summary?.status||'cancelled' as const};
 }
 /** No addresses, message content, provider credentials or account identifiers. */
 export async function readSponsorDocumentMails(tx:any,sponsorIds:string[]):Promise<SponsorDocumentMail[]>{
  if(!sponsorIds.length)return [];
  const rows=await tx`select reference_id,kind,count(*)::int as recipients,count(*) filter(where status='accepted')::int as accepted,count(*) filter(where status='failed')::int as failed,count(*) filter(where status='queued')::int as queued,max(delivered_at) filter(where status='accepted') as accepted_at from cms_sponsor_deliveries where sponsor_id in ${tx(sponsorIds)} and kind in ('document-proposal','document-agreement','document-signed') group by reference_id,kind`;
- return rows.map((r:any)=>({referenceId:r.reference_id,phase:r.kind.slice(9),status:r.failed?'failed':r.queued?'queued':r.accepted===r.recipients?'accepted':'cancelled',recipients:r.recipients,accepted:r.accepted,failed:r.failed,acceptedAt:r.accepted_at?new Date(r.accepted_at).toISOString():''}));
+ return rows.map((r:any)=>({referenceId:r.reference_id,phase:r.kind.slice(9),status:r.failed?'failed':r.queued?'queued':r.accepted===r.recipients?'accepted':r.accepted?'partial':'cancelled',recipients:r.recipients,accepted:r.accepted,failed:r.failed,acceptedAt:r.accepted_at?new Date(r.accepted_at).toISOString():''}));
 }
 /** Lock prevents membership/document changes while the authorized send is in flight. */
 export async function deliverSponsorDocumentMail(deliveryId:string){
@@ -54,7 +54,7 @@ export async function deliverSponsorDocumentMail(deliveryId:string){
   // Read the latest persisted intent instead of trusting a stale claimed job payload.
   const [intent]=await tx`select payload->>'actorId' as actor_id from cms_jobs where kind='sponsor-document-mail' and payload->>'deliveryId'=${deliveryId} order by created_at desc,id desc limit 1`;
   try{if(!intent?.actor_id)throw new CmsError('forbidden','De verzendaanvraag ontbreekt.',403);requireWrite(await actorPrincipal(intent.actor_id,tx),'sponsors','update');}catch(error){if(error instanceof CmsError&&[401,403].includes(error.status)){await tx`update cms_sponsor_deliveries set status='cancelled' where id=${deliveryId}`;await tx`update cms_domain_revision set version=version+1 where id=true`;return;}throw error;}
-  const phase=delivery.kind.slice(9) as DocumentMailPhase;if(!(phase in kinds))throw new CmsError('document-mail-kind','De documentmail is ongeldig.',422);
+  const phase=delivery.kind.slice(9) as DocumentMailPhase;if(!Object.hasOwn(kinds,phase))throw new CmsError('document-mail-kind','De documentmail is ongeldig.',422);
   let record:any;try{record=await documentContext(tx,delivery.reference_id,phase);}catch(error){if(error instanceof CmsError&&['missing','document-mail-status'].includes(error.code)){await tx`update cms_sponsor_deliveries set status='cancelled' where id=${deliveryId}`;await tx`update cms_domain_revision set version=version+1 where id=true`;return;}throw error;}
   const account=(await eligibleRecipients(tx,record.sponsor_id)).find((row:any)=>row.id===delivery.user_id);
   if(!account){await tx`update cms_sponsor_deliveries set status='cancelled' where id=${deliveryId}`;await tx`update cms_domain_revision set version=version+1 where id=true`;return;}

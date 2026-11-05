@@ -1,8 +1,10 @@
+import {createHash} from 'node:crypto';
 import {test,after} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {assertLocalSupabaseTests,loginEmail,authCookies} from '../helpers/supabase-auth';
-import {getAuth} from '../../lib/server/auth';
+import {assertLocalSupabaseTests,authPost,authCookies} from '../helpers/supabase-auth';
+import {capturedEmailCode} from '../helpers/email-code';
+import {getAuth,deliverEmailCode} from '../../lib/server/auth';
 import {sqlClient,closeDb} from '../../db';
 import {workspaceCommands} from '../../lib/server/sponsor-commands';
 import {workspaceRead} from '../../lib/server/sponsor-workspace';
@@ -11,7 +13,14 @@ import type {Sponsor,SponsorBusinessDetails} from '../../lib/cms/sponsorship-typ
 assertLocalSupabaseTests();const sql=sqlClient();after(closeDb);
 const base=process.env.APP_BASE_URL!,agent='document-mail-test-'+crypto.randomUUID();
 const request=(cookie:string,body?:unknown)=>new Request(new URL('/api/cms/sponsor-workspace?mode=sponsorship',base),{method:body?'POST':'GET',headers:{cookie,origin:new URL(base).origin,'content-type':'application/json','user-agent':agent},...(body?{body:JSON.stringify(body)}:{})});
-async function fixture(role:string){const email='document-mail-'+crypto.randomUUID()+'@example.invalid';const {user}=await getAuth().api.createUser({body:{email,name:'Fictieve documentmail',password:crypto.randomUUID()+crypto.randomUUID()}});await sql`insert into cms_memberships(user_id,role_id) values (${user.id},${role})`;return {...user,cookie:authCookies(await loginEmail(email))};}
+async function isolatedLogin(email:string){
+ const after=Date.now(),response=await authPost('email-code/request',{email});assert.equal(response.status,200);
+ const cookie=authCookies(response),nonce=/duindorp-login=([a-f0-9]{64})/.exec(cookie)?.[1];assert.ok(nonce);
+ const operation='login-'+createHash('sha256').update(nonce).digest('hex'),[job]=await sql`select id,payload from cms_jobs where operation_id=${operation}`;assert.ok(job);
+ await deliverEmailCode(job.payload,`<${operation}@duindorp.invalid>`);await sql`update cms_jobs set status='done' where id=${job.id}`;
+ const signed=await authPost('email-code/verify',{email,code:await capturedEmailCode(email,after)},cookie);assert.equal(signed.status,200);return signed;
+}
+async function fixture(role:string){const email='document-mail-'+crypto.randomUUID()+'@example.invalid';const {user}=await getAuth().api.createUser({body:{email,name:'Fictieve documentmail',password:crypto.randomUUID()+crypto.randomUUID()}});await sql`insert into cms_memberships(user_id,role_id) values (${user.id},${role})`;return {...user,cookie:authCookies(await isolatedLogin(email))};}
 const company=(id:string,ownerId:string):Sponsor=>({id,name:'Fictieve documentmail BV',companyNumber:'12345678',vatNumber:'',address:'Teststraat 1',postalCode:'1234 AB',city:'Den Haag',email:'unlinked@example.invalid',phone:'',website:'',description:'',logoUrl:'',ownerId,stage:'lead',notes:'',publicProfile:{name:'Fictief',description:'',website:'',logoUrl:''},publicEnabled:false,publicFrom:'',publicUntil:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),demo:false});
 const business:SponsorBusinessDetails={legalName:'Fictieve documentmail BV',companyNumber:'12345678',registrationExempt:false,registrationExemptionReason:'',vatNumber:'',vatStatus:'not-applicable',address:'Teststraat 1',postalCode:'1234 AB',city:'Den Haag',country:'NL',contactName:'Fictief',contactFunction:'Directeur',contactEmail:'unlinked@example.invalid',invoiceEmail:'unlinked@example.invalid',phone:'',confirmedAt:'',confirmedBy:'',updatedAt:''};
 test('document mail: explicit intent, real queued delivery, failure, current recipient rights and permanent deduplication',async t=>{
@@ -52,6 +61,15 @@ test('document mail: explicit intent, real queued delivery, failure, current rec
    await deliverSponsorDocumentMail(deliveryId);const again=await command('sendSponsorDocumentEmail',[proposal.id,'proposal']);assert.equal(again.result.mailStatus,'accepted');assert.equal(requests.length,2);
   });
  }finally{globalThis.fetch=originalFetch;}
+ await t.test('mixed accepted and cancelled recipients retain explicit partial acceptance',async()=>{
+  const membership=(await read()).state.sponsorship!.memberships.find(row=>row.userId===other.id&&row.sponsorId===companyId)!;
+  await command('saveMembership',[{...membership,roles:['signer']}],crypto.randomUUID(),admin.cookie);
+  await command('sendSponsorDocumentEmail',[proposal.id,'proposal']);const [delivery]=await sql`select id from cms_sponsor_deliveries where reference_id=${proposal.id} and user_id=${other.id}`;
+  await command('saveMembership',[{...membership,roles:['marketing']}],crypto.randomUUID(),admin.cookie);
+  await deliverSponsorDocumentMail(delivery.id);
+  const mail=(await read()).state.sponsorship!.documentMails!.find(row=>row.referenceId===proposal.id)!;assert.equal(mail.status,'partial');assert.equal(mail.accepted,1);assert.equal(mail.recipients,2);assert.ok(mail.acceptedAt);
+  const replay=await command('sendSponsorDocumentEmail',[proposal.id,'proposal']);assert.equal(replay.result.mailStatus,'partial');
+ });
  await command('createSponsorAgreement',[proposal.id]);const agreement=(await read()).state.sponsorship!.agreements.find(row=>row.proposalId===proposal.id)!;
  await t.test('existing agreement can explicitly queue; revocation before worker cancels without provider call',async()=>{
   assert.equal((await sql`select id from cms_sponsor_deliveries where reference_id=${agreement.id}`).length,0);
