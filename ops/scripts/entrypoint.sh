@@ -8,5 +8,6 @@ case "${1:-web}" in
   migrate) exec node /app/runtime/migrate.mjs ;;
   seed) exec node /app/runtime/seed.mjs ;;
   owner) exec node /app/runtime/owner.mjs ;;
+  migrate-accounts) shift; exec node /app/runtime/migrate-accounts.mjs "$@" ;;
   *) echo 'Unsupported runtime command' >&2; exit 64 ;;
 esac

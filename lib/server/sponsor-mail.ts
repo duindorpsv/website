@@ -1,0 +1,7 @@
+import {sendMail} from './mail';
+import {env} from './env';
+const escape=(value:string)=>value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
+export async function sponsorMail(to:string,subject:string,text:string,messageId:string,link?:{label:string;href:string}){
+ const html=`<!doctype html><html lang="nl"><body style="margin:0;background:#eef3f9;font-family:Arial,sans-serif;color:#13314f"><table role="presentation" width="100%"><tr><td align="center" style="padding:32px 12px"><table role="presentation" width="560" style="max-width:100%;background:white;border-radius:12px;overflow:hidden"><tr><td style="background:#0957a7;color:white;padding:28px;font-size:24px;font-weight:bold">DUINDORP SV<br><span style="font-size:12px;letter-spacing:2px">ONZE WIJK. ONZE CLUB. ONZE TROTS.</span></td></tr><tr><td style="padding:28px;line-height:1.7"><h1 style="font-size:24px">${escape(subject)}</h1>${text.split('\n').map(p=>`<p>${escape(p)}</p>`).join('')}${link?`<p><a href="${escape(link.href)}" style="display:inline-block;background:#0957a7;color:white;padding:12px 20px;border-radius:6px;text-decoration:none">${escape(link.label)}</a></p>`:''}<p style="font-size:12px;color:#60758b">Deel inloglinks en codes met niemand. Heb je deze aanvraag niet gedaan? Neem contact op met de club.</p></td></tr></table></td></tr></table></body></html>`;
+ return sendMail({to:[to],subject,text:text+(link?'\n'+link.href:''),html,messageId,replyTo:env().MAIL_FROM});
+}

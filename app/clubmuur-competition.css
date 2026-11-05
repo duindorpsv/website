@@ -48,7 +48,7 @@
 .cm-fixture .cm-club-logo{width:22px;height:22px;min-width:22px}
 .cm-round-program .cm-fixture-team{padding-right:55px}
 .cm-fixture-time{position:absolute;right:0;top:50%;transform:translateY(-50%);display:flex;align-items:center;flex-direction:column;gap:4px;min-width:41px}
-.cm-fixture-time>b{font-size:18px;font-family:'Barlow Condensed',sans-serif;font-weight:700;line-height:1;color:var(--competition-blue);font-variant-numeric:tabular-nums}
+.cm-fixture-time>b{font-size:18px;font-family:'Rubik Distressed',sans-serif;font-weight:700;line-height:1;color:var(--competition-blue);font-variant-numeric:tabular-nums}
 .cm-fixture-time>small{font-size:6px;letter-spacing:.13em;color:#8997a6;font-weight:700}
 .cm-fixture[data-status=true] .cm-fixture-team{padding-right:75px}
 .cm-fixture-status{position:absolute;right:0;top:50%;transform:translateY(-50%);max-width:71px;padding:5px 6px;background:#f7f0e7;color:#8d7150;border:1px solid #ebe0d1;border-radius:4px;font-size:7px;font-weight:700;line-height:1.4;text-align:center}
@@ -64,7 +64,7 @@
 .cm-round-progress{position:absolute;bottom:0;left:0;right:0;height:2px;background:#2b67a6;transform-origin:left;animation:cm-round-time 10s linear infinite}
 .cm-round-card[data-paused=true] .cm-round-progress{animation-play-state:paused}
 .cm-standing-context>span:first-child{display:flex;align-items:center;gap:8px;color:var(--competition-blue);font-size:10px;font-weight:700}
-.cm-standing-context b{line-height:1;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700}
+.cm-standing-context b{line-height:1;font-family:'Rubik Distressed',sans-serif;font-size:17px;font-weight:700}
 .cm-standing-context>span:last-child{font-size:8px}
 .cm-standings-scroll{--standings-head:42px;overflow:auto;min-height:362px;max-height:362px;scrollbar-width:none;outline-offset:-3px;overflow-anchor:none;scroll-behavior:auto}
 .cm-standings-scroll::-webkit-scrollbar{display:none}
@@ -78,7 +78,7 @@
 .cm-standings-table .cm-standing-name{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
 .cm-standings-table th:first-child,.cm-standings-table td:first-child{padding-left:18px}
 .cm-standings-table th:last-child,.cm-standings-table td:last-child{padding-right:18px}
-.cm-standings-table .cm-standing-rank{color:#8b9aad;font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;min-width:37px}
+.cm-standings-table .cm-standing-rank{color:#8b9aad;font-family:'Rubik Distressed',sans-serif;font-size:20px;font-weight:600;min-width:37px}
 .cm-standing-logo{width:36px;padding-inline:2px!important}
 .cm-standings-table .cm-standing-points{font-weight:800;color:var(--competition-blue);font-size:12px;min-width:25px}
 .cm-standings-table .cm-standing-goals{min-width:31px;color:#607389}

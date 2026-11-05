@@ -1,21 +1,4 @@
 services:
-  database:
-    image: postgres:17-bookworm
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: duindorp_migration
-      POSTGRES_DB: duindorp
-      POSTGRES_PASSWORD_FILE: /run/secrets/database_password
-    secrets: [database_password]
-    volumes: ['database:/var/lib/postgresql/data']
-    mem_limit: 512m
-    pids_limit: 128
-    logging: {driver: json-file, options: {max-size: 10m, max-file: '3'}}
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U duindorp_migration -d duindorp']
-      interval: 5s
-      timeout: 3s
-      retries: 20
   web:
     image: ${APP_IMAGE:?Use an immutable approved digest}
     restart: unless-stopped
@@ -29,7 +12,6 @@ services:
     pids_limit: 128
     cap_drop: [ALL]
     security_opt: ['no-new-privileges:true']
-    depends_on: {database: {condition: service_healthy}}
     logging: {driver: json-file, options: {max-size: 10m, max-file: '3'}}
     healthcheck:
       test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3000/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
@@ -49,7 +31,6 @@ services:
     pids_limit: 128
     cap_drop: [ALL]
     security_opt: ['no-new-privileges:true']
-    depends_on: {database: {condition: service_healthy}}
     logging: {driver: json-file, options: {max-size: 10m, max-file: '3'}}
   migration:
     image: ${APP_IMAGE:?Use an immutable approved digest}
@@ -60,7 +41,6 @@ services:
     tmpfs: [/tmp]
     cap_drop: [ALL]
     security_opt: ['no-new-privileges:true']
-    depends_on: {database: {condition: service_healthy}}
   provision:
     image: ${APP_IMAGE:?Use an immutable approved digest}
     command: [provision]
@@ -70,9 +50,22 @@ services:
     tmpfs: [/tmp]
     cap_drop: [ALL]
     security_opt: ['no-new-privileges:true']
-    depends_on: {database: {condition: service_healthy}}
-secrets:
-  database_password:
-    file: ${DATABASE_PASSWORD_FILE:?Protected password file}
-volumes:
-  database:
+  database-backup:
+    image: postgres:17-bookworm
+    profiles: [backup]
+    user: postgres
+    env_file: ['${MIGRATION_ENV_FILE:?Separate protected migration environment}']
+    entrypoint:
+      - /bin/bash
+      - -euc
+      - |
+        umask 077
+        printf '%s' "$$DATABASE_CA_CERT_B64" | base64 -d > /tmp/database-ca.crt
+        export PGSSLROOTCERT=/tmp/database-ca.crt
+        exec pg_dump --format=custom --no-owner --no-acl
+    read_only: true
+    tmpfs: ['/tmp:size=64m']
+    mem_limit: 256m
+    pids_limit: 64
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']

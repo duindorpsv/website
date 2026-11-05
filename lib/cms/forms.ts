@@ -1,3 +1,4 @@
+import {submittedFormValues} from './form-validation';
 import type {CmsForm,CmsSubmission,FormKind,SubmissionStatus} from './types';
 
 export const formKindLabels:Record<FormKind,{singular:string;plural:string;description:string}>={
@@ -22,9 +23,10 @@ export function createSubmissionSnapshot(
   values:Record<string,string>,
   options:{id:string;departmentId:string;createdAt:string;demo?:boolean},
 ):CmsSubmission{
-  const answers=form.fields.map(field=>({fieldId:field.id,label:field.label,type:field.type,value:(values[field.id]||'').trim()}));
-  const name=answers.find(answer=>/naam|name/i.test(answer.label))?.value||'Onbekende afzender';
-  const email=answers.find(answer=>answer.type==='email')?.value||'';
+  const submitted=submittedFormValues(form,values);
+  const answers=form.fields.filter(field=>field.id in submitted).map(field=>({fieldId:field.id,label:field.label,type:field.type,value:(values[field.id]||'').trim()}));
+  const name=(form.registrationPurpose==='membership'&&[submitted.firstName,submitted.lastName].filter(Boolean).join(' '))||answers.find(answer=>/naam|name/i.test(answer.label))?.value||'Onbekende afzender';
+  const email=submitted.guardianEmail||answers.find(answer=>answer.type==='email')?.value||'';
   return {
     id:options.id,kind:form.kind,formId:form.id,formName:form.name,answers,
     departmentId:options.departmentId,name,email,

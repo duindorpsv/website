@@ -23,7 +23,7 @@ function Broadcast({ slide, portrait, time, playing }: { slide:NarrowcastSlide; 
     <div className="nc-screen-body" key={slide.id}>
       {sports.has(slide.kind) ? <SportsScreen kind={slide.kind} portrait={portrait} config={slide.config} playing={playing} /> : <ClubScreen kind={slide.kind} portrait={portrait} />}
     </div>
-    <footer className="nc-broadcast-footer"><div className="nc-footer-copy"><span>Onze Wijk. Onze Club. Onze Trots.</span><small>{sports.has(slide.kind) ? 'WEDSTRIJDGEGEVENS VIA SPORTLINK' : slide.kind === 'kantine' ? 'CONCEPT · VOORBEELDPRIJZEN' : slide.kind === 'clubnieuws' ? 'CONCEPT · VOORBEELDBERICHTEN' : 'DUINDORP SV'}</small></div><div className="nc-brush-wordmark" aria-label="OnzeTrots" /></footer>
+    <footer className="nc-broadcast-footer"><div className="nc-footer-copy"><span>Onze Wijk. Onze Club. Onze Trots.</span><small>{sports.has(slide.kind) ? 'WEDSTRIJDGEGEVENS VIA SPORTLINK' : slide.kind === 'kantine' ? 'KANTINE' : slide.kind === 'clubnieuws' ? 'CLUBNIEUWS' : 'DUINDORP SV'}</small></div><div className="nc-brush-wordmark" aria-label="OnzeTrots" /></footer>
   </article>;
 }
 
@@ -200,7 +200,7 @@ function Studio() {
           <div className="nc-controls"><div className="nc-play-controls"><button className="nc-step" aria-label="Vorig scherm" onClick={()=>move(-1)}><ChevronLeft size={20}/></button><button className="nc-play-button" aria-pressed={playing} onClick={()=>setPlaying(v=>!v)}>{playing?<Pause size={16} fill="currentColor"/>:<Play size={16} fill="currentColor"/>}{playing?'Pauzeren':'Afspeellijst starten'}</button><button className="nc-step" aria-label="Volgend scherm" onClick={()=>move(1)}><ChevronRight size={20}/></button></div><span className="nc-screen-count">{slides.findIndex(s=>s.id===active.id)+1} <span>/ {slides.length}</span></span><label className="nc-duration">Per slide<select aria-label="Duur per slide" value={seconds} onChange={e=>setSeconds(Number(e.target.value))}>{[10,15,20,30,45,60].map(value=><option key={value} value={value}>{value} sec</option>)}</select></label></div>
         </section>
       </div>
-      <div className="nc-bottom"><p><span>SPORTLINK</span>Sportoverzichten verversen elke 15 minuten. Kantineprijzen en clubberichten zijn voorbeelden. De schermlink bevat de geselecteerde groep.</p><div><button onClick={copyLink}><Copy size={15}/>Kopieer schermlink</button><button onClick={()=>window.open(playerUrl(),'_blank','noopener,noreferrer')}>Open scherm<ArrowUpRight size={16}/></button></div></div>
+      <div className="nc-bottom"><p><span>SPORTLINK</span>Sportoverzichten verversen elke 15 minuten. De schermlink bevat de geselecteerde groep.</p><div><button onClick={copyLink}><Copy size={15}/>Kopieer schermlink</button><button onClick={()=>window.open(playerUrl(),'_blank','noopener,noreferrer')}>Open scherm<ArrowUpRight size={16}/></button></div></div>
     </main>
     <footer className="nc-studio-footer"><strong>Onze Club. Onze Trots.</strong><span>OnzeTrots TV<i/>Clubmuur</span></footer>
     {wizard&&<NarrowcastingWizard portrait={portrait} onCreate={createGroup} onClose={()=>setWizard(false)}/>}

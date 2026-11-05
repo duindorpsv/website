@@ -7,15 +7,19 @@ export async function syncHomepage(tx:any,id:string,before:any,live:any,actorId:
   for(const part of ['draft','live']){
     const settings=home[part];if(!settings)continue;
     const selected=(settings.homepageArticleIds||[]).includes(id)||(settings.homepageStoryIds||[]).includes(id);
-    settings.homepageArticleIds=(settings.homepageArticleIds||[]).filter((v:string)=>v!==id);
-    settings.homepageStoryIds=(settings.homepageStoryIds||[]).filter((v:string)=>v!==id);
-    if(live&&(live.featured||(selected&&before?.featured===live.featured)))settings[live.contentType==='story'?'homepageStoryIds':'homepageArticleIds'].push(id);
+    const target=live?.contentType==='story'?'homepageStoryIds':'homepageArticleIds';
+    const included=live&&(live.featured||(selected&&before?.featured===live.featured));
+    for(const key of ['homepageArticleIds','homepageStoryIds']){
+      settings[key]=(settings[key]||[]).filter((value:string)=>value!==id||(key===target&&included));
+      if(key===target&&included&&!settings[key].includes(id))settings[key].push(id);
+    }
   }
   if(previous===JSON.stringify([home.draft,home.live]))return;
   const version=home.version+1;
   await tx`update cms_records set draft=${tx.json(home.draft)},live=${home.live?tx.json(home.live):null},version=${version},updated_at=now() where id='settings'`;
   await tx`insert into cms_revisions(id,record_id,version,snapshot,label,actor_id) values (${crypto.randomUUID()},'settings',${version},${tx.json(home.draft)},'publication-selection',${actorId})`;
   if(home.live){const pub=crypto.randomUUID();await tx`insert into cms_publications(id,record_id,record_version,snapshot,actor_id) values (${pub},'settings',${version},${tx.json(home.live)},${actorId})`;await tx`update cms_records set live_id=${pub} where id='settings'`;}
+  return version;
 }
 
 export async function moveChildPaths(tx:any,parentId:string,before:any,live:any,p:Principal) {

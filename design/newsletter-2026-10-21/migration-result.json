@@ -1,0 +1,10 @@
+{
+  "upgrade": "0017 → 0018",
+  "existingSubscriberPreserved": true,
+  "topicsPreserved": true,
+  "legacyTokensPreserved": true,
+  "consentBackfilled": true,
+  "newPrivateTables": 4,
+  "rls": true,
+  "publicAccess": false
+}

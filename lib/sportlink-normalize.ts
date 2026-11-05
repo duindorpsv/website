@@ -1,18 +1,20 @@
+import {supportsPublicMatchResults} from './match-dossier';
 import type {
   FormResult, SportlinkMatch, SportlinkRound,
   SportlinkSide, SportlinkSnapshot, SportlinkStanding, SportlinkTeam,
 } from './sportlink-types';
+import {sportlinkAssignmentFields} from './sportlink-assignments';
+import {clubLogoUrl} from './sportlink-club-logo';
 
 type Raw = Record<string, unknown>;
 type Input = {
-  teams: unknown[]; standings: unknown[]; leagueResults: unknown[];
+  verifiedClubCode?: string; teams: unknown[]; standings: unknown[]; leagueResults: unknown[];
   leagueFixtures: unknown[]; clubResults: unknown[]; clubFixtures: unknown[];
 };
 const ZONE = 'Europe/Amsterdam';
 const text = (value: unknown): string => typeof value === 'string' ? value.trim() : typeof value === 'number' && Number.isFinite(value) ? String(value) : '';
 const raw = (value: unknown): Raw => value !== null && typeof value === 'object' && !Array.isArray(value) ? value as Raw : {};
 const key = (value: unknown): string => text(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[.]/g, '').replace(/\s+/g, ' ').trim();
-const truth = (value: unknown): boolean => value === true || ['true', 'ja', '1'].includes(key(value));
 const integer = (value: unknown): number => Number.isFinite(Number(value)) ? Math.trunc(Number(value)) : 0;
 const validTeamCode = (value: unknown): string => /^\d+$/.test(text(value)) && Number(value) > 0 ? text(value) : '';
 const sideKey = (club: string, name: string): string => `${club}:${key(name)}`;
@@ -44,7 +46,7 @@ function kickoff(row: Raw): string | null {
 }
 
 function score(row: Raw, status: string): [number, number] | null {
-  if (!completed(status)) return null;
+  if (!completed(status)||!supportsPublicMatchResults({name:text(row.thuisteam)})||!supportsPublicMatchResults({name:text(row.uitteam)})) return null;
   const value = text(row.uitslag) || text(row['uitslag-regulier']);
   const pair = value.match(/^(\d{1,3})\s*[-–:]\s*(\d{1,3})(?:\s*\([^)]*\))?$/);
   return pair ? [Number(pair[1]), Number(pair[2])] : null;
@@ -80,6 +82,17 @@ export function centeredStandings(rows: SportlinkStanding[], limit = 5): Sportli
   return rows.slice(start, start + size);
 }
 
+/** Recompute derived flags in retained snapshots from the verified catalog,
+ * including when the provider is unavailable. Never infer ownership from names. */
+export function withStandingOwnership(snapshot: SportlinkSnapshot): SportlinkSnapshot {
+  const ownCodes = new Set(snapshot.teams.map(team => validTeamCode(team.teamCode)).filter(Boolean));
+  return {...snapshot, standings: snapshot.standings.map(row => {
+    const own = !!validTeamCode(row.team.id) && ownCodes.has(row.team.id)
+      && (!row.team.clubCode || !snapshot.clubCode || row.team.clubCode === snapshot.clubCode);
+    return {...row, team: {...row.team, own, logoUrl: clubLogoUrl({...row.team, own})}};
+  })};
+}
+
 export function normalizeSportlink(input: Input, now = new Date()): SportlinkSnapshot {
   const teams = normalizeTeams(input.teams);
   const firstTeam = teams.find(team => /^duindorp(?: sv)? 1$/.test(key(team.name)) && (!team.gender || key(team.gender) === 'man')) || null;
@@ -87,17 +100,7 @@ export function normalizeSportlink(input: Input, now = new Date()): SportlinkSna
   const ownCodes = new Set(teams.map(team => validTeamCode(team.teamCode)).filter(Boolean));
   const leagueRows = [...input.leagueResults, ...input.leagueFixtures].map(raw);
   const allRawMatches = [...leagueRows, ...input.clubResults.map(raw), ...input.clubFixtures.map(raw)];
-  const ownStanding = input.standings.map(raw).find(row => truth(row.eigenteam));
-  let ownClubCode = text(ownStanding?.clubrelatiecode);
-  if (!ownClubCode) {
-    for (const row of allRawMatches) {
-      for (const prefix of ['thuis', 'uit']) {
-        const code = validTeamCode(row[`${prefix}teamid`]);
-        if (code && ownCodes.has(code) && text(row[`${prefix}teamclubrelatiecode`])) ownClubCode = text(row[`${prefix}teamclubrelatiecode`]);
-      }
-      if (ownClubCode) break;
-    }
-  }
+  const ownClubCode = input.verifiedClubCode || '';
   const sideIds = new Map<string, string>();
   for (const row of allRawMatches) {
     for (const prefix of ['thuis', 'uit']) {
@@ -105,11 +108,12 @@ export function normalizeSportlink(input: Input, now = new Date()): SportlinkSna
       if (id) sideIds.set(sideKey(text(row[`${prefix}teamclubrelatiecode`]), text(row[`${prefix}team`])), id);
     }
   }
-  const side = (name: string, clubCode: string, id: string, explicitOwn = false): SportlinkSide => {
-    const own = explicitOwn || (!!clubCode && clubCode === ownClubCode) || (!!validTeamCode(id) && ownCodes.has(id)) || /^duindorp(?: sv)?(?: |$)/.test(key(name));
+  const side = (name: string, clubCode: string, id: string): SportlinkSide => {
+    const resolvedId = validTeamCode(id) || sideIds.get(sideKey(clubCode, name));
+    const own = !!resolvedId && ownCodes.has(resolvedId) && (!clubCode || !ownClubCode || clubCode===ownClubCode);
     return {
-      id: validTeamCode(id) || sideIds.get(sideKey(clubCode, name)) || sideKey(clubCode, name), name, clubCode, own,
-      logoUrl: own ? '/assets/logo.png' : clubCode ? `https://logoapi.voetbal.nl/logo.php?clubcode=${encodeURIComponent(clubCode)}` : null,
+      id: resolvedId || sideKey(clubCode, name), name, clubCode, own,
+      logoUrl: clubLogoUrl({own,clubCode}),
     };
   };
   const leagueMatchIds = new Set(leagueRows.map(row => text(row.wedstrijdcode)));
@@ -127,7 +131,7 @@ export function normalizeSportlink(input: Input, now = new Date()): SportlinkSna
       home: side(homeName, text(row.thuisteamclubrelatiecode), text(row.thuisteamid)),
       away: side(awayName, text(row.uitteamclubrelatiecode), text(row.uitteamid)),
       homeScore: goals?.[0] ?? null, awayScore: goals?.[1] ?? null,
-      scoreLabel: goals ? `${goals[0]} – ${goals[1]}` : null, status, venue: text(row.accommodatie),
+      scoreLabel: goals ? `${goals[0]} – ${goals[1]}` : null, status, venue: text(row.accommodatie), ...sportlinkAssignmentFields(row),
       competitionId: inLeague ? competition?.id || '' : text(row.poulecode),
       competitionLabel: inLeague ? competition?.label || '' : text(row.klassepoule) || text(row.competitienaam) || text(row.competitie),
     };
@@ -164,7 +168,7 @@ export function normalizeSportlink(input: Input, now = new Date()): SportlinkSna
       return own === opponent ? 'GL' : own > opponent ? 'W' : 'V';
     });
   const standings: SportlinkStanding[] = competition ? input.standings.map(raw).filter(row => integer(row.positie) > 0 && !!text(row.teamnaam)).map(row => {
-    const team = side(text(row.teamnaam), text(row.clubrelatiecode), text(row.teamcode), truth(row.eigenteam));
+    const team = side(text(row.teamnaam), text(row.clubrelatiecode), text(row.teamcode));
     return {
       rank: integer(row.positie), team, played: integer(row.gespeeldewedstrijden), won: integer(row.gewonnen), drawn: integer(row.gelijk), lost: integer(row.verloren),
       goalsFor: integer(row.doelpuntenvoor), goalsAgainst: integer(row.doelpuntentegen), goalDifference: integer(row.doelsaldo), points: integer(row.punten), form: formFor(team),

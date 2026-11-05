@@ -1,12 +1,72 @@
+import {loginWithEmailCode} from './login-fixture';
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
+import type {Editor} from '@tiptap/core';
 const owner=JSON.parse(readFileSync('.runtime/e2e-account.json','utf8'));
-async function login(page:any){await page.goto('/beheer/login');await page.getByLabel('E-mailadres',{exact:true}).fill(owner.email);await page.getByLabel('Wachtwoord',{exact:true}).fill(owner.password);await page.getByRole('button',{name:'Inloggen',exact:true}).click();await expect(page.getByText('Gedeeld CMS',{exact:true})).toBeVisible();}
+async function login(page:any){await loginWithEmailCode(page,owner.email);}
 test('AUTH01 and SEO: unauthenticated APIs reject access, public history is rendered without JS',async({request,browser})=>{expect((await request.get('/api/cms/bootstrap')).status()).toBe(401);const response=await request.get('/beheer',{maxRedirects:0});expect([307,308]).toContain(response.status());const context=await browser.newContext({javaScriptEnabled:false});const page=await context.newPage();await page.goto('/clubmuur/club/ons-verhaal');await expect(page.getByRole('heading',{name:/verhaal/i}).first()).toBeVisible();expect(await page.locator('body').innerText()).toContain('1950');await context.close();expect((await request.get('/clubmuur/club/missing-e2e-page')).status()).toBe(404);});
-test('real login, row/column builder and one-step undo/redo',async({page})=>{await login(page);await page.getByRole('button',{name:'Pagina’s',exact:true}).click();const created=page.waitForResponse((r:any)=>r.url().endsWith('/api/cms/mutations')&&r.request().method()==='POST'&&r.request().postDataJSON().changes.some((c:any)=>c.expectedVersion===0&&c.id.startsWith('page-')));await page.getByRole('button',{name:'Nieuwe pagina',exact:true}).first().click();const creation=await created;expect(creation.status()).toBe(200);const createdId=Object.keys((await creation.json()).versions)[0];await expect(page.locator(`[data-page-id="${createdId}"] .pb-builder`)).toBeVisible();await page.getByRole('button',{name:'Rij met 2 kolommen',exact:true}).click();await expect(page.locator('.pb-column')).toHaveCount(3);const add=page.locator('.pb-column').nth(1).getByRole('button',{name:'Widget toevoegen'});await add.click();await page.locator('.pb-palette-item').filter({hasText:'Tekst'}).first().getByRole('button',{name:'Tekst',exact:true}).click();await expect(page.locator('[data-widget-id]')).toHaveCount(1);await page.locator('.pb-rich-content').click();await page.keyboard.type('Dit is een echte tekstwidget.');await page.getByRole('button',{name:'Ongedaan maken',exact:true}).click();await page.getByRole('button',{name:'Opnieuw',exact:true}).click();await expect(page.locator('.pb-rich-content')).toContainText('Dit is een echte tekstwidget.');const saved=page.waitForResponse((r:any)=>r.url().endsWith('/api/cms/mutations')&&r.request().method()==='POST');await page.getByRole('button',{name:'Bewaren',exact:true}).first().click();expect((await saved).status()).toBe(200);await page.screenshot({path:'.runtime/screenshots/builder.png',fullPage:true});});
+test('real login, row/column builder and one-step undo/redo',async({page})=>{
+ await login(page);await page.getByRole('button',{name:'Pagina’s',exact:true}).click();
+ const created=page.waitForResponse((r:any)=>r.url().endsWith('/api/cms/mutations')&&r.request().method()==='POST'&&r.request().postDataJSON().changes.some((c:any)=>c.expectedVersion===0&&c.id.startsWith('page-')));
+ await page.getByRole('button',{name:'Nieuwe pagina',exact:true}).first().click();const creation=await created;expect(creation.status()).toBe(200);
+ const createdId=Object.keys((await creation.json()).versions)[0];await expect(page.locator(`[data-page-id="${createdId}"] .pb-builder`)).toBeVisible();
+ await page.getByRole('button',{name:'Rij met 2 kolommen',exact:true}).click();await expect(page.locator('.pb-column')).toHaveCount(3);
+ await page.locator('.pb-column').nth(1).getByRole('button',{name:'Widget toevoegen'}).click();
+ await page.locator('.pb-palette-item').filter({hasText:'Tekst'}).first().getByRole('button',{name:'Tekst',exact:true}).click();
+ await expect(page.locator('[data-widget-id]')).toHaveCount(1);
+ // Target the editable paragraph, rather than the padded NodeView container.
+ // Prove typing succeeded before checking either history operation.
+ const content=page.locator('.pb-rich-content'),text='Dit is een echte tekstwidget.';
+ await content.locator('p').click();await expect(page.locator('.ProseMirror')).toBeFocused();
+ await page.keyboard.type(text);await expect(content).toHaveText(text);
+ await page.getByRole('button',{name:'Ongedaan maken',exact:true}).click();await expect(content).toHaveText('');
+ const redo=page.getByRole('button',{name:'Opnieuw',exact:true});await expect(redo).toBeEnabled();await redo.click();await expect(content).toHaveText(text);
+ // Select through the focused editor's keyboard command. Home/End address a
+ // visual line inside nested NodeViews and can leave an empty selection.
+ const editor=page.locator('.ProseMirror');await editor.focus();await expect(editor).toBeFocused();
+ await page.keyboard.press('ControlOrMeta+A');
+ // Confirm the command selected the typed text before moving toolbar focus.
+ await expect.poll(()=>page.locator('.ProseMirror').evaluate(element=>{
+  const {state}=(element as HTMLElement&{editor:Editor}).editor;
+  return state.doc.textBetween(state.selection.from,state.selection.to,'');
+ })).toBe(text);
+ await page.getByRole('button',{name:'Onderstrepen',exact:true}).click();await expect(content.locator('u')).toHaveText(text);
+ await page.getByRole('button',{name:'Centreren',exact:true}).click();await expect(content.locator('p')).toHaveCSS('text-align','center');
+ await page.getByRole('button',{name:'Bewaren',exact:true}).first().click();
+ await expect.poll(async()=>JSON.stringify((await page.request.get('/api/cms/pages/'+createdId).then(response=>response.json())).body)).toContain('underline');
+ await expect.poll(async()=>JSON.stringify((await page.request.get('/api/cms/pages/'+createdId).then(response=>response.json())).body)).toContain('center');
+
+ await page.screenshot({path:'.runtime/screenshots/builder.png',fullPage:true});
+});
+test('owner can open and manage stories from the CMS',async({page})=>{
+ await login(page);const bootstrap=await (await page.request.get('/api/cms/bootstrap')).json();
+ expect(bootstrap.state.roles[0].permissions).toContain('stories');
+ await page.getByRole('button',{name:'Verhalen & columns',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Verhalen & columns',exact:true})).toBeVisible();
+ await expect(page.getByRole('textbox',{name:'Zoek in verhalen',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Nieuw verhaal',exact:true}).first()).toBeEnabled();
+});
 test('public pages remain usable at 320, 390, 768 and 1440 pixels',async({page})=>{for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});await page.goto('/clubmuur/club/ons-verhaal');const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);expect(overflow).toBe(false);}await page.screenshot({path:'.runtime/screenshots/history-1440.png',fullPage:true});});
 
-test('FORM01: public contact commits before acknowledging receipt',async({page,request})=>{await page.goto('/clubmuur/club/contact');await page.getByLabel('Naam *',{exact:true}).fill('Synthetische browserproef');await page.getByLabel('E-mailadres *',{exact:true}).fill('e2e-'+crypto.randomUUID()+'@example.invalid');await page.getByLabel('Bericht *',{exact:true}).fill('Controle van betrouwbare formulierontvangst.');const received=page.waitForResponse(r=>r.url().includes('/api/forms/contact/submissions'));await page.getByRole('button',{name:'Versturen',exact:true}).click();expect((await received).status()).toBe(201);await expect(page.getByText('Je inzending is ontvangen en opgeslagen. De club verwerkt deze verder.')).toBeVisible();});
+test('FORM01: public contact commits before acknowledging receipt',async({page,request})=>{await page.goto('/clubmuur/club/contact');await page.getByLabel('Naam *',{exact:true}).fill('Synthetische browserproef');await page.getByLabel('E-mailadres *',{exact:true}).fill('e2e-'+crypto.randomUUID()+'@example.invalid');await page.getByLabel('Bericht *',{exact:true}).fill('Controle van betrouwbare formulierontvangst.');const received=page.waitForResponse(r=>r.url().includes('/api/forms/contact/submissions'));await page.getByRole('button',{name:'Versturen',exact:true}).click();const receipt=await received;expect(receipt.status()).toBe(201);expect((await receipt.json()).id).toBeTruthy();await expect(page.getByRole('status').filter({hasText:'Je bericht is ontvangen'})).toBeVisible();});
+test('NEWSLETTER: subscribers and subjects are managed in the CMS without an external list',async({page,request})=>{
+ const email='cms-newsletter-'+crypto.randomUUID()+'@example.invalid';
+ expect((await request.get('/api/cms/newsletter')).status()).toBe(401);
+ await login(page);const origin=new URL(page.url()).origin;
+ const created=await page.request.post('/api/newsletter',{headers:{Origin:origin},data:{operationId:crypto.randomUUID(),email,name:'Browserabonnee',topics:['club'],consent:true}});expect(created.status()).toBe(201);
+ await page.getByRole('button',{name:'Nieuwsbrieven',exact:true}).click();await page.getByRole('tab',{name:'Contacten',exact:true}).click();
+ const openContact=async()=>{await page.getByLabel('Zoek nieuwsbriefcontact',{exact:true}).fill(email);await page.locator('.nl-contact-list').getByRole('button').filter({hasText:email}).click();};
+ await openContact();const dialog=page.getByRole('dialog');
+ await expect(dialog.getByRole('combobox',{name:'Status',exact:true})).toHaveValue('pending');
+ await dialog.getByLabel('Voornaam / naam',{exact:true}).fill('Bewerkt in het CMS');await dialog.getByRole('textbox',{name:/Interesses/}).fill('jeugd, club');
+ await dialog.getByRole('button',{name:'Contact opslaan',exact:true}).click();await expect(dialog).toBeHidden();
+ await page.reload();await page.getByRole('tab',{name:'Contacten',exact:true}).click();await openContact();await expect(dialog.getByLabel('Voornaam / naam',{exact:true})).toHaveValue('Bewerkt in het CMS');await expect(dialog.getByRole('textbox',{name:/Interesses/})).toHaveValue('jeugd, club');
+ await dialog.getByRole('combobox',{name:'Status',exact:true}).selectOption('unsubscribed');await dialog.getByRole('button',{name:'Contact opslaan',exact:true}).click();await expect(dialog).toBeHidden();
+ const status=await page.request.get('/api/cms/newsletter?'+new URLSearchParams({q:email})).then(r=>r.json());expect(status.items[0].status).toBe('unsubscribed');expect(status.items[0]).not.toHaveProperty('confirmation_hash');
+ const integration=await page.request.get('/api/cms/integrations').then(r=>r.json());expect(integration.mailProvider).toBe('resend');expect(integration.newsletterManagement).toBe('cms');
+ await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1)).toBe(false);
+ await page.screenshot({path:'.runtime/screenshots/newsletter-cms-390.png',fullPage:true});
+});
 test('PB-03/04/05: keyboard move menu and pointer drag across columns/rows preserve independent nodes',async({page})=>{
  await page.setViewportSize({width:1600,height:2200});await login(page);
  const people=await page.request.get('/api/cms/people').then(r=>r.json()),media=await page.request.get('/api/cms/media').then(r=>r.json());
@@ -26,6 +86,44 @@ test('NEWS01 and DATA01: a typed news draft is saved and visible in a second bro
  await page.getByRole('button',{name:'Concept bewaren',exact:true}).click();await expect(page.getByText(/Concept en revisie opgeslagen/)).toBeVisible();
  const other=await browser.newContext();const second=await other.newPage();await login(second);await second.getByRole('button',{name:'Nieuws',exact:true}).click();await expect(second.getByRole('heading',{name:title,exact:true})).toBeVisible();await other.close();
 });
+test('MEDIA01: saving a photo also persists its homepage selection without an unknown ID error',async({page})=>{
+ await login(page);
+ const bootstrap=await page.request.get('/api/cms/bootstrap').then(r=>r.json());
+ const original=bootstrap.state.media.find((item:any)=>item.published&&item.featured&&bootstrap.state.settings.homepagePhotoIds.includes(item.id));
+ expect(original).toBeTruthy();
+ const caption='Fotowijziging '+crypto.randomUUID(),origin=new URL(page.url()).origin;
+ try{
+  await page.goto('/beheer#media');
+  await page.getByRole('textbox',{name:'Zoek foto’s',exact:true}).fill(original.name);
+  await page.locator('.cms-media-tile').filter({hasText:original.name}).first().click();
+  await page.getByRole('textbox',{name:/^Bijschrift/}).fill(caption);
+  await page.getByLabel('Uitlichten op de fotomuur van de homepage',{exact:true}).uncheck();
+  const saved=page.waitForResponse(r=>r.url().endsWith('/api/cms/mutations')&&r.request().method()==='POST');
+  await page.getByRole('button',{name:'Opslaan',exact:true}).click();
+  const response=await saved;
+  expect(response.request().postDataJSON().changes.map((change:any)=>change.module).sort()).toEqual(['media','settings']);
+  expect(response.status()).toBe(200);
+  await expect(page.getByText('Foto opgeslagen.',{exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Opgeslagen',exact:true})).toBeDisabled();
+  await page.reload();
+  await page.getByRole('textbox',{name:'Zoek foto’s',exact:true}).fill(original.name);
+  await page.locator('.cms-media-tile').filter({hasText:original.name}).first().click();
+  await expect(page.getByRole('textbox',{name:/^Bijschrift/})).toHaveValue(caption);
+  await expect(page.getByLabel('Uitlichten op de fotomuur van de homepage',{exact:true})).not.toBeChecked();
+  const persisted=await page.request.get('/api/cms/bootstrap').then(r=>r.json());
+  expect(persisted.state.settings.homepagePhotoIds).not.toContain(original.id);
+  await expect(page.getByText(/Onbekend veld:/)).toHaveCount(0);
+ }finally{
+  // Allow bounded cleanup even if an earlier UI action reached the test timeout.
+  test.setTimeout(test.info().timeout+10000);
+  const current=await page.request.get('/api/cms/bootstrap',{timeout:5000}).then(r=>r.json());
+  const restored=await page.request.post('/api/cms/mutations',{timeout:5000,headers:{Origin:origin},data:{operationId:crypto.randomUUID(),changes:[
+   {module:'media',id:original.id,expectedVersion:current.versions[original.id],action:'publish',data:original},
+   {module:'settings',id:'settings',expectedVersion:current.versions.settings,action:'publish',data:{...current.state.settings,homepagePhotoIds:bootstrap.state.settings.homepagePhotoIds}},
+  ]}});
+  expect(restored.status()).toBe(200);
+ }
+});
 test('PB05: emulated touch drag can be cancelled without losing nodes at 390 pixels',async({browser})=>{
  const context=await browser.newContext({hasTouch:true,isMobile:true,viewport:{width:390,height:844}}),page=await context.newPage();await login(page);await page.getByRole('button',{name:'Beheermenu openen'}).click();await page.getByRole('button',{name:'Pagina’s',exact:true}).click();
  const created=page.waitForResponse((r:any)=>r.url().endsWith('/api/cms/mutations')&&r.request().method()==='POST'&&r.request().postDataJSON().changes.some((c:any)=>c.expectedVersion===0&&c.id.startsWith('page-')));await page.getByRole('button',{name:'Nieuwe pagina',exact:true}).first().click();const response=await created;const id=Object.keys((await response.json()).versions)[0];await expect(page.locator(`[data-page-id="${id}"] .pb-builder`)).toBeVisible();
@@ -43,4 +141,17 @@ test('PB06 and SEO01: the published two-column renderer stacks in order without 
  const publicContext=await browser.newContext({javaScriptEnabled:false}),visitor=await publicContext.newPage();
  for(const width of [320,768,1440]){await visitor.setViewportSize({width,height:900});await visitor.goto('/clubmuur/'+slug);await expect(visitor.getByText('Eerst links',{exact:true})).toBeVisible();await expect(visitor.getByText('Daarna rechts',{exact:true})).toBeVisible();expect(await visitor.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1)).toBe(false);}
  await expect(visitor).toHaveTitle(/Publicatietest/);await publicContext.close();
+});
+
+test('AUTH10: invited users sign in using an eight-digit code without a password or authenticator',async({page,browser})=>{
+ const email='activation-e2e-'+crypto.randomUUID()+'@example.invalid';
+ await login(page);const invited=await page.request.post('/api/cms/users',{headers:{Origin:new URL(page.url()).origin},data:{name:'Browseractivatie',email,roleId:'editor',teamIds:[],departments:[]}});expect(invited.status()).toBe(200);
+ const context=await browser.newContext();
+ try{
+  const invitedPage=await context.newPage();await invitedPage.goto('/beheer/login');
+  await expect(invitedPage.getByLabel('Wachtwoord',{exact:true})).toHaveCount(0);
+  await invitedPage.screenshot({path:'.runtime/screenshots/email-code-login.png'});
+  await loginWithEmailCode(invitedPage,email);await invitedPage.reload();await expect(invitedPage.getByText('Gedeeld CMS',{exact:true})).toBeVisible();
+  expect((await invitedPage.request.post('/api/auth/sign-in/email',{headers:{Origin:new URL(invitedPage.url()).origin},data:{email,password:'unused'}})).status()).toBe(404);
+ }finally{await context.close();}
 });

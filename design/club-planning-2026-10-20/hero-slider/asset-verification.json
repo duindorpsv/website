@@ -1,0 +1,270 @@
+[
+  {
+    "file": "public/assets/clubmuur-brush-v25/section-wijkpanorama-800.webp",
+    "prototypeSha256": "1f444e60cc0c852d07677faefba2b558df4a895d4a81c49f6e662cf7c8294d95",
+    "productionSha256": "1f444e60cc0c852d07677faefba2b558df4a895d4a81c49f6e662cf7c8294d95",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/section-wijkpanorama-800.avif",
+    "prototypeSha256": "609cd16b861c81dedb82e2d2904f991ff9b10b21615e9d40bc0f364ef0041e60",
+    "productionSha256": "609cd16b861c81dedb82e2d2904f991ff9b10b21615e9d40bc0f364ef0041e60",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/section-wijkpanorama-1600.webp",
+    "prototypeSha256": "801df222a9b967baa14bf68859d1a1df150c472b4bb06df58beb99f5ad931b0c",
+    "productionSha256": "801df222a9b967baa14bf68859d1a1df150c472b4bb06df58beb99f5ad931b0c",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/section-wijkpanorama-1600.avif",
+    "prototypeSha256": "87ea6bf1e8aa935a42b09db7ea361666e87b4bc754994fbfcefa09196b5e1016",
+    "productionSha256": "87ea6bf1e8aa935a42b09db7ea361666e87b4bc754994fbfcefa09196b5e1016",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/section-houtrust-800.webp",
+    "prototypeSha256": "d3304aa6727d9453bbd06a239310cf9ea3e37561dee339ae94228c8a0c8e6116",
+    "productionSha256": "d3304aa6727d9453bbd06a239310cf9ea3e37561dee339ae94228c8a0c8e6116",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/section-houtrust-800.avif",
+    "prototypeSha256": "97cce6de2ad5dedb39b00cd70122e732ff7686b599c635f0e9a9e3bb7e0e00c6",
+    "productionSha256": "97cce6de2ad5dedb39b00cd70122e732ff7686b599c635f0e9a9e3bb7e0e00c6",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/section-houtrust-1600.webp",
+    "prototypeSha256": "80685223d885de4530e6eda9e4a6add92a0cae75dbb19922b3a454d62eb906c0",
+    "productionSha256": "80685223d885de4530e6eda9e4a6add92a0cae75dbb19922b3a454d62eb906c0",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/section-houtrust-1600.avif",
+    "prototypeSha256": "632533ac6aa64260e97f1393df594613e54ea971adc54ca075d619e3cc45a022",
+    "productionSha256": "632533ac6aa64260e97f1393df594613e54ea971adc54ca075d619e3cc45a022",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/houtrust-wide-960.webp",
+    "prototypeSha256": "24d25027e1b0397477c51b89e6d8522e8d6580631f48bca18e67b838cc279511",
+    "productionSha256": "24d25027e1b0397477c51b89e6d8522e8d6580631f48bca18e67b838cc279511",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/houtrust-wide-960.avif",
+    "prototypeSha256": "d159ac68f8777408c2bb1c3361ffc4f070028676844477ce6c6c5c0faafa6784",
+    "productionSha256": "d159ac68f8777408c2bb1c3361ffc4f070028676844477ce6c6c5c0faafa6784",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/houtrust-wide-1672.webp",
+    "prototypeSha256": "4e654df31f432c922a44b1670f6bf8d64af3361d40645f410de0a4d696d46171",
+    "productionSha256": "4e654df31f432c922a44b1670f6bf8d64af3361d40645f410de0a4d696d46171",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/houtrust-wide-1672.avif",
+    "prototypeSha256": "30c0891ef6335c8015a21be0207dc0ac0171f8eb34551864db6a4af854bc785d",
+    "productionSha256": "30c0891ef6335c8015a21be0207dc0ac0171f8eb34551864db6a4af854bc785d",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/houtrust-wide-1280.webp",
+    "prototypeSha256": "db04481d0c48db51978469d165e9a691f8da56418d8cf005a0ae7e1fe51d7072",
+    "productionSha256": "db04481d0c48db51978469d165e9a691f8da56418d8cf005a0ae7e1fe51d7072",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/houtrust-wide-1280.avif",
+    "prototypeSha256": "f9849d745fcb18d59bf794583a5f20dc2d3e63092416ca9304ee26c5453959c0",
+    "productionSha256": "f9849d745fcb18d59bf794583a5f20dc2d3e63092416ca9304ee26c5453959c0",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/houtrust-portrait-941.webp",
+    "prototypeSha256": "e96a079d1a96f3ca75305329431065d2c61b7f3548735f48811bb57d34be4a14",
+    "productionSha256": "e96a079d1a96f3ca75305329431065d2c61b7f3548735f48811bb57d34be4a14",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/houtrust-portrait-941.avif",
+    "prototypeSha256": "1ee66b9370d04be8a493fb9484bf9e3cdf09bbc8a3f27c53c835c4247e80a44a",
+    "productionSha256": "1ee66b9370d04be8a493fb9484bf9e3cdf09bbc8a3f27c53c835c4247e80a44a",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/houtrust-portrait-800.webp",
+    "prototypeSha256": "fbb540bf2032cee6ba22428485f099ab01ab7a34176c764c697b1f1e14a2e1d2",
+    "productionSha256": "fbb540bf2032cee6ba22428485f099ab01ab7a34176c764c697b1f1e14a2e1d2",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/houtrust-portrait-800.avif",
+    "prototypeSha256": "dbd71ba4829ba9315515ebe725c090f63c23e8f23fdae0f6cdf9a50fc62862be",
+    "productionSha256": "dbd71ba4829ba9315515ebe725c090f63c23e8f23fdae0f6cdf9a50fc62862be",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/houtrust-portrait-480.webp",
+    "prototypeSha256": "3168507b9dfcef2c7fa833d86a9c889670a2c5682ef9a8ea325ed7116f5c3b34",
+    "productionSha256": "3168507b9dfcef2c7fa833d86a9c889670a2c5682ef9a8ea325ed7116f5c3b34",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/houtrust-portrait-480.avif",
+    "prototypeSha256": "0b1ea120904c0afc511660dcfc978f4ffe4000bb15a09042879687ae0cb0e939",
+    "productionSha256": "0b1ea120904c0afc511660dcfc978f4ffe4000bb15a09042879687ae0cb0e939",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/de-wijk-wide-960.webp",
+    "prototypeSha256": "255ebb05d06ea8cb7f999bb779e25573847c89c2a0ea80747919bebf9dac72dd",
+    "productionSha256": "255ebb05d06ea8cb7f999bb779e25573847c89c2a0ea80747919bebf9dac72dd",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/de-wijk-wide-960.avif",
+    "prototypeSha256": "05fd305594338d4b67d28e64a1ba7d965ed0e48080ac05c6cf6551c5e3b21577",
+    "productionSha256": "05fd305594338d4b67d28e64a1ba7d965ed0e48080ac05c6cf6551c5e3b21577",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/de-wijk-wide-1672.webp",
+    "prototypeSha256": "d7198cf38780978b142c15c6cbc33f196afe1d77016582495438daf903c4234e",
+    "productionSha256": "d7198cf38780978b142c15c6cbc33f196afe1d77016582495438daf903c4234e",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/de-wijk-wide-1672.avif",
+    "prototypeSha256": "7a98c05f88998187a61430b1fcd7d7dff8df16f39eddf53a40ce03cb2049c21f",
+    "productionSha256": "7a98c05f88998187a61430b1fcd7d7dff8df16f39eddf53a40ce03cb2049c21f",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/de-wijk-wide-1280.webp",
+    "prototypeSha256": "1fda0867839a6cff9c81b5ae7d50117d90c32cd768660584248a8ac17cef0a30",
+    "productionSha256": "1fda0867839a6cff9c81b5ae7d50117d90c32cd768660584248a8ac17cef0a30",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/de-wijk-wide-1280.avif",
+    "prototypeSha256": "f9b47774a24d9384a118f29d7044feca82d80429ea6ee30354c9e060fef2d011",
+    "productionSha256": "f9b47774a24d9384a118f29d7044feca82d80429ea6ee30354c9e060fef2d011",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/de-wijk-portrait-941.webp",
+    "prototypeSha256": "a9aab1cb20cbd4abcf92ed90463d8e50a2a67c4cf1637bd2cdeb55dbd265ae70",
+    "productionSha256": "a9aab1cb20cbd4abcf92ed90463d8e50a2a67c4cf1637bd2cdeb55dbd265ae70",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/de-wijk-portrait-941.avif",
+    "prototypeSha256": "0216ae469e62f802496a3e59a66f869d5d8ff79ff0d5cc64ba33cf8b1d5b42d3",
+    "productionSha256": "0216ae469e62f802496a3e59a66f869d5d8ff79ff0d5cc64ba33cf8b1d5b42d3",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/de-wijk-portrait-800.webp",
+    "prototypeSha256": "bf95f0eb159b4271215eec3ed615499fa9471bd3310f2e40aefd52bad53c05cf",
+    "productionSha256": "bf95f0eb159b4271215eec3ed615499fa9471bd3310f2e40aefd52bad53c05cf",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/de-wijk-portrait-800.avif",
+    "prototypeSha256": "3497de2f3c9c6312d949a380d8c3d420b3296b85ec0eb55520ed8857d48d81af",
+    "productionSha256": "3497de2f3c9c6312d949a380d8c3d420b3296b85ec0eb55520ed8857d48d81af",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/de-wijk-portrait-480.webp",
+    "prototypeSha256": "f51a6275ec2266c88cd6f0ec64ebe045b65f3b130b5f923892e751794a338452",
+    "productionSha256": "f51a6275ec2266c88cd6f0ec64ebe045b65f3b130b5f923892e751794a338452",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/de-wijk-portrait-480.avif",
+    "prototypeSha256": "eda4ffb4072d9b06371abd7f371a728197d05d84b35cbdc58fec7b3a8551bd7b",
+    "productionSha256": "eda4ffb4072d9b06371abd7f371a728197d05d84b35cbdc58fec7b3a8551bd7b",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/aan-zee-wide-960.webp",
+    "prototypeSha256": "8ff569384403e586d92aec02e0a08949716a4f568330039711ad5385c9db6e9f",
+    "productionSha256": "8ff569384403e586d92aec02e0a08949716a4f568330039711ad5385c9db6e9f",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/aan-zee-wide-960.avif",
+    "prototypeSha256": "772e05f5fc9892faa036b82f43f78431b82e81b3bc68f63e3b4cfd141513a288",
+    "productionSha256": "772e05f5fc9892faa036b82f43f78431b82e81b3bc68f63e3b4cfd141513a288",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/aan-zee-wide-1672.webp",
+    "prototypeSha256": "ab1df0dd01e1f5ed768e099897377e12b92b85c2856eb80c48c7a06416ece3ae",
+    "productionSha256": "ab1df0dd01e1f5ed768e099897377e12b92b85c2856eb80c48c7a06416ece3ae",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/aan-zee-wide-1672.avif",
+    "prototypeSha256": "ebaeb4f1c85eb156f0c71b1f6339313619ad42b5bdd5ca407959cd21ce87621a",
+    "productionSha256": "ebaeb4f1c85eb156f0c71b1f6339313619ad42b5bdd5ca407959cd21ce87621a",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/aan-zee-wide-1280.webp",
+    "prototypeSha256": "ac90d1b3ed6461ca5c95465e3a8ef304f8168c57b03ef34995d1dc7234253512",
+    "productionSha256": "ac90d1b3ed6461ca5c95465e3a8ef304f8168c57b03ef34995d1dc7234253512",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/aan-zee-wide-1280.avif",
+    "prototypeSha256": "ec700ac0c548e1fd52bafffe37b7f8e30d37724793dcbaa0c726783ae5c236e8",
+    "productionSha256": "ec700ac0c548e1fd52bafffe37b7f8e30d37724793dcbaa0c726783ae5c236e8",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/aan-zee-portrait-941.webp",
+    "prototypeSha256": "446eeeaa84b0e032d34fa6aac10615716d4927917bf9258d245ddad0ebc347d6",
+    "productionSha256": "446eeeaa84b0e032d34fa6aac10615716d4927917bf9258d245ddad0ebc347d6",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/aan-zee-portrait-941.avif",
+    "prototypeSha256": "7fe31ca51cdf55af2cd3863fb72c3f019e6d361a7b11f241a91cce4c2285d00a",
+    "productionSha256": "7fe31ca51cdf55af2cd3863fb72c3f019e6d361a7b11f241a91cce4c2285d00a",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/aan-zee-portrait-800.webp",
+    "prototypeSha256": "99df2db87566109b727719bdde03971fcda68f81858b2c7260d5ade37a26efcd",
+    "productionSha256": "99df2db87566109b727719bdde03971fcda68f81858b2c7260d5ade37a26efcd",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/aan-zee-portrait-800.avif",
+    "prototypeSha256": "85e84c20fc7b8b0b11d6c2b363791414ebfbd8fb909678c55b4298b2ee8c6224",
+    "productionSha256": "85e84c20fc7b8b0b11d6c2b363791414ebfbd8fb909678c55b4298b2ee8c6224",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/aan-zee-portrait-480.webp",
+    "prototypeSha256": "c48e2e4447089cdd98f11d73c143d72702de7e25457ab66c287c3d1f47b35de1",
+    "productionSha256": "c48e2e4447089cdd98f11d73c143d72702de7e25457ab66c287c3d1f47b35de1",
+    "equal": true
+  },
+  {
+    "file": "public/assets/clubmuur-brush-v25/aan-zee-portrait-480.avif",
+    "prototypeSha256": "923a74144576469508808034099af485493e01ec6fb47dba2cb2b7bba0fa30f3",
+    "productionSha256": "923a74144576469508808034099af485493e01ec6fb47dba2cb2b7bba0fa30f3",
+    "equal": true
+  },
+  {
+    "file": "components/cms/hero-slider-manager.css",
+    "equal": true
+  }
+]

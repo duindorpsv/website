@@ -13,9 +13,9 @@ import urllib.request
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from release import api, validate, REGISTRY
+from release import api, validate, REGISTRY, deployment_target
 from deploy_config import (ConfigurationError, atomic_private, compose_environment,
-                           database_password_file, fingerprint, private_directory,
+                           fingerprint, private_directory,
                            read_generation, read_private, require, validate_configuration,
                            write_generation)
 
@@ -33,21 +33,38 @@ def command(arguments, environment, input=None):
 
 
 def verify(release, token, target):
+    expected = deployment_target(target)
+    validate(release, target)
     run = api('actions/runs/' + str(release['runId']), token)
-    if (run['head_sha'] != release['sourceSha'] or run['head_branch'] != 'staging'
-            or run['event'] != 'push' or run['path'] != '.github/workflows/staging.yml'):
+    if (run['head_sha'] != release['sourceSha'] or run['head_branch'] != expected['branch']
+            or run['event'] not in (('workflow_dispatch',) if target == 'staging' else ('push', 'workflow_dispatch'))
+            or run['path'] != expected['workflow']
+            or run.get('conclusion') not in (None, 'success')):
         raise ValueError('Build provenance rejected')
-    jobs = api('actions/runs/' + str(release['runId']) + '/jobs', token)['jobs']
-    if not any(j['name'] == 'build' and j['conclusion'] == 'success' for j in jobs):
-        raise ValueError('Build checks not successful')
+    # A deploy-only rerun reuses checks/build from an earlier attempt. Select the
+    # newest execution of each required job, so an older success cannot hide a
+    # later failed rebuild. Bound the history instead of accepting a partial page.
+    jobs = []
+    for page in range(1, 11):
+        result = api('actions/runs/' + str(release['runId'])
+                     + '/jobs?filter=all&per_page=100&page=' + str(page), token)
+        jobs.extend(result['jobs'])
+        if len(jobs) >= result['total_count']:
+            break
+    else:
+        raise ValueError('Workflow job history exceeds verification limit')
+    for name in ('checks / verify', 'build'):
+        matching = [job for job in jobs if job['name'] == name]
+        if (not matching or max(matching, key=lambda job: (job['run_attempt'], job['id']))
+                ['conclusion'] != 'success'):
+            raise ValueError('Build checks not successful')
     artifacts = api('actions/runs/' + str(release['runId']) + '/artifacts', token)['artifacts']
-    name = 'staging-approved' if target == 'production' else 'release'
-    artifact = next((a for a in artifacts if a['name'] == name and not a['expired']), None)
-    if not artifact or (target == 'production' and run['conclusion'] != 'success'):
-        raise ValueError('Required staging evidence absent')
+    artifact = next((a for a in artifacts if a['name'] == 'release' and not a['expired']), None)
+    if not artifact:
+        raise ValueError('Verified release artifact absent')
     with zipfile.ZipFile(io.BytesIO(api('actions/artifacts/' + str(artifact['id']) + '/zip',
                                      token, binary=True))) as archive:
-        binding = validate(json.loads(archive.read('release.json')))
+        binding = validate(json.loads(archive.read('release.json')), target)
     if binding != release:
         raise ValueError('Digest is not bound to the trusted build artifact')
 
@@ -71,12 +88,13 @@ def ready(port, digest):
 
 
 def deploy(target, request):
-    if (target not in ('staging', 'production')
+    if (target not in ('production', 'staging')
             or pwd.getpwuid(os.getuid()).pw_name != 'duindorpsv-' + target):
         raise PermissionError('Deployment identity rejected')
     if not isinstance(request, dict) or set(request) != {'release', 'token', 'configuration'}:
         raise ValueError('Invalid request')
-    release = validate(request['release'])
+    expected = deployment_target(target)
+    release = validate(request['release'], target)
     token = request['token']
     require(isinstance(token, str) and 1 < len(token) < 4096, 'Invalid deployment token')
     config = installed_configuration(target)
@@ -95,17 +113,18 @@ def deploy(target, request):
         if latest.exists() and int(read_private(latest)) > release['runId']:
             raise ValueError('Stale deployment rejected')
         if previous:
-            previous_release = validate(previous['release'])
+            previous_release = validate(previous['release'], target)
             if (previous_release['runId'] > release['runId']
                     or (previous_release['runId'] == release['runId'] and previous_release != release)):
                 raise ValueError('Stale deployment rejected')
         verify(release, token, target)
-        sha = api('git/ref/heads/' + target, token)['object']['sha']
-        if api('git/commits/' + sha, token)['tree']['sha'] != release['treeSha']:
-            raise ValueError('Current branch tree differs from tested release')
+        sha = api('git/ref/heads/' + expected['branch'], token)['object']['sha']
+        if (sha != release['sourceSha']
+                or api('git/commits/' + sha, token)['tree']['sha'] != release['treeSha']):
+            raise ValueError('Current deployment branch differs from tested release')
         if previous:
             old_values = read_generation(state, previous['configuration'])
-            for key in ('DATABASE_PASSWORD', 'APP_DATABASE_PASSWORD', 'AUTH_SESSION_SECRET'):
+            for key in ('DATABASE_URL', 'MIGRATION_DATABASE_URL', 'APP_DATABASE_PASSWORD', 'SUPABASE_URL'):
                 require(values[key] == old_values[key],
                         key + ' changed; perform a controlled credential migration first')
             for key in ('S3_ENDPOINT', 'S3_BUCKET', 'S3_REGION'):
@@ -115,25 +134,18 @@ def deploy(target, request):
                 print('Release and GitHub configuration already active')
                 return
         identifier = write_generation(state, values, target)
-        database_password_file(state, values)
         environment = compose_environment(target, config, state, identifier, release, REGISTRY)
         with tempfile.TemporaryDirectory(prefix='duindorp-registry-') as registry:
             environment['DOCKER_CONFIG'] = registry
             command(['docker', 'login', 'ghcr.io', '-u', 'duindorpsv', '--password-stdin'],
                     environment, input=token)
-            command([*compose, 'pull', 'web', 'worker', 'migration', 'provision'], environment)
+            command([*compose, 'pull', 'web', 'worker', 'migration', 'provision', 'database-backup'], environment)
             labels = json.loads(command(['docker', 'image', 'inspect', environment['APP_IMAGE'],
                                          '--format', '{{json .Config.Labels}}'], environment))
             if labels.get('org.opencontainers.image.revision') != release['sourceSha']:
                 raise ValueError('Image source label mismatch')
-            if target == 'production':
-                evidence = json.loads((state / 'restore-tested.json').read_text())
-                if (evidence.get('digest') != release['digest']
-                        or evidence.get('externalBackup') is not True or not evidence.get('backupRef')
-                        or evidence.get('checks') != {'login': True, 'page': True,
-                                                     'media': True, 'formHistory': True}):
-                    raise ValueError('Production requires matching external restore evidence')
-            command([*compose, 'up', '-d', '--wait', '--wait-timeout', '120', 'database'], environment)
+            if labels.get('nl.duindorpsv.source-tree') != release['treeSha']:
+                raise ValueError('Image tree label mismatch')
             environment['DUINDORP_INITIAL_BACKUP'] = 'true' if previous is None else 'false'
             if previous:
                 environment['DUINDORP_SNAPSHOT_CONFIGURATION'] = previous['configuration']

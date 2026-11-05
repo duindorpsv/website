@@ -33,34 +33,49 @@ class HostSetupTests(unittest.TestCase):
         expected = "/srv/duindorpsv/staging/docker"
         info = dict(SecurityOptions=["name=seccomp,profile=builtin", "name=rootless", "name=cgroupns"],
                     CgroupDriver="systemd", CgroupVersion="2", DockerRootDir=expected,
-                    MemoryLimit=True, PidsLimit=True, CPUCfsQuota=True, CPUCfsPeriod=True)
+                    MemoryLimit=True, PidsLimit=True, CpuCfsQuota=True, CpuCfsPeriod=True)
         host_check.validate_engine(info, expected)
         invalid_values = dict(SecurityOptions=["name=seccomp"], CgroupDriver="none",
                               CgroupVersion="1", DockerRootDir="/srv/duindorpsv/production/docker",
-                              MemoryLimit=False, PidsLimit=False, CPUCfsQuota=False, CPUCfsPeriod=False)
+                              MemoryLimit=False, PidsLimit=False, CpuCfsQuota=False, CpuCfsPeriod=False)
         for key, value in invalid_values.items():
             with self.subTest(key=key), self.assertRaises(ValueError):
                 host_check.validate_engine({**info, key: value}, expected)
 
+    def test_missing_or_non_boolean_docker_capabilities_are_rejected(self):
+        expected = "/srv/duindorpsv/production/docker"
+        info = dict(SecurityOptions=["name=rootless"], CgroupDriver="systemd",
+                    CgroupVersion="2", DockerRootDir=expected, MemoryLimit=True,
+                    PidsLimit=True, CpuCfsQuota=True, CpuCfsPeriod=True)
+        for capability in ("MemoryLimit", "PidsLimit", "CpuCfsQuota", "CpuCfsPeriod"):
+            missing = {key: value for key, value in info.items() if key != capability}
+            with self.subTest(capability=capability, value="missing"):
+                with self.assertRaisesRegex(ValueError, capability):
+                    host_check.validate_engine(missing, expected)
+            for value in (None, False, 1, "true"):
+                with self.subTest(capability=capability, value=value):
+                    with self.assertRaisesRegex(ValueError, capability):
+                        host_check.validate_engine({**info, capability: value}, expected)
+
     def test_accepts_only_expected_target_port_and_https_origin(self):
-        host_check.validate_target("staging", "3112", "https://staging.duindorpsv.nl")
+        host_check.validate_target("staging", "3112", "https://staging.example.org")
         host_check.validate_target("production", "3113", "https://duindorpsv.nl/")
         bad = [("../production", "3112", "https://example.org"),
-               ("staging", "443", "https://example.org"),
-               ("staging", "65536", "https://example.org"),
-               ("staging", "3;id", "https://example.org"),
-               ("staging", "3112", "http://example.org"),
-               ("staging", "3112", "https://user:secret@example.org"),
-               ("staging", "3112", "https://example.org/path"),
-               ("staging", "3112", "https://example.org?token=secret"),
-               ("staging", "3112", "https://example.org#fragment"),
-               ("staging", "3112", "https://example.org:broken")]
+               ("production", "443", "https://example.org"),
+               ("production", "65536", "https://example.org"),
+               ("production", "3;id", "https://example.org"),
+               ("production", "3112", "http://example.org"),
+               ("production", "3112", "https://user:secret@example.org"),
+               ("production", "3112", "https://example.org/path"),
+               ("production", "3112", "https://example.org?token=secret"),
+               ("production", "3112", "https://example.org#fragment"),
+               ("production", "3112", "https://example.org:broken")]
         for args in bad:
             with self.subTest(args=args), self.assertRaises(ValueError):
                 host_check.validate_target(*args)
 
     def test_deploy_accepts_application_identity_then_validates_input(self):
-        for target in ("staging", "production"):
+        for target in ("production", "staging"):
             account = SimpleNamespace(pw_name="duindorpsv-" + target)
             with self.subTest(target=target), patch.object(deploy.pwd, "getpwuid", return_value=account):
                 with self.assertRaisesRegex(ValueError, "Invalid request"):

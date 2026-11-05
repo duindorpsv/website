@@ -1,4 +1,6 @@
 'use client';
+import {siteText} from '@/lib/cms/site-copy';
+import {useCMS} from './cms/provider';
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ArrowDownUp, ArrowRight, ArrowUpRight, Pause, Play } from 'lucide-react';
@@ -10,6 +12,7 @@ const END_HOLD_MS = 2200;
 const INTERACTION_HOLD_MS = 6500;
 
 export function ClubmuurNewsFeed({ items, onOpen, articleOpen = false }: { items: Article[]; onOpen: (article: Article) => void; articleOpen?: boolean }) {
+  const {state}=useCMS();
   const latest = useMemo(() => sortedClubArticles(items).slice(0, 10), [items]);
   const viewport = useRef<HTMLDivElement>(null);
   const content = useRef<HTMLDivElement>(null);
@@ -117,9 +120,9 @@ export function ClubmuurNewsFeed({ items, onOpen, articleOpen = false }: { items
 
   return <article className="cm-community-card cm-community-news" aria-labelledby={`${id}-title`}>
     <header className="cm-community-card-head">
-      <div className="cm-community-eyebrow"><span>HET LAATSTE UIT DE CLUB</span><span className="cm-community-news-count">{latest.length} {latest.length === 1 ? 'BERICHT' : 'BERICHTEN'}</span></div>
-      <div className="cm-community-news-heading"><h2 id={`${id}-title`}>Nieuws van de club.</h2>{edges.overflow && !reducedMotion && <button type="button" className="cm-community-news-pause" aria-pressed={paused} aria-label={paused ? 'Automatisch scrollen hervatten' : 'Automatisch scrollen pauzeren'} title={paused ? 'Automatisch scrollen hervatten' : 'Automatisch scrollen pauzeren'} onClick={() => setPaused(value => !value)}>{paused ? <Play size={15} /> : <Pause size={15} />}</button>}</div>
-      <p>Verhalen van het veld. En van de mensen eromheen.</p>
+      <div className="cm-community-eyebrow"><span>{siteText(state,'newsEyebrow')}</span><span className="cm-community-news-count">{latest.length} {latest.length === 1 ? 'BERICHT' : 'BERICHTEN'}</span></div>
+      <div className="cm-community-news-heading"><h2 id={`${id}-title`}>{siteText(state,'newsTitle')}</h2>{edges.overflow && !reducedMotion && <button type="button" className="cm-community-news-pause" aria-pressed={paused} aria-label={paused ? 'Automatisch scrollen hervatten' : 'Automatisch scrollen pauzeren'} title={paused ? 'Automatisch scrollen hervatten' : 'Automatisch scrollen pauzeren'} onClick={() => setPaused(value => !value)}>{paused ? <Play size={15} /> : <Pause size={15} />}</button>}</div>
+      <p>{siteText(state,'newsIntro')}</p>
     </header>
     <div className="cm-community-news-window" data-fade-top={edges.above} data-fade-bottom={edges.below}>
       <div ref={viewport} className="cm-community-news-scroll" role="region" tabIndex={0} aria-label="Laatste clubnieuws, scroll om meer berichten te lezen">

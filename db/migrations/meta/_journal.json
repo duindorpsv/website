@@ -92,6 +92,69 @@
       "when": 1791974191265,
       "tag": "0012_news_archive_import",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1791974191266,
+      "tag": "0013_local_newsletter",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1792355819530,
+      "tag": "0014_supabase_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1792370225483,
+      "tag": "0015_email_code_login",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1792505008340,
+      "tag": "0016_club_planning",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792535318429,
+      "tag": "0017_match_dossier_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792539763468,
+      "tag": "0018_newsletter_delivery",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1792548486765,
+      "tag": "0019_club_archive",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792645537977,
+      "tag": "0020_sponsor_directory",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793878361900,
+      "tag": "0021_sponsor_logo_uploads",
+      "breakpoints": true
     }
   ]
 }

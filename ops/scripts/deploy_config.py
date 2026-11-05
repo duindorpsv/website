@@ -1,4 +1,5 @@
 """Allowlisted GitHub Environment input; private, immutable runtime generations."""
+import base64
 import hashlib
 import json
 import os
@@ -6,26 +7,29 @@ import pwd
 from pathlib import Path
 import re
 import stat
+import ssl
 import tempfile
-from urllib.parse import quote, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
+from release import deployment_target
 
 SECRETS = (
-    'DATABASE_PASSWORD', 'APP_DATABASE_PASSWORD', 'AUTH_SESSION_SECRET',
-    'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'SMTP_USER', 'SMTP_PASSWORD',
+    'DATABASE_URL', 'MIGRATION_DATABASE_URL', 'APP_DATABASE_PASSWORD', 'SUPABASE_SECRET_KEY',
+    'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'RESEND_API_KEY',
     'RESTIC_PASSWORD', 'BACKUP_S3_ACCESS_KEY_ID', 'BACKUP_S3_SECRET_ACCESS_KEY',
-    'SPORTLINK_CLIENT_ID', 'NEWSLETTER_API_KEY',
+    'SPORTLINK_CLIENT_ID',
 )
 VARIABLES = (
-    'APP_BASE_URL', 'S3_ENDPOINT', 'S3_REGION', 'S3_BUCKET',
-    'SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE', 'MAIL_FROM', 'TEST_MAIL_TO',
-    'TRUST_PROXY_IP', 'NEWSLETTER_PROVIDER', 'NEWSLETTER_LIST_ID',
+    'APP_BASE_URL', 'SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_DB_CA_CERT_B64', 'S3_ENDPOINT', 'S3_REGION', 'S3_BUCKET',
+    'MAIL_FROM',
+    'TRUST_PROXY_IP',
     'RESTIC_REPOSITORY', 'BACKUP_S3_REGION',
     'NEWS_IMPORT_MAX_MB', 'NEWS_IMPORT_MAX_UNPACKED_MB', 'NEWS_IMPORT_MAX_ENTRIES',
 )
+STAGING_VARIABLES = ('TEST_MAIL_TO',)
 REQUIRED = (
-    'APP_BASE_URL', 'DATABASE_PASSWORD', 'APP_DATABASE_PASSWORD', 'AUTH_SESSION_SECRET',
-    'S3_REGION', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY',
-    'SMTP_HOST', 'MAIL_FROM', 'RESTIC_REPOSITORY', 'RESTIC_PASSWORD',
+    'APP_BASE_URL', 'DATABASE_URL', 'MIGRATION_DATABASE_URL', 'APP_DATABASE_PASSWORD', 'SUPABASE_SECRET_KEY',
+    'SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_DB_CA_CERT_B64', 'S3_ENDPOINT', 'S3_REGION', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY',
+    'RESEND_API_KEY', 'MAIL_FROM', 'RESTIC_REPOSITORY', 'RESTIC_PASSWORD',
     'BACKUP_S3_ACCESS_KEY_ID', 'BACKUP_S3_SECRET_ACCESS_KEY',
 )
 
@@ -52,17 +56,17 @@ def https_origin(value, key):
 
 
 def validate_configuration(values, target, installed):
-    require(target in ('staging', 'production'), 'Invalid deployment target')
-    require(isinstance(values, dict) and not set(values) - set(SECRETS + VARIABLES),
+    deployment_target(target)
+    allowed = SECRETS + VARIABLES + (STAGING_VARIABLES if target == 'staging' else ())
+    require(isinstance(values, dict) and not set(values) - set(allowed),
             'Unknown deployment configuration keys')
     for key, value in values.items():
         require(isinstance(value, str) and len(value.encode()) <= 4096
                 and not any(ord(c) < 32 or ord(c) == 127 for c in value),
                 'Invalid configuration value: ' + key)
-    result = {key: values.get(key, '') for key in SECRETS + VARIABLES}
-    for key, default in {'S3_REGION': 'eu-west-1', 'SMTP_PORT': '587',
-                         'SMTP_SECURE': 'false', 'TRUST_PROXY_IP': 'false',
-                         'NEWSLETTER_PROVIDER': 'disabled', 'NEWS_IMPORT_MAX_MB': '512',
+    result = {key: values.get(key, '') for key in allowed}
+    for key, default in {'S3_REGION': 'eu-west-1', 'TRUST_PROXY_IP': 'false',
+                         'NEWS_IMPORT_MAX_MB': '512',
                          'NEWS_IMPORT_MAX_UNPACKED_MB': '2048', 'NEWS_IMPORT_MAX_ENTRIES': '10000'}.items():
         result[key] = result[key] or default
     result['BACKUP_S3_REGION'] = result['BACKUP_S3_REGION'] or result['S3_REGION']
@@ -73,43 +77,61 @@ def validate_configuration(values, target, installed):
                 and minimum <= int(result[key]) <= maximum, 'Invalid ' + key)
     for key in REQUIRED:
         require(bool(result[key]), 'Missing GitHub Environment setting: ' + key)
-    for key, length in [('DATABASE_PASSWORD', 24), ('APP_DATABASE_PASSWORD', 24),
-                        ('AUTH_SESSION_SECRET', 32), ('RESTIC_PASSWORD', 24)]:
+    for key, length in [('APP_DATABASE_PASSWORD', 24), ('RESTIC_PASSWORD', 24)]:
         require(len(result[key]) >= length, 'Configuration value too short: ' + key)
-    require(result['DATABASE_PASSWORD'] != result['APP_DATABASE_PASSWORD'],
-            'Use separate migration and runtime database passwords')
     result['APP_BASE_URL'] = https_origin(result['APP_BASE_URL'], 'APP_BASE_URL')
     require(result['APP_BASE_URL'] == installed['baseUrl'].rstrip('/'),
             'APP_BASE_URL differs from the installed proxy origin')
-    if result['S3_ENDPOINT']:
-        result['S3_ENDPOINT'] = https_origin(result['S3_ENDPOINT'], 'S3_ENDPOINT')
+    result['SUPABASE_URL'] = https_origin(result['SUPABASE_URL'], 'SUPABASE_URL')
+    project = urlsplit(result['SUPABASE_URL']).hostname
+    require(bool(re.fullmatch(r'[a-z0-9]{20}\.supabase\.co', project)), 'Use the dedicated Supabase project URL')
+    reference = project.split('.')[0]
+    for key, prefix in [('SUPABASE_PUBLISHABLE_KEY', 'sb_publishable_'), ('SUPABASE_SECRET_KEY', 'sb_secret_')]:
+        require(result[key].startswith(prefix) and not any(c.isspace() for c in result[key]), 'Invalid ' + key)
+    try:
+        ca = base64.b64decode(result['SUPABASE_DB_CA_CERT_B64'], validate=True).decode('ascii')
+    except (ValueError, UnicodeError):
+        raise ConfigurationError('Invalid SUPABASE_DB_CA_CERT_B64') from None
+    require(ca.startswith('-----BEGIN CERTIFICATE-----') and '-----END CERTIFICATE-----' in ca,
+            'Invalid SUPABASE_DB_CA_CERT_B64')
+    try:
+        ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT).load_verify_locations(cadata=ca)
+    except ssl.SSLError:
+        raise ConfigurationError('Invalid SUPABASE_DB_CA_CERT_B64') from None
+    for key, username in [('DATABASE_URL', 'duindorp_app'), ('MIGRATION_DATABASE_URL', 'postgres')]:
+        try:
+            database = urlsplit(result[key])
+            direct = database.hostname == 'db.' + project and database.username == username
+            pooled = (bool(re.fullmatch(r'[a-z0-9-]+\.pooler\.supabase\.com', database.hostname or ''))
+                      and database.username == username + '.' + reference)
+            valid = (database.scheme in ('postgres', 'postgresql') and (direct or pooled)
+                     and database.port in (None, 5432) and database.path == '/postgres'
+                     and not database.fragment and len(unquote(database.password or '')) >= 24
+                     and parse_qs(database.query) == {'sslmode': ['verify-full']})
+        except ValueError:
+            valid = False
+        require(valid, 'Invalid Supabase session connection: ' + key)
+        if key == 'DATABASE_URL':
+            require(unquote(database.password) == result['APP_DATABASE_PASSWORD'], 'DATABASE_URL password differs from APP_DATABASE_PASSWORD')
+        else:
+            require(unquote(database.password) != result['APP_DATABASE_PASSWORD'], 'Use separate migration and runtime database passwords')
+    result['S3_ENDPOINT'] = https_origin(result['S3_ENDPOINT'], 'S3_ENDPOINT')
+    endpoint = urlsplit(result['S3_ENDPOINT'])
+    require(endpoint.hostname in ('fsn1.your-objectstorage.com', 'nbg1.your-objectstorage.com',
+                                  'hel1.your-objectstorage.com')
+            and result['S3_REGION'] == endpoint.hostname.split('.')[0],
+            'S3_ENDPOINT must address the configured Hetzner region without a bucket path')
     require(re.fullmatch(r'[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]', result['S3_BUCKET'])
             and '..' not in result['S3_BUCKET'], 'Invalid S3_BUCKET')
     for key in ('S3_REGION', 'BACKUP_S3_REGION'):
         require(bool(re.fullmatch(r'[A-Za-z0-9-]{1,64}', result[key])), 'Invalid ' + key)
-    require(bool(re.fullmatch(r'[A-Za-z0-9.-]+', result['SMTP_HOST'])), 'Invalid SMTP_HOST')
-    require(result['SMTP_PORT'].isascii() and result['SMTP_PORT'].isdecimal()
-            and 1 <= int(result['SMTP_PORT']) <= 65535, 'Invalid SMTP_PORT')
-    for key in ('SMTP_SECURE', 'TRUST_PROXY_IP'):
-        require(result[key] in ('true', 'false'), 'Invalid ' + key)
-    require(bool(result['SMTP_USER']) == bool(result['SMTP_PASSWORD']),
-            'Set both SMTP_USER and SMTP_PASSWORD, or neither for a trusted relay')
+    require(not any(c.isspace() for c in result['RESEND_API_KEY']), 'Invalid RESEND_API_KEY')
+    require(result['TRUST_PROXY_IP'] in ('true', 'false'), 'Invalid TRUST_PROXY_IP')
     require(bool(re.fullmatch(r'[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+', result['MAIL_FROM'])),
             'MAIL_FROM must be an email address')
     if target == 'staging':
         require(bool(re.fullmatch(r'[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+', result['TEST_MAIL_TO'])),
                 'Staging requires TEST_MAIL_TO')
-    else:
-        require(not result['TEST_MAIL_TO'], 'Keep TEST_MAIL_TO empty in production')
-    require(result['NEWSLETTER_PROVIDER'] in ('disabled', 'brevo'), 'Invalid NEWSLETTER_PROVIDER')
-    if result['NEWSLETTER_LIST_ID']:
-        require(result['NEWSLETTER_LIST_ID'].isascii() and result['NEWSLETTER_LIST_ID'].isdecimal()
-                and int(result['NEWSLETTER_LIST_ID']) > 0, 'Invalid NEWSLETTER_LIST_ID')
-    if result['NEWSLETTER_PROVIDER'] == 'brevo':
-        require(bool(result['NEWSLETTER_API_KEY']) and result['NEWSLETTER_LIST_ID'].isascii()
-                and result['NEWSLETTER_LIST_ID'].isdecimal()
-                and int(result['NEWSLETTER_LIST_ID']) > 0,
-                'Brevo requires NEWSLETTER_API_KEY and NEWSLETTER_LIST_ID')
     require(result['RESTIC_REPOSITORY'].startswith('s3:https://'),
             'RESTIC_REPOSITORY must use an external S3 HTTPS repository')
     try:
@@ -121,6 +143,9 @@ def validate_configuration(values, target, installed):
         valid = False
     require(valid and not any(c.isspace() for c in result['RESTIC_REPOSITORY']),
             'Invalid RESTIC_REPOSITORY')
+    if backup.hostname == endpoint.hostname and backup.path.split('/')[1] == result['S3_BUCKET']:
+        require(backup.path == '/' + result['S3_BUCKET'] + '/.duindorp-backups/' + target,
+                'A shared media/backup bucket requires its own reserved backup prefix')
     return result
 
 
@@ -178,21 +203,31 @@ def read_generation(state, identifier):
     return values
 
 
+def postgres_environment(connection):
+    # libpq does not expand a URL supplied only through PGDATABASE. Separate
+    # environment fields also keep passwords out of pg_dump command arguments.
+    url = urlsplit(connection)
+    return {'PGHOST': url.hostname, 'PGPORT': str(url.port or 5432),
+            'PGUSER': unquote(url.username or ''), 'PGPASSWORD': unquote(url.password or ''),
+            'PGDATABASE': unquote(url.path.lstrip('/')),
+            'PGSSLMODE': parse_qs(url.query).get('sslmode', ['verify-full'])[0]}
+
+
 def generation_files(values, target):
-    password = quote(values['APP_DATABASE_PASSWORD'], safe='')
-    migration_password = quote(values['DATABASE_PASSWORD'], safe='')
-    runtime_keys = ('APP_BASE_URL', 'AUTH_SESSION_SECRET', 'S3_ENDPOINT', 'S3_REGION',
-                    'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'SMTP_HOST',
-                    'SMTP_PORT', 'SMTP_SECURE', 'SMTP_USER', 'SMTP_PASSWORD', 'MAIL_FROM',
-                    'TEST_MAIL_TO', 'TRUST_PROXY_IP', 'SPORTLINK_CLIENT_ID',
-                    'NEWSLETTER_PROVIDER', 'NEWSLETTER_API_KEY', 'NEWSLETTER_LIST_ID',
+    runtime_keys = ('APP_BASE_URL', 'DATABASE_URL', 'SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY',
+                    'SUPABASE_SECRET_KEY', 'S3_ENDPOINT', 'S3_REGION', 'S3_BUCKET',
+                    'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'RESEND_API_KEY',
+                    'MAIL_FROM', 'TRUST_PROXY_IP', 'SPORTLINK_CLIENT_ID',
                     'NEWS_IMPORT_MAX_MB', 'NEWS_IMPORT_MAX_UNPACKED_MB', 'NEWS_IMPORT_MAX_ENTRIES')
     runtime = {key: values[key] for key in runtime_keys if values[key] != ''}
-    runtime.update(APP_ENV=target, MEDIA_DRIVER='s3',
-                   DATABASE_URL='postgres://duindorp_app:' + password + '@database:5432/duindorp')
-    migration = {'MIGRATION_DATABASE_URL': 'postgres://duindorp_migration:'
-                 + migration_password + '@database:5432/duindorp'}
+    if target == 'staging':
+        runtime['TEST_MAIL_TO'] = values['TEST_MAIL_TO']
+    runtime.update(APP_ENV=target, MEDIA_DRIVER='s3', DATABASE_CA_CERT_B64=values['SUPABASE_DB_CA_CERT_B64'])
+    migration = {'MIGRATION_DATABASE_URL': values['MIGRATION_DATABASE_URL'],
+                 'DATABASE_CA_CERT_B64': values['SUPABASE_DB_CA_CERT_B64'],
+                 **postgres_environment(values['MIGRATION_DATABASE_URL'])}
     return {'configuration.json': json.dumps(values, sort_keys=True),
+            'database-ca.crt': base64.b64decode(values['SUPABASE_DB_CA_CERT_B64']).decode('ascii'),
             'runtime.env': dotenv(runtime), 'migration.env': dotenv(migration),
             'provision.env': dotenv({**migration, 'APP_DATABASE_PASSWORD': values['APP_DATABASE_PASSWORD']})}
 
@@ -209,16 +244,6 @@ def write_generation(state, values, target):
     return identifier
 
 
-def database_password_file(state, values):
-    path = state / 'database-password'
-    if path.exists() or path.is_symlink():
-        require(read_private(path) == values['DATABASE_PASSWORD'],
-                'DATABASE_PASSWORD changed; perform a controlled database rotation first')
-    else:
-        atomic_private(path, values['DATABASE_PASSWORD'])
-    return path
-
-
 def compose_environment(target, installed, state, identifier, release, registry):
     directory = generation_path(state, identifier)
     for name, contents in generation_files(read_generation(state, identifier), target).items():
@@ -228,6 +253,5 @@ def compose_environment(target, installed, state, identifier, release, registry)
             'RUNTIME_ENV_FILE': str(directory / 'runtime.env'),
             'MIGRATION_ENV_FILE': str(directory / 'migration.env'),
             'PROVISION_ENV_FILE': str(directory / 'provision.env'),
-            'DATABASE_PASSWORD_FILE': str(state / 'database-password'),
             'DUINDORP_BACKUP_ENV': target, 'DUINDORP_CONFIGURATION': identifier,
             'RELEASE_DIGEST': release['digest'], 'APP_IMAGE': registry + '@' + release['digest']}

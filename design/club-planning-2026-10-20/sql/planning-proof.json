@@ -1,0 +1,152 @@
+{
+  "at": "2026-10-20T14:44:38.053Z",
+  "scope": "isolated repository PostgreSQL; no Supabase Auth/provider or production execution",
+  "repository": {
+    "rows": [
+      {
+        "id": "A",
+        "module": "locations",
+        "version": 1,
+        "published": false,
+        "deleted": false
+      },
+      {
+        "id": "A1",
+        "module": "locations",
+        "version": 1,
+        "published": false,
+        "deleted": false
+      },
+      {
+        "id": "adjacent",
+        "module": "activities",
+        "version": 1,
+        "published": false,
+        "deleted": false
+      },
+      {
+        "id": "B",
+        "module": "locations",
+        "version": 1,
+        "published": false,
+        "deleted": false
+      },
+      {
+        "id": "concurrent-one",
+        "module": "activities",
+        "version": 1,
+        "published": false,
+        "deleted": false
+      },
+      {
+        "id": "field",
+        "module": "locations",
+        "version": 1,
+        "published": false,
+        "deleted": false
+      },
+      {
+        "id": "halfA",
+        "module": "activities",
+        "version": 1,
+        "published": false,
+        "deleted": false
+      },
+      {
+        "id": "halfB",
+        "module": "activities",
+        "version": 1,
+        "published": false,
+        "deleted": false
+      },
+      {
+        "id": "person1",
+        "module": "people",
+        "version": 1,
+        "published": false,
+        "deleted": false
+      },
+      {
+        "id": "room",
+        "module": "locations",
+        "version": 1,
+        "published": false,
+        "deleted": false
+      },
+      {
+        "id": "source-match",
+        "module": "activities",
+        "version": 3,
+        "published": true,
+        "deleted": false
+      }
+    ],
+    "reservations": [
+      {
+        "activity_id": "adjacent",
+        "location_id": "room"
+      },
+      {
+        "activity_id": "concurrent-one",
+        "location_id": "room"
+      },
+      {
+        "activity_id": "halfA",
+        "location_id": "A"
+      },
+      {
+        "activity_id": "halfB",
+        "location_id": "B"
+      }
+    ],
+    "match": {
+      "draft_date": "2026-11-23",
+      "live_date": "2026-11-23",
+      "private_description_retained": true,
+      "immutable_snapshot_matches": true
+    }
+  },
+  "restore": {
+    "report": {
+      "id": "0343e12e-2ba1-40e9-a023-17276318c38c",
+      "imported": [
+        "import-loc-79cd5807-8746-45ce-871a-e84443ea355c",
+        "import-activity-79cd5807-8746-45ce-871a-e84443ea355c",
+        "site-hero-slider"
+      ],
+      "versions": {
+        "site-hero-slider": 10,
+        "import-loc-79cd5807-8746-45ce-871a-e84443ea355c": 1,
+        "import-activity-79cd5807-8746-45ce-871a-e84443ea355c": 1
+      },
+      "rolled_back_at": "2026-10-20T14:40:12.557Z"
+    },
+    "after": [
+      {
+        "id": "import-activity-79cd5807-8746-45ce-871a-e84443ea355c",
+        "module": "activities",
+        "version": 2,
+        "published": false,
+        "deleted": true
+      },
+      {
+        "id": "import-loc-79cd5807-8746-45ce-871a-e84443ea355c",
+        "module": "locations",
+        "version": 2,
+        "published": false,
+        "deleted": true
+      },
+      {
+        "id": "site-hero-slider",
+        "module": "heroSlider",
+        "version": 11,
+        "published": true,
+        "deleted": false
+      }
+    ],
+    "derived": {
+      "reservations": 0,
+      "person_accounts": 0
+    }
+  }
+}

@@ -1,16 +1,20 @@
 'use client';
 
-import {createContext,useCallback,useContext,useEffect,useState,type ReactNode} from 'react';
-import type {SportlinkSnapshot} from '@/lib/sportlink-types';
+import {createContext,useCallback,useContext,useEffect,useRef,useState,type ReactNode} from 'react';
+import {receiveMatchVersion,receiveSnapshot,type MatchVersions} from '@/lib/sportlink-client-state';
+import type {SportlinkMatch,SportlinkSnapshot} from '@/lib/sportlink-types';
 
-type State={data:SportlinkSnapshot|null;loading:boolean;error:string|null;reload:()=>void};
-const SportlinkContext=createContext<State>({data:null,loading:true,error:null,reload:()=>{}});
+type State={acceptMatch:(match:SportlinkMatch,at:string)=>void;matchFor:(match:SportlinkMatch)=>SportlinkMatch;data:SportlinkSnapshot|null;loading:boolean;error:string|null;reload:()=>void};
+const SportlinkContext=createContext<State>({data:null,loading:true,error:null,reload:()=>{},acceptMatch:()=>{},matchFor:match=>match});
 
 export function SportlinkProvider({children,enabled=true}:{children:ReactNode;enabled?:boolean}){
+ const versions=useRef<MatchVersions>(new Map());
+ const matchFor=useCallback((match:SportlinkMatch)=>versions.current.get(match.id)?.match||match,[]);
  const [data,setData]=useState<SportlinkSnapshot|null>(null);
  const [loading,setLoading]=useState(enabled);
  const [error,setError]=useState<string|null>(null);
  const [attempt,setAttempt]=useState(0);
+ const acceptMatch=useCallback((match:SportlinkMatch,at:string)=>{receiveMatchVersion(versions.current,match,at);setData(previous=>previous?receiveSnapshot(versions.current,previous):null);},[]);
  const reload=useCallback(()=>setAttempt(n=>n+1),[]);
  useEffect(()=>{
   if(!enabled)return;
@@ -25,7 +29,7 @@ export function SportlinkProvider({children,enabled=true}:{children:ReactNode;en
     if(!response.ok)throw new Error('De competitiegegevens zijn tijdelijk niet bereikbaar.');
     const snapshot=await response.json() as SportlinkSnapshot;
     if(!Array.isArray(snapshot.teams)||!Array.isArray(snapshot.standings))throw new Error('De competitiegegevens zijn tijdelijk niet bereikbaar.');
-    setData(snapshot);setError(null);
+    if(!controller.signal.aborted){setData(receiveSnapshot(versions.current,snapshot));setError(null);}
    }catch(e){if(!controller.signal.aborted)setError(e instanceof Error?e.message:'Probeer het opnieuw.');}
    finally{running=false;if(!controller.signal.aborted)setLoading(false);}
   };
@@ -33,7 +37,7 @@ export function SportlinkProvider({children,enabled=true}:{children:ReactNode;en
   const timer=setInterval(()=>{if(document.visibilityState==='visible')void refresh();},15*60*1000);
   return()=>{controller.abort();clearInterval(timer);};
  },[enabled,attempt]);
- return <SportlinkContext.Provider value={{data,loading,error,reload}}>{children}</SportlinkContext.Provider>;
+ return <SportlinkContext.Provider value={{data,loading,error,reload,acceptMatch,matchFor}}>{children}</SportlinkContext.Provider>;
 }
 
 export function useSportlink(){return useContext(SportlinkContext);}

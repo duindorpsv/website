@@ -5,10 +5,10 @@ import {Dialog} from 'radix-ui';
 import {ArrowLeft,ArrowRight,ArrowUpRight,Camera,Expand,X} from 'lucide-react';
 
 const moments=[
-  {id:'supporters',label:'Langs de lijn',title:'Hier hoor je erbij.',caption:'Samen kijken. Samen meeleven. Dat is het clubgevoel.',alt:'Gegenereerd sfeerbeeld van supporters met blauw-witte sjaals langs een amateurvoetbalveld',position:'50% 45%'},
-  {id:'youth',label:'De volgende generatie',title:'Grote dromen. Kleine stappen.',caption:'De eerste bal, nieuwe vrienden en plezier voorop.',alt:'Gegenereerd sfeerbeeld van jonge voetballers samen op het trainingsveld',position:'50% 45%'},
-  {id:'canteen',label:'Achter de schermen',title:'De koffie staat klaar.',caption:'De mensen die van een zaterdag een clubdag maken.',alt:'Gegenereerd sfeerbeeld van vrijwilligers die koffie schenken in een clubkantine',position:'50% 48%'},
-  {id:'walking',label:'Een leven lang',title:'Het spel blijft verbinden.',caption:'Nog een potje. Nog een verhaal. Nog lang niet uitgevoetbald.',alt:'Gegenereerd sfeerbeeld van oudere voetballers die samen napraten op het veld',position:'50% 45%'},
+  {id:'supporters',label:'Langs de lijn',title:'Hier hoor je erbij.',caption:'Samen kijken. Samen meeleven. Dat is het clubgevoel.',alt:'supporters met blauw-witte sjaals langs een amateurvoetbalveld',position:'50% 45%'},
+  {id:'youth',label:'De volgende generatie',title:'Grote dromen. Kleine stappen.',caption:'De eerste bal, nieuwe vrienden en plezier voorop.',alt:'jonge voetballers samen op het trainingsveld',position:'50% 45%'},
+  {id:'canteen',label:'Achter de schermen',title:'De koffie staat klaar.',caption:'De mensen die van een zaterdag een clubdag maken.',alt:'vrijwilligers die koffie schenken in een clubkantine',position:'50% 48%'},
+  {id:'walking',label:'Een leven lang',title:'Het spel blijft verbinden.',caption:'Nog een potje. Nog een verhaal. Nog lang niet uitgevoetbald.',alt:'oudere voetballers die samen napraten op het veld',position:'50% 45%'},
 ];
 
 export function ClubmuurPhotoWall(){
@@ -40,13 +40,13 @@ export function ClubmuurPhotoWall(){
           <span className="cm-life-photo-copy"><small>{moment.label}</small><strong>{moment.title}</strong><span className="cm-life-photo-arrow"><ArrowUpRight size={22}/></span></span>
         </button>)}
       </div>
-      <div className="cm-life-caption"><span><Camera size={15}/><span>Vier momenten. <strong>Eén Duindorp.</strong></span></span><small>Gegenereerde sfeerbeelden</small><div className="cm-life-rail-controls"><button type="button" onClick={()=>scroll(-1)} disabled={visible===0} aria-label="Vorige foto in fotomuur"><ArrowLeft size={17}/></button><span aria-live="polite">0{visible+1}<i>/ 04</i></span><button type="button" onClick={()=>scroll(1)} disabled={visible===moments.length-1} aria-label="Volgende foto in fotomuur"><ArrowRight size={17}/></button></div></div>
+      <div className="cm-life-caption"><span><Camera size={15}/><span>Vier momenten. <strong>Eén Duindorp.</strong></span></span><div className="cm-life-rail-controls"><button type="button" onClick={()=>scroll(-1)} disabled={visible===0} aria-label="Vorige foto in fotomuur"><ArrowLeft size={17}/></button><span aria-live="polite">0{visible+1}<i>/ 04</i></span><button type="button" onClick={()=>scroll(1)} disabled={visible===moments.length-1} aria-label="Volgende foto in fotomuur"><ArrowRight size={17}/></button></div></div>
     </section>
     <Dialog.Root open={selected!==null} onOpenChange={value=>{if(!value)setSelected(null);}}>
       <Dialog.Portal><Dialog.Overlay className="cm-life-overlay"/><Dialog.Content className="cm-life-lightbox" onCloseAutoFocus={event=>{event.preventDefault();returnFocus.current?.focus();}} onKeyDown={event=>{if(event.key==='ArrowRight'){event.preventDefault();step(1);}if(event.key==='ArrowLeft'){event.preventDefault();step(-1);}}}>
         {active&&<><header><span><Camera size={17}/> DIT ZIJN WIJ.</span><Dialog.Close className="cm-life-close" aria-label="Fotomuur sluiten"><X size={23}/></Dialog.Close></header>
           <div className="cm-life-lightbox-image"><img key={active.id} src={`/assets/club-life-v28/${active.id}-1280.webp`} alt={active.alt} width={1280} height={853}/></div>
-          <div className="cm-life-lightbox-bottom"><div><small>{active.label}</small><Dialog.Title>{active.title}</Dialog.Title><Dialog.Description>{active.caption}</Dialog.Description><span className="cm-life-generated">Gegenereerd sfeerbeeld · placeholder voor een eigen clubfoto</span></div><nav aria-label="Foto’s bekijken"><button type="button" onClick={()=>step(-1)} aria-label="Vorige foto"><ArrowLeft size={20}/></button><span aria-live="polite">0{selected!+1} / 04</span><button type="button" onClick={()=>step(1)} aria-label="Volgende foto"><ArrowRight size={20}/></button></nav></div>
+          <div className="cm-life-lightbox-bottom"><div><small>{active.label}</small><Dialog.Title>{active.title}</Dialog.Title><Dialog.Description>{active.caption}</Dialog.Description></div><nav aria-label="Foto’s bekijken"><button type="button" onClick={()=>step(-1)} aria-label="Vorige foto"><ArrowLeft size={20}/></button><span aria-live="polite">0{selected!+1} / 04</span><button type="button" onClick={()=>step(1)} aria-label="Volgende foto"><ArrowRight size={20}/></button></nav></div>
         </>}
       </Dialog.Content></Dialog.Portal>
     </Dialog.Root>

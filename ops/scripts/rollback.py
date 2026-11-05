@@ -7,6 +7,7 @@ from pathlib import Path
 import pwd
 import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from deploy_config import (atomic_private, compose_environment, read_generation,
                            read_private, require, validate_configuration)
 from deploy import command, installed_configuration, ready, STATE_ROOT, CONFIG_ROOT
@@ -14,14 +15,14 @@ from release import validate, REGISTRY
 
 
 def rollback(target):
-    require(target in ('staging', 'production')
+    require(target in ('production', 'staging')
             and pwd.getpwuid(os.getuid()).pw_name == 'duindorpsv-' + target,
             'Rollback requires the matching application account')
     state = STATE_ROOT / target
     with open(state / 'deploy.lock', 'a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         previous = json.loads(read_private(state / 'previous.json'))
-        release = validate(previous['release'])
+        release = validate(previous['release'], target)
         installed = installed_configuration(target)
         validate_configuration(read_generation(state, previous['configuration']), target, installed)
         environment = compose_environment(target, installed, state, previous['configuration'], release, REGISTRY)
@@ -36,7 +37,7 @@ def rollback(target):
 
 if __name__ == '__main__':
     try:
-        require(len(sys.argv) == 2, 'Choose staging or production')
+        require(len(sys.argv) == 2, 'Choose production or staging')
         rollback(sys.argv[1])
     except Exception as error:
         print('Rollback rejected: ' + type(error).__name__, file=sys.stderr)

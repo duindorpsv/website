@@ -1,0 +1,511 @@
+{
+  "productionBase": "618321bdec131d00bd443fdde4c855a6bfb4846c",
+  "scope": "Changed implementation, assets and test files in the final review candidate; verify these hashes against the PR source tree. Documentation and evidence archives are indexed separately.",
+  "files": [
+    {
+      "path": "app/api/cms/[...path]/route.ts",
+      "size": 10329,
+      "sha256": "5cec3c7dbabfaef6f6cd0743a8ac3c03178d3a9d172769ce538331c4c2f3c0f3"
+    },
+    {
+      "path": "app/api/cms/exports/route.ts",
+      "size": 1819,
+      "sha256": "bbf9b0c67e2ecb2e3414f098aa776f9989653c4f8ff16d1bcaec02eec874aabd"
+    },
+    {
+      "path": "app/api/cms/planning/migration/route.ts",
+      "size": 1560,
+      "sha256": "aabb516cbc0c944ceab8933b22aeaf393af2088049bb1578ae56784f24a396b9"
+    },
+    {
+      "path": "app/api/cms/planning/series/route.ts",
+      "size": 813,
+      "sha256": "6752f10bdb1af8aa0a622b09ee0b5e2a518ffe7cadd5798656b4d24c629eb6c7"
+    },
+    {
+      "path": "app/api/cms/sportlink/people/route.ts",
+      "size": 900,
+      "sha256": "b5d0c5c7ba3b20b2ece3fff53efaba4e533db99e24697e0fecf864ad85d55a90"
+    },
+    {
+      "path": "app/api/cms/sportlink/route.ts",
+      "size": 420,
+      "sha256": "af045a1ee77b69081249e09473e93cf48827ea67e3a17b436f6bde96bf034e31"
+    },
+    {
+      "path": "app/api/cms/sportlink/settings/route.ts",
+      "size": 1684,
+      "sha256": "6502b5fb36276f2505a073892ea7b576b1340188f0a9ea33aa26fd9a3a9c939e"
+    },
+    {
+      "path": "app/api/cms/sportlink/sync/route.ts",
+      "size": 659,
+      "sha256": "8729eae91d05488b4e58de8dcb0ba961598bbfd49c522cde7cd2eff53c993348"
+    },
+    {
+      "path": "app/api/planning/[id]/ics/route.ts",
+      "size": 780,
+      "sha256": "17f76816a8198f68ec25f7f200eec116f929b78e1fe9ea40ff43f0eaaac4c84d"
+    },
+    {
+      "path": "app/api/planning/[id]/route.ts",
+      "size": 608,
+      "sha256": "7d64d7a27e266da0b15f0410a5f838e1a0b96d9adeed39d81267dd7b1cbeacf4"
+    },
+    {
+      "path": "app/api/planning/route.ts",
+      "size": 722,
+      "sha256": "38b84e1f3457d6572c280d789b461a41bc6708377bd7a54d614978ff05631a60"
+    },
+    {
+      "path": "app/clubmuur-community-cards.css",
+      "size": 13871,
+      "sha256": "660d793d3841dee8fc02628d974c1c7e43be4682e30d38b334e3d4b0b8a6bbc1"
+    },
+    {
+      "path": "app/clubmuur.css",
+      "size": 37460,
+      "sha256": "d74c41334c2b34c5899c6ff8e6494b014344a494e01510e3b82db18e7657df75"
+    },
+    {
+      "path": "app/cms.css",
+      "size": 17036,
+      "sha256": "a74177fe35a3471c2f7935f84780348de65a5466607fdc9aa6befa48538a7ed7"
+    },
+    {
+      "path": "components/club-cms.tsx",
+      "size": 15327,
+      "sha256": "a390cbcba4910fb6936fe76d58d64545a8a42f824db6f07d85f2db28076d9098"
+    },
+    {
+      "path": "components/clubmuur-background.tsx",
+      "size": 10149,
+      "sha256": "03674434cbd8e6d2e863b4f9fc90520498f4def6ad5d68dfee46e7e5469205f5"
+    },
+    {
+      "path": "components/clubmuur-community-cards.tsx",
+      "size": 8047,
+      "sha256": "22b6d2e5017364ca774c20a7a482a477cd7d0b7aa2f80f0dbf39bcf02f5260fa"
+    },
+    {
+      "path": "components/clubmuur-home.tsx",
+      "size": 8246,
+      "sha256": "86463bfcd0d7934facef6de381402cd5d2d807d08e64cad56c71c4c04d3d0daf"
+    },
+    {
+      "path": "components/cms/accounts-manager.tsx",
+      "size": 12747,
+      "sha256": "9773c0bdaab308ff074ff3cba9e520db8746c417a8e3ae572393e83c9da12224"
+    },
+    {
+      "path": "components/cms/admin-managers.tsx",
+      "size": 29353,
+      "sha256": "cef79ca63c113b0656c48a287ac3db81433c2fb7146e44ca5546f57750197389"
+    },
+    {
+      "path": "components/cms/club-people.css",
+      "size": 25119,
+      "sha256": "eb2344bfbbf38726f753c383a9f30809c822297f6d8eea6c90b7674af670fcdc"
+    },
+    {
+      "path": "components/cms/club-people.tsx",
+      "size": 43606,
+      "sha256": "5e6b4e4e8be3e55a6524ae771063863b0d90fc604826903dcdd37bb883e6133a"
+    },
+    {
+      "path": "components/cms/hero-slider-manager.css",
+      "size": 11352,
+      "sha256": "930237302b77a7d7737b1fdeb34a5cc705eeda9e2fe4ab15f85861d88dc79ec8"
+    },
+    {
+      "path": "components/cms/hero-slider-manager.tsx",
+      "size": 24188,
+      "sha256": "95f513af83baa516f0067b316319b56b783cc90576896ac5ed666c6f470241a2"
+    },
+    {
+      "path": "components/cms/integration-status.tsx",
+      "size": 1943,
+      "sha256": "79651cf5f71fa84e6b66bc7936d1fe11d33ec2fde9045fa8b0b535a148e77d43"
+    },
+    {
+      "path": "components/cms/locations-manager.css",
+      "size": 11414,
+      "sha256": "54aaa6d46c246c74ef6e30027ff11371ff131eb1f8540fae4722472f7a493dec"
+    },
+    {
+      "path": "components/cms/locations-manager.tsx",
+      "size": 18150,
+      "sha256": "cec09b30a7b4ff840f9505becec278b46d5dd3c71acef029e56532d419f7fdb6"
+    },
+    {
+      "path": "components/cms/media-manager.tsx",
+      "size": 35843,
+      "sha256": "53dce42cd34fa7a6b7b49deac9fadbb7f885c3c98382d5b65332b742b101255c"
+    },
+    {
+      "path": "components/cms/multi-select.css",
+      "size": 4853,
+      "sha256": "b3f2fdbff0c26100989ab096329546c06f7090f433bf47a3f10e6344a780e740"
+    },
+    {
+      "path": "components/cms/multi-select.tsx",
+      "size": 8837,
+      "sha256": "11929d9cd7baaf615b3531dca0cc66452b114c9a97eafff4aadc854ea8e0299b"
+    },
+    {
+      "path": "components/cms/news-manager.tsx",
+      "size": 37690,
+      "sha256": "47048005ed0fbd89ce7af09a2509dcff750abd5ff30aa8ae81fea32bbfb2ef8a"
+    },
+    {
+      "path": "components/cms/operations-manager.tsx",
+      "size": 10709,
+      "sha256": "71a7bf8b1682d02d1b999dfeec77de67f8920e313958d16097ccd8bd7c3082aa"
+    },
+    {
+      "path": "components/cms/page-header.tsx",
+      "size": 485,
+      "sha256": "96b0b5534bf19bfafa4118e82ee812e9ec9b6fb642e2b2f4a3f58c735ed2cd09"
+    },
+    {
+      "path": "components/cms/pages-manager.tsx",
+      "size": 31272,
+      "sha256": "8bf09765e20d8c4ce9ebfd686de2e43600f2ec12b3f7fb01f97af0bfedbb8df1"
+    },
+    {
+      "path": "components/cms/planning-board.css",
+      "size": 23643,
+      "sha256": "a6388c53c0df9c2a4f3a12f07489705ed554fa95c17e13bc9e4fb70dbf26afc3"
+    },
+    {
+      "path": "components/cms/planning-board.tsx",
+      "size": 37868,
+      "sha256": "e559f048a9d9648996bc68657115b7722a7f04e2e6f72ea70eef481ff19329f1"
+    },
+    {
+      "path": "components/cms/planning-migration-review.css",
+      "size": 3317,
+      "sha256": "f039abbfa140c79eaafea99b936373007012bd417aea068e17eb46740f9671b7"
+    },
+    {
+      "path": "components/cms/planning-migration-review.tsx",
+      "size": 11856,
+      "sha256": "0cc4852b0c362dc2ad79d19a8fbf864b9e022bceb640a6f6bf722f0403f420ae"
+    },
+    {
+      "path": "components/cms/provider.tsx",
+      "size": 9090,
+      "sha256": "4be6008d078a5b3f57ed889e100683a4c13dbb012cbb17cb22d285ed27b7ccb4"
+    },
+    {
+      "path": "components/cms/public-content.tsx",
+      "size": 36996,
+      "sha256": "4e3e786d604603eeee37c80f3b998a1ecede5a76b0fa0149c0e9e0a6c45dc4f0"
+    },
+    {
+      "path": "components/cms/site-managers.tsx",
+      "size": 34454,
+      "sha256": "1f77773305c8b9c872bc212d473c9127866c6a62b2726ceeb384152503bcc05f"
+    },
+    {
+      "path": "components/cms/sportlink-settings-manager.tsx",
+      "size": 15883,
+      "sha256": "d204047a115f1f4bae1f91178689eb10e9701c1bc84c710a39e675817b63eeb7"
+    },
+    {
+      "path": "components/cms/sportlink-settings.css",
+      "size": 3471,
+      "sha256": "435bd2edbbaa2546a23ca67b2960e18cd15f15efedc884f048d8157bfa46a6d7"
+    },
+    {
+      "path": "components/cms/training-manager.css",
+      "size": 16683,
+      "sha256": "fd9b4b29744af86120580d64322a86ac61f848b3b1ade63da3a5a70cc5d7b508"
+    },
+    {
+      "path": "components/cms/training-manager.tsx",
+      "size": 26973,
+      "sha256": "9e0cc46432078a4f4530776f73fd354887a9a7384487a0bfd170c8cc172fa63c"
+    },
+    {
+      "path": "components/cms/widget-inspector.tsx",
+      "size": 7123,
+      "sha256": "3d3a751443dd4486d7a43d492a7e4acaadd2492c9fb96ca49e9a0d05c5914aca"
+    },
+    {
+      "path": "components/navigation-editor.tsx",
+      "size": 9354,
+      "sha256": "f1d40bc70698463266b34b4121b5ac172fb3bca71d57c24212013c41d3459e9d"
+    },
+    {
+      "path": "db/migrations/0016_club_planning.sql",
+      "size": 3139,
+      "sha256": "edc9bf9b6a0b422c0c28a71ad327e8c2c32fed529103811a99b6fc4cdc40d573"
+    },
+    {
+      "path": "db/migrations/meta/0016_snapshot.json",
+      "size": 102215,
+      "sha256": "325fa863f06ff5ad9b4864852c93ce9a5ade4f7315dcc595051262d9fc88bcb1"
+    },
+    {
+      "path": "db/migrations/meta/_journal.json",
+      "size": 2483,
+      "sha256": "4796b7cb72ce96c449fd8a25679870d6da6b153a7ef3b1d25d9c6fedb24151e7"
+    },
+    {
+      "path": "db/schema.ts",
+      "size": 17801,
+      "sha256": "f060360ee010589b30f61c2a7086a9942ee5ff1a30efb4fa315151df729ae9da"
+    },
+    {
+      "path": "lib/club-agenda.ts",
+      "size": 1625,
+      "sha256": "918457ae34c401a55c6ceaae703d4d7dd743080e7e7ac1cd75d1c44fb4aad529"
+    },
+    {
+      "path": "lib/clubmuur-community.ts",
+      "size": 3711,
+      "sha256": "2df8b6a222f34073e25d1df9f59980adf6c562a182b8c10d2c51f0a51ae49f0b"
+    },
+    {
+      "path": "lib/cms/hero-slider.ts",
+      "size": 5267,
+      "sha256": "0bf9e84d0aa84b39536963a76fc77d33c17c4dc0460f09f893242e8fd7a7bd64"
+    },
+    {
+      "path": "lib/cms/layout/document.ts",
+      "size": 12808,
+      "sha256": "f61b0b46d9c35417668823a8f3c0a00194edd7c61b5681a39479b85799487049"
+    },
+    {
+      "path": "lib/cms/people-csv.ts",
+      "size": 2626,
+      "sha256": "ec350a96fc7fc9ddd5b4bbd7e91a02f2bdea069edbf8a00653f83bf35e53e580"
+    },
+    {
+      "path": "lib/cms/planning.ts",
+      "size": 9856,
+      "sha256": "81a924daf6657bbeee394673dbac72698caf8900b21519221e20f66f2b87ab51"
+    },
+    {
+      "path": "lib/cms/seed.ts",
+      "size": 9161,
+      "sha256": "4f16f0efd8e051cb583ca5f747211bd819165b18fdb0442888e3d1b464661a9c"
+    },
+    {
+      "path": "lib/cms/sportlink-settings.ts",
+      "size": 5254,
+      "sha256": "9b1ad53bc481fb3847f07306b5db4befe57a263d82601c9b59afdbb69f30e283"
+    },
+    {
+      "path": "lib/cms/types.ts",
+      "size": 7381,
+      "sha256": "9a8417350f55f400798750a01f08bfca5fce427650753ffbcb8cecc144eebc64"
+    },
+    {
+      "path": "lib/cms/validation.ts",
+      "size": 10372,
+      "sha256": "aeae437f3ae6f96ee5019a4f6b34f08cec85aeeed1816b51541c02c0e412c992"
+    },
+    {
+      "path": "lib/server/browser-media-import.ts",
+      "size": 2508,
+      "sha256": "14a29b111db5e1405de9a1ba1b02a9f37f7614e29c1e7d179bda3d7e99fafde3"
+    },
+    {
+      "path": "lib/server/imports.ts",
+      "size": 18206,
+      "sha256": "b923b976a4cf0eca30f6f7d9de23b5a417b84285008e7207d6ab554af87013ce"
+    },
+    {
+      "path": "lib/server/planning-ics.ts",
+      "size": 2116,
+      "sha256": "f92b5c8ea541daf1057d8003b97ee4f9434219e574a80a8fbabc9e42a4005206"
+    },
+    {
+      "path": "lib/server/planning-migration.ts",
+      "size": 4523,
+      "sha256": "bc07fd47908a2879d804939da1b7cdecc662d709dbd3b8e6bfe3a5f538af0f37"
+    },
+    {
+      "path": "lib/server/planning-series.ts",
+      "size": 3680,
+      "sha256": "b96cefe81c08999170116a473bda040d7f4617728688dd2b8bae420c6e5d4ad3"
+    },
+    {
+      "path": "lib/server/planning.ts",
+      "size": 13053,
+      "sha256": "76b6fa6e1ef0c67a17eb99955129a8ea5795a7e1dcca91b29d050f7a08ac857e"
+    },
+    {
+      "path": "lib/server/records.ts",
+      "size": 43750,
+      "sha256": "183c23d44a5562b3246f4f05558b1c857a7f2af909b7594d7615d595ceae19a2"
+    },
+    {
+      "path": "lib/server/sportlink-client.ts",
+      "size": 4972,
+      "sha256": "363d54f2ae8e692a10e078fca9f78aec587fdeb2791725a1acfc764026b60965"
+    },
+    {
+      "path": "lib/server/sportlink-config.ts",
+      "size": 1210,
+      "sha256": "a4b5fab29ec26f3cc5370e084095dfce2faef231acd83c4448a016d60040e81a"
+    },
+    {
+      "path": "lib/server/sportlink-planning.ts",
+      "size": 7576,
+      "sha256": "68a24843f3908dca3b3a44fe54f258771a6bc917098d321b45254aea9ddc14ac"
+    },
+    {
+      "path": "lib/server/sportlink-sync.ts",
+      "size": 16660,
+      "sha256": "646d3812ffd9b78ec7cc0ceda502c6646c4de5e76ccd8a87b6cf31f1e4f46d43"
+    },
+    {
+      "path": "lib/server/worker.ts",
+      "size": 11679,
+      "sha256": "76e7971a321e79ff9c3aab032f027cb6ed35aeb23e69e27cbadc9865b52aa86e"
+    },
+    {
+      "path": "lib/sportlink-assignments.ts",
+      "size": 472,
+      "sha256": "964c9562f626f765a3bb959e1e70b46746ed10b36ec4f60238cc77f2a3e1dc11"
+    },
+    {
+      "path": "lib/sportlink-normalize.ts",
+      "size": 11280,
+      "sha256": "e9cd50b4f35cbff11da89f27e11fb7cb0b1c0efcd70e20715f8a5c65f3ca09b9"
+    },
+    {
+      "path": "lib/sportlink-server.ts",
+      "size": 8334,
+      "sha256": "a80025bab50fe5e2be319da19599446b8f4a05ccaf280e1f74de3edfafe1d71a"
+    },
+    {
+      "path": "lib/sportlink-team-normalize.ts",
+      "size": 11914,
+      "sha256": "bc2fb8436d3262f94312f6a5aa612a5e52d1f0b9b9a638f686a07c3d85409d6e"
+    },
+    {
+      "path": "lib/sportlink-team-server.ts",
+      "size": 17906,
+      "sha256": "de39592ec88630df56418e757abb197d7d9a3429408727cc20e8462238cd5160"
+    },
+    {
+      "path": "lib/sportlink-types.ts",
+      "size": 1350,
+      "sha256": "fc571e20e42314c69cb052d327e4707153a4d19d53ab9c37e8dde8ae67d2da22"
+    },
+    {
+      "path": "scripts/test-cms-import.ts",
+      "size": 6267,
+      "sha256": "61dd8584baf7b52bce499f863403ca23ecdc3dc6366ba40a50c469858f4a5c3d"
+    },
+    {
+      "path": "scripts/test-cms-model.ts",
+      "size": 22136,
+      "sha256": "1d68a21d1965106b1e8f29265e14ab8aceb18c72c01518eb8d63a71e190fd20e"
+    },
+    {
+      "path": "scripts/worker.ts",
+      "size": 887,
+      "sha256": "cd23013a35eb29723de621c32e3c687c07fbd2b647ad4aaf6265b6c7b752ef47"
+    },
+    {
+      "path": "tests/e2e/admin-workspace.spec.ts",
+      "size": 4001,
+      "sha256": "800bae51014d927919d4177c29ba91b5100046aae4485b191eefb338907cebdb"
+    },
+    {
+      "path": "tests/e2e/club-planning.spec.ts",
+      "size": 15457,
+      "sha256": "6408b9eec2a6e6fe4d87f41a6d5c3938e6b1a319d83d56495525f3b7c53869ee"
+    },
+    {
+      "path": "tests/e2e/cms-content.spec.ts",
+      "size": 14057,
+      "sha256": "7b272673f8dfbaadc36f16089b5672ea021953aa9dbe2975717d387149e9258c"
+    },
+    {
+      "path": "tests/e2e/cms.spec.ts",
+      "size": 21455,
+      "sha256": "30088de1f48ef3855c19ff48ffc618a5c21feb360f2b4d2ffa13a411787c8017"
+    },
+    {
+      "path": "tests/e2e/hero-editor.spec.ts",
+      "size": 6362,
+      "sha256": "a629391099a6fe0ff1997a6640139d5fa7c639064d8e97dfb73eb5f85a0c45ba"
+    },
+    {
+      "path": "tests/e2e/hero-portraits.spec.ts",
+      "size": 5126,
+      "sha256": "75567060fdbbe4d3dcc23dcd2bbae9afeb780f653ea0c88c78c86bd8e692bb3b"
+    },
+    {
+      "path": "tests/e2e/hero-slider.spec.ts",
+      "size": 4961,
+      "sha256": "fb91d1f5ddebdd23c7d7d335124c2a5e6fb76e5777bb2cdd449af73cc4e3b724"
+    },
+    {
+      "path": "tests/e2e/sportlink-settings.spec.ts",
+      "size": 2422,
+      "sha256": "7e07a2f0172956eae668cbfb513267eb901316b9655285d67d34f31bb49e3dc7"
+    },
+    {
+      "path": "tests/helpers/planning-fixtures.ts",
+      "size": 924,
+      "sha256": "90419ddd851540b87c315e5da31a79b90fa413581779c92934f6bc0bc338d185"
+    },
+    {
+      "path": "tests/helpers/sportlink-repository.ts",
+      "size": 10698,
+      "sha256": "96f8c24e74f5e75f3728407278621a601f1a91d808fff7ef5b25f4c26a3ff27f"
+    },
+    {
+      "path": "tests/integration/club-planning.test.ts",
+      "size": 28910,
+      "sha256": "3e5b82f89b2f90ae12479a2ce41612152cd9f99063e80e43b9581714e7e008dd"
+    },
+    {
+      "path": "tests/integration/hero-slider.test.ts",
+      "size": 5318,
+      "sha256": "4861237dd9e6098f91ae7621a6bb7903b2376d44cdaffffd5d8d26147b5a11fa"
+    },
+    {
+      "path": "tests/integration/sportlink-sync.test.ts",
+      "size": 564,
+      "sha256": "9c4ddb67ba53d9aa6a0c5a0b6a837cd03b873367dfa7602f629180aa2ea90184"
+    },
+    {
+      "path": "tests/unit/browser-media-remap.test.ts",
+      "size": 1185,
+      "sha256": "19913b33dd58b0b831bd6426b9d4f142588979b4061950340a5567bd06ed2a55"
+    },
+    {
+      "path": "tests/unit/club-planning.test.ts",
+      "size": 5861,
+      "sha256": "a9c50845300d17b014074ba70841c62d8604c89a0ae870d75099d30c4fbb8509"
+    },
+    {
+      "path": "tests/unit/hero-slider.test.ts",
+      "size": 4838,
+      "sha256": "fb4c2581970d313f4afc2ee7fb946e88f62e69651c3ee69888721ebf80371a75"
+    },
+    {
+      "path": "tests/unit/people-csv.test.ts",
+      "size": 1274,
+      "sha256": "56d4845f337c7fc14ef466c85ac6825c9077b004cee35e02869bd8376140ed41"
+    },
+    {
+      "path": "tests/unit/public-community.test.ts",
+      "size": 2926,
+      "sha256": "f7256189f1d0968cba4093bf78ef517cd13a66a6469b75a9365dfcc37f49f7a7"
+    },
+    {
+      "path": "tests/unit/sportlink-settings.test.ts",
+      "size": 3518,
+      "sha256": "67bae49cdeeacafd83c12ae4f1bfcecb068029221de54be70a241dd71c0825a9"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "environment": "Production build on isolated local database",
+  "testFile": "tests/e2e/club-archive.spec.ts",
+  "scope": "archive timeline preserves the approved rail, empty year and responsive public routes",
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "durationMs": 9548.880000000001
+}

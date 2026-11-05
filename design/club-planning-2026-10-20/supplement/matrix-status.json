@@ -1,0 +1,305 @@
+{
+  "reference": "05-VISUELE-ACCEPTATIE.md",
+  "statuses": [
+    "uitgevoerd",
+    "n.v.t.",
+    "niet uitgevoerd"
+  ],
+  "rows": [
+    {
+      "name": "headers-*",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "report.json: headers-*, D/M; 20 huidige routes, 19 prototype, 15 eigen productie-baseline",
+      "reason": "Enkele kop is de expliciete 07-correctie; daarom geen nul-pixelreferentie voor de nieuwe kop. Sportlink ontbreekt in v48; commissies/planning ontbraken in oude productie."
+    },
+    {
+      "name": "people-list",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief manifest.json + panels/manifest.json, D/M",
+      "reason": "Echte provider en accounts/portret/publicatiebediening behouden; bewuste productieverschillen zijn apart beschreven."
+    },
+    {
+      "name": "person-edit",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief manifest.json + panels/manifest.json, D/M",
+      "reason": "Echte provider en accounts/portret/publicatiebediening behouden; bewuste productieverschillen zijn apart beschreven."
+    },
+    {
+      "name": "people-paging",
+      "fixture": "F1",
+      "status": "uitgevoerd",
+      "evidence": "report.json: F1-26/F1-51/F1-101, 25/50/100 en volgende pagina, D; F1-101 ook M",
+      "reason": "Records26/51/101 en exacte paginagrenzen; tabelroot omvat de verwijderde dubbele intro, dus totale hoogte verschilt bewust."
+    },
+    {
+      "name": "person-import",
+      "fixture": "F1",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief: importdialog D/M; supplement F1-identity: bestaande/softdeleted bron-ID, selecteer-alle, 1 nieuwe geselecteerd D/M",
+      "reason": "Geen demo-import uitgevoerd. CSV met stabiele bron-ID vervangt demonstratieseed; bestaande en verwijderde identiteiten blijven disabled. CSV51→50+1 afzonderlijk functioneel gecontroleerd."
+    },
+    {
+      "name": "committee-grid",
+      "fixture": "F2",
+      "status": "uitgevoerd",
+      "evidence": "report.json: committee-empty-inactive-two-roles D/T(1024×900)/M",
+      "reason": "Inactieve lege commissie en één persoon met twee commissiegebonden rollen."
+    },
+    {
+      "name": "committee-edit",
+      "fixture": "F2",
+      "status": "uitgevoerd",
+      "evidence": "report.json: committee-roles-edit D/T/M",
+      "reason": "Ledenrollen, kleur en toevoegen staan in de werkelijke modal; individuele historische verwijzingen blijven behouden."
+    },
+    {
+      "name": "locations-grid",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief: locaties op D/W/T/M",
+      "reason": "Bron-CSS en 3/2/1 grid; bestaande productie-opslag behouden."
+    },
+    {
+      "name": "location-edit",
+      "fixture": "F3",
+      "status": "uitgevoerd",
+      "evidence": "report.json: location-edit-half-field D/M; hoofdarchief: mappingeditor D/M",
+      "reason": "Veldhelft met echte parentrelatie; extra exacte broncode is een bewuste productie-aanvulling."
+    },
+    {
+      "name": "booking-day",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "report.json: booking-day-24oct D/M",
+      "reason": "Datum expliciet24okt; tijdlijn en matchbalken opgenomen, geen fictieve gegevens live gezet."
+    },
+    {
+      "name": "booking-hierarchy",
+      "fixture": "F3",
+      "status": "uitgevoerd",
+      "evidence": "report.json: booking-hierarchy D/M en whole-half-conflict D/M",
+      "reason": "Twee siblinghelften zijn toegestaan; heel/half-overlap toont fout vóór opslaan. SQL-tests controleren de transactie apart."
+    },
+    {
+      "name": "mapping",
+      "fixture": "F5",
+      "status": "uitgevoerd",
+      "evidence": "report.json: agenda-only-changing-no-field + mapping-missing-fields D/M",
+      "reason": "Een wedstrijd met alleen kleedkamers blijft Nog in te delen. Bronmapping komt niet uit een demo-sync."
+    },
+    {
+      "name": "agenda-week",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief: agenda-week D/M; week tevensW/T; jaarT in supplement agenda-year-tablet",
+      "reason": "Tijd/locale/fixture vast; dezelfde periode19–25okt2026."
+    },
+    {
+      "name": "agenda-day",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief: agenda-day D/M; week tevensW/T; jaarT in supplement agenda-year-tablet",
+      "reason": "Tijd/locale/fixture vast; dezelfde periode19–25okt2026."
+    },
+    {
+      "name": "agenda-month",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief: agenda-month D/M; week tevensW/T; jaarT in supplement agenda-year-tablet",
+      "reason": "Tijd/locale/fixture vast; dezelfde periode19–25okt2026."
+    },
+    {
+      "name": "agenda-year",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief: agenda-year D/M; week tevensW/T; jaarT in supplement agenda-year-tablet",
+      "reason": "Tijd/locale/fixture vast; dezelfde periode19–25okt2026."
+    },
+    {
+      "name": "agenda-filter-empty",
+      "fixture": "F4",
+      "status": "uitgevoerd",
+      "evidence": "report.json: agenda-empty D/M + agenda-filter-empty D/M",
+      "reason": "Zowel lege activiteitenbron als nul zoekmatches; geen verzonnen activiteiten."
+    },
+    {
+      "name": "activity-new",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief: activiteitmodal D/M + afzonderlijk exact desktopinterieur",
+      "reason": "Publieke keuze is expliciet; gewone opslag verandert live niet."
+    },
+    {
+      "name": "activity-source",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "report.json: activity-source D/M",
+      "reason": "Titel/status/datum/tijd/bronlocaties locked; lokale annotaties en extra koppelingen blijven bewerkbaar."
+    },
+    {
+      "name": "select-empty-open",
+      "fixture": "F6",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief D/M + picker-boundaries/report.json: accent-search/no-results D/M",
+      "reason": "60opties, accentloze meerwoordmatch, Enter zonder opslaan en eersteEscape houdt modal open."
+    },
+    {
+      "name": "select-search",
+      "fixture": "F6",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief D/M + picker-boundaries/report.json: accent-search/no-results D/M",
+      "reason": "60opties, accentloze meerwoordmatch, Enter zonder opslaan en eersteEscape houdt modal open."
+    },
+    {
+      "name": "select-no-results",
+      "fixture": "F6",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief D/M + picker-boundaries/report.json: accent-search/no-results D/M",
+      "reason": "60opties, accentloze meerwoordmatch, Enter zonder opslaan en eersteEscape houdt modal open."
+    },
+    {
+      "name": "select-many",
+      "fixture": "F6",
+      "status": "uitgevoerd",
+      "evidence": "picker-boundaries/report.json: many-chips/bottom-open D/M",
+      "reason": "Popup blijft binnen de scrollende modal; chipsmax130px; verdwenen selectie verwijderbaar."
+    },
+    {
+      "name": "select-bottom",
+      "fixture": "F6",
+      "status": "uitgevoerd",
+      "evidence": "picker-boundaries/report.json: many-chips/bottom-open D/M",
+      "reason": "Popup blijft binnen de scrollende modal; chipsmax130px; verdwenen selectie verwijderbaar."
+    },
+    {
+      "name": "select-disabled",
+      "fixture": "F8",
+      "status": "uitgevoerd",
+      "evidence": "picker-boundaries/report.json: disabled-option D/M; report.json F8-readonly + F8-scoped D/M",
+      "reason": "Echte providerprincipal voor readonly/teambeperking; disabled optie verandert selectie niet. Teamcreatiebug gevonden en gerepareerd."
+    },
+    {
+      "name": "training-week",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief D/M en algemene modulebreedtes D/W/T/M",
+      "reason": "Teamfilter en concrete centrale momenten; geen vrij tekstrooster als nieuwe bron."
+    },
+    {
+      "name": "training-create",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief D/M; supplement training-create-publish-optin + training-publication-optin D/M",
+      "reason": "Expliciet label “Deze reeks meteen publiceren in de openbare clubagenda”; server publiceert alleen bij afzonderlijke opt-in en rechten."
+    },
+    {
+      "name": "training-conflict",
+      "fixture": "F3",
+      "status": "uitgevoerd",
+      "evidence": "report.json: training-conflict D/M",
+      "reason": "Conflict fout en onbruikbare preview zichtbaar; geen apply in deze visuele run. Atomair weigeren is apart op echte SQL getest."
+    },
+    {
+      "name": "training-delete",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "report.json: training-delete-one/training-delete-series D/M",
+      "reason": "Geen delete in captureharness. Productietekst noemt prullenbak/historie; dit voegt19.797px toe t.o.v. het prototype. Echte53-momenten-delete is in SQL en duurzame E2E gecontroleerd."
+    },
+    {
+      "name": "public-agenda",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "public-report.json: public-agenda/public-agenda-empty/public-agenda-withdrawn D/M, panelcrops",
+      "reason": "Alleenpublic+planned, max5, echte plaats/tijdbereik, geen personen/contact. Mobiele lege kaart480px zoals bron; gevulde kaart24.516px compacter door verwijderde bron/demo-badges."
+    },
+    {
+      "name": "public-agenda-detail",
+      "fixture": "F0",
+      "status": "uitgevoerd",
+      "evidence": "public-report.json: public-agenda-detail D/M, werkelijke server-ICSdownload en focus404-intrekking",
+      "reason": "Detailgeometrie exact gelijk:560×441.969 desktop,358×457.906 mobiel. Intrekken sluit open detail via canonical servercheck."
+    },
+    {
+      "name": "slider-editor",
+      "fixture": "F7/F9",
+      "status": "uitgevoerd",
+      "evidence": "Bestaand design/club-planning-2026-10-20/hero-slider/manifest.json + ops/hero-slider-review.md",
+      "reason": "Eigen F08bewijs:47 gecontroleerde editorpaneelvergelijkingen, alle0RGB. Deze supplementrun telt die niet dubbel."
+    },
+    {
+      "name": "slider-crop",
+      "fixture": "F7/F9",
+      "status": "uitgevoerd",
+      "evidence": "Bestaand design/club-planning-2026-10-20/hero-slider/manifest.json + ops/hero-slider-review.md",
+      "reason": "Eigen F08bewijs:47 gecontroleerde editorpaneelvergelijkingen, alle0RGB. Deze supplementrun telt die niet dubbel."
+    },
+    {
+      "name": "slider-add",
+      "fixture": "F7/F9",
+      "status": "uitgevoerd",
+      "evidence": "Bestaand design/club-planning-2026-10-20/hero-slider/manifest.json + ops/hero-slider-review.md",
+      "reason": "Eigen F08bewijs:47 gecontroleerde editorpaneelvergelijkingen, alle0RGB. Deze supplementrun telt die niet dubbel."
+    },
+    {
+      "name": "slider-save-states",
+      "fixture": "F7/F9",
+      "status": "uitgevoerd",
+      "evidence": "Bestaand design/club-planning-2026-10-20/hero-slider/manifest.json + ops/hero-slider-review.md",
+      "reason": "Eigen F08bewijs:47 gecontroleerde editorpaneelvergelijkingen, alle0RGB. Deze supplementrun telt die niet dubbel."
+    },
+    {
+      "name": "slider-empty",
+      "fixture": "F7/F9",
+      "status": "uitgevoerd",
+      "evidence": "Bestaand design/club-planning-2026-10-20/hero-slider/manifest.json + ops/hero-slider-review.md",
+      "reason": "Eigen F08bewijs:47 gecontroleerde editorpaneelvergelijkingen, alle0RGB. Deze supplementrun telt die niet dubbel."
+    },
+    {
+      "name": "hero-still",
+      "fixture": "F7",
+      "status": "uitgevoerd",
+      "evidence": "public-hero/manifest.json + public-hero-evidence.zip: defaults/custom/empty, D/M",
+      "reason": "Aanvullende F7-opname na het oorspronkelijke supplement: alle geometrie gelijk; desktop4 randpixels maxdelta4, mobiel defaults67 randpixels maxdelta22; mobiel custom/empty exact0. Ruwe RGB-delta>0 diffs beschikbaar zonder maskering."
+    },
+    {
+      "name": "production-regressions",
+      "fixture": "Productie",
+      "status": "uitgevoerd",
+      "evidence": "Hoofdarchief production-before, actuele componentharness, bestaande CI/E2E; supplement15 oudeproductie-headerbeelden D/M",
+      "reason": "Vergelijking met eigen productie618321b; oudere Sites-editor/nav worden niet teruggezet."
+    },
+    {
+      "name": "activity-external-conflict",
+      "fixture": "F9",
+      "status": "uitgevoerd",
+      "evidence": "report.json: activity-external-conflict D/M",
+      "reason": "Werkelijke componentprovider met één geïsoleerde409API-response. Bewaarde titel én zichtbare conflictmelding gecontroleerd; geen opslag."
+    },
+    {
+      "name": "person-import-demo",
+      "fixture": "F1",
+      "status": "n.v.t.",
+      "evidence": "F1-identity CSVreview en backendbronadaptertests",
+      "reason": "Expliciete productie-eis verbiedt import van prototype-demopersonen. Gelijke reviewfunctie is met stabiele fictieve leden-ID’s getest; er is geen echte ledenbron beschikbaar."
+    },
+    {
+      "name": "source-permission-principal",
+      "fixture": "F8",
+      "status": "n.v.t.",
+      "evidence": "Current actual-provider readonly/team-scope D/M",
+      "reason": "Het lokale prototype heeft geen actiegebonden serverprincipal zoals productie. Een verzonnen bronaccount zou geen geldige exacte rechtenreferentie zijn."
+    },
+    {
+      "name": "live-Sportlink-members",
+      "fixture": "Extern",
+      "status": "niet uitgevoerd",
+      "evidence": "ops/sportlink.md + ops/club-planning-review.md",
+      "reason": "Geen echte clubcredential in devsessie; geen echte ledenimport, sync of externe berichten tijdens visuele checks."
+    }
+  ],
+  "currentEvidenceNote": "The frozen supplemental ZIP retains the original dated matrix; this current matrix includes the subsequently completed F7 public-hero verification."
+}

@@ -1,0 +1,14 @@
+{
+  "environment": "Real local Next routes, PostgreSQL, processing worker and safe filesystem derivatives; isolated reviewer principal for local moderation",
+  "guest": true,
+  "threeFiles": true,
+  "lostAcknowledgementRecovered": true,
+  "singleReceipt": true,
+  "approvedOnly": 2,
+  "privateThird": true,
+  "secondBrowser": true,
+  "noPublicEmail": true,
+  "withdrawnUrl": true,
+  "focusRestored": true,
+  "errors": []
+}

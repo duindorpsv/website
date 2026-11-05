@@ -1,30 +1,139 @@
-# Eerste inrichting en release
+# Duindorp SV in productie zetten
 
-De eigenaar heeft op de bestaande gedeelde hosting-VPS twee runners en twee rootless Docker-omgevingen ingericht. De via terminaluitvoer bevestigde toestand staat in `inventory.md`. Beheer verloopt via de bestaande Tailscale-verbinding; adres en beheerdersaccount worden buiten deze publieke repository bewaard. De bestaande Caddy-sites blijven onderdeel van dezelfde server. Domeinen, nieuwe applicatiepoorten, private runtimeconfiguratie, backupbestemming en eerste release moeten nog worden aangesloten.
+De website gebruikt **Supabase voor database en inloggen**, de **bestaande Hetzner S3-bucket voor bestanden** en de **Resend API voor e-mail**. Deze procedure geldt uitsluitend voor GitHub Environment `production`; de afzonderlijke voorbereide stagingroute staat in [staging.md](staging.md).
 
-De eenmalige helper `ops/scripts/install-host.sh` koppelt vaste deployscripts aan de **bestaande** accounts en Docker-services. Hij maakt geen gebruikers aan, installeert of herstart Docker niet en wijzigt geen proxy, firewall, DNS of runnerdienst. De controle omvat de servicegebruiker, gescheiden UID/GID-reeksen, socketeigendom, rootless Docker, cgroup v2, CPU-/geheugenondersteuning, de opslagmap en een momenteel vrije webpoort. Bestaande deployconfiguratie, sudoersregels en releasestatus worden geweigerd. Gedeelde Python-helpers mogen alleen worden hergebruikt als inhoud en rechten overeenkomen.
+Iedereen, ook beheerders, logt in met een **achtcijferige code per e-mail**. Er is geen wachtwoord- of authenticatorstap. Nieuwe CMS-gebruikers worden door een beheerder aangemaakt. Openbare registratie blijft uit. Er zijn geen bestaande gebruikers die voor deze eerste ingebruikname moeten worden gemigreerd.
 
-Applicatie-, mail-, media- en backupinstellingen worden vanaf configuratieversie 2 beheerd met **GitHub Environment secrets en variables**. De volledige lijst en overdracht staan in [github-environments.md](github-environments.md). De eenmalige hostconfiguratie bevat alleen vaste paden, Docker-identiteit, poort en proxy-origin. De deploymentwrapper maakt de private runtimebestanden uit de GitHub-invoer.
+## 1. Supabase instellen — jij
 
-Voer dit vanuit de gereviewde checkout als de beheergebruiker uit, eerst met `--check`. Onderstaande poorten en domeinen zijn voorbeelden die nog moeten worden bevestigd; een vrije luisterpoort bewijst niet dat geen andere site hem in configuratie heeft gereserveerd. `--check` verandert geen bestanden of services en test geen DNS, HTTPS, S3, SMTP of backups.
+Open het eigen Duindorp-project in Supabase.
 
-```sh
-sudo bash ops/scripts/install-host.sh staging 3112 https://staging.duindorpsv.nl --check
-sudo bash ops/scripts/install-host.sh production 3113 https://duindorpsv.nl --check
+- Authentication → Sign In / Providers → Email: e-mailinloggen aan.
+- **Email OTP length: `8`.**
+- **Email OTP expiration: `600` seconden.**
+- Openbare registratie en anonieme accounts: uit. Registratie is door de eigenaar al uitgezet.
+- Authentication → URL Configuration → Site URL: `https://duindorpsv.nl`.
+- Een authenticator is voor deze app niet nodig. De applicatie biedt geen MFA-enrollment of wachtwoordlogin aan.
+
+De app vraagt de code aan bij Supabase en controleert haar bij Supabase. De aanvullende applicatiecontrole bewaart alleen een met het bestaande servergeheim beveiligde codehash, bindt de code aan de browser, staat maximaal vijf pogingen toe, verloopt na tien minuten en accepteert iedere code één keer. Alleen sessies uit deze inlogflow krijgen CMS-toegang. Een los Supabase-account zonder actieve CMS-rol geeft geen toegang.
+
+**Geen SMTP instellen en geen template in Supabase plakken.** De HTML-template met clublogo, clubkleuren en tekstversie staat in `lib/server/auth-mail.ts`. De worker verstuurt haar met Resend. Bij zes cijfers stopt de worker met foutcode `auth-otp-configuration`; verander dan de bovenstaande Supabase-instelling.
+
+## 2. Opslag en Resend controleren — jij
+
+- Hetzner-bucket `duindorpsv`: **Private**. Controleer ook bestaande object-ACLs; een afzonderlijk openbaar object wordt niet beschermd door alleen de bucketinstelling.
+- Bestaande S3-sleutels behouden. `S3_ENDPOINT` is `https://fsn1.your-objectstorage.com`, zonder `/duindorpsv`; `S3_REGION=fsn1` en `S3_BUCKET=duindorpsv`.
+- In Resend: afzenderdomein `duindorpsv.nl` geverifieerd en verzenden vanaf `noreply@duindorpsv.nl` toegestaan.
+
+De GitHub Environment-namen zijn al ingevuld, inclusief het databasecertificaat. Er is geen extra OTP-secret nodig. De volledige namen en URL-regels staan in [github-environments.md](github-environments.md). De versleutelde Restic-backup gebruikt `.duindorp-backups/production` in de bestaande bucket; die prefix wordt uitgesloten van de mediakopie.
+
+## 3. Deployment op de VPS aansluiten — jij
+
+Dit gebeurt **eenmalig op de productie-VPS**, met je beheerlogin. Het gaat hier om Linux-gebruikers die de app en GitHub-runner uitvoeren. Dit zijn geen CMS-accounts.
+
+Controleer eerst:
+
+```bash
+id runner-duindorpsv-production
+id duindorpsv-production
 ```
 
-Na geslaagde controles en bevestiging van de poorten/domeinen installeer je de scripts met dezelfde opdrachten zonder `--check`. Ook dat start geen applicatie en activeert geen deploymentbranch. De beperkte sudoersregel wordt pas na de bestanden geïnstalleerd. Een onderbroken installatie vraagt inspectie van de genoemde eigen Duindorp-paden; verwijder geen bestaande configuratie om de controle te omzeilen.
+Beide opdrachten moeten een gebruiker tonen. Deze accounts, hun eigen rootless Docker-daemon en de productierunner horen bij de eerder voorbereide VPS-inrichting. Ontbreekt een account of daemon, voltooi eerst die VPS-inrichting. Start geen gedeelde/root-Docker-daemon en verander geen andere websites.
 
-De helper is lokaal op syntaxis en met offline controles getest. Uitvoering op de hosting-VPS, daadwerkelijke sudoersinstallatie en een volledige deployment zijn nog niet bewezen.
+Haal de gecontroleerde broncode naar een nieuwe tijdelijke map:
 
-1. Reserveer twee vrije loopback-webpoorten; databasepoorten blijven intern. Gebruik de bestaande applicatiegebruikers `duindorpsv-staging`/`duindorpsv-production` en runnergebruikers `runner-duindorpsv-staging`/`runner-duindorpsv-production`. De workflowlabels zijn `duindorpsv-staging` en `duindorpsv-production`. Hun rootless data-roots zijn `/srv/duindorpsv/staging/docker` en `/srv/duindorpsv/production/docker`. Gebruik geen nieuwe `duindorp-*`-accounts naast deze bestaande inrichting.
-2. De helper installeert root-owned release.py en de vaste wrappers `duindorp-deploy-staging`/`duindorp-deploy-production` onder `/usr/local/libexec/duindorp`. `deploy.py` identificeert de omgeving via zijn vaste naam en controleert de bijbehorende `duindorpsv-*`-gebruiker. Scripts en imports zijn niet runner-beschrijfbaar. De runner krijgt uitsluitend sudo naar zijn eigen wrapper als zijn applicatiegebruiker, zonder extra commandoregelargumenten. De helper valideert de regel met visudo. De bestaande korte namen voor scripts, Compose-projecten en `/etc/duindorp` blijven interne configuratienamen.
-3. Per omgeving installeert de helper root-owned `/etc/duindorp/<omgeving>/compose.yml`, `backup.sh` en `deploy.json` met alleen dockerHost/webPort/baseUrl. Vul de bijbehorende GitHub Environment secrets/variables in volgens `github-environments.md`. De wrapper schrijft gevalideerde configuratie onder de private `/var/lib/duindorp/<omgeving>/configuration/` en houdt runtime-, migratie-, provisioning- en backupgegevens gescheiden. Eigen DB-volume en private S3-bucket/credentials. Staging-mail uitsluitend TEST_MAIL_TO.
-4. Gebruik een eigen externe S3-backuprepository voor Restic. De vaste Python-backuphelper leest gevalideerde data, geen uitvoerbare shellconfiguratie. Database, media en benodigde runtimeconfiguratie gaan naar versleutelde externe opslag; sleutels en herstelprocedure ook buiten de VPS en GitHub bewaren. Eerste bootstrap maakt een lege DB en extern herstelpunt vóór migraties. Bij backupfouten stopt deployment.
-5. De wrapper gebruikt het gecontroleerde stagingimage voor migratie, beperkt account via `provision` en eenmalige idempotente seed; daarna web/worker. Maak de eigenaar via het operatorcommand `owner` (activatie-e-mailqueue). Geen demo-account in staging/production. Seed gebruikt private objectopslag voor het bronarchief. MFA activeren vóór productiebeheer.
-6. Richt GitHub Environments staging/production en staging-acceptance in met uitsluitend de bijbehorende branches. staging-acceptance vereist reviewers en wordt pas goedgekeurd na daadwerkelijke stagingacceptatie; zonder die bescherming uploadt de workflow geen goedgekeurd artifact. Vereiste CI op main/staging/production, reviewerbescherming voor workflows/ops. GitHub-planmogelijkheden vastleggen; geen ontbrekende regel als ingesteld rapporteren. Voeg unieke self-hosted deploymentlabels toe; deze runners bouwen/testen geen repositorycode.
-7. Voeg alleen afgebakende virtual hosts aan de bestaande proxy toe, na backup en configuratievalidatie. Staging vereist echte toegang via accounts en noindex. Proxy overschrijft onbevoegde forwardingheaders; logs bevatten geen tokenquerystrings. Controleer alle bestaande websites/certificaten na reload, ook IPv6 en externe poortbereikbaarheid.
-8. Merge geteste main-tree naar staging: GitHub-hosted controles/build, GHCR-digest, beperkte deploy, readiness plus release-identiteit. Test login, persistence, media, formulieren, worker, mislukte deployment en rollback. Bewaar het staging-approved artifact.
-9. Test een complete geïsoleerde restore vóór productie; registreer `/var/lib/duindorp/production/restore-tested.json` met digest, backupRef, externalBackup:true en checks:{login:true,page:true,media:true,formHistory:true}. Het bewijs moet het exacte stagingdigest betreffen; een lege marker of developmentbackup wordt geweigerd. Production-workflow accepteert uitsluitend dezelfde Git-tree en hetzelfde bewezen stagingdigest. Geen productiebuild bij promotie, geen deployment van main.
+```bash
+DUINDORP_SETUP_DIR=$(mktemp -d /tmp/duindorpsv-install.XXXXXX)
+git clone https://github.com/duindorpsv/website.git "$DUINDORP_SETUP_DIR"
+cd "$DUINDORP_SETUP_DIR"
+```
 
-De bestaande accounts, actieve runnerdiensten en rootless Docker zijn via terminaluitvoer bevestigd. Definitieve hostingpoorten/domeinen, installatie van de actuele helpers, proxyconfiguratie, ingevulde GitHub Environment credentials, eerste databasebootstrap en eigenaaractivatie zijn nog niet op de serving-host bewezen. De scripts weigeren inzet zonder passende configuratie en bewijs. Een eerdere protocol-1-installatie wordt niet automatisch overgenomen: inspecteer die en voer een gereviewde upgrade uit voordat de nieuwe configuratiewrapper wordt gebruikt.
+Kies één vrije interne webpoort. Hieronder is **62600 een voorbeeld**; gebruik overal dezelfde gekozen poort. De installer weigert een bezette poort.
+
+```bash
+sudo bash ops/scripts/install-host.sh production 62600 https://duindorpsv.nl --check
+```
+
+Meldt een oudere checkout `Missing Docker resource support: CPUCfsQuota` (met `CPU` in hoofdletters)? Haal eerst de nieuwste broncode op met `git pull --ff-only` en herhaal de controle. Oudere versies lazen de Docker-velden met verkeerde hoofdletters. De huidige controle blijft vereisen dat geheugen-, proces- en CPU-limieten werkelijk beschikbaar zijn; verander hiervoor niet de Docker-installatie of de controles.
+
+Als deze controle slaagt, installeer:
+
+```bash
+sudo bash ops/scripts/install-host.sh production 62600 https://duindorpsv.nl
+```
+
+Dit installeert de versie-5 deployhelpers, Compose-configuratie en de beperkte sudoersregel. De GitHub-runner mag uitsluitend de vaste deployopdracht als applicatiegebruiker uitvoeren, zonder wachtwoord. Hij krijgt geen algemeen sudo- of root-Dockerrecht.
+
+Als de installer `Already exists` of een verschil in gedeelde helpers meldt: laat de bestaande bestanden staan. Controleer de bestaande installatie en werk haar beheerd bij naar dezelfde `main`-versie; wis geen state, configuratie of volumes om de controle te omzeilen. De relevante bestanden staan onder `/usr/local/libexec/duindorp/`, `/etc/duindorp/production/` en `/var/lib/duindorp/production/`. De `deploy.json` bevat de bestaande poort en proxy-origin, geen secrets.
+
+De eerdere deployment stopte met `sudo: a password is required`. Controleer na installatie de precieze toestemming, zonder de deployment uit te voeren:
+
+```bash
+sudo -u runner-duindorpsv-production sudo -n -l -u duindorpsv-production /usr/local/libexec/duindorp/duindorp-deploy-production
+```
+
+De opdracht moet zonder wachtwoordprompt slagen. De installer maakt hiervoor deze beperkte regel:
+
+```sudoers
+runner-duindorpsv-production ALL=(duindorpsv-production) NOPASSWD: /usr/local/libexec/duindorp/duindorp-deploy-production ""
+```
+
+## 4. Domein en HTTPS aansluiten — jij
+
+Laat de DNS-records van `duindorpsv.nl` naar de productie-VPS wijzen. Controleer ook een eventueel AAAA-record. Poorten 80 en 443 moeten bij Caddy uitkomen.
+
+Voeg in de bestaande Caddy-inrichting het siteblok voor Duindorp toe of werk dat blok bij. Behoud de blokken van andere websites. Gebruik dezelfde interne poort als in stap 3:
+
+```caddyfile
+duindorpsv.nl {
+    reverse_proxy 127.0.0.1:62600
+}
+```
+
+Valideer de bestaande configuratie en herlaad Caddy:
+
+```bash
+sudo caddy validate --config /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+```
+
+Caddy verzorgt het HTTPS-certificaat voor deze hostnaam. Bij de laatste controle paste het aangeboden certificaat nog niet bij `duindorpsv.nl`; dit moet opgelost zijn voor de publieke oplevering. Een 502 vóór de eerste app-deployment is mogelijk zolang er nog geen webcontainer draait.
+
+## 5. De nieuwste release deployen — via GitHub
+
+De codewijzigingen gaan via PR-controles naar `main`. De workflow **Build and deploy production** controleert de mergecommit, bouwt een image en maakt een releaseartifact met een vast image-digest. De productiejob gebruikt de eerder geïnstalleerde wrapper.
+
+Na de hostcorrectie: open de workflow voor de **nieuwste `main`-commit** en kies bij een mislukte deploy **Re-run failed jobs**. Geef de Environment-goedkeuring als die gevraagd wordt. Gebruik geen oude release van vóór de e-mailcodewijziging.
+
+De wrapper controleert de bron en het digest, maakt een externe backup, past migraties en databaseprovisioning toe en controleert web en worker. Een fout stopt de uitrol. `sudo: a password is required` betekent dat stap 3 nog niet klopt. Een geslaagde build alleen betekent niet dat de app is gedeployd.
+
+Blijft de database-inrichting wachten, gebruik dan de handmatige GitHub-workflow **Production database diagnostics** op `main`. Die gebruikt de bestaande production-credentials en toont uitsluitend technische status, aantallen, wachttijden en blokkerende verbindingen. SQL-teksten, persoonsgegevens en credentials worden niet gelogd. Standaard is dit alleen-lezen. Met `provision` wordt expliciet dezelfde inrichting van het runtime-account als tijdens een deployment herhaald. `reset_stalled_pids` accepteert uitsluitend specifieke applicatie-PIDs uit de diagnose: alleen actieve queries of open transacties van `duindorp_app` ouder dan tien minuten worden beëindigd, met rollback en een auditregistratie. Gebruik deze optie alleen voor aantoonbaar vastgelopen verbindingen. Beide herstelopties worden met deployments geserialiseerd. De inrichting laat bestaande correcte RLS-policies staan, herstelt ontbrekende of afwijkende policies in een transactie en begrenst lock-wachttijden tot vijf seconden. Fouten bevatten een vaste stapnaam en een veilige foutcode.
+
+Bij een nieuwe site worden de gecontroleerde startgegevens uit de repository aangemaakt. Dat is geen automatische overdracht van elders bewerkte content; zie de aanvulling hieronder als die moet worden bewaard.
+
+## 6. Eerste beheerder maken en testen — jij
+
+Voer na een geslaagde deployment op de productie-VPS, vanuit de bronmap, uit:
+
+```bash
+sudo bash ops/scripts/create-production-owner.sh
+```
+
+Vul je naam en echte e-mailadres in. De opdracht draait alleen in de eigen productiecontainer, weigert een tweede eerste-beheerderproces en maakt ook de juiste CMS-rol aan. **Maak het eerste account niet alleen handmatig in Supabase aan**, want dan ontbreekt de CMS-koppeling.
+
+Open `https://duindorpsv.nl/beheer/login`, vul je e-mailadres in en controleer de inlogmail. Voer de acht cijfers in. Er volgt geen wachtwoord- of authenticatorvraag.
+
+Controleer daarna:
+
+- `/health/ready` meldt `ready` met het juiste release-digest.
+- De code werkt één keer; een verlopen of foute code geeft geen toegang.
+- Een account zonder actieve CMS-toegang kan niet inloggen.
+- Een foto uploaden en publiceren werkt; privébestanden zijn niet rechtstreeks openbaar.
+- Een formulier wordt opgeslagen en de mail wordt werkelijk ontvangen. Controleer de aflevering ook in Resend.
+- De externe backup slaagt. Beproef herstel afzonderlijk in een geïsoleerde omgeving volgens [rollback-and-restore.md](rollback-and-restore.md).
+
+## Alleen als er bestaande inhoud moet worden overgezet
+
+Bewaar eerst een complete versleutelde bronbackup. Zet CMS-tabellen, inhoud, revisies, publicaties en het Drizzle-journaal gecontroleerd over vóór de eerste seed. Behoud record-ID's en bestaande Hetzner-objectkeys. Overschrijf niet het door Supabase beheerde Auth-/Storage-schema en wis geen bestaande bestemming.
+
+Voor bestaande lokale accounts is `migrate-accounts` standaard alleen een telling. `--apply` maakt expliciet gekoppelde Supabase-identiteiten aan; dezelfde e-mail wordt nooit automatisch aan een ongerelateerde identiteit gekoppeld. `.invalid`-testaccounts worden overgeslagen. `--queue-activation` verstuurt de nieuwe welkommail voor inloggen met een e-mailcode. Er worden geen oude wachtwoorden of MFA-factoren overgenomen. Voor deze eerste ingebruikname zonder bestaande accounts is dit niet nodig.

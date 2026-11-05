@@ -1,0 +1,1092 @@
+[
+  {
+    "bundle": "prototype",
+    "route": "personen",
+    "width": 1440,
+    "height": 1000,
+    "headings": [
+      "Personen"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "people-stats",
+    "width": 1440,
+    "box": {
+      "x": 298,
+      "y": 265.84375,
+      "width": 1104,
+      "height": 89.59375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "people-table",
+    "width": 1440,
+    "box": {
+      "x": 298,
+      "y": 480.125,
+      "width": 1104,
+      "height": 1144.375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "commissies",
+    "width": 1440,
+    "height": 1000,
+    "headings": [
+      "Commissies"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "committee-stats",
+    "width": 1440,
+    "box": {
+      "x": 298,
+      "y": 265.84375,
+      "width": 1104,
+      "height": 89.59375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "committee-grid",
+    "width": 1440,
+    "box": {
+      "x": 298,
+      "y": 574.921875,
+      "width": 1104,
+      "height": 758.15625
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "locaties",
+    "width": 1440,
+    "height": 1000,
+    "headings": [
+      "Velden & ruimtes"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "location-stats",
+    "width": 1440,
+    "box": {
+      "x": 298,
+      "y": 378.734375,
+      "width": 1104,
+      "height": 103.6875
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "location-grid",
+    "width": 1440,
+    "box": {
+      "x": 298,
+      "y": 636.40625,
+      "width": 1104,
+      "height": 925.171875
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "reserveringen",
+    "width": 1440,
+    "height": 1000,
+    "headings": [
+      "Reserveringen"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "booking-timeline",
+    "width": 1440,
+    "box": {
+      "x": 298,
+      "y": 669.40625,
+      "width": 1104,
+      "height": 698.390625
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "jaaragenda",
+    "width": 1440,
+    "height": 1000,
+    "headings": [
+      "Jaaragenda"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "agenda-week",
+    "width": 1440,
+    "box": {
+      "x": 298,
+      "y": 383.453125,
+      "width": 851,
+      "height": 868.984375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "agenda-dag",
+    "width": 1440,
+    "box": {
+      "x": 298,
+      "y": 132.453125,
+      "width": 851,
+      "height": 868.984375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "agenda-maand",
+    "width": 1440,
+    "box": {
+      "x": 298,
+      "y": 119.453125,
+      "width": 851,
+      "height": 948.984375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "agenda-jaar",
+    "width": 1440,
+    "box": {
+      "x": 298,
+      "y": 119.453125,
+      "width": 851,
+      "height": 1008.984375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "trainingen",
+    "width": 1440,
+    "height": 1000,
+    "headings": [
+      "Trainingen"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "training-stats",
+    "width": 1440,
+    "box": {
+      "x": 298,
+      "y": 344.328125,
+      "width": 1104,
+      "height": 86.1875
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "training-calendar",
+    "width": 1440,
+    "box": {
+      "x": 298,
+      "y": 452.515625,
+      "width": 1104,
+      "height": 1352.0625
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "homepage",
+    "width": 1440,
+    "height": 1000,
+    "headings": [
+      "Homepage"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "route": "personen",
+    "width": 1920,
+    "height": 1080,
+    "headings": [
+      "Personen"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "people-stats",
+    "width": 1920,
+    "box": {
+      "x": 358,
+      "y": 272.578125,
+      "width": 1464,
+      "height": 89.59375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "people-table",
+    "width": 1920,
+    "box": {
+      "x": 358,
+      "y": 486.859375,
+      "width": 1464,
+      "height": 1144.375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "commissies",
+    "width": 1920,
+    "height": 1080,
+    "headings": [
+      "Commissies"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "committee-stats",
+    "width": 1920,
+    "box": {
+      "x": 358,
+      "y": 272.578125,
+      "width": 1464,
+      "height": 89.59375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "committee-grid",
+    "width": 1920,
+    "box": {
+      "x": 358,
+      "y": 581.65625,
+      "width": 1464,
+      "height": 757.96875
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "locaties",
+    "width": 1920,
+    "height": 1080,
+    "headings": [
+      "Velden & ruimtes"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "location-stats",
+    "width": 1920,
+    "box": {
+      "x": 358,
+      "y": 385.46875,
+      "width": 1464,
+      "height": 103.6875
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "location-grid",
+    "width": 1920,
+    "box": {
+      "x": 358,
+      "y": 643.140625,
+      "width": 1464,
+      "height": 925.171875
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "reserveringen",
+    "width": 1920,
+    "height": 1080,
+    "headings": [
+      "Reserveringen"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "booking-timeline",
+    "width": 1920,
+    "box": {
+      "x": 358,
+      "y": 676.140625,
+      "width": 1464,
+      "height": 698.390625
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "jaaragenda",
+    "width": 1920,
+    "height": 1080,
+    "headings": [
+      "Jaaragenda"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "agenda-week",
+    "width": 1920,
+    "box": {
+      "x": 358,
+      "y": 390.1875,
+      "width": 1191,
+      "height": 918.984375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "trainingen",
+    "width": 1920,
+    "height": 1080,
+    "headings": [
+      "Trainingen"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "training-stats",
+    "width": 1920,
+    "box": {
+      "x": 358,
+      "y": 351.0625,
+      "width": 1464,
+      "height": 86.1875
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "training-calendar",
+    "width": 1920,
+    "box": {
+      "x": 358,
+      "y": 459.25,
+      "width": 1464,
+      "height": 1352.0625
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "homepage",
+    "width": 1920,
+    "height": 1080,
+    "headings": [
+      "Homepage"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "route": "personen",
+    "width": 1024,
+    "height": 900,
+    "headings": [
+      "Personen"
+    ],
+    "overflow": true,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "people-stats",
+    "width": 1024,
+    "box": {
+      "x": 256,
+      "y": 251.796875,
+      "width": 744,
+      "height": 100
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "people-table",
+    "width": 1024,
+    "box": {
+      "x": 256,
+      "y": 533.484375,
+      "width": 744,
+      "height": 1179.34375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "commissies",
+    "width": 1024,
+    "height": 900,
+    "headings": [
+      "Commissies"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "committee-stats",
+    "width": 1024,
+    "box": {
+      "x": 256,
+      "y": 251.796875,
+      "width": 744,
+      "height": 84
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "committee-grid",
+    "width": 1024,
+    "box": {
+      "x": 256,
+      "y": 612.28125,
+      "width": 744,
+      "height": 756.15625
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "locaties",
+    "width": 1024,
+    "height": 900,
+    "headings": [
+      "Velden & ruimtes"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "location-stats",
+    "width": 1024,
+    "box": {
+      "x": 256,
+      "y": 424.6875,
+      "width": 744,
+      "height": 114.1875
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "location-grid",
+    "width": 1024,
+    "box": {
+      "x": 256,
+      "y": 692.859375,
+      "width": 744,
+      "height": 1239.5625
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "reserveringen",
+    "width": 1024,
+    "height": 900,
+    "headings": [
+      "Reserveringen"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "booking-timeline",
+    "width": 1024,
+    "box": {
+      "x": 256,
+      "y": 725.859375,
+      "width": 744,
+      "height": 698.390625
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "jaaragenda",
+    "width": 1024,
+    "height": 900,
+    "headings": [
+      "Jaaragenda"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "agenda-week",
+    "width": 1024,
+    "box": {
+      "x": 256,
+      "y": 364.9375,
+      "width": 744,
+      "height": 892.578125
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "trainingen",
+    "width": 1024,
+    "height": 900,
+    "headings": [
+      "Trainingen"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "training-stats",
+    "width": 1024,
+    "box": {
+      "x": 256,
+      "y": 351.875,
+      "width": 744,
+      "height": 86.1875
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "training-calendar",
+    "width": 1024,
+    "box": {
+      "x": 256,
+      "y": 460.0625,
+      "width": 744,
+      "height": 1352.0625
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "homepage",
+    "width": 1024,
+    "height": 900,
+    "headings": [
+      "Homepage"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "route": "personen",
+    "width": 390,
+    "height": 844,
+    "headings": [
+      "Personen"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "people-stats",
+    "width": 390,
+    "box": {
+      "x": 16,
+      "y": 252.34375,
+      "width": 358,
+      "height": 202.1875
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "people-table",
+    "width": 390,
+    "box": {
+      "x": 16,
+      "y": 666.3125,
+      "width": 358,
+      "height": 2570.171875
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "commissies",
+    "width": 390,
+    "height": 844,
+    "headings": [
+      "Commissies"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "committee-stats",
+    "width": 390,
+    "box": {
+      "x": 16,
+      "y": 233.65625,
+      "width": 358,
+      "height": 132.796875
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "committee-grid",
+    "width": 390,
+    "box": {
+      "x": 16,
+      "y": 711.828125,
+      "width": 358,
+      "height": 1505.8125
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "locaties",
+    "width": 390,
+    "height": 844,
+    "headings": [
+      "Velden & ruimtes"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "location-stats",
+    "width": 390,
+    "box": {
+      "x": 16,
+      "y": 442.828125,
+      "width": 358,
+      "height": 204.59375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "location-grid",
+    "width": 390,
+    "box": {
+      "x": 16,
+      "y": 853.8125,
+      "width": 358,
+      "height": 2383.125
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "reserveringen",
+    "width": 390,
+    "height": 844,
+    "headings": [
+      "Reserveringen"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "booking-timeline",
+    "width": 390,
+    "box": {
+      "x": 16,
+      "y": 882.8125,
+      "width": 358,
+      "height": 698.390625
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "jaaragenda",
+    "width": 390,
+    "height": 844,
+    "headings": [
+      "Jaaragenda"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "agenda-week",
+    "width": 390,
+    "box": {
+      "x": 16,
+      "y": 429.0625,
+      "width": 358,
+      "height": 860.375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "agenda-dag",
+    "width": 390,
+    "box": {
+      "x": 16,
+      "y": 89.0625,
+      "width": 358,
+      "height": 860.375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "agenda-maand",
+    "width": 390,
+    "box": {
+      "x": 16,
+      "y": 89.0625,
+      "width": 358,
+      "height": 1040.375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "agenda-jaar",
+    "width": 390,
+    "box": {
+      "x": 16,
+      "y": 89.0625,
+      "width": 358,
+      "height": 1100.375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "trainingen",
+    "width": 390,
+    "height": 844,
+    "headings": [
+      "Trainingen"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "panel": "training-stats",
+    "width": 390,
+    "box": {
+      "x": 16,
+      "y": 407.828125,
+      "width": 358,
+      "height": 121
+    }
+  },
+  {
+    "bundle": "prototype",
+    "panel": "training-calendar",
+    "width": 390,
+    "box": {
+      "x": 16,
+      "y": 550.828125,
+      "width": 358,
+      "height": 2019.484375
+    }
+  },
+  {
+    "bundle": "prototype",
+    "route": "homepage",
+    "width": 390,
+    "height": 844,
+    "headings": [
+      "Homepage"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "prototype",
+    "errors": []
+  },
+  {
+    "bundle": "production",
+    "route": "personen",
+    "width": 1440,
+    "height": 1000,
+    "headings": [
+      "Personen & commissies"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "trainingen",
+    "width": 1440,
+    "height": 1000,
+    "headings": [
+      "Trainingstijden"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "agenda",
+    "width": 1440,
+    "height": 1000,
+    "headings": [
+      "Agenda"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "homepage",
+    "width": 1440,
+    "height": 1000,
+    "headings": [
+      "Homepage"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "paginas",
+    "width": 1440,
+    "height": 1000,
+    "headings": [
+      "Pagina’s",
+      "Pagina’s"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "navigatie",
+    "width": 1440,
+    "height": 1000,
+    "headings": [
+      "Navigatie"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "personen",
+    "width": 1920,
+    "height": 1080,
+    "headings": [
+      "Personen & commissies"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "trainingen",
+    "width": 1920,
+    "height": 1080,
+    "headings": [
+      "Trainingstijden"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "agenda",
+    "width": 1920,
+    "height": 1080,
+    "headings": [
+      "Agenda"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "homepage",
+    "width": 1920,
+    "height": 1080,
+    "headings": [
+      "Homepage"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "paginas",
+    "width": 1920,
+    "height": 1080,
+    "headings": [
+      "Pagina’s",
+      "Pagina’s"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "navigatie",
+    "width": 1920,
+    "height": 1080,
+    "headings": [
+      "Navigatie"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "personen",
+    "width": 1024,
+    "height": 900,
+    "headings": [
+      "Personen & commissies"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "trainingen",
+    "width": 1024,
+    "height": 900,
+    "headings": [
+      "Trainingstijden"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "agenda",
+    "width": 1024,
+    "height": 900,
+    "headings": [
+      "Agenda"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "homepage",
+    "width": 1024,
+    "height": 900,
+    "headings": [
+      "Homepage"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "paginas",
+    "width": 1024,
+    "height": 900,
+    "headings": [
+      "Pagina’s",
+      "Pagina’s"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "navigatie",
+    "width": 1024,
+    "height": 900,
+    "headings": [
+      "Navigatie"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "personen",
+    "width": 390,
+    "height": 844,
+    "headings": [
+      "Personen & commissies"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "trainingen",
+    "width": 390,
+    "height": 844,
+    "headings": [
+      "Trainingstijden"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "agenda",
+    "width": 390,
+    "height": 844,
+    "headings": [
+      "Agenda"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "homepage",
+    "width": 390,
+    "height": 844,
+    "headings": [
+      "Homepage"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "paginas",
+    "width": 390,
+    "height": 844,
+    "headings": [
+      "Pagina’s",
+      "Pagina’s"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "route": "navigatie",
+    "width": 390,
+    "height": 844,
+    "headings": [
+      "Navigatie"
+    ],
+    "overflow": false,
+    "overflowElements": []
+  },
+  {
+    "bundle": "production",
+    "errors": []
+  }
+]

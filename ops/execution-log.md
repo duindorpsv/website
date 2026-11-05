@@ -1,5 +1,16 @@
 # Uitvoerlog
 
+## 22 oktober 2026 — eigen team in de ranglijst
+
+De live stand gaf Duindorp SV 1 ten onrechte `own: false`, ondanks het juiste
+teamnummer. De normalisatie en het lezen van opgeslagen standen herstellen
+dit met de bestaande teamcatalogus en clubcontrole. De blauwe rij en het
+vastzetten bij beide scrollranden werken daarmee weer. De volledige lokale
+testsuite, typecheck, runtimebuild en drie gerichte browserproeven slagen;
+normale CI en productiecontrole volgen. Zie [eigen team in de ranglijst](standing-own-team.md).
+
+> Actuele inrichting vanaf 18 oktober 2026: development-VPS → main → uitsluitend GitHub Environment `production`; websitemail via Resend API en lokaal abonnee-/onderwerpbeheer. De staging-/SMTP-verwijzingen hieronder beschrijven eerdere inventarisatie en testresultaten. De actuele procedure en exacte instellingen staan in [github-environments.md](github-environments.md) en [first-deploy.md](first-deploy.md). Eerder voorbereide stagingresources zijn niet automatisch verwijderd.
+
 ## Bron en runtime
 
 - 14 oktober 2026: verzoek en alle specificaties 00–08 gelezen. Pakket bevat Sites v44, commit e91ed87f3e5917f286885c6593fe397f8e67cdf4.
@@ -52,3 +63,39 @@ Nog geen staging/productiondeployment, browserdatamigratie of externe verzending
 - Image en configuratie worden samen geactiveerd en teruggezet na appfalen. De eerste deployment maakt een extern herstelpunt vóór migratie en seed; retentie blijft beperkt tot de eigen omgevingshost/tag. Database-/authsleutels en medialocatie worden niet blind geroteerd.
 - Gerichte lokale controles omvatten input-/identiteitsgrenzen, workflow→JSON-overdracht, permissies, echte Compose-/containerdoorgifte met synthetische waarden, deploymentvolgorde, configuratiewijziging op hetzelfde image, falende backup en herstel van de vorige image/configuratie. Externe S3/SMTP/Restic en de hosting-VPS worden hiermee niet als getest beschouwd.
 - De exacte GitHub-namen, defaults, voorwaardelijke integratiekeys en eenmalige hoststappen staan in `github-environments.md`. Er zijn geen echte credentials verzonnen, uitgelezen of in Git vastgelegd. De bestaande reviewers en eis van externe restore vóór production blijven gelden.
+
+## 18 oktober 2026 — één productieomgeving en SendGrid
+
+- Actieve releaseflow vervangen door main → controles/build → GitHub Environment production. Stagingworkflow verwijderd en in GitHub uitgeschakeld. De bestaande production-branchpolicy staat nu op main; de vereiste productiereviewer is behouden. Oude SMTP-defaultvariables zijn uit production verwijderd.
+- Alle websitemail gebruikt de SendGrid HTTPS API, met expliciete dev/testontvanger, aparte productie-enveloppen, timeout, geredigeerde fouten en duurzame retries. De Nodemailer-afhankelijkheden en lokale Mailpit-service zijn uit de applicatieconfiguratie verwijderd.
+- Configuratieversie 3 vereist SENDGRID_API_KEY en MAIL_FROM. Hostwrappers, backup/rollback, API-status en operationele handleidingen zijn aangepast. De stagingdigest-/restoremarker-gate is vervallen; externe backup vóór iedere migratie blijft verplicht, externe herstelacceptatie vóór publieke ingebruikname blijft een operatorhandeling.
+- Lokaal geslaagd: 113 unit/regressietests plus één skip, 31 PostgreSQL-integratietests, 27 Python-opscontroles, frozen installatie, typecheck en Next/runtimebuild. SendGrid-contracten zijn gemockt; echte verzending/bezorging is nog niet bewezen. Volledige container/browsercontrole volgt ook via de PR-workflow.
+- Echte productieinstellingen voor domein, media, SendGrid en externe backup plus de versie-3-hostinstallatie zijn nog nodig. Er wordt geen uitgevoerde productiedeployment geclaimd.
+
+## 18 oktober 2026 — Resend en lokale abonnees
+
+Op verzoek van de eigenaar vervangt Resend de eerder toegevoegde SendGrid-koppeling. Configuratieversie 4 vereist RESEND_API_KEY en MAIL_FROM; externe nieuwsbriefprovider-/lijstsleutels vervallen. De eerdere wachtende SendGrid-productierun is geannuleerd voordat die kon deployen. De productieflow via main en de bestaande productiegoedkeuring blijven in gebruik.
+
+Abonnees en onderwerpen worden lokaal beheerd onder Instellingen & koppelingen. Bevestiging activeert direct lokaal, afmelding werkt direct, wijzigingen vereisen beheerrecht en versiebinding en worden geaudit. Migratie 0013 bewaart bestaande data en beëindigt oude externe synchronisatietaken. Resend-requestsleutels blijven stabiel bij retries; de providerbinding verloopt na 24 uur. Echte verzending/bezorging en hostinginstallatie worden zonder werkelijke productie-instellingen niet als uitgevoerd gerapporteerd.
+
+Lokaal gecontroleerd: 114 unit/regressietests plus één skip, 32 PostgreSQL-integratietests, 27 opscontroles, typecheck en Next/runtimebuild. De echte browser controleerde abonnee zoeken/bewerken, behoud na herladen, afmelden, de beheer-API en 390-pixelweergave. De developmentdatabase is met migratie 0013 bijgewerkt; web/worker draaien gezond. Alle mail-API-contracten zijn synthetische fixtures; er zijn geen echte mails verzonden. De volledige container-/browsercontrole volgt via de PR-workflow.
+
+## Supabase-omzetting (in uitvoering)
+
+De gebruiker bevestigde Supabase voor database, inloggen en opslag. De nog wachtende lokale-PostgreSQL-productierun 39151672865 is geannuleerd vóór goedkeuring. De nieuwe release gebruikt Supabase Auth/SSR met HttpOnly cookies, live sessiecontrole, MFA/AAL-controle en behoud van lokale CMS-rechten, Supabase PostgreSQL met gescheiden accounts en gecontroleerde TLS en een privébucket in Supabase Storage. Resend verzorgt ook activatie-/herstelmail via de bestaande outbox; er is geen SMTP-koppeling.
+
+Het echte Duindorp Supabase-project is nog niet aangewezen; in de gekoppelde account werd geen herkenbaar project aangetroffen. Er is geen cloudproject aangemaakt, geen andere projectdatabase gewijzigd en geen productiedeployment uitgevoerd. Verificatieresultaten volgen na de code- en workflowcontroles.
+
+
+## 19 oktober 2026 — bestaande Hetzner-opslag behouden
+
+Op verzoek van de eigenaar blijven bestanden in de bestaande Hetzner S3-bucket; Supabase verzorgt uitsluitend database en Auth/MFA. De productieconfiguratie controleert het Hetzner-regioadres zonder bucketpad. Readiness controleert bucket-ACL/policy en weigert publieke toegang of onleesbare permissies. De lokale CI gebruikt Supabase Storage uitsluitend als S3-testadapter; dit is geen productieprovidervereiste.
+
+Het openbare database-CA-certificaat is met succesvolle hostnaam-/ketencontrole tegen de aangewezen Supabase-database geverifieerd en in GitHub Environment production ingesteld. De bestaande S3-secrets blijven behouden. De externe Restic-backup gebruikt een gereserveerde prefix wanneer dezelfde bucket wordt gebruikt; eerdere backups worden uitgesloten van de mediakopie. Lokale unit-, type- en opscontroles zijn geslaagd; de volledige container-/browsercontrole en echte productieoplevering volgen via de bestaande workflow.
+
+
+## 19 oktober 2026 — uitsluitend achtcijferige e-mailcodes
+
+De eigenaar kiest expliciet uitsluitend e-mailcodes, ook voor beheerders. De wachtwoord-/authenticatorflow is vervangen door Supabase-OTP van acht cijfers, gebonden aan een browsernonce, maximaal tien minuten geldig en met vijf pogingen. Alleen expliciet gekoppelde actieve CMS-accounts krijgen toegang. De native Supabase-code gaat via een workerjob naar Resend in een Duindorp SV HTML-template met tekstversie; de ruwe code wordt niet in jobs of logs opgeslagen. Een lokale sessieregistratie voorkomt toegang via los aangemaakte provider-sessies. Accountwijzigingen trekken ook lopende codes en sessies in.
+
+De eerste-deploymenthandleiding bevat nu één stappenlijst voor Supabase, opslag/Resend, de VPS-installatie, DNS/HTTPS, de nieuwste GitHub-release en het maken van de eerste CMS-beheerder. De handelingen op de productiehost blijven bij de eigenaar. De eerdere run stopte vóór app-uitrol op ontbrekende sudo-toestemming; er wordt geen geslaagde live deployment geclaimd. De cloud-OTP-lengte moet door de projecteigenaar op 8 worden gezet.

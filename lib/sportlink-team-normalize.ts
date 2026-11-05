@@ -1,3 +1,5 @@
+import {supportsPublicMatchResults} from './match-dossier';
+import {clubLogoUrl} from './sportlink-club-logo';
 import type {FormResult,SportlinkMatch,SportlinkSide,SportlinkStanding,SportlinkTeam} from './sportlink-types';
 import type {TeamPlayer,TeamPool} from './sportlink-team-types';
 
@@ -81,8 +83,8 @@ function matchingPool(row:Raw,pools:TeamPool[]):TeamPool|undefined{
  return type&&candidates.length===1?candidates[0]:undefined;
 }
 function side(name:string,clubCode:string,id:string,team:SportlinkTeam,own=false):SportlinkSide{
- const ownSide=own|| (!!code(team.teamCode)&&id===team.teamCode)||(!code(id)&&key(name)===key(team.name));
- return {id:code(id)||`${clubCode}:${key(name)}`,name,clubCode,own:ownSide,logoUrl:ownSide?'/assets/logo.png':clubCode?`https://logoapi.voetbal.nl/logo.php?clubcode=${encodeURIComponent(clubCode)}`:null};
+ const ownSide=!!code(team.teamCode)&&id===team.teamCode;
+ return {id:code(id)||`${clubCode}:${key(name)}`,name,clubCode,own:ownSide,logoUrl:clubLogoUrl({own:ownSide,clubCode})};
 }
 export function matchesForTeam(rows:unknown[],team:SportlinkTeam,pools:TeamPool[],seasonId:string,options:{pool?:TeamPool;allTeams?:boolean}={}):SportlinkMatch[]{
  const map=new Map<string,SportlinkMatch>();
@@ -93,9 +95,9 @@ export function matchesForTeam(rows:unknown[],team:SportlinkTeam,pools:TeamPool[
   const home=side(homeName,text(row.thuisteamclubrelatiecode),text(row.thuisteamid),team),away=side(awayName,text(row.uitteamclubrelatiecode),text(row.uitteamid),team);
   if(!options.allTeams&&!home.own&&!away.own)continue;
   const status=text(row.status),score=(text(row.uitslag)||text(row['uitslag-regulier'])).match(/^(\d{1,3})\s*[-–:]\s*(\d{1,3})(?:\s*\([^)]*\))?$/);
-  const validScore=finished(status)&&score;
+  const validScore=finished(status)&&score&&supportsPublicMatchResults(home)&&supportsPublicMatchResults(away);
   const pool=options.pool||matchingPool(row,pools);
-  map.set(id,{id,kickoff:date,home,away,homeScore:validScore?Number(score[1]):null,awayScore:validScore?Number(score[2]):null,scoreLabel:validScore?`${score[1]} – ${score[2]}`:null,status,venue:text(row.accommodatie),competitionId:pool?.id||'',competitionLabel:pool?.label||text(row.klassepoule)||text(row.competitienaam)||text(row.competitie)});
+  map.set(id,{id,kickoff:date,home,away,homeScore:validScore?Number(score[1]):null,awayScore:validScore?Number(score[2]):null,scoreLabel:validScore?`${score[1]} – ${score[2]}`:null,status,venue:text(row.accommodatie),...sportlinkAssignmentFields(row),competitionId:pool?.id||'',competitionLabel:pool?.label||text(row.klassepoule)||text(row.competitienaam)||text(row.competitie)});
  }
  return [...map.values()].sort((a,b)=>a.kickoff.localeCompare(b.kickoff)||a.id.localeCompare(b.id));
 }
@@ -118,6 +120,7 @@ export function currentPool(pools:TeamPool[],matches:SportlinkMatch[],now=new Da
 }
 
 export function standingsForTeam(rows:unknown[],team:SportlinkTeam,results:SportlinkMatch[]):SportlinkStanding[]{
+ if(!supportsPublicMatchResults(team))return [];
  const sideIds=new Map<string,string>();
  for(const match of results)for(const item of [match.home,match.away])sideIds.set(`${item.clubCode}:${key(item.name)}`,item.id);
  return rows.map(record).filter(row=>number(row.positie)>0&&text(row.teamnaam)).map(row=>{
@@ -152,3 +155,4 @@ export function normalizeRoster(rows:unknown[],teamId:string,now=new Date()):Nor
  }
  return result;
 }
+import {sportlinkAssignmentFields} from './sportlink-assignments';

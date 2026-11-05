@@ -1,0 +1,25 @@
+{
+  "checks": [
+    "60options",
+    "accent-word-match",
+    "enter-does-not-submit",
+    "escape-retains-modal",
+    "missing-selected-removable",
+    "disabled-option-stable",
+    "popup-inside-dialog",
+    "chips-max130px",
+    "readonly-disabled",
+    "no-horizontal-overflow390"
+  ],
+  "rects": {
+    "menu": {
+      "top": 254.078125,
+      "bottom": 494.078125
+    },
+    "dialog": {
+      "top": 97,
+      "bottom": 747
+    },
+    "above": true
+  }
+}

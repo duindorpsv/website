@@ -1,6 +1,6 @@
 import type {SportlinkTeam} from './sportlink-types';
 
-export const trainingSource='https://www.duindorpsv.nl/643/trainingstijden/';
+export const trainingSource='/clubmuur/teams/trainingen';
 export const trainingVerifiedOn='10 oktober 2026';
 export type ClubTrainingSession={day:string;start:string;end:string;field:string};
 export type ClubTrainingRecord={teamLabel:string;sessions:ClubTrainingSession[]};
@@ -403,7 +403,7 @@ function teamNameKey(value:string){
  return value.toLocaleLowerCase('nl').replace(/[.]/g,'').replace(/^duindorp\s*(?:sv)?\s*/,'').replace(/^jo(?=\d)/,'o').replace(/\s+/g,'');
 }
 /** Only matches identical age/team numbers. No guessing across generations or team numbers. */
-export function trainingForTeam(team:Pick<SportlinkTeam,'name'>):ClubTrainingSession[]{
+export function trainingForTeam(team:Pick<SportlinkTeam,'name'>,schedule:ClubTrainingRecord[]=clubTrainingSchedule):ClubTrainingSession[]{
  const key=teamNameKey(team.name);
- return clubTrainingSchedule.find(record=>teamNameKey(record.teamLabel)===key)?.sessions||[];
+ return schedule.find(record=>teamNameKey(record.teamLabel)===key)?.sessions||[];
 }

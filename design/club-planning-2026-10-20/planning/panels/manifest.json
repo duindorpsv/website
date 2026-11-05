@@ -1,0 +1,893 @@
+[
+  {
+    "name": "panel-agenda-dag-1440.png",
+    "reference": {
+      "width": 851,
+      "height": 870
+    },
+    "candidate": {
+      "width": 851,
+      "height": 870
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 22618,
+    "bbox": [
+      0,
+      0,
+      850,
+      868
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-agenda-dag-390.png",
+    "reference": {
+      "width": 358,
+      "height": 861
+    },
+    "candidate": {
+      "width": 358,
+      "height": 861
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 15499,
+    "bbox": [
+      0,
+      24,
+      357,
+      860
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-agenda-jaar-1440.png",
+    "reference": {
+      "width": 851,
+      "height": 1010
+    },
+    "candidate": {
+      "width": 851,
+      "height": 1010
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 38648,
+    "bbox": [
+      0,
+      0,
+      850,
+      1009
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-agenda-jaar-390.png",
+    "reference": {
+      "width": 358,
+      "height": 1101
+    },
+    "candidate": {
+      "width": 358,
+      "height": 1101
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 9430,
+    "bbox": [
+      0,
+      24,
+      357,
+      1100
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-agenda-maand-1440.png",
+    "reference": {
+      "width": 851,
+      "height": 950
+    },
+    "candidate": {
+      "width": 851,
+      "height": 950
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 29847,
+    "bbox": [
+      0,
+      0,
+      850,
+      881
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-agenda-maand-390.png",
+    "reference": {
+      "width": 358,
+      "height": 1041
+    },
+    "candidate": {
+      "width": 358,
+      "height": 1041
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 9098,
+    "bbox": [
+      0,
+      24,
+      357,
+      1040
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-agenda-week-1024.png",
+    "reference": {
+      "width": 744,
+      "height": 894
+    },
+    "candidate": {
+      "width": 744,
+      "height": 894
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 14980,
+    "bbox": [
+      1,
+      1,
+      742,
+      717
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-agenda-week-1440.png",
+    "reference": {
+      "width": 851,
+      "height": 870
+    },
+    "candidate": {
+      "width": 851,
+      "height": 870
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 38508,
+    "bbox": [
+      0,
+      0,
+      850,
+      868
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-agenda-week-1920.png",
+    "reference": {
+      "width": 1191,
+      "height": 920
+    },
+    "candidate": {
+      "width": 1191,
+      "height": 920
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 24994,
+    "bbox": [
+      0,
+      0,
+      1190,
+      918
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-agenda-week-390.png",
+    "reference": {
+      "width": 358,
+      "height": 861
+    },
+    "candidate": {
+      "width": 358,
+      "height": 861
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 7715,
+    "bbox": [
+      0,
+      24,
+      357,
+      860
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-booking-timeline-1024.png",
+    "reference": {
+      "width": 744,
+      "height": 700
+    },
+    "candidate": {
+      "width": 744,
+      "height": 700
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 1500,
+    "bbox": [
+      17,
+      94,
+      64,
+      669
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-booking-timeline-1440.png",
+    "reference": {
+      "width": 1104,
+      "height": 699
+    },
+    "candidate": {
+      "width": 1104,
+      "height": 699
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 4860,
+    "bbox": [
+      0,
+      0,
+      1103,
+      690
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-booking-timeline-1920.png",
+    "reference": {
+      "width": 1464,
+      "height": 699
+    },
+    "candidate": {
+      "width": 1464,
+      "height": 699
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 5,
+    "bbox": [
+      1095,
+      145,
+      1462,
+      689
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-booking-timeline-390.png",
+    "reference": {
+      "width": 358,
+      "height": 700
+    },
+    "candidate": {
+      "width": 358,
+      "height": 699
+    },
+    "widthDelta": 0,
+    "heightDelta": -1,
+    "changedPixels": null,
+    "bbox": null,
+    "verdict": "review"
+  },
+  {
+    "name": "panel-committee-grid-1024.png",
+    "reference": {
+      "width": 744,
+      "height": 757
+    },
+    "candidate": {
+      "width": 744,
+      "height": 757
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 19325,
+    "bbox": [
+      0,
+      0,
+      743,
+      756
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-committee-grid-1440.png",
+    "reference": {
+      "width": 1104,
+      "height": 760
+    },
+    "candidate": {
+      "width": 1104,
+      "height": 759
+    },
+    "widthDelta": 0,
+    "heightDelta": -1,
+    "changedPixels": null,
+    "bbox": null,
+    "verdict": "review"
+  },
+  {
+    "name": "panel-committee-grid-1920.png",
+    "reference": {
+      "width": 1464,
+      "height": 759
+    },
+    "candidate": {
+      "width": 1464,
+      "height": 759
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 7298,
+    "bbox": [
+      22,
+      27,
+      1309,
+      542
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-committee-grid-390.png",
+    "reference": {
+      "width": 358,
+      "height": 1507
+    },
+    "candidate": {
+      "width": 358,
+      "height": 1507
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 8220,
+    "bbox": [
+      0,
+      37,
+      357,
+      1506
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-committee-stats-1024.png",
+    "reference": {
+      "width": 744,
+      "height": 85
+    },
+    "candidate": {
+      "width": 744,
+      "height": 85
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 0,
+    "bbox": null,
+    "verdict": "exact"
+  },
+  {
+    "name": "panel-committee-stats-1440.png",
+    "reference": {
+      "width": 1104,
+      "height": 91
+    },
+    "candidate": {
+      "width": 1104,
+      "height": 91
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 0,
+    "bbox": null,
+    "verdict": "exact"
+  },
+  {
+    "name": "panel-committee-stats-1920.png",
+    "reference": {
+      "width": 1464,
+      "height": 91
+    },
+    "candidate": {
+      "width": 1464,
+      "height": 91
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 0,
+    "bbox": null,
+    "verdict": "exact"
+  },
+  {
+    "name": "panel-committee-stats-390.png",
+    "reference": {
+      "width": 358,
+      "height": 134
+    },
+    "candidate": {
+      "width": 358,
+      "height": 134
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 1706,
+    "bbox": [
+      0,
+      0,
+      357,
+      77
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-location-grid-1024.png",
+    "reference": {
+      "width": 744,
+      "height": 1241
+    },
+    "candidate": {
+      "width": 744,
+      "height": 1241
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 8549,
+    "bbox": [
+      0,
+      322,
+      743,
+      1240
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-location-grid-1440.png",
+    "reference": {
+      "width": 1104,
+      "height": 926
+    },
+    "candidate": {
+      "width": 1104,
+      "height": 926
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 5779,
+    "bbox": [
+      0,
+      0,
+      1103,
+      880
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-location-grid-1920.png",
+    "reference": {
+      "width": 1464,
+      "height": 926
+    },
+    "candidate": {
+      "width": 1464,
+      "height": 926
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 1386,
+    "bbox": [
+      23,
+      33,
+      1440,
+      685
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-location-grid-390.png",
+    "reference": {
+      "width": 358,
+      "height": 2384
+    },
+    "candidate": {
+      "width": 358,
+      "height": 2384
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 43551,
+    "bbox": [
+      0,
+      0,
+      357,
+      2383
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-location-stats-1024.png",
+    "reference": {
+      "width": 744,
+      "height": 115
+    },
+    "candidate": {
+      "width": 744,
+      "height": 115
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 54,
+    "bbox": [
+      3,
+      2,
+      740,
+      5
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-location-stats-1440.png",
+    "reference": {
+      "width": 1104,
+      "height": 105
+    },
+    "candidate": {
+      "width": 1104,
+      "height": 105
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 2272,
+    "bbox": [
+      0,
+      93,
+      1103,
+      104
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-location-stats-1920.png",
+    "reference": {
+      "width": 1464,
+      "height": 105
+    },
+    "candidate": {
+      "width": 1464,
+      "height": 105
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 3722,
+    "bbox": [
+      0,
+      0,
+      1463,
+      52
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-location-stats-390.png",
+    "reference": {
+      "width": 358,
+      "height": 206
+    },
+    "candidate": {
+      "width": 358,
+      "height": 205
+    },
+    "widthDelta": 0,
+    "heightDelta": -1,
+    "changedPixels": null,
+    "bbox": null,
+    "verdict": "review"
+  },
+  {
+    "name": "panel-people-stats-1024.png",
+    "reference": {
+      "width": 744,
+      "height": 101
+    },
+    "candidate": {
+      "width": 744,
+      "height": 101
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 0,
+    "bbox": null,
+    "verdict": "exact"
+  },
+  {
+    "name": "panel-people-stats-1440.png",
+    "reference": {
+      "width": 1104,
+      "height": 91
+    },
+    "candidate": {
+      "width": 1104,
+      "height": 91
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 0,
+    "bbox": null,
+    "verdict": "exact"
+  },
+  {
+    "name": "panel-people-stats-1920.png",
+    "reference": {
+      "width": 1464,
+      "height": 91
+    },
+    "candidate": {
+      "width": 1464,
+      "height": 91
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 0,
+    "bbox": null,
+    "verdict": "exact"
+  },
+  {
+    "name": "panel-people-stats-390.png",
+    "reference": {
+      "width": 358,
+      "height": 203
+    },
+    "candidate": {
+      "width": 358,
+      "height": 203
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 2381,
+    "bbox": [
+      0,
+      2,
+      357,
+      202
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-people-table-1024.png",
+    "reference": {
+      "width": 744,
+      "height": 1180
+    },
+    "candidate": {
+      "width": 744,
+      "height": 1181
+    },
+    "widthDelta": 0,
+    "heightDelta": 1,
+    "changedPixels": null,
+    "bbox": null,
+    "verdict": "review"
+  },
+  {
+    "name": "panel-people-table-1440.png",
+    "reference": {
+      "width": 1104,
+      "height": 1145
+    },
+    "candidate": {
+      "width": 1104,
+      "height": 1145
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 39521,
+    "bbox": [
+      1,
+      20,
+      1102,
+      1053
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-people-table-1920.png",
+    "reference": {
+      "width": 1464,
+      "height": 1146
+    },
+    "candidate": {
+      "width": 1464,
+      "height": 1145
+    },
+    "widthDelta": 0,
+    "heightDelta": -1,
+    "changedPixels": null,
+    "bbox": null,
+    "verdict": "review"
+  },
+  {
+    "name": "panel-people-table-390.png",
+    "reference": {
+      "width": 358,
+      "height": 2571
+    },
+    "candidate": {
+      "width": 358,
+      "height": 2571
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 23651,
+    "bbox": [
+      0,
+      17,
+      357,
+      2570
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-training-calendar-1024.png",
+    "reference": {
+      "width": 744,
+      "height": 1353
+    },
+    "candidate": {
+      "width": 744,
+      "height": 1354
+    },
+    "widthDelta": 0,
+    "heightDelta": 1,
+    "changedPixels": null,
+    "bbox": null,
+    "verdict": "review"
+  },
+  {
+    "name": "panel-training-calendar-1440.png",
+    "reference": {
+      "width": 1104,
+      "height": 1353
+    },
+    "candidate": {
+      "width": 1104,
+      "height": 1353
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 43648,
+    "bbox": [
+      0,
+      0,
+      1103,
+      1352
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-training-calendar-1920.png",
+    "reference": {
+      "width": 1464,
+      "height": 1353
+    },
+    "candidate": {
+      "width": 1464,
+      "height": 1353
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 52926,
+    "bbox": [
+      0,
+      0,
+      1463,
+      1352
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-training-calendar-390.png",
+    "reference": {
+      "width": 358,
+      "height": 2021
+    },
+    "candidate": {
+      "width": 358,
+      "height": 2020
+    },
+    "widthDelta": 0,
+    "heightDelta": -1,
+    "changedPixels": null,
+    "bbox": null,
+    "verdict": "review"
+  },
+  {
+    "name": "panel-training-stats-1024.png",
+    "reference": {
+      "width": 744,
+      "height": 88
+    },
+    "candidate": {
+      "width": 744,
+      "height": 87
+    },
+    "widthDelta": 0,
+    "heightDelta": -1,
+    "changedPixels": null,
+    "bbox": null,
+    "verdict": "review"
+  },
+  {
+    "name": "panel-training-stats-1440.png",
+    "reference": {
+      "width": 1104,
+      "height": 87
+    },
+    "candidate": {
+      "width": 1104,
+      "height": 88
+    },
+    "widthDelta": 0,
+    "heightDelta": 1,
+    "changedPixels": null,
+    "bbox": null,
+    "verdict": "review"
+  },
+  {
+    "name": "panel-training-stats-1920.png",
+    "reference": {
+      "width": 1464,
+      "height": 87
+    },
+    "candidate": {
+      "width": 1464,
+      "height": 87
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 8467,
+    "bbox": [
+      0,
+      0,
+      1463,
+      86
+    ],
+    "verdict": "review"
+  },
+  {
+    "name": "panel-training-stats-390.png",
+    "reference": {
+      "width": 358,
+      "height": 122
+    },
+    "candidate": {
+      "width": 358,
+      "height": 122
+    },
+    "widthDelta": 0,
+    "heightDelta": 0,
+    "changedPixels": 4268,
+    "bbox": [
+      0,
+      0,
+      357,
+      121
+    ],
+    "verdict": "review"
+  }
+]

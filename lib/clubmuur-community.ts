@@ -1,19 +1,16 @@
-export type ClubCommunityEvent = {
-  id: string;
-  title: string;
-  day: string;
-  month: string;
-  category: string;
-  date: string;
-  description: string;
-};
+import {getPublicActivities,planningInstant} from './cms/planning';
+import type {ClubAgendaEvent} from './club-agenda';
+import {upcomingAgenda} from './club-agenda';
+import type {CmsActivity,CmsState} from './cms/types';
+export type ClubCommunityEvent=ClubAgendaEvent&{endTime?:string;location?:string;type?:CmsActivity['type'];central?:boolean;occurrence?:'earlier'|'later'|'reject'};
 
-// Editorial placeholders. Replace with CMS records before using as a real agenda.
-export const clubCommunityEvents: ClubCommunityEvent[] = [
-  { id: 'clubmiddag', title: 'Clubmiddag op Houtrust', day: '17', month: 'OKT', category: 'Samen aan tafel', date: '2026-10-17', description: 'Even blijven hangen na het voetbal. Een drankje, een goed gesprek en alle ruimte om elkaar te ontmoeten. Van de jongste jeugd tot de vaste gezichten langs de lijn.' },
-  { id: 'clubdag', title: 'Samen aan de slag', day: '24', month: 'OKT', category: 'Voor onze club', date: '2026-10-24', description: 'Samen maken we Houtrust weer een beetje mooier. Kleine klussen, een gezamenlijke koffiepauze en het plezier van iets doen voor je club.' },
-  { id: 'walking', title: 'Walking Football', day: '27', month: 'OKT', category: 'Blijf in beweging', date: '2026-10-27', description: 'Voetballen op je eigen tempo, met aandacht voor bewegen en ontmoeten. Ontdek hoe leuk het is om samen op het veld te staan.' },
-];
+/** Public server projections remain authoritative; legacy agenda stays until reviewed migration. */
+export function publicCommunityEvents(state:CmsState,now=Date.now()):ClubCommunityEvent[]{
+ const central=getPublicActivities(state).map(item=>({id:item.id,title:item.title,date:item.date,time:item.startTime,endTime:item.endTime,description:item.description,location:item.location,type:item.type,occurrence:item.occurrence,central:true}));
+ const centralIds=new Set(state.planning.activities.map(item=>item.id));
+ const legacy=(state.appearance?.agenda||[]).filter(item=>!centralIds.has(item.id));
+ return upcomingAgenda<ClubCommunityEvent>([...legacy,...central],now).slice(0,5);
+}
 
 export type ClubCommunityRole = { id: string; title: string; duration: string; description: string };
 
@@ -34,7 +31,7 @@ export const clubCommunityPoll = {
 };
 
 function escapeCalendarText(value: string) {
-  return value.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/;/g, '\\;').replace(/,/g, '\\,');
+  return value.replace(/\r\n?/g, '\n').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/;/g, '\\;').replace(/,/g, '\\,');
 }
 
 function foldCalendarLine(value: string) {
@@ -53,15 +50,15 @@ function foldCalendarLine(value: string) {
 }
 
 export function communityEventCalendar(event: ClubCommunityEvent) {
-  const nextDay = new Date(`${event.date}T00:00:00Z`);
-  nextDay.setUTCDate(nextDay.getUTCDate() + 1);
-  const end = nextDay.toISOString().slice(0, 10).replaceAll('-', '');
+  const instant=(time:string)=>planningInstant(`${event.date}T${time}`,event.occurrence||'earlier').replaceAll('-','').replaceAll(':','');
+  const start=instant(event.time);
+  const stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
   return [
-    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Duindorp SV//Voorbeeldagenda//NL', 'CALSCALE:GREGORIAN',
-    'BEGIN:VEVENT', `UID:voorbeeld-${event.id}-${event.date}@duindorpsv.nl`,
-    'DTSTAMP:20261010T000000Z', `DTSTART;VALUE=DATE:${event.date.replaceAll('-', '')}`, `DTEND;VALUE=DATE:${end}`,
-    `SUMMARY:${escapeCalendarText(`[VOORBEELD] ${event.title}`)}`,
-    `DESCRIPTION:${escapeCalendarText('Voorbeeld uit het websiteprototype. Dit is geen bevestigde activiteit. ' + event.description)}`,
-    'LOCATION:Houtrust - Duindorp SV', 'STATUS:TENTATIVE', 'TRANSP:TRANSPARENT', 'END:VEVENT', 'END:VCALENDAR', '',
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Duindorp SV//Clubagenda//NL', 'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT', `UID:activiteit-${event.id}@duindorpsv.nl`,
+    `DTSTAMP:${stamp}`, `DTSTART:${start}`,...(event.endTime?[`DTEND:${instant(event.endTime)}`]:[]),
+    `SUMMARY:${escapeCalendarText(event.title)}`,
+    `DESCRIPTION:${escapeCalendarText(event.description)}`,
+    ...(event.location?[`LOCATION:${escapeCalendarText(event.location)}`]:[]), 'STATUS:CONFIRMED', 'TRANSP:TRANSPARENT', 'END:VEVENT', 'END:VCALENDAR', '',
   ].map(foldCalendarLine).join('\r\n');
 }

@@ -3,36 +3,30 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, staging, production]
+    branches: [main, staging]
   workflow_call:
 permissions:
   contents: read
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    services:
-      database:
-        image: postgres:17-bookworm
-        env:
-          POSTGRES_USER: duindorp
-          POSTGRES_DB: duindorp_test
-          POSTGRES_PASSWORD: ${{ github.run_id }}
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U duindorp -d duindorp_test"
-          --health-interval 5s --health-timeout 3s --health-retries 20
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
     env:
       APP_ENV: test
       APP_BASE_URL: http://127.0.0.1:3000
-      DATABASE_URL: postgres://duindorp:${{ github.run_id }}@127.0.0.1:5432/duindorp_test
-      MEDIA_DRIVER: filesystem
       MEDIA_ROOT: ${{ github.workspace }}/.runtime/media
       TEST_MAIL_TO: test@example.invalid
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Validate serving-host checks and deployment identities
         run: python3 -m unittest discover -s ops/tests -v
+      - name: Install archive audio and video decoder for verification
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends ffmpeg
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version-file: .node-version
@@ -41,34 +35,50 @@ jobs:
           corepack prepare pnpm@11.25.0 --activate
           pnpm install --frozen-lockfile
           mkdir -p .runtime
-          session_secret=$(openssl rand -hex 32)
-          echo "::add-mask::$session_secret"
-          printf 'AUTH_SESSION_SECRET=%s\n' "$session_secret" >> "$GITHUB_ENV"
+      - name: Start isolated Supabase Database, Auth and Storage
+        run: |
+          umask 077
+          npx --yes supabase@2.121.0 start --exclude realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor > .runtime/supabase-start.log 2>&1
+          npx --yes supabase@2.121.0 status --output json > .runtime/supabase-status.json
+          pnpm exec tsx scripts/setup-local-supabase.ts
+      - name: Start local Resend API verification sink
+        run: |
+          umask 077
+          node scripts/test-mail-server.mjs > .runtime/mail-sink.log 2>&1 &
+          echo "$!" > .runtime/mail-sink.pid
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent "$TEST_MAIL_API_URL/health" >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent "$TEST_MAIL_API_URL/health" >/dev/null
       - run: pnpm test && pnpm typecheck
-      - run: pnpm db:migrate && pnpm db:seed && pnpm test:integration
+      - run: pnpm db:migrate && pnpm exec tsx scripts/provision-database.ts && pnpm db:seed && pnpm test:integration
+      - name: Verify actual Supabase database backup
+        run: bash ops/scripts/verify-supabase-backup.sh
+      - name: Supabase security advisors
+        run: |
+          npx --yes supabase@2.121.0 db advisors --help >/dev/null
+          result=0
+          npx --yes supabase@2.121.0 db advisors --local --type security --level warn --fail-on error --output-format json > .runtime/supabase-advisors.json || result=$?
+          pnpm exec tsx scripts/summarize-supabase-advisors.ts
+          exit "$result"
       - run: pnpm build && pnpm build:runtime
       - run: |
           pnpm exec tsx scripts/development-test-account.ts
-          docker build -t duindorp-ci .
+          docker build --label "org.opencontainers.image.revision=$(git rev-parse HEAD)" --label "nl.duindorpsv.source-tree=$(git rev-parse 'HEAD^{tree}')" -t duindorp-ci .
           node --input-type=module <<'JS'
           import {writeFileSync} from 'node:fs';
-          import {randomBytes} from 'node:crypto';
           const values={};
-          for(const key of ['APP_ENV','APP_BASE_URL','DATABASE_URL','AUTH_SESSION_SECRET','MEDIA_DRIVER','TEST_MAIL_TO']) values[key]=process.env[key];
-          const password=randomBytes(24).toString('hex');console.log('::add-mask::'+password);
-          writeFileSync('.runtime/provision.env','MIGRATION_DATABASE_URL='+process.env.DATABASE_URL+'\nAPP_DATABASE_PASSWORD='+password+'\n',{mode:0o600});
-          const url=new URL(values.DATABASE_URL);url.username='duindorp_app';url.password=password;values.DATABASE_URL=url.href;
-          values.MEDIA_ROOT='/data/media';values.RELEASE_DIGEST='ci-image';
+          for(const key of ['APP_ENV','APP_BASE_URL','DATABASE_URL','SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','SUPABASE_SECRET_KEY','MEDIA_DRIVER','S3_ENDPOINT','S3_REGION','S3_BUCKET','S3_ACCESS_KEY_ID','S3_SECRET_ACCESS_KEY','TEST_MAIL_TO','TEST_MAIL_API_URL','RESEND_API_KEY','MAIL_FROM']) values[key]=process.env[key];
+          values.RELEASE_DIGEST='ci-image';
           writeFileSync('.runtime/image.env',Object.entries(values).map(([key,value])=>key+'='+value).join('\n')+'\n',{mode:0o600});
           JS
-          set -a
-          source .runtime/provision.env
-          set +a
-          pnpm exec tsx scripts/provision-database.ts
-          sudo chown -R 1000:1000 .runtime/media
-          pnpm exec tsx -e 'import {sqlClient,closeDb} from "./db/index.ts";void(async()=>{await sqlClient()`delete from cms_heartbeats`;await closeDb();})();'
-          docker run -d --name duindorp-ci-worker --memory=512m --network host --env-file .runtime/image.env --mount type=bind,src="$PWD/.runtime/media",dst=/data/media --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges duindorp-ci worker
-          docker run -d --name duindorp-ci-web --memory=768m --network host --env-file .runtime/image.env --mount type=bind,src="$PWD/.runtime/media",dst=/data/media --read-only --tmpfs /tmp --tmpfs /app/.next/cache:uid=1000,gid=1000 --cap-drop ALL --security-opt no-new-privileges duindorp-ci
+          pnpm exec tsx -e 'import {sqlClient,closeDb} from "./db/index.ts";void(async()=>{if(process.env.APP_ENV!=="test"||process.env.SUPABASE_LOCAL_TESTS!=="true")throw new Error("Isolated fixtures only");await sqlClient()`delete from cms_jobs`;await sqlClient()`delete from cms_heartbeats`;await closeDb();})();'
+          # Existing production upgrades skip the first-install seed. Require the real
+          # worker image to install historical data and media before readiness succeeds.
+          pnpm exec tsx scripts/prepare-archive-upgrade-test.ts
+          docker run -d --name duindorp-ci-worker --memory=512m --network host --env-file .runtime/image.env --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges duindorp-ci worker
+          docker run -d --name duindorp-ci-web --memory=768m --network host --env-file .runtime/image.env --read-only --tmpfs /tmp --tmpfs /app/.next/cache:uid=1000,gid=1000 --cap-drop ALL --security-opt no-new-privileges duindorp-ci
           pnpm exec playwright install --with-deps chromium --only-shell
           for attempt in $(seq 1 40); do
             if curl --fail --silent http://127.0.0.1:3000/health/ready >/dev/null; then break; fi
@@ -83,17 +93,42 @@ jobs:
             sleep 1
           done
           curl --fail --silent http://127.0.0.1:3000/health/ready >/dev/null
+      - name: Store verified candidate without deployment
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && contains(fromJSON('["codex/sponsor-portal-directory", "codex/sponsoring-v64"]'), github.head_ref)
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          candidate="ghcr.io/duindorpsv/website:candidate-$(git rev-parse HEAD)"
+          docker tag duindorp-ci "$candidate"
+          docker push "$candidate"
+          CANDIDATE_IMAGE="$candidate" node --input-type=module <<'JS'
+          import {writeFileSync} from 'node:fs';
+          import {execFileSync} from 'node:child_process';
+          const digest=execFileSync('docker',['image','inspect','--format','{{index .RepoDigests 0}}',process.env.CANDIDATE_IMAGE],{encoding:'utf8'}).trim();
+          const proof={image:process.env.CANDIDATE_IMAGE,digest,commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),checks:process.env.GITHUB_SERVER_URL+'/'+process.env.GITHUB_REPOSITORY+'/actions/runs/'+process.env.GITHUB_RUN_ID,deployed:false};
+          writeFileSync('.runtime/production-candidate.json',JSON.stringify(proof,null,2)+'\n');
+          JS
+          docker logout ghcr.io
       - if: always()
         run: |
           docker logs duindorp-ci-web > .runtime/web.log 2>&1 || true
           docker logs duindorp-ci-worker > .runtime/worker.log 2>&1 || true
           docker rm -f duindorp-ci-web duindorp-ci-worker >/dev/null 2>&1 || true
+          if test -f .runtime/mail-sink.pid; then kill "$(cat .runtime/mail-sink.pid)" 2>/dev/null || true; fi
+          npx --yes supabase@2.121.0 stop --no-backup >/dev/null 2>&1 || true
       - if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: verification
           path: |
             .runtime/e2e-report.json
+            .runtime/egress-proof.json
             .runtime/news-large-proof.json
+            .runtime/database-backup-proof.json
+            .runtime/supabase-advisors-summary.json
             .runtime/screenshots
+            .runtime/sponsor-evidence
+            .runtime/production-candidate.json
+            test-results/**/error-context.md
           retention-days: 14

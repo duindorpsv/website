@@ -1,0 +1,29 @@
+name: Publish imported news archive
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: duindorp-production
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: .node-version
+      - run: |
+          corepack enable
+          corepack prepare pnpm@11.25.0 --activate
+          pnpm install --frozen-lockfile
+      - name: Publish current imported news and associated import assets
+        env:
+          APP_ENV: production
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_CA_CERT_B64: ${{ vars.SUPABASE_DB_CA_CERT_B64 }}
+        run: pnpm exec tsx scripts/publish-imported-news.ts

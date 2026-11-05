@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "checks": [
+    "all seven dataset settings",
+    "calendar defaults",
+    "actual provider save and reload",
+    "202 queue and queued disabled",
+    "409 retains draft and explicit reload",
+    "one h1",
+    "responsive1920/1440/1024/390/320"
+  ],
+  "requests": 5,
+  "saves": 1,
+  "evidence": "/dev/shm/duindorpsv-sportlink-ui-2FJ0P2"
+}

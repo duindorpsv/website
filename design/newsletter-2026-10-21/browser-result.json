@@ -1,0 +1,15 @@
+{
+  "fixture": "Actual CMS components and real isolated PostgreSQL repository; harness actor, no external delivery or production data.",
+  "checks": [
+    "TipTap document and shared autosave",
+    "duplicate with new ID and keyboard alternative",
+    "1440px no page overflow",
+    "1024px no page overflow",
+    "390px no page overflow",
+    "sandboxed personal email preview and Escape",
+    "server draft reopens",
+    "real shared contact list",
+    "public signup reference at desktop and mobile"
+  ],
+  "errors": []
+}

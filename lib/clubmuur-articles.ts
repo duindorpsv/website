@@ -1,4 +1,5 @@
 import type {Article} from '@/lib/club-data';
+import {isFeatured} from './cms/featured';
 
 const DUTCH_MONTHS = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
 
@@ -15,5 +16,9 @@ function articleDate(value: string) {
 
 // Use the same stable chronology for the hero's latest three and the next stories.
 export function sortedClubArticles(items: Article[]): Article[] {
-  return [...items].sort((a, b) => articleDate(b.date) - articleDate(a.date));
+  return [...items].sort((a, b) => articleDate(b.publishedAt||b.date) - articleDate(a.publishedAt||a.date)||a.id.localeCompare(b.id));
+}
+
+export function heroClubArticles(items:Article[],now=Date.now()):Article[]{
+  return sortedClubArticles(items).sort((a,b)=>Number(isFeatured(b,now))-Number(isFeatured(a,now)));
 }

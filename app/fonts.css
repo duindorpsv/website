@@ -1,30 +1,11 @@
+/* Rubik Distressed has one designed weight. Map the existing heading weights
+   to its original outlines so bold requests preserve the distressed detail. */
 @font-face {
-  font-family: 'Barlow Condensed';
+  font-family: 'Rubik Distressed';
   font-style: normal;
-  font-weight: 600;
+  font-weight: 400 900;
   font-display: swap;
-  src: url(/fonts/club-font-0.ttf) format('truetype');
-}
-@font-face {
-  font-family: 'Barlow Condensed';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url(/fonts/club-font-1.ttf) format('truetype');
-}
-@font-face {
-  font-family: 'Barlow Condensed';
-  font-style: normal;
-  font-weight: 800;
-  font-display: swap;
-  src: url(/fonts/club-font-2.ttf) format('truetype');
-}
-@font-face {
-  font-family: 'Barlow Condensed';
-  font-style: normal;
-  font-weight: 900;
-  font-display: swap;
-  src: url(/fonts/club-font-3.ttf) format('truetype');
+  src: url(/fonts/rubik-distressed.woff2) format('woff2');
 }
 @font-face {
   font-family: 'Manrope';
@@ -74,8 +55,8 @@
    This aligns visible ink across typefaces at every responsive font size. */
 @font-face {
   font-family:'Clubband Name';font-style:normal;font-weight:800;font-display:swap;
-  src:url(/fonts/club-font-2.ttf) format('truetype');
-  ascent-override:70.8%;descent-override:.8%;line-gap-override:0%;
+  src:url(/fonts/rubik-distressed.woff2) format('woff2');
+  ascent-override:74.5%;descent-override:1.8%;line-gap-override:0%;
 }
 @font-face {
   font-family:'Clubband Slogan';font-style:normal;font-weight:800;font-display:swap;
@@ -89,6 +70,6 @@
 }
 @font-face {
   font-family:'Clubband Year';font-style:normal;font-weight:700;font-display:swap;
-  src:url(/fonts/club-font-1.ttf) format('truetype');
-  ascent-override:71.1%;descent-override:1.1%;line-gap-override:0%;
+  src:url(/fonts/rubik-distressed.woff2) format('woff2');
+  ascent-override:73.3%;descent-override:1.1%;line-gap-override:0%;
 }

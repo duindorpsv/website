@@ -1,3 +1,5 @@
+import postgres from 'postgres';
+import {assertLocalSupabaseTests} from '../helpers/supabase-auth';
 import {test,after} from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
@@ -9,7 +11,7 @@ import {createNewsSession,uploadNewsPart,finishNewsUpload,analyzeNewsSession,new
 import {NEWS_IMPORT_CHUNK_BYTES} from '../../lib/cms/news-import';
 import {deleteObject,putObject} from '../../lib/server/storage';
 import {zipBytes} from '../helpers/news-zip';
-if(process.env.APP_ENV!=='test'||!process.env.DATABASE_URL?.endsWith('/duindorp_test'))throw new Error('Vereist geïsoleerde duindorp_test database.');
+assertLocalSupabaseTests();
 const sql=sqlClient(),user=await getAuth().api.createUser({body:{email:`news-import-${crypto.randomUUID()}@example.invalid`,name:'Importproef',password:crypto.randomUUID()+crypto.randomUUID(),role:'admin'}});
 await sql`insert into cms_memberships(user_id,role_id) values (${user.user.id},'admin')`;
 const p=await actorPrincipal(user.user.id),sessions:string[]=[],prefix=crypto.randomUUID();let counter=0;
@@ -47,7 +49,7 @@ test('ZIP manifest last: only selected shared photo/PDF persist, false flags and
  await run(id,[a.sourceId,b.sourceId],'published');const result=await newsImportStatus(p,id);assert.equal(result.counts.imported,2);const assets=await sql`select * from cms_news_import_assets where session_id=${id}`;assert.equal(assets.length,2);assert.equal(assets.filter(a=>a.kind==='image').length,1);const records=await sql`select r.* from cms_news_import_identities i join cms_records r on r.id=i.record_id where i.session_id=${id}`;assert.equal(records[0].draft.coverId,records[1].draft.coverId);assert.equal((await newsRowPreview(p,id,a.sourceId)).previewImage,`/api/cms/media/${records[0].draft.coverId}/file`);assert.equal(records[0].status,'published');for(const record of records)assert.ok((await newsProvenance(p,record.id)).sourceId);const [pdf]=assets.filter(a=>a.kind==='file');assert.equal((await sql`select record_id from cms_references where target_id=${pdf.media_id} and snapshot='live'`).length,1);assert.ok((await sql`select live from cms_records where id=${pdf.media_id}`)[0].live);await expire(id);
 });
 test('selection sessions bind owner and environment; retries only contain prior selected failures',async()=>{
- const a=row(),b=row(),id=await upload(manifest([a,b]));await assert.rejects(newsSession({...p,id:'another-user'},id),(e:any)=>e.status===404);const prior=process.env.APP_ENV;try{process.env.APP_ENV='development';await assert.rejects(newsSession(p,id),(e:any)=>e.status===404);}finally{process.env.APP_ENV=prior;}
+ const a=row(),b=row(),id=await upload(manifest([a,b]));await assert.rejects(newsSession({...p,id:'another-user'},id),(e:any)=>e.status===404);const prior=process.env.APP_ENV,mailApi=process.env.TEST_MAIL_API_URL;try{process.env.APP_ENV='development';delete process.env.TEST_MAIL_API_URL;await assert.rejects(newsSession(p,id),(e:any)=>e.status===404);}finally{process.env.APP_ENV=prior;if(mailApi===undefined)delete process.env.TEST_MAIL_API_URL;else process.env.TEST_MAIL_API_URL=mailApi;}
  await run(id,[a.sourceId]);await assert.rejects(startNewsImport(p,id,{operationId:crypto.randomUUID(),sourceIds:[b.sourceId],status:'draft',retry:true}),(e:any)=>e.status===422);
  // A selected failed row is durable; only it is retried and the earlier success remains.
  await sql`update cms_news_import_rows set selected=true,status='failed',error='Synthetic interrupted write' where session_id=${id} and source_id=${b.sourceId}`;await run(id,[b.sourceId],'draft',true);assert.equal((await newsImportStatus(p,id)).counts.imported,2);await expire(id);
@@ -76,11 +78,12 @@ test('encrypted/unsupported compression, oversized expansion and a missing root 
 });
 
 test('a real transaction failure preserves successes and retries only the failed selected article',async()=>{
+ const operator=postgres(process.env.MIGRATION_DATABASE_URL!,{max:1,prepare:false});
  const fault='news_fault_'+crypto.randomUUID().replace(/-/g,''),articles=[row(),{...row(),title:fault},row(),row()],id=await upload(manifest(articles));
- await sql.unsafe(`create function ${fault}() returns trigger language plpgsql as $$ begin if NEW.title = '${fault}' then raise exception 'Synthetic transient storage failure'; end if; return NEW; end $$`);
- await sql.unsafe(`create trigger ${fault} before insert on cms_records for each row execute function ${fault}()`);
+ await operator.unsafe(`create function ${fault}() returns trigger language plpgsql as $$ begin if NEW.title = '${fault}' then raise exception 'Synthetic transient storage failure'; end if; return NEW; end $$`);
+ await operator.unsafe(`create trigger ${fault} before insert on cms_records for each row execute function ${fault}()`);
  try{await run(id,articles.slice(0,3).map(a=>a.sourceId));const result=await newsImportStatus(p,id);assert.equal(result.status,'partial');assert.equal(result.counts.imported,2);assert.equal(result.counts.failed,1);assert.equal(result.counts.selected,3);assert.equal(result.rows.find(r=>r.sourceId===articles[3].sourceId)?.status,'ready');}
- finally{await sql.unsafe(`drop trigger ${fault} on cms_records`);await sql.unsafe(`drop function ${fault}()`);}
+ finally{await operator.unsafe(`drop trigger ${fault} on cms_records`);await operator.unsafe(`drop function ${fault}()`);await operator.end();}
  await run(id,[articles[1].sourceId],'draft',true);const result=await newsImportStatus(p,id);assert.equal(result.status,'completed');assert.equal(result.counts.imported,3);assert.equal(result.counts.failed,0);assert.equal(result.counts.importable,1);await expire(id);
 });
 

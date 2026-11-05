@@ -1,0 +1,17 @@
+{
+  "fixture": "Synthetic presentation fixture; repository transactions verified separately. No production data or mock sync in shipped app.",
+  "prototypeCommit": "74b1e08288b8a076119046dc5c762cfbf98a364c",
+  "checks": [
+    "one H1",
+    "exact home/away colors",
+    "away excluded from own field backlog",
+    "default occupancy",
+    "two actual EventSource clients share one revision",
+    "stale open form retains text and blocks save",
+    "refresh retains chosen tab",
+    "ordinary reopen defaults occupancy",
+    "explicit location deep link",
+    "390px no document overflow"
+  ],
+  "errors": []
+}

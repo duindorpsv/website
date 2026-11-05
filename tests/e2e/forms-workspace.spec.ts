@@ -1,0 +1,37 @@
+import {test,expect} from '@playwright/test';
+import {readFileSync} from 'node:fs';
+import {loginWithEmailCode} from './login-fixture';
+const owner=JSON.parse(readFileSync('.runtime/e2e-account.json','utf8'));
+
+test('form workspace refreshes department versions and previews the current working form',async({page})=>{
+ await loginWithEmailCode(page,owner.email);
+ await page.getByRole('button',{name:'Formulieren & inbox',exact:true}).click();
+ await page.getByRole('button',{name:'Afdelingen en ontvangers',exact:true}).click();
+ await page.getByRole('button',{name:'Afdeling toevoegen',exact:true}).click();
+ const department='Clubafdeling '+crypto.randomUUID();
+ await page.getByLabel('Afdelingsnaam',{exact:true}).fill(department);
+ await page.getByLabel('Ontvangers, gescheiden door komma’s',{exact:true}).fill('clubafdeling@example.invalid');
+ const firstSave=page.waitForResponse(response=>response.url().endsWith('/api/cms/departments')&&response.request().method()==='POST');
+ await page.getByRole('button',{name:'Bewaren',exact:true}).click();
+ const first=await firstSave;expect(first.status(),await first.text()).toBe(200);expect(first.request().postDataJSON().expectedVersion).toBe(0);
+ await expect(page.getByRole('status').filter({hasText:'Afdeling opgeslagen.'})).toBeVisible();
+ await page.getByLabel('Afdelingsnaam',{exact:true}).fill(department+' bijgewerkt');
+ const nextSave=page.waitForResponse(response=>response.url().endsWith('/api/cms/departments')&&response.request().method()==='POST');
+ await page.getByRole('button',{name:'Bewaren',exact:true}).click();
+ const next=await nextSave;expect(next.status(),await next.text()).toBe(200);expect(next.request().postDataJSON().expectedVersion).toBe(1);
+ await expect(page.getByRole('status').filter({hasText:'Afdeling opgeslagen.'})).toBeVisible();
+ await page.getByRole('button',{name:'Formulieren maken en bewerken',exact:true}).click();
+ await page.getByRole('button',{name:'Nieuw formulier',exact:true}).click();
+ await page.getByLabel('Ontvangende afdeling',{exact:true}).selectOption({label:department+' bijgewerkt'});
+ const name='Werkversie '+crypto.randomUUID();
+ await page.getByLabel('Formuliernaam',{exact:true}).fill(name);
+ await page.getByText('Formulier bekijken',{exact:true}).click();
+ const preview=page.getByRole('form',{name,exact:true});await expect(preview).toBeVisible();
+ await expect(preview.getByRole('button',{name:'Versturen',exact:true})).toBeDisabled();
+ await page.getByLabel('Formuliernaam',{exact:true}).fill(name+' aangepast');
+ await expect(page.getByRole('form',{name:name+' aangepast',exact:true})).toBeVisible();
+ await expect(page.getByRole('form',{name,exact:true})).toHaveCount(0);
+ await page.getByRole('button',{name:'Veld toevoegen',exact:true}).click();
+ await page.getByLabel('Label',{exact:true}).last().fill('Naam deelnemer');
+ await expect(page.getByRole('form',{name:name+' aangepast',exact:true}).getByLabel('Naam deelnemer (optioneel)',{exact:true})).toBeVisible();
+});
