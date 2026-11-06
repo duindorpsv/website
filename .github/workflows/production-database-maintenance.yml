@@ -35,6 +35,8 @@ jobs:
           APP_ENV: production
           MIGRATION_DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
           DATABASE_CA_CERT_B64: ${{ vars.SUPABASE_DB_CA_CERT_B64 }}
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           RESET_STALLED_PIDS: ${{ inputs.reset_stalled_pids }}
         run: pnpm exec tsx scripts/inspect-production-database.ts
       - name: Repeat the existing database provisioning step
