@@ -62,8 +62,8 @@ class AgreementLayout{
   this.font('heading',15,INK);this.text('DUINDORP SV',MARGIN,13);
   this.font('bold',6.8,MUTED);this.text('ONZE CLUB. ONZE TROTS.  /  SINDS 1950',MARGIN,19);
   this.doc.addImage(this.assets.logoPng,'PNG',175,9,17,20,undefined,'FAST');
-  this.font('heading',31,INK);this.text('SPONSOR',MARGIN,36);
-  this.font('heading',31,BLUE);this.text('OVEREENKOMST.',MARGIN,49);
+  this.font('heading',25,INK);this.text('SPONSOR',MARGIN,36);
+  this.font('heading',25,BLUE);this.text('OVEREENKOMST.',MARGIN,49);
   this.font('brush',11,INK);this.text('Samen bouwen aan onze trots.',MARGIN,63);
   this.font('bold',7.5,INK);this.text(this.agreement.number,PAGE_WIDTH-MARGIN,59,{align:'right'});
   this.font('body',6.7,MUTED);this.text(`VERSIE ${this.agreement.version}  /  ${this.agreement.status==='signed'?'ONDERTEKEND':this.agreement.status==='cancelled'?'GEANNULEERD':this.agreement.status==='awaiting-club-signature'?'WACHT OP DE CLUB':'TER ONDERTEKENING'}`,PAGE_WIDTH-MARGIN,65,{align:'right'});
@@ -81,7 +81,7 @@ class AgreementLayout{
   this.rule(27);this.y=39;
  }
  ensure(height:number,label?:string){if(this.y+height>CONTENT_END)this.nextPage(label);}
- heading(value:string,kicker?:string){this.ensure(kicker?25:18);if(kicker){this.font('bold',7.5,BLUE);this.text(kicker,MARGIN,this.y);this.y+=7;}this.font('heading',22,INK);const lines=this.wrap(value,WIDTH);for(const line of lines){this.ensure(11);this.font('heading',22,INK);this.text(line,MARGIN,this.y);this.y+=9;}this.y+=2;}
+ heading(value:string,kicker?:string){this.ensure(kicker?25:18);if(kicker){this.font('bold',7.5,BLUE);this.text(kicker,MARGIN,this.y);this.y+=7;}this.font('heading',22,INK);const lines=this.wrap(value,WIDTH);for(const line of lines){this.ensure(11);this.font('heading',22,INK);this.text(line,MARGIN,this.y);this.y+=9.5;}this.y+=2;}
  paragraph(value:string,{size=9.3,color=INK,gap=5,bold=false,width=WIDTH,x=MARGIN}:{size?:number;color?:readonly number[];gap?:number;bold?:boolean;width?:number;x?:number}={}){
   this.font(bold?'bold':'body',size,color);const lines=this.wrap(value,width),lineHeight=size*.3528*1.47;
   for(const line of lines){this.ensure(lineHeight+1);this.font(bold?'bold':'body',size,color);this.text(line,x,this.y);this.y+=lineHeight;}
@@ -143,7 +143,7 @@ class AgreementLayout{
   this.font('body',7.7);const prepared=rows.map(([label,value])=>({label:this.wrap(label,58),value})),h=prepared.reduce((sum,row)=>sum+Math.max(7,row.label.length*4.2),0)+24;
   this.ensure(h+8,'PRIJSOPBOUW');const x=84,w=109;this.fill(LIGHT);this.doc.rect(x,this.y-4,w,h,'F');let y=this.y+3;
   for(const row of prepared){this.font('body',7.7,MUTED);this.doc.text(row.label,x+5,y,{lineHeightFactor:1.5});let size=8.4;this.font('bold',size,INK);while(this.doc.getTextWidth(row.value)>35&&size>6.2){size-=.3;this.font('bold',size,INK);}this.text(row.value,x+w-5,y,{align:'right'});y+=Math.max(7,row.label.length*4.2);}
-  this.fill(BLUE);this.doc.rect(x,y-1,w,14,'F');this.font('bold',8,WHITE);this.text('TOTAAL INCLUSIEF BTW',x+5,y+7);this.font('heading',17,WHITE);this.text(currency(totals.totalCents),x+w-5,y+8,{align:'right'});this.y+=h+7;
+  this.fill(BLUE);this.doc.rect(x,y-1,w,14,'F');this.font('bold',8,WHITE);this.text('TOTAAL INCLUSIEF BTW',x+5,y+7);this.font('bold',14,WHITE);this.text(currency(totals.totalCents),x+w-5,y+8,{align:'right'});this.y+=h+7;
   this.paragraph(snapshot.paymentTerms,{size:8.1,color:MUTED,gap:2});
  }
  clauses(){
@@ -194,7 +194,7 @@ class AgreementLayout{
 export async function buildSponsorAgreementPdf(state:CmsState,actorId:string,id:string,options:SponsorPdfOptions={}):Promise<Uint8Array>{
  const agreement=sponsorAgreementPdfSource(state,actorId,id),assets=options.assets||await browserAssets();
  const {jsPDF}=await import('jspdf');const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true,putOnlyUsedFonts:true});
- const fonts=[['ClubBody','normal','club-body.ttf',assets.bodyFont],['ClubBody','bold','club-bold.ttf',assets.boldFont],['ClubHeading','normal','club-heading.ttf',assets.headingFont],['ClubBrush','normal','club-brush.ttf',assets.brushFont]] as const;
+ const fonts=[['ClubBody','normal','club-body.ttf',assets.bodyFont],['ClubBody','bold','club-bold.ttf',assets.boldFont],['ClubHeading','normal','permanent-marker.ttf',assets.brushFont],['ClubBrush','normal','club-brush.ttf',assets.brushFont]] as const;
  for(const [name,style,file,bytes] of fonts){doc.addFileToVFS(file,base64(bytes));doc.addFont(file,name,style);}
  doc.setProperties({title:`Sponsorovereenkomst ${agreement.number} - Duindorp SV`,subject:agreement.snapshot.name,author:'Duindorp SV',creator:'Duindorp SV - Onze Trots',keywords:'sponsoring, overeenkomst, Duindorp SV'});
  if(Number.isFinite(Date.parse(agreement.createdAt)))doc.setCreationDate(new Date(agreement.createdAt));
@@ -213,16 +213,16 @@ export async function downloadSponsorAgreementPdf(state:CmsState,actorId:string,
 export async function buildSponsorInvoicePdf(invoice:import('./sponsorship-types').SponsorInvoice,agreement:SponsorAgreement,options:SponsorPdfOptions={}){
  sponsorSnapshotBytes(agreement);assert(invoice.agreementId===agreement.id,'De factuur hoort niet bij deze overeenkomst.');
  const assets=options.assets||await browserAssets(),{jsPDF}=await import('jspdf'),doc=new jsPDF({unit:'mm',format:'a4',compress:true,putOnlyUsedFonts:true});
- for(const [name,style,file,bytes] of [['ClubBody','normal','invoice-body.ttf',assets.bodyFont],['ClubBody','bold','invoice-bold.ttf',assets.boldFont],['ClubHeading','normal','invoice-heading.ttf',assets.headingFont]] as const){doc.addFileToVFS(file,base64(bytes));doc.addFont(file,name,style);}
+ for(const [name,style,file,bytes] of [['ClubBody','normal','invoice-body.ttf',assets.bodyFont],['ClubBody','bold','invoice-bold.ttf',assets.boldFont],['ClubHeading','normal','permanent-marker.ttf',assets.brushFont]] as const){doc.addFileToVFS(file,base64(bytes));doc.addFont(file,name,style);}
  const total=invoice.totals||calculateSponsorTotals(invoice.lines,invoice.discountCents,invoice.packageDiscountCents||0,invoice.packageSurchargeCents||0);assert(total.totalCents===invoice.totalCents,'De vastgelegde factuurbedragen kloppen niet.');
- let y=25;const add=(value:string,size=10,bold=false)=>{doc.setFont('ClubBody',bold?'bold':'normal');doc.setFontSize(size);const lines=doc.splitTextToSize(clean(value),174) as string[];for(const line of lines){if(y>265){doc.addPage();y=25;}doc.text(line,18,y);y+=size*.5;}y+=3;};
- doc.setFillColor(...BLUE);doc.rect(0,0,210,43,'F');doc.setTextColor(...WHITE);doc.setFont('ClubHeading','normal');doc.setFontSize(25);doc.text('DUINDORP SV',18,20);doc.setFont('ClubBody','bold');doc.setFontSize(9);doc.text('SPONSORFACTUUR',18,31);doc.addImage(assets.logoPng,'PNG',174,7,19,24);doc.setTextColor(...INK);y=56;
+ let y=25;const add=(value:string,size=10,bold=false,heading=false)=>{doc.setFont(heading?'ClubHeading':'ClubBody',heading?'normal':bold?'bold':'normal');doc.setFontSize(size);const lines=doc.splitTextToSize(clean(value),174) as string[];for(const line of lines){if(y>265){doc.addPage();y=25;}doc.text(line,18,y);y+=size*.5;}y+=3;};
+ doc.setFillColor(...BLUE);doc.rect(0,0,210,43,'F');doc.setTextColor(...WHITE);doc.setFont('ClubHeading','normal');doc.setFontSize(25);doc.text('DUINDORP SV',18,20);doc.setFont('ClubHeading','normal');doc.setFontSize(12);doc.text('SPONSORFACTUUR',18,31);doc.addImage(assets.logoPng,'PNG',174,7,19,24);doc.setTextColor(...INK);y=56;
  add(invoice.number,21,true);add(`Factuurdatum: ${date(invoice.issueDate)}\nVervaldatum: ${date(invoice.dueDate)}${invoice.installment?'\nTermijn '+invoice.installment.index+' van '+invoice.installment.count:''}`,10);
  const company=agreement.snapshot.contract?.company;add((company?.legalName||agreement.snapshot.sponsorName)+'\n'+agreement.snapshot.sponsorAddress+'\n'+(company?.invoiceEmail||agreement.snapshot.sponsorEmail),11,true);
  add(`Overeenkomst ${agreement.number} · versie ${agreement.version}`,9);y+=3;
  for(const line of invoice.lines){const price=getSponsorLinePricing(line);add(`${line.quantity} × ${line.name} — ${currency(price.grossCents)} excl. btw (${taxLabel(line.taxRate)})`,10,true);if(line.addition)add(line.addition,9);if(line.description)add(line.description,9);if(line.periodLabel||line.startDate)add([line.periodLabel,line.startDate&&line.endDate?date(line.startDate)+' t/m '+date(line.endDate):''].filter(Boolean).join(' · '),9);if(price.lineDiscountCents)add((line.lineDiscountLabel||'Itemkorting')+': − '+currency(price.lineDiscountCents),9);if(price.setupCostCents)add('Eenmalige opmaak: '+currency(price.setupCostCents),9);}
  y+=4;add('Tegenprestaties: '+currency(invoice.lines.reduce((sum,line)=>sum+line.quantity*line.unitPriceCents,0)));if(total.setupCostCents)add('Eenmalige opmaakkosten: '+currency(total.setupCostCents));if(total.itemDiscountCents)add('Itemkortingen: − '+currency(total.itemDiscountCents));if(invoice.packageSurchargeCents)add('Afzonderlijke pakketmeerprijs: '+currency(invoice.packageSurchargeCents));if(invoice.packageDiscountCents)add('Pakketkorting: − '+currency(invoice.packageDiscountCents));if(invoice.discountCents)add('Aanvullende voorstelkorting: − '+currency(invoice.discountCents));add('Netto: '+currency(total.netCents));for(const group of total.taxGroups)add((group.taxRate==='exempt'?'Vrijgesteld':'Btw '+group.taxRate+'%')+': '+currency(group.taxCents));add('Totaal inclusief btw: '+currency(total.totalCents),14,true);
- add('Betaalafspraken',12,true);add(agreement.snapshot.paymentTerms||'Neem voor de betaalgegevens contact op met de sponsorcommissie.');if(invoice.status==='paid')add('Ontvangst geregistreerd op '+date(invoice.paidAt),10,true);
+ add('Betaalafspraken',12,false,true);add(agreement.snapshot.paymentTerms||'Neem voor de betaalgegevens contact op met de sponsorcommissie.');if(invoice.status==='paid')add('Ontvangst geregistreerd op '+date(invoice.paidAt),10,true);
  const count=doc.getNumberOfPages();for(let i=1;i<=count;i++){doc.setPage(i);doc.setDrawColor(...LINE);doc.line(18,279,192,279);doc.setFont('ClubBody','normal');doc.setFontSize(8);doc.setTextColor(...MUTED);doc.text(invoice.number+' · Duindorp SV',18,286);doc.text(i+' / '+count,192,286,{align:'right'});}
  doc.setProperties({title:'Sponsorfactuur '+invoice.number,author:'Duindorp SV',creator:'Duindorp SV'});return new Uint8Array(doc.output('arraybuffer'));
 }

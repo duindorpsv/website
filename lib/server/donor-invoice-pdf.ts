@@ -12,18 +12,20 @@ export function donorInvoiceSnapshot(invoice:DonorInvoice){
 export async function buildDonorInvoicePdf(invoice:DonorInvoice){
  const calculated=calculateSponsorTotals(invoice.lines);
  if(JSON.stringify(sorted(calculated))!==JSON.stringify(sorted(invoice.totals))||calculated.totalCents!==invoice.totalCents||invoice.totalCents<=0||!invoice.issuer)throw new CmsError('invoice-integrity','De vastgelegde factuurbedragen of afzender kloppen niet.',409);
- const [logo,body,bold]=await Promise.all(['assets/logo.png','fonts/club-font-4.ttf','fonts/club-font-7.ttf'].map(file=>readFile(join(process.cwd(),'public',file))));
+ const [logo,body,bold,brush]=await Promise.all(['assets/logo.png','fonts/club-font-4.ttf','fonts/club-font-7.ttf','fonts/club-font-9.ttf'].map(file=>readFile(join(process.cwd(),'public',file))));
  const {jsPDF}=await import('jspdf'),doc=new jsPDF({unit:'mm',format:'a4',compress:true,putOnlyUsedFonts:true});
  for(const [style,file,bytes] of [['normal','donor-body.ttf',body],['bold','donor-bold.ttf',bold]] as const){doc.addFileToVFS(file,bytes.toString('base64'));doc.addFont(file,'ClubBody',style);}
+ doc.addFileToVFS('permanent-marker.ttf',brush.toString('base64'));doc.addFont('permanent-marker.ttf','PermanentMarker','normal');
  doc.setCreationDate(new Date(invoice.createdAt));
  const blue=[20,85,192] as const,ink=[23,42,72] as const,muted=[97,113,138] as const,left=14.5,right=195.5,width=right-left;
  const clean=(text:string)=>text.replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g,''),font=(size=10,strong=false)=>{doc.setFont('ClubBody',strong?'bold':'normal');doc.setFontSize(size);};
  const wrap=(text:string,available:number,size=10,strong=false)=>{font(size,strong);return doc.splitTextToSize(clean(text),available) as string[];};
  let y=0;
- const page=()=>{doc.setFillColor(...blue);doc.rect(0,0,210,3.5,'F');doc.setTextColor(...ink);font(10,true);doc.text('DONATEURSFACTUUR',left,18);font(9);doc.text(invoice.number,right,18,{align:'right'});doc.setDrawColor(...blue);doc.line(left,23,right,23);y=33;};
+ const title=(size:number)=>{doc.setFont('PermanentMarker','normal');doc.setFontSize(size);};
+ const page=()=>{doc.setFillColor(...blue);doc.rect(0,0,210,3.5,'F');doc.setTextColor(...ink);title(10);doc.text('DONATEURSFACTUUR',left,18);font(9);doc.text(invoice.number,right,18,{align:'right'});doc.setDrawColor(...blue);doc.line(left,23,right,23);y=33;};
  const room=(height:number)=>{if(y+height>266){doc.addPage();page();}};
  const add=(text:string,size=10,strong=false)=>{const rows=wrap(text,width,size,strong);for(const row of rows){room(size*.5+2);font(size,strong);doc.text(row,left,y);y+=size*.5;}y+=3;};
- doc.setFillColor(...blue);doc.rect(0,0,210,3.5,'F');doc.addImage(logo,'PNG',left,18,18,23);doc.setTextColor(...blue);font(18,true);doc.text('DONATEURSFACTUUR',right,28,{align:'right'});doc.setTextColor(...ink);font(10,true);doc.text(invoice.number,right,36,{align:'right'});doc.setDrawColor(...blue);doc.setLineWidth(.5);doc.line(left,47,right,47);
+ doc.setFillColor(...blue);doc.rect(0,0,210,3.5,'F');doc.addImage(logo,'PNG',left,18,18,23);doc.setTextColor(...blue);title(17);doc.text('DONATEURSFACTUUR',right,28,{align:'right'});doc.setTextColor(...ink);font(10,true);doc.text(invoice.number,right,36,{align:'right'});doc.setDrawColor(...blue);doc.setLineWidth(.5);doc.line(left,47,right,47);
  y=58;doc.setTextColor(...muted);font(8);doc.text('FACTUUR AAN',left,y);doc.setTextColor(...ink);
  const name=wrap(invoice.recipient.name,112,14,true);let recipientY=y+11;for(const row of name){font(14,true);doc.text(row,left,recipientY);recipientY+=7;}
  recipientY+=2;
