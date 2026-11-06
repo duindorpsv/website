@@ -41,6 +41,7 @@ test('legacy numeric HTTP code and string error_code are compatible when a hoste
  assert.ok(!JSON.stringify(report).includes(privateMarker));assert.ok(!JSON.stringify(report).includes('error_id'));
  const conflict=await inspectAuthProvider(configuration,async()=>Response.json({code:'not_admin',error_code:'validation_failed',msg:privateMarker},{status:404}));
  assert.ok(conflict.probes.every(probe=>probe.result==='inconclusive'&&probe.error_class==='invalid_response'));
+ for(const code of [401,404.5]){const inconsistent=await inspectAuthProvider(configuration,async()=>Response.json({code,error_code:'validation_failed',msg:privateMarker},{status:404}));assert.ok(inconsistent.probes.every(probe=>probe.result==='inconclusive'&&probe.error_class==='invalid_response'));}
 });
 test('401/403 normalize only allowlisted codes and preserve observed header differences without inventing a mail diagnosis',async()=>{
  let calls=0;

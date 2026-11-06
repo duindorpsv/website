@@ -26,9 +26,10 @@ async function boundedJson(response:Response):Promise<unknown>{
  const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}
  return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
 }
-function normalizedCode(body:unknown):ErrorClass{
+function normalizedCode(body:unknown,status:number):ErrorClass{
  if(!body||typeof body!=='object'||Array.isArray(body))return 'invalid_response';
  const {code,error_code:legacyCode}=body as Record<string,unknown>;
+ if(typeof code==='number'&&(!Number.isInteger(code)||code!==status))return 'invalid_response';
  // Auth API 2024-01-01 uses string code. Older hosted builds use numeric
  // code for the HTTP status, plus string error_code for the Auth error.
  // Conflicting shapes are inconclusive rather than a positive admin proof.
@@ -45,7 +46,7 @@ async function probe(secret:string,headerMode:HeaderMode,fetcher:typeof fetch):P
   if(headerMode==='apikey-and-bearer')headers.Authorization='Bearer '+secret;
   const response=await fetcher(trustedOrigin+probePath,{method:'GET',headers,redirect:'error',signal:controller.signal,cache:'no-store'});
   status=response.status;
-  const errorCode=normalizedCode(await boundedJson(response));
+  const errorCode=normalizedCode(await boundedJson(response),status);
   if(status===404&&errorCode==='validation_failed')return report('admin-route-validated',errorCode);
   if(status===401||status===403)return report('authorization-rejected',errorCode);
   return report('inconclusive',errorCode);
