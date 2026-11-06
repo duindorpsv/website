@@ -61,7 +61,7 @@
   letter-spacing:normal!important;
   white-space:normal!important;
 }
-.cm-headline h1 {line-height:1!important}
+:root .cm-headline h1 {line-height:1!important}
 
 /* Only these homepage sections share the header's wall recipe. No shared
    colour variable is changed, so the hero and other pages retain their art. */
