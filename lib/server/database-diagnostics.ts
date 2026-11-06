@@ -70,6 +70,44 @@ export async function inspectDatabase(sql:any){
       from classified group by party,status,mail_status order by party,status,mail_status`;
     return {window_hours:24,groups,processing,processing_limit:25,signing_challenges};
   });
+  // Current mapping state only: a historical job cannot reconstruct an old
+  // provider response. Keep auth-schema access isolated from other diagnostics.
+  const auth_identity=await check(async tx=>{
+    const [active_accounts]=await tx`select count(*)::int as total,
+      count(*) filter(where a.supabase_user_id is not null)::int as mapped,
+      count(*) filter(where a.supabase_user_id is null)::int as unmapped,
+      count(*) filter(where p.id is not null)::int as provider_found,
+      count(*) filter(where a.supabase_user_id is not null and p.id is null)::int as provider_missing,
+      count(*) filter(where p.id is not null and p.email is null)::int as provider_email_missing,
+      count(*) filter(where p.id is not null and lower(p.email)=lower(a.email))::int as provider_email_matches,
+      count(*) filter(where p.id is not null and p.email is not null and lower(p.email)<>lower(a.email))::int as provider_email_mismatch
+      from auth_user a left join auth.users p on p.id=a.supabase_user_id
+      where coalesce(a.banned,false)=false and exists(select 1 from cms_memberships m where m.user_id=a.id and m.active=true)`;
+    const failed_login_jobs=await tx`with failed as (
+      select payload->>'email' as address,payload->>'nonceHash' as nonce_hash,created_at from cms_jobs
+      where kind='auth-code-mail' and status='failed' and last_error='auth-identity' and created_at>=now()-interval '24 hours'
+      ), classified as (
+      select f.created_at,
+        exists(select 1 from cms_auth_login_challenges c where c.nonce_hash=f.nonce_hash) as challenge_present,
+        case when x.profiles=0 then 'current_profile_missing' when x.profiles>1 then 'current_profile_ambiguous'
+          when x.enabled=0 then 'profile_inactive' when x.mapped=0 then 'mapping_missing'
+          when x.provider_found=0 then 'provider_missing' when x.provider_email_missing>0 then 'provider_email_missing'
+          when x.provider_email_matches=1 then 'provider_matches' else 'provider_email_mismatch' end as current_state
+      from failed f cross join lateral (
+        select count(*) as profiles,
+          count(*) filter(where coalesce(a.banned,false)=false and exists(select 1 from cms_memberships m where m.user_id=a.id and m.active=true)) as enabled,
+          count(*) filter(where a.supabase_user_id is not null) as mapped,
+          count(*) filter(where p.id is not null) as provider_found,
+          count(*) filter(where p.id is not null and p.email is null) as provider_email_missing,
+          count(*) filter(where p.id is not null and lower(p.email)=lower(a.email)) as provider_email_matches
+        from (select id,email,banned,supabase_user_id,count(*) over() as profile_count from auth_user where lower(email)=f.address) a
+        left join auth.users p on p.id=a.supabase_user_id and a.profile_count=1
+      ) x
+      ) select current_state,challenge_present,count(*)::int as count,
+        min(created_at) as oldest_created_at,max(created_at) as newest_created_at
+      from classified group by current_state,challenge_present order by current_state,challenge_present`;
+    return {window_hours:24,state_basis:'current_mapping',active_accounts,failed_login_jobs};
+  });
   const security=await check(async tx=>{
     const [row]=await tx`select count(*)::int as tables,
       count(*) filter(where c.relrowsecurity)::int as rls_enabled,
@@ -89,7 +127,7 @@ export async function inspectDatabase(sql:any){
       return {dataset:row.cache_key.slice('sportlink-sync-v1:'.length),status:statuses.has(state.status)?state.status:'unknown',lastAttemptAt:timestamp(state.lastAttemptAt),lastSuccessAt:timestamp(state.lastSuccessAt),nextRunAt:timestamp(state.nextRunAt),counts};
     });
   });
-  return {health,connections,jobs,mail,security,sportlink};
+  return {health,connections,jobs,mail,auth_identity,security,sportlink};
 }
 
 /** Explicit PIDs only; never stop another role or a recent application query. */

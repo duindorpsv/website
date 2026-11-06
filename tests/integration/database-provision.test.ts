@@ -128,8 +128,70 @@ test('mail diagnostics distinguish OTP/provider failures and old backlog without
       if(row.mail==='accepted')assert.ok(group.oldest_issued_at&&group.newest_issued_at);
     }
     for(const value of [secret,nonce,owner,'87654321','dc'.repeat(32),...ids,...signingIds,url])assert.ok(!serialized.includes(value));
-    for(const key of ['payload','last_error','lease_owner','operation_id','"id":','email','code_hash','document_hash'])assert.ok(!serialized.includes(key));
+    for(const key of ['payload','last_error','lease_owner','operation_id','"id":','"email":','code_hash','document_hash'])assert.ok(!serialized.includes(key));
   }finally{if(signingIds.length)await admin`delete from cms_sponsor_signing_challenges where id in ${admin(signingIds)}`;await admin`delete from cms_jobs where id in ${admin(ids)}`;}
+});
+
+test('identity diagnostics expose only current mapping aggregates and isolate denied auth-schema access',async()=>{
+  const before=await inspectDatabase(admin),tag=crypto.randomUUID(),appIds:string[]=[],providerIds:string[]=[],jobIds:string[]=[],addresses:string[]=[],nonces:string[]=[];
+  const cases=[
+    {state:'provider_matches',provider:'match'},
+    {state:'provider_email_mismatch',provider:'mismatch'},
+    {state:'provider_email_missing',provider:'null'},
+    {state:'mapping_missing',provider:'unmapped'},
+    {state:'current_profile_ambiguous',provider:'ambiguous'},
+    {state:'profile_inactive',provider:'unmapped',inactive:true},
+    {state:'profile_inactive',provider:'unmapped',banned:true},
+    {state:'current_profile_missing',provider:'none'},
+  ];
+  const grouped=(report:any,state:string,present:boolean)=>report.auth_identity.failed_login_jobs.find((row:any)=>row.current_state===state&&row.challenge_present===present)?.count||0;
+  const runtime=postgres(process.env.DATABASE_URL!,databaseOptions(1));
+  try{
+    for(const [index,row] of cases.entries()){
+      const email=`identity-${tag}-${index}@example.invalid`,nonce=crypto.randomUUID().replaceAll('-','').repeat(2),id=crypto.randomUUID();addresses.push(email);nonces.push(nonce);
+      if(row.provider!=='none'){
+        appIds.push(id);const providerId=['unmapped','ambiguous'].includes(row.provider)?null:crypto.randomUUID();
+        if(providerId){
+          providerIds.push(providerId);const providerEmail=row.provider==='null'?null:row.provider==='mismatch'?`provider-${tag}@example.invalid`:email.toUpperCase();
+          if(providerEmail)addresses.push(providerEmail);
+          await admin`insert into auth.users(id,email) values (${providerId}::uuid,${providerEmail})`;
+        }
+        await admin`insert into auth_user(id,name,email,supabase_user_id,banned) values (${id},'Private diagnostic fixture',${email},${providerId}::uuid,${!!row.banned})`;
+        await admin`insert into cms_memberships(user_id,role_id,active) values (${id},'editor',${!row.inactive})`;
+        if(row.provider==='ambiguous'){
+          const duplicateId=crypto.randomUUID();appIds.push(duplicateId);addresses.push(email.toUpperCase());
+          await admin`insert into auth_user(id,name,email) values (${duplicateId},'Private diagnostic fixture',${email.toUpperCase()})`;
+          await admin`insert into cms_memberships(user_id,role_id) values (${duplicateId},'editor')`;
+        }
+        if(index===0)await admin`insert into cms_auth_login_challenges(user_id,nonce_hash,code_hash,expires_at) values (${id},${nonce},${'ea'.repeat(32)},now()+interval '10 minutes')`;
+      }
+      const jobId=crypto.randomUUID();jobIds.push(jobId);
+      await admin`insert into cms_jobs(id,operation_id,kind,status,last_error,payload,max_attempts,attempts)
+        values (${jobId},${jobId},'auth-code-mail','failed','auth-identity',${admin.json({email,nonceHash:nonce,code:'84371822'})},1,1)`;
+    }
+    const report=await inspectDatabase(admin),identity=report.auth_identity,serialized=JSON.stringify(report);
+    assert.equal(identity.state_basis,'current_mapping');assert.equal(identity.window_hours,24);
+    // A validated mapping FK prevents an orphan provider ID; never disable it
+    // merely to manufacture an otherwise impossible diagnostic state.
+    for(const [key,added] of Object.entries({total:6,mapped:3,unmapped:3,provider_found:3,provider_missing:0,provider_email_missing:1,provider_email_matches:1,provider_email_mismatch:1}))assert.equal(identity.active_accounts[key],before.auth_identity.active_accounts[key]+added);
+    const additions=new Map<string,number>();
+    for(const [index,row] of cases.entries()){const key=row.state+':'+(index===0);additions.set(key,(additions.get(key)||0)+1);}
+    for(const [key,added] of additions){const [state,present]=key.split(':');assert.equal(grouped(report,state,present==='true'),grouped(before,state,present==='true')+added);}
+    for(const row of identity.failed_login_jobs){
+      assert.deepEqual(Object.keys(row).sort(),['current_state','challenge_present','count','oldest_created_at','newest_created_at'].sort());
+      assert.ok(['current_profile_missing','current_profile_ambiguous','profile_inactive','mapping_missing','provider_missing','provider_email_missing','provider_matches','provider_email_mismatch'].includes(row.current_state));
+      assert.ok(row.oldest_created_at&&row.newest_created_at);
+    }
+    for(const value of [...addresses,...nonces,...appIds,...providerIds,...jobIds,'84371822','ea'.repeat(32),'Private diagnostic fixture',url])assert.ok(!serialized.includes(value));
+    for(const key of ['"email":','"id":','payload','nonce_hash','code_hash','supabase_user_id'])assert.ok(!serialized.includes(key));
+    const restricted=await inspectDatabase(runtime);assert.equal(restricted.auth_identity.error_code,'42501');
+    assert.ok(Array.isArray(restricted.mail.groups),'Denied auth-schema access does not hide queue diagnostics');
+  }finally{
+    if(jobIds.length)await admin`delete from cms_jobs where id in ${admin(jobIds)}`;
+    if(appIds.length){await admin`delete from cms_auth_login_challenges where user_id in ${admin(appIds)}`;await admin`delete from cms_memberships where user_id in ${admin(appIds)}`;await admin`delete from auth_user where id in ${admin(appIds)}`;}
+    if(providerIds.length)await admin`delete from auth.users where id in ${admin(providerIds)}`;
+    await runtime.end({timeout:2});
+  }
 });
 
 test('connection repair ignores recent queries and other roles, and rolls back only the explicit stalled application session',{timeout:10000},async()=>{
