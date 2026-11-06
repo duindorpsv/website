@@ -1,4 +1,5 @@
 import {deliverSponsorConcept,markSponsorConceptExhausted} from './sponsor-concepts';
+import {deliverSponsorAgreementDelivery,markSponsorAgreementDeliveryExhausted} from './sponsor-agreement-composer';
 import {processSponsorEnquiry} from './sponsor-enquiries';
 import {deliverSponsorReminder} from './sponsor-reminders';
 import {deliverSponsorDocumentMail,markSponsorDocumentMailExhausted} from './sponsor-document-mail';
@@ -40,6 +41,7 @@ export async function runOnce(workerId = crypto.randomUUID()) {
         if(job.kind==='sponsor-enquiry')await processSponsorEnquiry(job.payload.submissionId);
         else if(job.kind==='sponsor-notification')await deliverSponsorReminder(job.payload.deliveryId,job.payload.reminderId);
         else if(job.kind==='sponsor-concept-mail')await deliverSponsorConcept(job.payload.deliveryId);
+        else if(job.kind==='sponsor-agreement-delivery-mail')await deliverSponsorAgreementDelivery(job.payload.deliveryId);
         else if(job.kind==='sponsor-document-mail')await deliverSponsorDocumentMail(job.payload.deliveryId);
         else if(job.kind==='sponsor-final-pdf')await archiveSponsorAgreement(job.payload.agreementId,job.payload.actorId);
         else if(job.kind==='donor-invoice-mail')await deliverDonorInvoice(job.payload.invoiceId,job.payload.actorId,`<${job.operation_id}@duindorp.invalid>`);
@@ -124,6 +126,7 @@ export async function runOnce(workerId = crypto.randomUUID()) {
         const code = error instanceof Error && 'code' in error ? String(error.code) : 'processing-failed';
         await sql `update cms_jobs set status=${permanent ? 'failed' : 'pending'},lease_until=null,lease_owner=null,last_error=${code.slice(0, 100)},run_at=now()+${wait}*interval '1 second' where id=${job.id} and lease_owner=${workerId} and status='processing'`;
         if(permanent&&job.kind==='sponsor-concept-mail')await markSponsorConceptExhausted(job.payload.deliveryId,job.id);
+        if(permanent&&job.kind==='sponsor-agreement-delivery-mail')await markSponsorAgreementDeliveryExhausted(job.payload.deliveryId,job.id);
         if(permanent&&job.kind==='sponsor-document-mail')await markSponsorDocumentMailExhausted(job.payload.deliveryId,job.id);
         if (job.kind === 'submission-mail')
             await sql `update cms_submissions set delivery_status=${permanent ? 'failed' : 'retry'} where id=${job.payload.submissionId}`;

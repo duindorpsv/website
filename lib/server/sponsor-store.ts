@@ -11,6 +11,8 @@ import {donorPermissions} from '../cms/donor-permissions';
 import {donorRight} from './sponsor-access';
 import {getDonorEntries} from '../cms/donors';
 import {readSponsorDocumentMails} from './sponsor-document-mail';
+import {readAgreementDeliveryRows} from './sponsor-agreement-delivery-records';
+import {readConceptDeliveryRows} from './sponsor-concept-records';
 
 export const sponsorKinds=['items','packages','proposals','agreements','invoices','tasks','activities','profileRequests','businessChangeRequests','contractTemplates','events','settings','donorPeople','donorContributions','donorInvoices'] as const;
 export const donorRecordKinds={donorPeople:'people',donorContributions:'contributions',donorInvoices:'invoices'} as const;
@@ -123,6 +125,8 @@ export async function readDomainStore(tx:any,p:Principal,options:{peopleIds?:str
   state.sponsorship.signingChallenges=challenges.map((r:any)=>({id:r.id,agreementId:r.agreement_id,sponsorId:r.sponsor_id,userId:r.user_id,party:r.party,email:r.email,emailHint:maskEmail(r.email),documentHash:r.document_hash,status:r.status,attempts:r.attempts,createdAt:iso(r.created_at),expiresAt:iso(r.expires_at),consumedAt:iso(r.consumed_at),codeHash:''}));
  }
  if(isStaff&&!options.portal)state.sponsorship.documentMails=await readSponsorDocumentMails(tx,state.sponsorship.sponsors.map(company=>company.id));
+ if(isStaff&&!options.portal)state.sponsorship.agreementDeliveries=await readAgreementDeliveryRows(tx,state.sponsorship.sponsors.map(company=>company.id));
+ if(isStaff&&!options.portal)state.sponsorship.conceptDeliveries=await readConceptDeliveryRows(tx,state.sponsorship.sponsors.map(company=>company.id));
  if(!isStaff||options.portal)state.sponsorship.contractTemplates=[];
  return {state,versions,people,profiles,records,accounts};
 }

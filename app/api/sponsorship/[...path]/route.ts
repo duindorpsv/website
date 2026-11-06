@@ -1,4 +1,5 @@
 import {readSponsorConcepts,requestSponsorConcept,sponsorConceptPdfDownload} from '@/lib/server/sponsor-concepts';
+import {readSponsorAgreementComposer,requestSponsorAgreementDelivery,sponsorAgreementComposerPdf} from '@/lib/server/sponsor-agreement-composer';
 import {directoryLookup} from '@/lib/server/directory-lookup';
 import {sponsorChannelDraft} from '@/lib/server/sponsor-channels';
 import {approvedSponsorProfiles} from '@/lib/server/sponsor-public';
@@ -13,6 +14,8 @@ import {sponsorLogoUpload,sponsorLogoPreview,cancelSponsorLogoUpload} from '@/li
 import {donorInvoiceDownload} from '@/lib/server/donor-invoices';
 export const runtime='nodejs';export const dynamic='force-dynamic';
 export async function GET(request:Request,{params}:{params:Promise<{path:string[]}>}){try{const path=(await params).path;
+ if(path.join('/')==='agreement-composer')return Response.json(await readSponsorAgreementComposer(request),{headers:{'Cache-Control':'private, no-store'}});
+ if(path.join('/')==='agreement-composer/pdf')return await sponsorAgreementComposerPdf(request);
  if(path.length===2&&path[0]==='concepts')return Response.json(await readSponsorConcepts(request,path[1]),{headers:{'Cache-Control':'private, no-store'}});
  if(path.length===3&&path[0]==='concepts'&&path[2]==='pdf')return await sponsorConceptPdfDownload(request,path[1]);
  if(path.length===3&&path[0]==='concept-versions'&&path[2]==='pdf')return await sponsorConceptPdfDownload(request,path[1],true);
@@ -30,6 +33,7 @@ export async function GET(request:Request,{params}:{params:Promise<{path:string[
  throw new CmsError('missing','Dit onderdeel is niet beschikbaar.',404);
 }catch(error){return errorResponse(error);}}
 export async function POST(request:Request,{params}:{params:Promise<{path:string[]}>}){try{const path=(await params).path;
+ if(path.join('/')==='agreement-composer')return Response.json(await requestSponsorAgreementDelivery(request,await bodyJson(request,15000)),{headers:{'Cache-Control':'private, no-store'}});
  if(path.length===2&&path[0]==='concepts')return Response.json(await requestSponsorConcept(request,path[1],await bodyJson(request,15000)),{headers:{'Cache-Control':'private, no-store'}});
  if(path.length===2&&path[0]==='logo-uploads')return Response.json(await sponsorLogoUpload(request,path[1]),{headers:{'Cache-Control':'private, no-store'}});
  if(path.length===3&&path[0]==='companies'&&path[2]==='materials')return Response.json(await sponsorUpload(request,path[1]),{headers:{'Cache-Control':'private, no-store'}});
