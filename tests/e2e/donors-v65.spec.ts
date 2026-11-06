@@ -62,6 +62,7 @@ test('v65 donors: real standalone invoices, archived PDF, bank audit, number set
  await page.getByRole('button',{name:'Pakketten',exact:true}).click();await page.locator('.sb-catalog-card').filter({hasText:pack.name}).getByRole('button',{name:'Bewerken',exact:false}).click();await expect(page.getByRole('dialog')).toContainText('donateuritem');await capture(page,'S03-pakket-met-donateuritem');await page.keyboard.press('Escape');
  const source=sponsor('Kwaliteit Kozijnen · fictief '+run),other=sponsor('Losse maatwerkbron · fictief '+run);
  for(const company of [source,other])await command(page,'saveSponsor',[company],'sponsorship');
+ await command(page,'saveMembership',[{id:crypto.randomUUID(),sponsorId:source.id,userId:admin.id,roles:['signer']}],'sponsorship');
  await command(page,'saveSponsorBusinessDetails',[source.id,{legalName:source.name,companyNumber:'12345678',registrationExempt:false,registrationExemptionReason:'',vatNumber:'',vatStatus:'not-applicable',address:source.address,postalCode:source.postalCode,city:source.city,country:'NL',contactName:'Fictief contact',contactFunction:'Eigenaar',contactEmail:source.email,invoiceEmail:source.email,phone:'',confirmedAt:'',confirmedBy:'',updatedAt:''},true],'sponsorship');
  await command(page,'createSponsorProposal',[source.id,pack.id],'sponsorship');
  let sponsorScope=await workspace(page,'sponsorship'),linked=sponsorScope.state.sponsorship.proposals.find((value:SponsorProposal)=>value.sponsorId===source.id) as SponsorProposal;

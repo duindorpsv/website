@@ -65,6 +65,73 @@ test('database inspection exposes operational metadata without SQL text, client 
   assert.equal(safeDatabaseCode({code:url,message:url}),'unavailable');
 });
 
+test('mail diagnostics distinguish OTP/provider failures and old backlog without exposing task identities or untrusted errors',async()=>{
+  const secret='private-mail-diagnostic@example.invalid',nonce='private-otp-nonce-'+crypto.randomUUID(),owner='private-worker-'+crypto.randomUUID();
+  const before=await inspectDatabase(admin),ids:string[]=[],signingIds:string[]=[];
+  const count=(report:any,kind:string,status:string,error:string)=>report.mail.groups.find((row:any)=>row.kind===kind&&row.status===status&&row.error_code===error)?.count||0;
+  async function task(kind:string,status:string,error:string|null,createdHoursAgo=0,attempts=1){
+    const id=crypto.randomUUID();ids.push(id);
+    await admin`insert into cms_jobs(id,operation_id,kind,status,last_error,payload,created_at,run_at,attempts,max_attempts,lease_until,lease_owner)
+      values (${id},${id},${kind},${status},${error},${admin.json({email:secret,code:'87654321',nonceHash:nonce})},
+      now()-${createdHoursAgo}*interval '1 hour','2200-01-01',${attempts},6,
+      ${status==='processing'?'2200-01-02':null},${owner})`;
+  }
+  try{
+    await task('auth-code-mail','failed','auth-otp-configuration');
+    await task('auth-code-mail','failed','auth-otp-configuration');
+    await task('auth-code-mail','failed','auth-identity');
+    await task('auth-code-mail','failed','42501');
+    await task('mail','failed','mail-rejected');
+    await task('auth-code-mail','pending','mail-unavailable',96);
+    await task('auth-code-mail','failed','mail-invalid',96); // Outside the recent window.
+    await task('sponsor-document-mail','failed',secret);
+    await task(secret,secret,secret);
+    await task('sportlink-sync','processing',secret,120,3);
+    // Reuse a local document FK without changing its immutable snapshot. A
+    // fresh empty database may not have one yet; no business fixture is seeded.
+    const signingCases=[{party:'sponsor',status:'revoked',mail:'failed'},{party:'club',status:'consumed',mail:'accepted'}];
+    for(const row of signingCases){
+      const id=crypto.randomUUID(),created=await admin`insert into cms_sponsor_signing_challenges(id,agreement_id,sponsor_id,user_id,party,email,document_hash,code_hash,status,expires_at,mail_status,issued_at)
+        select ${id},d.agreement_id,d.sponsor_id,u.id,${row.party},${secret},d.document_hash,${'dc'.repeat(32)},${row.status},now()+interval '10 minutes',${row.mail},${row.mail==='accepted'?new Date():null}
+        from cms_sponsor_documents d cross join lateral(select id from auth_user order by id limit 1) u order by d.agreement_id limit 1 returning id`;
+      if(created.length)signingIds.push(id);
+    }
+    const report=await inspectDatabase(admin),serialized=JSON.stringify(report);
+    assert.equal(report.mail.window_hours,24);
+    assert.equal(report.mail.processing_limit,25);
+    for(const [kind,status,error,added] of [
+      ['auth-code-mail','failed','auth-otp-configuration',2],
+      ['auth-code-mail','failed','auth-identity',1],
+      ['auth-code-mail','failed','42501',1],
+      ['mail','failed','mail-rejected',1],
+      ['auth-code-mail','pending','mail-unavailable',1],
+      ['sponsor-document-mail','failed','other',1],
+      ['auth-code-mail','failed','mail-invalid',0],
+    ] as const)assert.equal(count(report,kind,status,error),count(before,kind,status,error)+added);
+    const backlog=report.mail.groups.find((row:any)=>row.kind==='auth-code-mail'&&row.status==='pending'&&row.error_code==='mail-unavailable');
+    assert.ok(Date.now()-new Date(backlog.oldest_created_at).getTime()>=95*3600_000);
+    assert.ok(backlog.oldest_age_seconds>=95*3600);
+    assert.ok(backlog.newest_created_at&&backlog.oldest_run_at&&backlog.newest_run_at);
+    const processing=report.mail.processing.find((row:any)=>row.kind==='sportlink-sync'&&row.attempts===3&&row.created_age_seconds>=119*3600);
+    assert.ok(processing);assert.equal(processing.max_attempts,6);assert.equal(processing.error_code,'other');
+    assert.equal(processing.lease_expired,false);assert.ok(processing.lease_seconds_remaining>0);
+    assert.ok(processing.created_at&&processing.run_at&&processing.lease_until);
+    assert.ok(report.jobs.some((row:any)=>row.kind==='unknown'&&row.status==='unknown'));
+    assert.ok(Array.isArray(report.mail.signing_challenges));
+    for(const row of report.mail.signing_challenges){
+      assert.deepEqual(Object.keys(row).sort(),['party','status','mail_status','count','oldest_created_at','newest_created_at','oldest_issued_at','newest_issued_at'].sort());
+      assert.ok(['sponsor','club','unknown'].includes(row.party));assert.ok(['pending','consumed','revoked','unknown'].includes(row.status));assert.ok(['prepared','accepted','failed','unknown'].includes(row.mail_status));
+    }
+    if(signingIds.length)for(const row of signingCases){
+      const find=(data:any)=>data.mail.signing_challenges.find((entry:any)=>entry.party===row.party&&entry.status===row.status&&entry.mail_status===row.mail);
+      const group=find(report);assert.equal(group.count,(find(before)?.count||0)+1);assert.ok(group.oldest_created_at&&group.newest_created_at);
+      if(row.mail==='accepted')assert.ok(group.oldest_issued_at&&group.newest_issued_at);
+    }
+    for(const value of [secret,nonce,owner,'87654321','dc'.repeat(32),...ids,...signingIds,url])assert.ok(!serialized.includes(value));
+    for(const key of ['payload','last_error','lease_owner','operation_id','"id":','email','code_hash','document_hash'])assert.ok(!serialized.includes(key));
+  }finally{if(signingIds.length)await admin`delete from cms_sponsor_signing_challenges where id in ${admin(signingIds)}`;await admin`delete from cms_jobs where id in ${admin(ids)}`;}
+});
+
 test('connection repair ignores recent queries and other roles, and rolls back only the explicit stalled application session',{timeout:10000},async()=>{
   const runtimeUrl=new URL(url);runtimeUrl.username='duindorp_app';runtimeUrl.password=password;
   let disconnected!:()=>void;

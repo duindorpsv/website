@@ -23,23 +23,27 @@ async function isolatedLogin(email:string){
 async function fixture(role:string){const email='document-mail-'+crypto.randomUUID()+'@example.invalid';const {user}=await getAuth().api.createUser({body:{email,name:'Fictieve documentmail',password:crypto.randomUUID()+crypto.randomUUID()}});await sql`insert into cms_memberships(user_id,role_id) values (${user.id},${role})`;return {...user,cookie:authCookies(await isolatedLogin(email))};}
 const company=(id:string,ownerId:string):Sponsor=>({id,name:'Fictieve documentmail BV',companyNumber:'12345678',vatNumber:'',address:'Teststraat 1',postalCode:'1234 AB',city:'Den Haag',email:'unlinked@example.invalid',phone:'',website:'',description:'',logoUrl:'',ownerId,stage:'lead',notes:'',publicProfile:{name:'Fictief',description:'',website:'',logoUrl:''},publicEnabled:false,publicFrom:'',publicUntil:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),demo:false});
 const business:SponsorBusinessDetails={legalName:'Fictieve documentmail BV',companyNumber:'12345678',registrationExempt:false,registrationExemptionReason:'',vatNumber:'',vatStatus:'not-applicable',address:'Teststraat 1',postalCode:'1234 AB',city:'Den Haag',country:'NL',contactName:'Fictief',contactFunction:'Directeur',contactEmail:'unlinked@example.invalid',invoiceEmail:'unlinked@example.invalid',phone:'',confirmedAt:'',confirmedBy:'',updatedAt:''};
-test('document mail: explicit intent, real queued delivery, failure, current recipient rights and permanent deduplication',async t=>{
+test('document mail: normal send actions queue atomically, failure, current recipient rights and permanent deduplication',async t=>{
  const staff=await fixture('sponsorcommissie'),admin=await fixture('admin'),signer=await fixture('sponsor'),other=await fixture('sponsor'),companyId=crypto.randomUUID();
  const read=()=>workspaceRead(request(staff.cookie));
  async function command(name:string,args:unknown[],operationId=crypto.randomUUID(),cookie=staff.cookie){const data=await read(),body={operationId,mode:'sponsorship',companyId:'',versions:data.versions,commands:[{name,args,offset:0}]};const result=await workspaceCommands(request(cookie,body),body);await sql`update cms_jobs set run_at='2200-01-01' where kind='sponsor-document-mail' and payload->>'deliveryId' in (select id from cms_sponsor_deliveries where sponsor_id=${companyId}) and status='pending'`;return {body,result};}
- await command('saveSponsor',[company(companyId,staff.id)]);await command('saveSponsorBusinessDetails',[companyId,business,true]);
+ await command('saveSponsor',[{...company(companyId,staff.id),email:other.email}]);await command('saveSponsorBusinessDetails',[companyId,{...business,contactEmail:other.email},true]);
  const itemId=crypto.randomUUID(),packageId=crypto.randomUUID();await command('saveSponsorItem',[{id:itemId,name:'Fictief bord',description:'Test',kind:'board',priceCents:10000,taxRate:'21',capacity:0,period:'season',active:true}]);await command('saveSponsorPackage',[{id:packageId,name:'Fictief pakket',description:'Test',itemIds:[itemId],priceCents:10000,taxRate:'21',active:true}]);await command('createSponsorProposal',[companyId,packageId]);const proposal=(await read()).state.sponsorship!.proposals.find(row=>row.sponsorId===companyId)!;
- await command('sendSponsorProposal',[proposal.id]);
- await t.test('freezing is truthful: no document mail exists until explicit send; no account matching',async()=>{
+ await t.test('sending without an active linked signer fails atomically; an email match and marketing role grant no delivery',async()=>{
+  const before=await read(),operationId=crypto.randomUUID();
+  await assert.rejects(command('sendSponsorProposal',[proposal.id],operationId),(error:any)=>error.code==='document-mail-recipient'&&error.status===422);
+  const unchanged=await read(),current=unchanged.state.sponsorship!.proposals.find(row=>row.id===proposal.id)!;
+  assert.equal(current.status,'draft');assert.equal(current.snapshot,undefined);assert.equal(unchanged.versions['record:'+proposal.id],before.versions['record:'+proposal.id]);
+  assert.equal((await sql`select id from cms_domain_operations where id=${operationId}::uuid`).length,0);
   assert.equal((await sql`select id from cms_sponsor_deliveries where reference_id=${proposal.id}`).length,0);
-  await assert.rejects(command('sendSponsorDocumentEmail',[proposal.id,'proposal']),/Koppel eerst een actieve tekenbevoegde/);
   await command('saveMembership',[{id:crypto.randomUUID(),sponsorId:companyId,userId:other.id,roles:['marketing']}],crypto.randomUUID(),admin.cookie);
-  await assert.rejects(command('sendSponsorDocumentEmail',[proposal.id,'proposal']),/Koppel eerst/);
+  await assert.rejects(command('sendSponsorProposal',[proposal.id]),/Koppel eerst/);
+  assert.equal((await read()).state.sponsorship!.proposals.find(row=>row.id===proposal.id)!.status,'draft');
  });
  await command('saveMembership',[{id:crypto.randomUUID(),sponsorId:companyId,userId:signer.id,roles:['signer']}],crypto.randomUUID(),admin.cookie);
  let deliveryId='',cachedSend:any;
- await t.test('explicit send queues exactly once across same/different operation IDs; unauthorized actor cannot send',async()=>{
-  const first=await command('sendSponsorDocumentEmail',[proposal.id,'proposal']);cachedSend=first.body;assert.equal(first.result.mailStatus,'queued');
+ await t.test('the normal proposal send queues exactly once; replay and the repair action never duplicate it',async()=>{
+  const first=await command('sendSponsorProposal',[proposal.id]);cachedSend=first.body;assert.equal(first.result.mailStatus,'queued');
   assert.deepEqual(await workspaceCommands(request(staff.cookie,first.body),first.body),first.result);
   await command('sendSponsorDocumentEmail',[proposal.id,'proposal']);
   const deliveries=await sql`select * from cms_sponsor_deliveries where reference_id=${proposal.id}`;assert.equal(deliveries.length,1);assert.equal(deliveries[0].user_id,signer.id);deliveryId=deliveries[0].id;
@@ -70,10 +74,19 @@ test('document mail: explicit intent, real queued delivery, failure, current rec
   const mail=(await read()).state.sponsorship!.documentMails!.find(row=>row.referenceId===proposal.id)!;assert.equal(mail.status,'partial');assert.equal(mail.accepted,1);assert.equal(mail.recipients,2);assert.ok(mail.acceptedAt);
   const replay=await command('sendSponsorDocumentEmail',[proposal.id,'proposal']);assert.equal(replay.result.mailStatus,'partial');
  });
- await command('createSponsorAgreement',[proposal.id]);const agreement=(await read()).state.sponsorship!.agreements.find(row=>row.proposalId===proposal.id)!;
- await t.test('existing agreement can explicitly queue; revocation before worker cancels without provider call',async()=>{
-  assert.equal((await sql`select id from cms_sponsor_deliveries where reference_id=${agreement.id}`).length,0);
+ await t.test('creating an agreement without a linked signer rolls back the agreement and proposal conversion',async()=>{
+  await sql`update cms_sponsor_memberships set roles=array['billing']::text[] where sponsor_id=${companyId} and user_id=${signer.id}`;
+  const before=await read(),operationId=crypto.randomUUID();
+  try{await assert.rejects(command('createSponsorAgreement',[proposal.id],operationId),(error:any)=>error.code==='document-mail-recipient'&&error.status===422);
+   const unchanged=await read();assert.ok(!unchanged.state.sponsorship!.agreements.some(row=>row.proposalId===proposal.id));assert.equal(unchanged.state.sponsorship!.proposals.find(row=>row.id===proposal.id)!.status,'sent');assert.equal(unchanged.versions['record:'+proposal.id],before.versions['record:'+proposal.id]);assert.equal((await sql`select id from cms_domain_operations where id=${operationId}::uuid`).length,0);
+  }finally{await sql`update cms_sponsor_memberships set roles=array['signer']::text[] where sponsor_id=${companyId} and user_id=${signer.id}`;}
+ });
+ const created=await command('createSponsorAgreement',[proposal.id]);assert.equal(created.result.mailStatus,'queued');const agreement=(await read()).state.sponsorship!.agreements.find(row=>row.proposalId===proposal.id)!;
+ await t.test('creating an agreement queues automatically and replays once; revocation before worker cancels without provider call',async()=>{
+  assert.deepEqual(await workspaceCommands(request(staff.cookie,created.body),created.body),created.result);
+  assert.equal((await sql`select id from cms_sponsor_deliveries where reference_id=${agreement.id}`).length,1);
   await command('sendSponsorDocumentEmail',[agreement.id,'agreement']);const [delivery]=await sql`select id from cms_sponsor_deliveries where reference_id=${agreement.id}`;
+  assert.equal((await sql`select id from cms_jobs where kind='sponsor-document-mail' and payload->>'deliveryId'=${delivery.id}`).length,1);
   await sql`update cms_sponsor_memberships set roles=array['billing']::text[] where sponsor_id=${companyId} and user_id=${signer.id}`;
   const saved=globalThis.fetch;globalThis.fetch=async(input,init)=>{if(String(input).startsWith(process.env.TEST_MAIL_API_URL!))throw new Error('Revoked recipient must not reach provider');return saved(input,init);};try{await deliverSponsorDocumentMail(delivery.id);}finally{globalThis.fetch=saved;}
   assert.equal((await sql`select status from cms_sponsor_deliveries where id=${delivery.id}`)[0].status,'cancelled');
@@ -83,7 +96,7 @@ test('document mail: explicit intent, real queued delivery, failure, current rec
   await sql`update cms_sponsor_memberships set roles=array['signer']::text[] where sponsor_id=${companyId} and user_id=${signer.id}`;
   await command('sendSponsorDocumentEmail',[agreement.id,'agreement']);const [delivery]=await sql`select id from cms_sponsor_deliveries where reference_id=${agreement.id}`;
   await sql`update cms_memberships set role_id='sponsor' where user_id=${staff.id}`;
-  try{await assert.rejects(workspaceCommands(request(staff.cookie,cachedSend),cachedSend),/geen rechten/);await deliverSponsorDocumentMail(delivery.id);}finally{await sql`update cms_memberships set role_id='sponsorcommissie' where user_id=${staff.id}`;}
+  try{await assert.rejects(workspaceCommands(request(staff.cookie,cachedSend),cachedSend),/geen rechten/);await assert.rejects(workspaceCommands(request(staff.cookie,created.body),created.body),/geen rechten/);await deliverSponsorDocumentMail(delivery.id);}finally{await sql`update cms_memberships set role_id='sponsorcommissie' where user_id=${staff.id}`;}
   assert.equal((await sql`select status from cms_sponsor_deliveries where id=${delivery.id}`)[0].status,'cancelled');
  });
  await t.test('a queued proposal superseded by an agreement cancels instead of sending stale content',async()=>{
