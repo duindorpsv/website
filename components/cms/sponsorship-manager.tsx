@@ -79,7 +79,7 @@ function exportElement(print = false) {
     if (print) {
         const target = window.open('', '_blank', 'noopener=false');
         if (target) {
-            target.addEventListener('load', () => target.print(), { once: true });
+            target.addEventListener('load', () => { void target.document.fonts.ready.then(() => target.print()); }, { once: true });
             target.document.write(html);
             target.document.close();
         }
