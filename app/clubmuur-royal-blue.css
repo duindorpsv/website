@@ -37,7 +37,7 @@
 }
 
 .concept-clubmuur[data-page='home'] .cm-competition::after {
-  background: linear-gradient(0deg, #0000000c, transparent 60%);
+  background: none;
 }
 
 /* Retain the white timeline surface and its interaction states, using the
