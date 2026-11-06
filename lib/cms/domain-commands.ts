@@ -32,6 +32,10 @@ export function domainMutation<T>(name:string,args:unknown[],run:()=>T):T{
 }
 
 export function domainCommandVersionKey(name:string,args:any[]){
+ if(['saveDonor','saveDonorContribution'].includes(name))return 'record:'+args[0].id;
+ if(['markDonorInvoicePaid','cancelDonorInvoice','sendDonorInvoice'].includes(name))return 'record:'+args[0];
+ if(name==='issueDonorInvoice')return 'record:'+args[0];
+ if(name==='saveInvoiceNumberingSettings')return 'record:sponsor-settings';
  if(name==='saveDirectoryPerson')return 'person:'+args[0].person.id;
  if(['saveSponsor','saveSponsorBusinessDetails'].includes(name))return 'company:'+(typeof args[0]==='string'?args[0]:args[0].id);
  if(name==='saveDirectoryAssignment')return 'assignment:'+args[0].id;
@@ -40,6 +44,6 @@ export function domainCommandVersionKey(name:string,args:any[]){
  if(name==='approveDirectoryGuardian')return 'guardian:'+args[0];
  if(name==='saveMembership')return 'membership:'+args[0].id;
  if(name==='removeSponsorMembership')return 'membership:'+args[0];
- if(name.startsWith('saveSponsor')||['reviewSponsorBusinessChange','approveSponsorProfile','sendSponsorProposal','createSponsorAgreement','updateSponsorTask','recordSponsorManualPayment','removeSponsorContractTemplate'].includes(name))return 'record:'+(typeof args[0]==='string'?args[0]:args[0]?.id||'sponsor-settings');
+ if(name.startsWith('saveSponsor')||['reviewSponsorBusinessChange','approveSponsorProfile','sendSponsorProposal','sendSponsorDocumentEmail','createSponsorAgreement','updateSponsorTask','recordSponsorManualPayment','removeSponsorContractTemplate'].includes(name))return 'record:'+(typeof args[0]==='string'?args[0]:args[0]?.id||'sponsor-settings');
  return '';
 }

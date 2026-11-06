@@ -15,6 +15,7 @@ const message = z.object({
   fromAddress:z.string().email().optional(),
   newsletterDeliveryId:z.string().uuid().optional(),
   headers:z.record(z.string().regex(/^[^\r\n]*$/)).optional(),
+  attachments:z.array(z.object({filename:z.string().min(1).max(200).regex(/^[a-zA-Z0-9._-]+$/),content:z.string().min(1).max(8_000_000).regex(/^[A-Za-z0-9+/]*={0,2}$/)}).strict()).max(1).optional(),
 });
 export class MailProviderError extends CmsError{
   constructor(code:string,message:string,public retryable:boolean,public uncertain:boolean){super(code,message,503);}
@@ -55,6 +56,7 @@ export async function sendMail(input: z.infer<typeof message>) {
       ...(data.data.html?{html:data.data.html}:{}),
       ...(data.data.replyTo ? {reply_to: data.data.replyTo} : {}),
       ...(data.data.headers?{headers:data.data.headers}:{}),
+      ...(data.data.attachments?{attachments:data.data.attachments}:{}),
       tags: [{name:'cms_operation',value:operation},...(data.data.newsletterDeliveryId?[{name:'newsletter_delivery',value:data.data.newsletterDeliveryId}]:[])],
     }));
     const batch = messages.length>1;

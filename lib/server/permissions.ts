@@ -3,6 +3,7 @@ import { getAuth } from './auth';
 import { sqlClient } from '../../db/index';
 import { CmsError } from './errors';
 import { env } from './env';
+import {donorPermissions} from '../cms/donor-permissions';
 export type Principal = {
     id: string;
     name: string;
@@ -36,7 +37,7 @@ export function cmsPermissions(p:Principal):Permission[]{
  const modules:Permission[]=['news','stories','pages','media','people','forms','settings','users','directory','sponsors'];
  const permissions=modules.filter(module=>p.grants.some(grant=>grant.module==='*'||grant.module===module||module==='forms'&&grant.module==='submissions'));
  if(p.grants.some(grant=>grant.action==='publish'||grant.action==='*'))permissions.push('publish');
- return permissions;
+ return [...permissions,...donorPermissions(p.grants,p.teamScoped)];
 }
 export function has(p: Principal, module: string, action: string, scope?: {
     teamId?: string;

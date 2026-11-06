@@ -1,5 +1,6 @@
 import {pgTable,text,boolean,timestamp,integer,bigint,jsonb,index,uniqueIndex,primaryKey,uuid,type AnyPgColumn} from 'drizzle-orm/pg-core';
 export * from './sponsor-schema';
+export * from './mollie-schema';
 const time=(name:string)=>timestamp(name,{withTimezone:true});
 export const archiveCatalog=pgTable('cms_archive_catalog',{kind:text('kind').notNull(),id:text('id').notNull(),draft:jsonb('draft').notNull(),live:jsonb('live'),aliases:jsonb('aliases').notNull().default([]),version:integer('version').notNull().default(1),seedHash:text('seed_hash'),updatedAt:time('updated_at').notNull().defaultNow()},t=>[primaryKey({columns:[t.kind,t.id]}),index('archive_catalog_kind_idx').on(t.kind,t.updatedAt)]).enableRLS();
 export const archiveBatches=pgTable('cms_archive_batches',{id:text('id').primaryKey(),ownerHash:text('owner_hash').notNull(),userId:text('user_id').references(()=>user.id),operationId:text('operation_id').notNull().unique(),draft:jsonb('draft').notNull(),submittedId:text('submitted_id'),createdAt:time('created_at').notNull().defaultNow(),expiresAt:time('expires_at').notNull()},t=>[index('archive_batch_owner_idx').on(t.ownerHash),index('archive_batch_expiry_idx').on(t.expiresAt),index('archive_batch_user_idx').on(t.userId)]).enableRLS();

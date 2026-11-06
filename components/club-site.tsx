@@ -93,7 +93,7 @@ function ClubSiteContent({section='home',contentPath,headerDesign='clubband',her
  return <div ref={root} className="club-site concept-clubmuur" data-theme={dark?'dark':'light'}>
   <a className="skip-link" href="#main-content">Naar de inhoud</a>
   <ClubmuurHeader variant={headerDesign} section={section==='verhalen'?'nieuws':section} openJoin={actions.openJoin}/>
-  <div id="main-content">{contentPath?<CmsRoutedContent path={path}/>:section==='home'?<main>
+  <div id="main-content">{contentPath?<CmsRoutedContent path={path}/>:section==='home'?<main className="cm-home">
    <ClubmuurHero actions={actions} items={items} layout={heroLayout} photo={heroPhoto} preview={heroPreview}/>
    <CmsFeaturedPhotos/>
    <ClubmuurCommunityCards items={items} onOpen={actions.openArticle} articleOpen={!!article}/>

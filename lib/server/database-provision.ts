@@ -50,4 +50,10 @@ export async function provisionDatabase(sql:any,password:string,onStage:(stage:P
   if(scope.auth_access)throw new Error('Het runtime-account heeft onverwachte toegang tot het beheerde Auth-schema.');
   onStage('audit');
   await sql`revoke update,delete on cms_audit,cms_revisions,cms_publications from duindorp_app`;
+  // Financial reservations and archived invoice documents are append-only.
+  // During rolling provisioning the new additive migration may not exist yet.
+  for(const table of ['cms_invoice_numbers','cms_donor_invoice_documents']){
+    const [found]=await sql`select to_regclass(${'public.'+table}) is not null as present`;
+    if(found.present)await sql`revoke update,delete on ${sql('public.'+table)} from duindorp_app`;
+  }
 }
