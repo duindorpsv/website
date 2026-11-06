@@ -10,6 +10,7 @@ import {readSponsorship,saveSponsorSettings,saveSponsorEvent,recordSponsorManual
 import {uid} from '@/lib/cms/model';
 import type {SponsorEvent,SponsorSettings,SponsorInvoice} from '@/lib/cms/sponsorship-types';
 import './sponsor-settings-panel.css';
+import {MollieStreamSummary} from './mollie-stream-summary';
 
 const emailValid=(value:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 const clubFields=[{key:'legalName',label:'Statutaire clubnaam',placeholder:'Duindorp Sportvereniging'},{key:'address',label:'Clubadres',placeholder:'Adres, postcode en plaats'},{key:'companyNumber',label:'KvK-nummer club',placeholder:'KvK-nummer'},{key:'representative',label:'Vertegenwoordiger',placeholder:'Naam bevoegd vertegenwoordiger'},{key:'representativeFunction',label:'Functie vertegenwoordiger',placeholder:'Bijvoorbeeld voorzitter'},{key:'email',label:'E-mailadres club',placeholder:'secretariaat@duindorpsv.nl'}] as const;
@@ -45,7 +46,7 @@ export function SponsorSettingsPanel(){
   },'Sponsorbijeenkomst opgeslagen.');
   if(ok)setEvent(null);else setError('De bijeenkomst is niet opgeslagen. Controleer de melding en probeer opnieuw.');
  }
- return <div className="sb-settings-panel">
+ return <div className="sb-settings-panel"><MollieStreamSummary streamCode="sponsors"/>
   <div className="sb-section-head"><div><h3>Een vaste basis voor iedere samenwerking.</h3><p>Standaardvoorwaarden, communicatie en clubmomenten voor sponsoren.</p></div></div>
   <form className="sb-stack" aria-label="Instellingen sponsoring" onSubmit={event=>{event.preventDefault();saveSettings();}}>
    <fieldset disabled={!allowed||saving} className="sb-settings-fields">

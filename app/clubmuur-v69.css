@@ -1,0 +1,141 @@
+/* v69: the local Permanent Marker face is the heading face across all surfaces.
+   Keep the fixed hero lettering and the header/hero-band artwork intact.
+   The explicit priority also covers CSS imported by route-level portal modules. */
+:root :is(h1,h2,h3,h4,h5,h6,[role="heading"]),
+[data-slot="dialog-title"],
+[data-slot="alert-dialog-title"],
+.cm-desktop-panel-heading>strong,
+.cm-menu-parent-title,
+.cm-life-photo-copy strong,
+.cm-community-news-copy>strong,
+.cm-community-event-copy>strong,
+.cm-community-agenda-empty strong,
+.cm-competition-empty>strong,
+.cht-stop>button>strong,
+.cmsp-image-empty>strong,
+.cm-community-dialog-head>span,
+.org-blue-note>strong,
+.ip-role-option strong,
+.ip-membership-photo figcaption,
+.td-official-photo figcaption>span,
+.td-report-art span,
+.xp-photo-copy strong,
+.hp-story-mark strong,
+.hp-aside-motto :is(span,strong),
+.tp-team-photo>div,
+.tp-walking-stamp,
+.ca-aside-quote>span,
+.ca-archive-stamp>span,
+.ca-linked-team>strong,
+.sb-mini-title>strong,
+.sb-hero-side strong,
+.dd-stage>b,
+.sc-notice strong,
+.sc-choice-note strong,
+.dc-notes>strong,
+.nc-footer-copy>span,
+.nc-broadcast-footer>span,
+.nc-studio-footer strong,
+.nk-walking-word,
+.nk-welcome-values span,
+.ns-match-slogan {
+  font-family:'Permanent Marker',cursive!important;
+  font-weight:400!important;
+  font-style:normal!important;
+  font-synthesis:none!important;
+  line-height:1.22!important;
+  letter-spacing:normal!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere;
+  min-width:0;
+  max-width:100%;
+}
+
+/* A title's brush/span/em must not restore a condensed face or tight tracking. */
+:is(h1,h2,h3,h4,h5,h6,[role="heading"]) :is(span,strong,b,em,a,.brush) {
+  font-family:inherit!important;
+  font-weight:400!important;
+  font-style:normal!important;
+  font-synthesis:none!important;
+  line-height:inherit!important;
+  letter-spacing:normal!important;
+  white-space:normal!important;
+}
+:root .cm-headline h1 {line-height:1!important}
+
+/* Only these homepage sections share the header's wall recipe. No shared
+   colour variable is changed, so the hero and other pages retain their art. */
+.concept-clubmuur .cm-home :is(.cm-competition,.cht-widget,.cm-life) {
+  background:#03438a url('/assets/clubmuur-wall.webp') center 80% / cover;
+  background-blend-mode:multiply;
+}
+.concept-clubmuur .cm-home :is(.cm-competition,.cht-widget,.cm-life)::before {
+  background:linear-gradient(90deg,#0002,transparent 48%,#0001);
+  background-blend-mode:normal;
+  opacity:1;
+  mix-blend-mode:normal;
+  mask:none;
+  -webkit-mask:none;
+}
+.concept-clubmuur .cm-home .cm-competition::after {
+  background:none;
+}
+.concept-clubmuur .cm-home .cht-widget {
+  --cht-blue:#03438a;
+  --cht-paper:#fff;
+}
+.concept-clubmuur .cm-home :is(.cht-story-actions>a,.cht-empty button):hover {
+  background:#022d5e;
+}
+
+/* The wider brush needs space inside the existing cards, without moving
+   the hero artwork or changing score, amount, button or navigation fonts. */
+.cm-competition-heading h2 {font-size:clamp(30px,2.8vw,49px)}
+.cm-competition-card-head h3 {font-size:clamp(21px,1.8vw,28px)}
+.cm-competition-heading>div:first-child,.cm-life-heading>div:first-child {min-width:0}
+.cm-competition-heading-side {flex:none}
+.cm-life-heading h2 {font-size:clamp(38px,4.8vw,72px)}
+.cm-life-photo-copy strong {font-size:clamp(24px,2.2vw,36px)}
+.cm-featured-match h2 {font-size:clamp(20px,7.5cqw,28px)}
+.cht-heading h2 {font-size:clamp(34px,4.4vw,59px)}
+.cht-story-copy h3 {font-size:clamp(24px,2.3vw,33px)}
+.cht-stop>button>strong {font-size:17px;min-height:2.44em}
+.cht-museum h4 {font-size:21px}
+.cm-life-lightbox-bottom>div:first-child {min-width:0}
+.dd-heading>div:first-child,.sb-section-head>div {min-width:0}
+.cm-community-news-copy>strong {-webkit-line-clamp:unset;display:block;overflow:visible}
+
+/* The current club-portal markup places this title in a section wrapper and
+   the family dialog fields directly in the form, rather than in body slots. */
+.cport-card:has(>.cport-section-heading) {display:block}
+.cport-card:has(>.cport-details) {display:flex}
+.cport-details {width:100%;margin:8px 0 22px;font-size:12px;line-height:1.7}
+.cport-details>div {display:grid;grid-template-columns:minmax(80px,.7fr) minmax(0,1.3fr);gap:12px;padding-block:9px;border-bottom:1px solid #e3ebf3}
+.cport-details dt {color:var(--cport-muted,#6a8094)}
+.cport-details dd {margin:0;overflow-wrap:anywhere}
+.cport-card>.cport-section-heading {display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:18px;margin:0 0 20px}
+.cport-card>.cport-section-heading>div {flex:1 1 220px;min-width:0}
+.cport-modal:has(>form) {padding:24px}
+.cport-modal>h2 {font-size:22px;margin-bottom:12px}
+.cport-modal>p {font-size:12px;line-height:1.7;margin-bottom:20px}
+.cport-modal>form {overflow-y:auto;min-height:0;font-size:12px}
+.cport-modal>form>.cms-field {display:grid;gap:8px;margin-bottom:18px;font-size:12px;font-weight:700}
+.cport-modal>form>.cms-field :is(input,select) {width:100%;min-width:0;min-height:42px;padding:9px 11px;border:1px solid #d3e0ed;border-radius:7px;background:#fff;font:13px Manrope,Arial,sans-serif}
+.cport-modal>form .cport-permission-fields>label {display:flex;align-items:flex-start;gap:9px;margin-block:10px;font-size:12px}
+.cport-modal>form .cport-permission-fields input {margin-top:4px;flex:none}
+
+@media(max-width:759px) {
+  .cm-competition-heading {flex-wrap:wrap}
+  .cm-competition-heading h2 {font-size:clamp(28px,7.5vw,38px)}
+  .cm-competition-heading-side {align-items:flex-start;max-width:100%}
+  .cm-competition-card-head h3 {font-size:25px}
+  .cm-life-heading h2 {font-size:clamp(32px,8.5vw,51px)}
+  .cm-life-photo-copy strong {font-size:clamp(25px,7vw,34px)}
+  .cm-featured-match h2 {font-size:clamp(17px,4.4vw,23px)}
+  .cht-heading h2 {font-size:clamp(31px,8.3vw,43px)}
+  .cht-story-copy h3 {font-size:clamp(25px,7vw,34px)}
+  .cht-stop>button>strong {font-size:18px}
+  .cht-museum h4 {font-size:22px}
+  .cm-life-lightbox-bottom {flex-wrap:wrap}
+  .cport-modal:has(>form) {padding:20px}
+}
