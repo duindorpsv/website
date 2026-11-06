@@ -104,6 +104,9 @@
 .cm-life-lightbox-bottom>div:first-child {min-width:0}
 .dd-heading>div:first-child,.sb-section-head>div {min-width:0}
 .cm-community-news-copy>strong {-webkit-line-clamp:unset;display:block;overflow:visible}
+/* Stretch within the album grid track without letting the cover's aspect
+   ratio expand it over the adjacent brush heading. */
+.cmsp-home-albums .cmsp-album-cover {min-width:0;width:100%}
 
 /* The current club-portal markup places this title in a section wrapper and
    the family dialog fields directly in the form, rather than in body slots. */
