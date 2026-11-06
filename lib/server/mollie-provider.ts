@@ -5,7 +5,7 @@ import {CmsError} from './errors';
 
 export type MollieCredentialBinding={id:string;clubId:'duindorpsv';organizationId:string;mode:MollieMode;authMode:MollieAuthMode;credentialKind:'advanced-access-token'|'oauth'|'profile-api-key';currentProfileId:string;scopes:string[];testmodeParameter:boolean};
 export type MollieCredential={token:string;binding:MollieCredentialBinding};
-const bindingSchema=z.object({clubId:z.literal('duindorpsv'),organizationId:z.string().regex(/^org_[A-Za-z0-9]+$/),mode:z.enum(['test','live']),authMode:z.enum(['advanced-token','profile-api-key']),credentialKind:z.enum(['advanced-access-token','oauth','profile-api-key']),currentProfileId:z.string().regex(/^pfl_[A-Za-z0-9]+$/).or(z.literal('')),scopes:z.array(z.enum(['profiles.read','balances.read','payments.read','payments.write'])).max(4),testmodeParameter:z.boolean()}).strict();
+const bindingSchema=z.object({clubId:z.literal('duindorpsv'),organizationId:z.string().regex(/^org_[A-Za-z0-9]+$/),mode:z.enum(['test','live']),authMode:z.enum(['advanced-token','profile-api-key']),credentialKind:z.enum(['advanced-access-token','oauth','profile-api-key']),currentProfileId:z.string().regex(/^pfl_[A-Za-z0-9]+$/).or(z.literal('')),scopes:z.array(z.enum(['organizations.read','profiles.read','balances.read','payments.read','payments.write'])).max(5),testmodeParameter:z.boolean()}).strict();
 /** The browser cannot choose a process variable or supply token/binding claims. */
 export function resolveMollieCredential(mode:MollieMode,expectedBindingId?:string):MollieCredential{
  if(mode!=='test'&&mode!=='live')throw new CmsError('mollie-mode','Kies test of live.',422);
@@ -81,7 +81,11 @@ export async function fetchMollieCatalog(credential:MollieCredential,fetcher:Mol
   // Ordinary profile keys cannot invent an organization-wide balances inventory.
   return {source:'provider',organizationId:binding.organizationId,bindingId:binding.id,fetchedAt,profiles:[profile],balances:[],links:[]};
  }
- requireMollieScopes(credential,['profiles.read','balances.read','payments.read']);
+ requireMollieScopes(credential,['organizations.read','profiles.read','balances.read','payments.read']);
+ // Verify the actual authenticated account before trusting an operator's binding
+ // or requesting inventories. This organization endpoint has no mode parameter.
+ const organization=await mollieRequest(credential,'/v2/organizations/me',fetcher);
+ if(organization?.resource!=='organization'||organization.id!==binding.organizationId)throw new CmsError('mollie-organization-mismatch','Het geauthenticeerde Mollie-account komt niet overeen met de vastgelegde cluborganisatie.',409);
  const rawProfiles=binding.currentProfileId?[await mollieRequest(credential,withQuery('/v2/profiles/'+binding.currentProfileId,queryMode(credential)),fetcher)]:await list(credential,'profiles',fetcher);
  const rawBalances=await list(credential,'balances',fetcher),profiles:MollieProfile[]=[];
  for(const raw of rawProfiles){
@@ -91,5 +95,5 @@ export async function fetchMollieCatalog(credential:MollieCredential,fetcher:Mol
   const profile=await normalizeProfile(selected,credential,fetchedAt,fetcher);expect(profile.id===raw.id,'Het opgehaalde profiel wijkt af van de catalogusreferentie.');profiles.push(profile);
  }
  const balances:MollieBalance[]=rawBalances.map(raw=>{const parsed=balanceSchema.safeParse(raw);expect(parsed.success);const b=parsed.data;expect(b.mode===binding.mode,'Mollie gaf een balans uit een andere betaalomgeving terug.');return {id:b.id,description:b.description,currency:b.currency,status:b.status,mode:b.mode};});
- return {source:'provider',organizationId:binding.organizationId,bindingId:binding.id,fetchedAt,profiles,balances,links:[]};
+ return {source:'provider',organizationId:organization.id,bindingId:binding.id,fetchedAt,profiles,balances,links:[]};
 }

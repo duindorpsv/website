@@ -19,12 +19,12 @@ async function read(cookie:string,query=''){const response=await GET(request(coo
 async function command(cookie:string,body:unknown){const response=await POST(request(cookie,body));return {status:response.status,body:await response.json()};}
 async function user(grants:{module:string;action:string}[],teamScoped=false){const role='mollie-fixture-'+crypto.randomUUID();await fixture`insert into cms_roles(id,name,description,team_scoped) values (${role},'Fictieve Mollie-rol','Geïsoleerde test',${teamScoped})`;for(const grant of grants)await fixture`insert into cms_grants(role_id,module,action) values (${role},${grant.module},${grant.action})`;const {user}=await getAuth().api.createUser({body:{email:'mollie-'+crypto.randomUUID()+'@example.invalid',name:'Fictieve Mollie-beheerder',password:crypto.randomUUID()+crypto.randomUUID()}});await fixture`insert into cms_memberships(user_id,role_id) values (${user.id},${role})`;return {...user,role,cookie:authCookies(await loginEmail(user.email))};}
 const syntheticToken='test-integration-token-only-no-provider-secret';
-const safeBinding={clubId:'duindorpsv',organizationId:'org_fixture',mode:'test',authMode:'advanced-token',credentialKind:'advanced-access-token',currentProfileId:'',scopes:['profiles.read','balances.read','payments.read','payments.write'],testmodeParameter:true};
+const safeBinding={clubId:'duindorpsv',organizationId:'org_fixture',mode:'test',authMode:'advanced-token',credentialKind:'advanced-access-token',currentProfileId:'',scopes:['organizations.read','profiles.read','balances.read','payments.read','payments.write'],testmodeParameter:true};
 
 test('Mollie: real authenticated settings, safe projections, atomic catalog, current permissions and independent club saves',{timeout:120000},async t=>{
  const manager=await user([{module:'settings',action:'update'},{module:'settings',action:'read'},{module:'settings',action:'publish'}]),donor=await user([{module:'donors',action:'read'},{module:'donors',action:'settings'}]),donorSettingsOnly=await user([{module:'donors',action:'settings'}]),sponsor=await user([{module:'sponsors',action:'*'}]),team=await user([{module:'settings',action:'*'}],true);
  const saved=await fixture`select * from cms_records where id='site-mollie'`,previousToken=process.env.MOLLIE_TEST_TOKEN,previousBinding=process.env.MOLLIE_TEST_BINDING,originalFetch=globalThis.fetch;
- let failBalances=false,revokeDuringSync=false,providerCalls=0;
+ let failBalances=false,wrongOrganization=false,revokeDuringSync=false,providerCalls=0;
  t.after(async()=>{globalThis.fetch=originalFetch;if(previousToken===undefined)delete process.env.MOLLIE_TEST_TOKEN;else process.env.MOLLIE_TEST_TOKEN=previousToken;if(previousBinding===undefined)delete process.env.MOLLIE_TEST_BINDING;else process.env.MOLLIE_TEST_BINDING=previousBinding;await fixture`delete from cms_records where id='site-mollie'`;if(saved[0])await fixture`insert into cms_records ${fixture(saved[0])}`;});
  await fixture`delete from cms_records where id='site-mollie'`;
  process.env.MOLLIE_TEST_TOKEN=syntheticToken;process.env.MOLLIE_TEST_BINDING=JSON.stringify(safeBinding);
@@ -32,6 +32,7 @@ test('Mollie: real authenticated settings, safe projections, atomic catalog, cur
   const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url);
   if(url.hostname!=='api.mollie.com')return originalFetch(input,init);
   providerCalls++;assert.equal(init?.method,'GET','Configuration/sync never creates a payment');
+  if(url.pathname==='/v2/organizations/me'){assert.equal(url.search,'');return Response.json({resource:'organization',id:wrongOrganization?'org_other':'org_fixture'});}
   if(url.pathname==='/v2/profiles'){
    if(revokeDuringSync){revokeDuringSync=false;await fixture`delete from cms_grants where role_id=${manager.role} and module='settings'`;}
    return Response.json({_embedded:{profiles:[{resource:'profile',id:'pfl_fixture',name:'Fictief clubprofiel',website:'https://example.invalid',status:'verified',mode:'test'}]},_links:{next:null}});
@@ -55,7 +56,7 @@ test('Mollie: real authenticated settings, safe projections, atomic catalog, cur
   const reread=await read(manager.cookie);assert.deepEqual(reread.body.settings,state.settings);const [row]=await sql`select live from cms_records where id='site-mollie'`;assert.equal(row.live,null);
  });
  await t.test('a failed page or revoked grant cannot publish a partial/successful catalog',async()=>{
-  const before=await readMollieConfiguration();failBalances=true;const failed=await command(manager.cookie,{action:'sync',expectedVersion:state.version,mode:'test'});assert.equal(failed.status,502);assert.equal(failed.body.code,'mollie-scope');assert.deepEqual(await readMollieConfiguration(),before);failBalances=false;
+  const before=await readMollieConfiguration();wrongOrganization=true;const mismatch=await command(manager.cookie,{action:'sync',expectedVersion:state.version,mode:'test'});assert.equal(mismatch.status,409);assert.equal(mismatch.body.code,'mollie-organization-mismatch');assert.deepEqual(await readMollieConfiguration(),before);wrongOrganization=false;failBalances=true;const failed=await command(manager.cookie,{action:'sync',expectedVersion:state.version,mode:'test'});assert.equal(failed.status,502);assert.equal(failed.body.code,'mollie-scope');assert.deepEqual(await readMollieConfiguration(),before);failBalances=false;
   revokeDuringSync=true;const revoked=await command(manager.cookie,{action:'sync',expectedVersion:state.version,mode:'test'});assert.equal(revoked.status,403);assert.deepEqual(await readMollieConfiguration(),before);assert.equal((await read(manager.cookie)).status,403);
   for(const action of ['read','update','publish'])await fixture`insert into cms_grants(role_id,module,action) values (${manager.role},'settings',${action})`;
  });

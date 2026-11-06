@@ -7,7 +7,7 @@ import type {MollieMode,MollieSettings,MollieStream} from '../cms/mollie-types';
 import {CmsError} from './errors';
 import {has,type Principal} from './permissions';
 import {workspaceActor,freshActor,workspaceRate,donorRight} from './sponsor-access';
-import {fetchMollieCatalog,resolveMollieCredential} from './mollie-provider';
+import {fetchMollieCatalog,resolveMollieCredential,requireMollieScopes} from './mollie-provider';
 
 const RECORD_ID='site-mollie';
 const modes=['test','live'] as const;
@@ -16,6 +16,7 @@ function requireManage(p:Principal){if(!canManageMollieServer(p))throw new CmsEr
 function clearCatalog(settings:MollieSettings,mode:MollieMode){const env=settings.environments[mode];env.catalog=emptyMollieCatalog();env.streams=env.streams.map(row=>({...row,enabled:false,profileId:''}));}
 function assertConnection(settings:MollieSettings,mode:MollieMode){
  const env=settings.environments[mode],credential=resolveMollieCredential(mode);
+ if(credential.binding.authMode==='advanced-token')requireMollieScopes(credential,['organizations.read','profiles.read','balances.read','payments.read']);
  if(env.credentialReference!==`MOLLIE_${mode.toUpperCase()}_TOKEN`||env.authMode!==credential.binding.authMode||env.currentProfileId!==credential.binding.currentProfileId)throw new CmsError('mollie-binding','De opgeslagen verbinding past niet bij de beheerde toegang.',409);
  return credential;
 }
@@ -32,7 +33,7 @@ export async function resolveMollieServerRoute(streamCode:string,selectedMode?:M
  const route=getMollieStreamRoute(config.settings,streamCode,mode);if(!route.available)throw new CmsError('mollie-route-unavailable',route.reason,409);
  return {...config,route,credential};
 }
-function status(settings:MollieSettings){return Object.fromEntries(modes.map(mode=>{try{const {binding}=resolveMollieCredential(mode),env=settings.environments[mode],configured=env.credentialReference===`MOLLIE_${mode.toUpperCase()}_TOKEN`&&env.authMode===binding.authMode&&env.currentProfileId===binding.currentProfileId;return [mode,{configured,organizationId:binding.organizationId,bindingId:binding.id,currentProfileId:binding.currentProfileId,authMode:binding.authMode,reason:configured?'':'Bewaar de koppelinstellingen die bij de beheerde toegang horen.'}];}catch(error){return [mode,{configured:false,organizationId:'',bindingId:'',currentProfileId:'',authMode:settings.environments[mode].authMode,reason:error instanceof CmsError?error.message:'De accountbinding vereist controle.'}];}}));}
+function status(settings:MollieSettings){return Object.fromEntries(modes.map(mode=>{try{const credential=resolveMollieCredential(mode),{binding}=credential;if(binding.authMode==='advanced-token')requireMollieScopes(credential,['organizations.read','profiles.read','balances.read','payments.read']);const env=settings.environments[mode],configured=env.credentialReference===`MOLLIE_${mode.toUpperCase()}_TOKEN`&&env.authMode===binding.authMode&&env.currentProfileId===binding.currentProfileId;return [mode,{configured,organizationId:binding.organizationId,bindingId:binding.id,currentProfileId:binding.currentProfileId,authMode:binding.authMode,reason:configured?'':'Bewaar de koppelinstellingen die bij de beheerde toegang horen.'}];}catch(error){return [mode,{configured:false,organizationId:'',bindingId:'',currentProfileId:'',authMode:settings.environments[mode].authMode,reason:error instanceof CmsError?error.message:'De accountbinding vereist controle.'}];}}));}
 function project(config:Awaited<ReturnType<typeof readMollieConfiguration>>){return {...config,connections:status(config.settings),paymentsEnabled:false as const,executionAllowed:false as const};}
 export async function readMollieWorkspace(request:Request){
  const actor=await workspaceActor(request.headers),url=new URL(request.url),summary=url.searchParams.get('stream');
