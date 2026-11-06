@@ -62,16 +62,20 @@ CSV gebruikt de bestaande kolommen `bronId;naam;email;telefoon`. JSON accepteert
 1. Maak de relatie aan; onvolledige formele bedrijfsgegevens mogen als concept worden bewaard.
 2. Vul de formele partij, vestigingsadres, registratie/btw, contactpersoon en factuuradres in en bevestig deze.
 3. Beheer losse items, capaciteit, prijzen en pakketten. De catalogusprijs blijft op iedere voorstelregel staan; pakketkorting of pakketmeerprijs is afzonderlijk zichtbaar. Persoonlijke naam, toevoeging, regelperiode, itemkorting en eenmalige opmaak horen bij het voorstel. Een volgend seizoen krijgt een eigen regelperiode; opmaak en eerdere itemkorting worden daarbij niet automatisch herhaald. Capaciteit 0 betekent onbeperkt. Verzonden voorstellen en overeenkomsten reserveren overlappende plekken; omzetten telt dezelfde toezegging één keer.
-4. Maak een voorstel met looptijd, regels, eventuele korting en een overeenkomsttemplate. De 37 shortcodes worden gecontroleerd en één keer als tekst ingevuld. Versturen zet bedrijfsgegevens, bedragen en template-inhoud vast.
+4. Maak een voorstel met looptijd, regels, eventuele korting en een overeenkomsttemplate. De 37 shortcodes worden gecontroleerd en één keer als tekst ingevuld. **Voorstel vastzetten** bewaart bedrijfsgegevens, bedragen en template-inhoud; de status **Klaargezet** betekent dat het voorstel in het portaal beschikbaar is. Dit verstuurt op zichzelf geen e-mail.
 5. Maak de overeenkomst van dat voorstel. Bedrijf of template later wijzigen herschrijft bestaande documenten niet. Een verouderde formele partij vereist een actueel voorstel.
 6. Eerst tekent de gekoppelde sponsorondertekenaar. Daarna tekent een ander commissieaccount namens de club. Beide vragen een eigen e-mailcode aan, geven expliciete instemming en bevestigen dezelfde documenthash.
-7. Na beide bewijzen ontstaat de uitvoering en archiveert de worker de definitieve PDF. De PDF-knop kan kort melden dat archivering nog loopt. Nieuwe facturen zijn pas na beide echte ondertekeningen mogelijk.
+7. Na beide bewijzen ontstaat de uitvoering, archiveert de worker de definitieve PDF en ontvangt iedere actuele, actieve gekoppelde tekenbevoegde een documentmail met precies deze PDF als bijlage. De PDF-knop kan kort melden dat archivering nog loopt. Nieuwe facturen zijn pas na beide echte ondertekeningen mogelijk.
 
 Ondertekeningscodes zijn cryptografisch willekeurig, acht cijfers, tien minuten geldig en gebonden aan account, geverifieerd adres, bedrijf, partij en documenthash. Vijf verkeerde pogingen blokkeren de challenge. Een nieuwe code vervangt de oude. Naam, tijd en eventuele vertrouwde proxy-IP komen van de server. Een gewijzigde URL of meegestuurde actor verandert de bevoegdheid niet.
 
 Formele wijzigingen vanuit het portaal zijn wijzigingsverzoeken. Goedkeuren wijzigt de canonieke bedrijfsgegevens; een tweede verzoek op de oude basis overschrijft die niet. Login en publiek profiel veranderen hierdoor niet.
 
 ## Facturen, bestanden en communicatie
+
+**Documentmail:** open een klaargezet voorstel of een overeenkomst en kies **E-mail versturen**. Dit werkt ook voor bestaande documenten, zonder de documentinhoud of ondertekenstatus te veranderen. De server gebruikt uitsluitend actieve, expliciet aan dit bedrijf gekoppelde tekenbevoegde accounts; een overeenkomend contactadres geeft geen toegang. Ontbreekt zo'n koppeling, dan stopt de actie met een concrete melding. Een nieuwe documentstatus kan een verouderde wachtende mail annuleren.
+
+De aparte e-mailstatus onderscheidt **Nog geen documentmail aangevraagd**, **Verzendwachtrij**, **Niet bevestigd / mislukt**, **Geannuleerd** en **Door Resend geaccepteerd**. Alleen een geslaagde providerrespons telt als acceptatie; dit bewijst geen aflevering. De worker controleert documentstatus en huidige bedrijfsrol opnieuw. Herhaalde klikken en retries gebruiken dezelfde levering en stabiele idempotentiesleutel. Er is geen historische automatische backfill of herverzending. De bestaande herinneringen en persoonlijke ondertekeningscodes blijven afzonderlijke berichten.
 
 Facturen ondersteunen 1, 2, 3, 4, 6 of 12 termijnen. Alle netto-, btw- en totaalcenten worden exact verdeeld; eenmalige opmaak staat uitsluitend op termijn 1. Download een echte factuur-PDF. Registreer uitsluitend werkelijk ontvangen bedragen met **Ontvangst registreren** en een bank-/boekingsreferentie; herhaalde verzoeken boeken niet dubbel.
 

@@ -15,6 +15,7 @@ import {createHash} from 'node:crypto';
 function requireHash(bytes:Uint8Array){return createHash('sha256').update(bytes).digest('hex');}
 async function fileAccess(tx:any,p:Principal,sponsorId:string,kind:string){
  if(sponsorStaff(p))return;
+ if(kind==='concept-proposal')throw new CmsError('forbidden','Conceptversies zijn alleen beschikbaar voor sponsorbeheer.',403);
  const [link]=await tx`select roles from cms_sponsor_memberships where sponsor_id=${sponsorId} and user_id=${p.id}`;
  const roles:string[]=link?.roles||[];
  const okay=kind.startsWith('agreement')?roles.some(r=>r==='signer'||r==='billing'):kind==='invoice'?roles.includes('billing'):roles.includes('marketing');

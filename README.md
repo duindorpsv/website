@@ -19,3 +19,7 @@ De [Environment-handleiding](ops/github-environments.md) bevat alle exacte secre
 Nieuwsbriefcampagnes en de echte Resend-wachtrij staan onder `/beheer#nieuwsbrieven`. Voor doelgroepen, toestemming, bezorgmeldingen, versiegebonden templates en de eenmalige inrichting: [nieuwsbriefbeheer](ops/newsletters.md).
 
 Clubarchief, interactieve tijdlijn, museum, moderatie en historische import: [werkinstructie en techniek](ops/club-archive.md).
+
+Donateurs, zelfstandige bijdragen en facturen, gekoppelde sponsorbronnen en afzonderlijke factuurnummerreeksen: [module en verificatie](ops/donateurs-v65.md).
+
+Mollie-inrichting, afzonderlijke sponsorconcepten en Permanent Marker/donkerblauwe homepage: [v67/v69-integratie](ops/v67-v69.md).

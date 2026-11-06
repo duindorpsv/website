@@ -1,6 +1,10 @@
+import {deliverSponsorConcept,markSponsorConceptExhausted} from './sponsor-concepts';
 import {processSponsorEnquiry} from './sponsor-enquiries';
 import {deliverSponsorReminder} from './sponsor-reminders';
+import {deliverSponsorDocumentMail,markSponsorDocumentMailExhausted} from './sponsor-document-mail';
 import {archiveSponsorAgreement} from './sponsor-files';
+import {deliverDonorInvoice} from './donor-invoices';
+import {processMollieWebhook} from './mollie-payments';
 import {cleanSponsorLogoUploads} from './sponsor-logos';
 import {processArchiveMedia,cleanArchiveUploads} from './archive-uploads';
 import {dispatchNewsletter,deliverNewsletter} from './newsletter-delivery';
@@ -35,7 +39,11 @@ export async function runOnce(workerId = crypto.randomUUID()) {
     try {
         if(job.kind==='sponsor-enquiry')await processSponsorEnquiry(job.payload.submissionId);
         else if(job.kind==='sponsor-notification')await deliverSponsorReminder(job.payload.deliveryId,job.payload.reminderId);
+        else if(job.kind==='sponsor-concept-mail')await deliverSponsorConcept(job.payload.deliveryId);
+        else if(job.kind==='sponsor-document-mail')await deliverSponsorDocumentMail(job.payload.deliveryId);
         else if(job.kind==='sponsor-final-pdf')await archiveSponsorAgreement(job.payload.agreementId,job.payload.actorId);
+        else if(job.kind==='donor-invoice-mail')await deliverDonorInvoice(job.payload.invoiceId,job.payload.actorId,`<${job.operation_id}@duindorp.invalid>`);
+        else if(job.kind==='mollie-payment-verify')await processMollieWebhook(job.payload.providerId);
         else if(job.kind==='archive-media')await processArchiveMedia(job.payload.id);
         else if(job.kind==='newsletter-dispatch')await dispatchNewsletter(job.payload,job.id,workerId);
         else if(job.kind==='newsletter-delivery')await deliverNewsletter(job.payload,job.id,workerId);
@@ -115,6 +123,8 @@ export async function runOnce(workerId = crypto.randomUUID()) {
         const wait = Math.min(3600, 30 * 2 ** Math.max(0, job.attempts - 1));
         const code = error instanceof Error && 'code' in error ? String(error.code) : 'processing-failed';
         await sql `update cms_jobs set status=${permanent ? 'failed' : 'pending'},lease_until=null,lease_owner=null,last_error=${code.slice(0, 100)},run_at=now()+${wait}*interval '1 second' where id=${job.id} and lease_owner=${workerId} and status='processing'`;
+        if(permanent&&job.kind==='sponsor-concept-mail')await markSponsorConceptExhausted(job.payload.deliveryId,job.id);
+        if(permanent&&job.kind==='sponsor-document-mail')await markSponsorDocumentMailExhausted(job.payload.deliveryId,job.id);
         if (job.kind === 'submission-mail')
             await sql `update cms_submissions set delivery_status=${permanent ? 'failed' : 'retry'} where id=${job.payload.submissionId}`;
         if(permanent&&['news-analyze','news-import'].includes(job.kind))await failNewsJob(job.payload.sessionId,'De achtergrondtaak kon niet worden afgerond. Eerder opgeslagen berichten blijven behouden; probeer de mislukte geselecteerde berichten opnieuw.');
@@ -127,13 +137,20 @@ export async function retain() { const sql = sqlClient(); await sql.begin(async 
     await tx `delete from cms_submissions where id=${row.id}`;
     await tx `insert into cms_audit(id,action,record_id,request_id) values (${crypto.randomUUID()},'retention-delete',${row.id},${crypto.randomUUID()})`;
 } }); await sql `delete from cms_rate_limits where expires_at<now()`; await sql`delete from cms_jobs where kind='auth-code-mail' and status in ('done','failed','cancelled') and created_at<now()-interval '1 day'`; await sql`delete from cms_auth_login_challenges where expires_at<now()`; await sql`delete from cms_auth_email_sessions where created_at<now()-interval '12 hours'`; await cleanExpiredNews(); await cleanArchiveUploads(); await cleanSponsorLogoUploads(); }
-export async function cleanOrphans(){
-    const sql=sqlClient(),objects=await sql`select storage_key,variants from cms_media_objects`;
+export async function cleanOrphans(scan:typeof listObjects=listObjects){
+    const sql=sqlClient();
+    const [objects,documents]=await Promise.all([
+      sql`select storage_key,variants from cms_media_objects`,
+      sql`select storage_key from cms_donor_invoice_documents union select storage_key from cms_sponsor_files`,
+    ]);
     const kept=new Set<string>();for(const object of objects){kept.add(object.storage_key);for(const variant of object.variants||[])kept.add(variant.key);}
+    for(const document of documents)kept.add(document.storage_key);
     // Only unregistered upload keys older than 48 hours; archived originals and
-    // every registered variant remain available for revision/backup recovery.
-    for(const prefix of ['originals/','variants/','documents/'])for(const object of await listObjects(prefix))if(Date.now()-object.at.getTime()>48*3600000&&!kept.has(object.key)){
-      const [nowRegistered]=await sql`select id from cms_media_objects where storage_key=${object.key} or variants @> ${sql.json([{key:object.key}])} limit 1`;
-      if(!nowRegistered)await deleteObject(object.key);
+    // every registered document/variant remain available for recovery. An
+    // invoice may be archived after the first scan, so recheck all registries.
+    // Dedicated invoice keys also survive rollback to legacy upload cleaners.
+    for(const prefix of ['originals/','variants/','documents/','sponsorship/donor-invoices/'])for(const object of await scan(prefix))if(Date.now()-object.at.getTime()>48*3600000&&!kept.has(object.key)){
+      const [registered]=await sql`select exists(select 1 from cms_media_objects where storage_key=${object.key} or variants @> ${sql.json([{key:object.key}])}) or exists(select 1 from cms_donor_invoice_documents where storage_key=${object.key}) or exists(select 1 from cms_sponsor_files where storage_key=${object.key}) as present`;
+      if(!registered.present)await deleteObject(object.key);
     }
 }

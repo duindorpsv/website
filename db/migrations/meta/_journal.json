@@ -155,6 +155,27 @@
       "when": 1793878361900,
       "tag": "0021_sponsor_logo_uploads",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1793921419584,
+      "tag": "0022_donor_invoices",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1793936226866,
+      "tag": "0023_sponsor_concepts",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793936336535,
+      "tag": "0024_mollie_payment_attempts",
+      "breakpoints": true
     }
   ]
 }
