@@ -155,6 +155,13 @@
       "when": 1793878361900,
       "tag": "0021_sponsor_logo_uploads",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1793921419584,
+      "tag": "0022_donor_invoices",
+      "breakpoints": true
     }
   ]
 }

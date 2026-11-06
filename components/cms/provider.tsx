@@ -4,6 +4,7 @@ import {equalContent} from '@/lib/cms/compare';
 import {createCmsSeed} from '@/lib/cms/seed';
 import type {PlanningSyncStatus} from '@/lib/server/planning-revision';
 import type {CmsState,CmsUpdate,Permission} from '@/lib/cms/types';
+import {donorGrant,type DonorAction} from '@/lib/cms/donor-permissions';
 export {parseCmsState} from '@/lib/cms/validation';
 type User={id:string;roleId:string;teamScoped:boolean;teams:string[];grants:{module:string;action:string}[];name:string};
 type Context={planningSync:PlanningSyncStatus|null;planningConnected:boolean;recordVersion:(id:string)=>number;state:CmsState;ready:boolean;update:CmsUpdate;can:(permission:Permission,teamId?:string,module?:string)=>boolean;roleId:string;setRoleId:(id:string)=>void;notify:(message:string)=>void;notice:string;storageError:string;storageConflictId:string;clearStorageError:()=>void;saving:boolean;preview:boolean;reload:()=>Promise<void>;loadMoreMedia:()=>Promise<void>;mediaLoading:boolean};
@@ -61,7 +62,7 @@ export function CmsProvider({children,initialState,preview=false}:{children:Reac
   const next=chain.current.then(perform).catch(error=>{setSaving(false);updatePending.current=false;const message=error instanceof Error?error.message:'Opslaan mislukt.';setStorageError(message);notify(message);return false;});chain.current=next.then(()=>undefined);return next;
  },[initialState,preview,reload]);
  const recordVersion=useCallback((id:string)=>versions.current[id]||0,[]);
- const can=useCallback((permission:Permission,teamId?:string,module?:string)=>{const p=user.current;if(!p)return false;if(p.teamScoped&&(!teamId||!p.teams.includes(teamId)))return false;return p.grants.some(g=>permission==='publish'?(!module||g.module===module||g.module==='*')&&['publish','*'].includes(g.action):(g.module==='*'||g.module===permission)&&['update','create','manage','*'].includes(g.action));},[state]);
+ const can=useCallback((permission:Permission,teamId?:string,module?:string)=>{const p=user.current;if(!p)return false;if(permission==='donors'||permission.startsWith('donors-'))return donorGrant(p.grants,p.teamScoped,permission==='donors'?'read':permission.slice(7) as DonorAction);if(p.teamScoped&&(!teamId||!p.teams.includes(teamId)))return false;return p.grants.some(g=>permission==='publish'?(!module||g.module===module||g.module==='*')&&['publish','*'].includes(g.action):(g.module==='*'||g.module===permission)&&(permission==='sponsors'?['read','update','create','manage','*']:['update','create','manage','*']).includes(g.action));},[state]);
  return <CmsContext.Provider value={{planningSync,planningConnected,recordVersion,state,ready,update,can,roleId,setRoleId:()=>{},notify,notice,storageError,storageConflictId,clearStorageError,saving,preview,reload,loadMoreMedia,mediaLoading}}>{children}</CmsContext.Provider>;
 }
 export function useCMS(){const value=useContext(CmsContext);if(!value)throw new Error('CMS-component vereist CmsProvider.');return value;}

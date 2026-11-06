@@ -4,6 +4,11 @@ import {actorPrincipal,has,type Principal} from './permissions';
 import {CmsError} from './errors';
 import {createHmac,timingSafeEqual} from 'node:crypto';
 import {isIP} from 'node:net';
+import {donorGrant,type DonorAction} from '../cms/donor-permissions';
+export const donorRight=(p:Principal,action:DonorAction='read')=>donorGrant(p.grants,p.teamScoped,action);
+export function requireDonorRight(p:Principal,action:DonorAction='read'){
+ if(!donorRight(p,action))throw new CmsError('forbidden','Je hebt geen rechten voor deze donateurshandeling.',403);
+}
 export async function workspaceActor(headers:Headers){
  const session=await getAuth().api.getSession({headers});
  if(!session)throw new CmsError('unauthenticated','Log in met je persoonlijke e-mailcode.',401);

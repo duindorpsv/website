@@ -7,13 +7,17 @@ import {directoryProfileTemplate} from '../cms/directory';
 import {emptyState} from './records';
 import {has,type Principal} from './permissions';
 import {CmsError} from './errors';
+import {donorPermissions} from '../cms/donor-permissions';
+import {donorRight} from './sponsor-access';
+import {getDonorEntries} from '../cms/donors';
 import {readSponsorDocumentMails} from './sponsor-document-mail';
 
-export const sponsorKinds=['items','packages','proposals','agreements','invoices','tasks','activities','profileRequests','businessChangeRequests','contractTemplates','events','settings'] as const;
+export const sponsorKinds=['items','packages','proposals','agreements','invoices','tasks','activities','profileRequests','businessChangeRequests','contractTemplates','events','settings','donorPeople','donorContributions','donorInvoices'] as const;
+export const donorRecordKinds={donorPeople:'people',donorContributions:'contributions',donorInvoices:'invoices'} as const;
 export type SponsorKind=typeof sponsorKinds[number];
 export type Versions=Record<string,number>;
 export type DomainStore={state:CmsState;versions:Versions;people:Map<string,any>;profiles:Map<string,any>;records:Map<string,any>;accounts:Map<string,any>};
-export type WorkspaceQuery={mode:'directory'|'sponsorship'|'portal'|'accounts';companyId:string;personId:string;search:string;feature:string;source:string;account:string;page:number;pageSize:number};
+export type WorkspaceQuery={mode:'directory'|'sponsorship'|'donors'|'portal'|'accounts';companyId:string;personId:string;search:string;feature:string;source:string;account:string;page:number;pageSize:number};
 export const globalRight=(p:Principal,module:string,action='read')=>!p.teamScoped&&has(p,module,action);
 export const fullDirectory=(p:Principal)=>globalRight(p,'directory')||globalRight(p,'directory','manage')||globalRight(p,'users','manage');
 export const sponsorStaff=(p:Principal)=>globalRight(p,'sponsors')||globalRight(p,'sponsors','manage');
@@ -21,10 +25,10 @@ const iso=(value:any)=>value?new Date(value).toISOString():'';
 const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const rights:Permission[]=['news','stories','pages','media','people','forms','settings','users','directory','sponsors'];
 
-export function rolePermissions(grants:{module:string;action:string}[]):Permission[]{
+export function rolePermissions(grants:{module:string;action:string}[],teamScoped=false):Permission[]{
  const list=rights.filter(module=>grants.some(g=>(g.module==='*'||g.module===module)&&(module!=='users'||['*','manage'].includes(g.action))));
  if(grants.some(g=>(g.module==='*'||g.module==='people')&&(g.action==='*'||g.action==='publish')))list.push('publish');
- return list;
+ return [...list,...donorPermissions(grants,teamScoped)];
 }
 function minimalCompany(row:any):Sponsor{
  return {id:row.id,name:row.data.name,companyNumber:'',vatNumber:'',address:'',postalCode:'',city:'',email:'',phone:'',website:'',description:'',logoUrl:row.data.logoUrl||'',ownerId:'',stage:'lead',notes:'',publicProfile:{name:row.data.publicProfile?.name||row.data.name,description:'',website:'',logoUrl:row.data.publicProfile?.logoUrl||''},publicEnabled:false,publicFrom:'',publicUntil:'',createdAt:'',updatedAt:'',demo:false};
@@ -35,18 +39,18 @@ function invitation(row:any):DirectoryInvitation{
 /** Internal state is never returned directly. Queries are bounded to the actor's domain. */
 export async function readDomainStore(tx:any,p:Principal,options:{peopleIds?:string[];companyId?:string;portal?:boolean}={}):Promise<DomainStore>{
  const state=emptyState();state.directory={version:1,profiles:[],assignments:[],guardians:[],invitations:[],events:[]};state.sponsorship=createSponsorshipSeed();
- const versions:Versions={},isDirectory=fullDirectory(p),isStaff=sponsorStaff(p),isUsers=globalRight(p,'users','manage');
+ const versions:Versions={},isDirectory=fullDirectory(p),isStaff=sponsorStaff(p),isDonor=donorRight(p),isUsers=globalRight(p,'users','manage');
  const [ownLinks,roleRows,grantRows,teamRows,siteRows]=await Promise.all([
   tx`select id,sponsor_id,user_id,roles,version from cms_sponsor_memberships where user_id=${p.id}`,
   tx`select * from cms_roles`,tx`select * from cms_grants`,tx`select id,name from cms_teams`,
   tx`select draft->>'clubName' as name,draft->>'season' as season from cms_records where id='settings'`
  ]);
  state.settings={...state.settings,clubName:siteRows[0]?.name||'Duindorp SV',season:siteRows[0]?.season||'',teams:teamRows};
- state.roles=roleRows.map((r:any):CmsRole=>({id:r.id,name:r.name,description:r.description,teamScoped:r.team_scoped,permissions:rolePermissions(grantRows.filter((g:any)=>g.role_id===r.id))}));
+ state.roles=roleRows.map((r:any):CmsRole=>({id:r.id,name:r.name,description:r.description,teamScoped:r.team_scoped,permissions:rolePermissions(grantRows.filter((g:any)=>g.role_id===r.id),r.team_scoped)}));
  const allowedCompanyIds:string[]=ownLinks.map((l:any)=>l.sponsor_id);
  if(options.portal&&options.companyId&&!allowedCompanyIds.includes(options.companyId))throw new CmsError('forbidden','Je hebt geen toegang tot dit bedrijfsdossier.',403);
- const companies=await tx`select * from cms_sponsor_companies where ${isStaff&&!options.portal?tx`true`:options.portal?allowedCompanyIds.length?tx`id in ${tx(allowedCompanyIds)}`:tx`false`:isDirectory?tx`true`:tx`false`} order by data->>'name',id`;
- state.sponsorship.sponsors=companies.map((r:any)=>isStaff&&!options.portal||options.portal&&r.id===options.companyId?{...r.data,id:r.id}:minimalCompany(r));
+ const companies=await tx`select * from cms_sponsor_companies where ${(isStaff||isDonor)&&!options.portal?tx`true`:options.portal?allowedCompanyIds.length?tx`id in ${tx(allowedCompanyIds)}`:tx`false`:isDirectory?tx`true`:tx`false`} order by data->>'name',id`;
+ state.sponsorship.sponsors=companies.map((r:any)=>isStaff&&!options.portal||options.portal&&r.id===options.companyId?{...r.data,id:r.id}:isDonor&&!options.portal?{...minimalCompany(r),email:r.data.email||''}:minimalCompany(r));
  for(const row of companies)versions['company:'+row.id]=row.version;
  const members=await tx`select u.id,u.name,u.email,u.email_verified,u.banned,u.supabase_user_id,m.role_id,m.active,a.person_id from auth_user u join cms_memberships m on m.user_id=u.id left join cms_person_accounts a on a.user_id=u.id
   where ${isDirectory&&!options.portal?tx`true`:tx`u.id=${p.id} or ${isStaff&&!options.portal?tx`exists(select 1 from cms_sponsor_memberships sm where sm.user_id=u.id) or exists(select 1 from cms_grants g join cms_roles r on r.id=g.role_id where g.role_id=m.role_id and r.team_scoped=false and g.module in ('sponsors','*') and g.action in ('read','manage','*'))`:tx`false`}`}`;
@@ -82,7 +86,7 @@ export async function readDomainStore(tx:any,p:Principal,options:{peopleIds?:str
  state.planning.committees=committees.map((r:any)=>({...r.draft,id:r.id}));
  const companyRole=ownLinks.find((l:any)=>l.sponsor_id===options.companyId)?.roles||[];
  const documents=companyRole.some((r:string)=>r==='signer'||r==='billing'),billing=companyRole.includes('billing');
- const recordRows=await tx`select * from cms_sponsor_records where ${isStaff&&!options.portal?tx`true`:options.portal&&options.companyId?tx`(sponsor_id=${options.companyId} and (kind not in ('invoices','agreements','proposals') or kind='invoices' and ${billing} or kind in ('agreements','proposals') and ${documents})) or kind='events' or kind='settings'`:tx`false`} order by created_at desc,id`;
+ const recordRows=await tx`select * from cms_sponsor_records where ${isStaff&&!options.portal?tx`true`:isDonor&&!options.portal?tx`kind in ('items','packages','proposals','agreements','invoices','settings','donorPeople','donorContributions','donorInvoices')`:options.portal&&options.companyId?tx`(sponsor_id=${options.companyId} and (kind not in ('invoices','agreements','proposals') or kind='invoices' and ${billing} or kind in ('agreements','proposals') and ${documents})) or kind='events' or kind='settings'`:tx`false`} order by created_at desc,id`;
  const records=new Map<string,any>();
  if(recordRows.some((r:any)=>r.kind==='contractTemplates'))state.sponsorship.contractTemplates=[];
  for(const r of recordRows){
@@ -92,7 +96,11 @@ export async function readDomainStore(tx:any,p:Principal,options:{peopleIds?:str
    if(digest(sorted(original))!==digest(sorted(r.data.snapshot)))throw new CmsError('document-integrity','De vastgelegde documentinhoud is niet intact.',409);
    value.snapshot=original;
   }
-  if(r.kind==='settings')state.sponsorship.settings={...state.sponsorship.settings,...r.data};
+  if(r.kind in donorRecordKinds){
+   state.sponsorship.donors??={people:[],contributions:[],invoices:[]};
+   state.sponsorship.donors[donorRecordKinds[r.kind as keyof typeof donorRecordKinds]].push(value as never);
+  }
+  else if(r.kind==='settings')state.sponsorship.settings={...state.sponsorship.settings,...r.data};
   else (state.sponsorship as any)[r.kind]?.push(value);
  }
  const agreementIds=state.sponsorship.agreements.map(a=>a.id);
@@ -146,6 +154,7 @@ export async function directoryListing(tx:any,p:Principal,q:WorkspaceQuery){
 
 /** Strip private columns before serialization, rather than hiding them in React. */
 export function staffProjection(store:DomainStore,p:Principal,mode='sponsorship'){
+ if(mode==='donors')return donorProjection(store,p);
  const state=structuredClone(store.state),full=fullDirectory(p),users=globalRight(p,'users','manage');
  if(!full){
   state.people=state.people.map(({id,name,email,phone})=>({id,name,email,phone}) as CmsPerson);
@@ -157,8 +166,38 @@ export function staffProjection(store:DomainStore,p:Principal,mode='sponsorship'
  if(!users){state.roles=actualRole?[actualRole]:[];if(!full)state.members=state.members.filter(m=>m.id===p.id||state.sponsorship!.memberships.some(link=>link.userId===m.id));state.members=state.members.map(m=>m.id===p.id?m:{id:m.id,name:m.name,email:m.email,active:m.active,roleId:'',teamIds:[],personId:m.personId});}
  state.directory!.invitations=state.directory!.invitations.map(i=>({...i,token:''}));
  state.sponsorship!.signingChallenges=state.sponsorship!.signingChallenges?.map(c=>({...c,codeHash:''}));
+ // Donor records are shared internally for number allocation, never inherited
+ // by the sponsor/directory workspaces merely because their actor is staff.
+ delete state.sponsorship!.donors;
+ if(!donorRight(p,'settings')&&state.sponsorship!.settings.invoiceNumbering){state.sponsorship!.settings.invoiceNumbering.donors.nextByYear={};delete state.sponsorship!.settings.invoiceNumbering.donors.exhaustedYears;}
+ const visibleVersions=Object.fromEntries(Object.entries(store.versions).filter(([key])=>!key.startsWith('record:')||!Object.hasOwn(donorRecordKinds,store.records.get(key.slice(7))?.kind||'')));
  const staffOptions=sponsorStaff(p)||users?getSponsorStaffAccounts(store.state,p.id):[];
- return {state,versions:store.versions,userId:p.id,currentUser:state.members.find(m=>m.id===p.id)||{id:p.id,name:p.name,email:p.email,roleId:p.roleId,teamIds:p.teams,active:true},staffOptions};
+ return {state,versions:visibleVersions,userId:p.id,currentUser:state.members.find(m=>m.id===p.id)||{id:p.id,name:p.name,email:p.email,roleId:p.roleId,teamIds:p.teams,active:true},staffOptions};
+}
+
+/** Explicit allowlist: donor readers receive source summaries, not contracts or central registers. */
+export function donorProjection(store:DomainStore,p:Principal){
+ if(!donorRight(p))throw new CmsError('forbidden','Je hebt geen toegang tot Donateurs.',403);
+ const state=emptyState(),source=store.state.sponsorship!,data=createSponsorshipSeed();
+ state.directory={version:1,profiles:[],assignments:[],guardians:[],invitations:[],events:[]};
+ state.planning={committees:[],locations:[],activities:[],lastSportlinkSync:null};
+ delete state.appearance;
+ state.settings={...state.settings,clubName:store.state.settings.clubName,season:store.state.settings.season,teams:[]};
+ const me=store.state.members.find(m=>m.id===p.id)||{id:p.id,name:p.name,email:p.email,roleId:p.roleId,teamIds:[],active:true};
+ state.members=[structuredClone(me)];
+ state.roles=store.state.roles.filter(r=>r.id===p.roleId).map(r=>({...r,permissions:r.permissions.filter(permission=>permission.startsWith('donors')||permission==='sponsors'&&sponsorStaff(p))}));
+ state.donorEntries=getDonorEntries(store.state);
+ data.contractTemplates=[];
+ data.items=structuredClone(source.items.filter(item=>item.isDonorItem===true));
+ data.donors=structuredClone(source.donors||{people:[],contributions:[],invoices:[]});
+ data.settings={committeeEmail:'',defaultTerms:'',defaultPaymentTerms:'',vatNote:'',mollieEnabled:false,reminderDays:[],contractClubDetails:structuredClone(source.settings.contractClubDetails)};
+ if(donorRight(p,'invoice')||donorRight(p,'settings')){
+  data.settings.invoiceNumbering=structuredClone(source.settings.invoiceNumbering);
+  if(!sponsorStaff(p)&&data.settings.invoiceNumbering){data.settings.invoiceNumbering.sponsors.nextByYear={};delete data.settings.invoiceNumbering.sponsors.exhaustedYears;}
+ }
+ state.sponsorship=data;
+ const versions=Object.fromEntries(Object.entries(store.versions).filter(([key])=>key==='record:sponsor-settings'||key.startsWith('record:')&&Object.hasOwn(donorRecordKinds,store.records.get(key.slice(7))?.kind||'')));
+ return {state,versions,userId:p.id,currentUser:state.members[0],staffOptions:[]};
 }
 export function contextFingerprint(p:Principal,store:DomainStore){
  return digest({id:p.id,role:p.roleId,grants:p.grants,teams:p.teams,companies:store.state.sponsorship?.memberships.filter(m=>m.userId===p.id),children:store.state.directory?.guardians.filter(g=>g.guardianPersonId===store.state.members.find(m=>m.id===p.id)?.personId).map(g=>({id:g.id,status:g.status,permissions:g.permissions}))});
@@ -183,6 +222,7 @@ export function portalProjection(store:DomainStore,p:Principal,companyId:string)
  state.planning.committees=[];
  data.sponsors=data.sponsors.map(company=>company.id===companyId?{...company,notes:'',ownerId:''}:{id:company.id,name:company.name} as Sponsor);
  data.memberships=data.memberships.filter(m=>m.userId===p.id);
+ delete data.donors;
  data.activities=[];data.contractTemplates=[];data.items=[];data.packages=[];
  data.profileRequests=data.profileRequests.filter(r=>r.sponsorId===companyId&&r.userId===p.id);
  data.businessChangeRequests=data.businessChangeRequests?.filter(r=>r.sponsorId===companyId&&r.userId===p.id);

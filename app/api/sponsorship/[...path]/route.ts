@@ -9,6 +9,7 @@ import {familyAction} from '@/lib/server/directory-family';
 import {bodyJson,CmsError,errorResponse} from '@/lib/server/errors';
 import {workspaceEvents} from '@/lib/server/sponsor-events';
 import {sponsorLogoUpload,sponsorLogoPreview,cancelSponsorLogoUpload} from '@/lib/server/sponsor-logos';
+import {donorInvoiceDownload} from '@/lib/server/donor-invoices';
 export const runtime='nodejs';export const dynamic='force-dynamic';
 export async function GET(request:Request,{params}:{params:Promise<{path:string[]}>}){try{const path=(await params).path;
  if(path.join('/')==='directory-lookup')return Response.json(await directoryLookup(request),{headers:{'Cache-Control':'private, no-store'}});
@@ -18,6 +19,7 @@ export async function GET(request:Request,{params}:{params:Promise<{path:string[
  if(path.length===2&&path[0]==='logos')return await publicSponsorLogo(path[1]);
  if(path.length===2&&path[0]==='files')return await sponsorDownload(request,path[1]);
  if(path.length===3&&path[0]==='invoices'&&path[2]==='pdf')return await sponsorInvoiceDownload(request,path[1]);
+ if(path.length===3&&path[0]==='donor-invoices'&&path[2]==='pdf')return await donorInvoiceDownload(request,path[1]);
  if(path.length===3&&path[0]==='agreements'&&path[2]==='pdf')return await sponsorAgreementDownload(request,path[1]);
  if(path.join('/')==='import')return Response.json(await directoryImportStatus(request),{headers:{'Cache-Control':'private, no-store'}});
  if(path.join('/')==='events')return await workspaceEvents(request);

@@ -1,10 +1,11 @@
 import type {CmsPerson,CmsState} from '../cms/types';
-import {sponsorshipEntitySchemas} from '../cms/sponsorship-schema';
+import {donorEntitySchemas,sponsorshipEntitySchemas} from '../cms/sponsorship-schema';
 import {directorySchema} from '../cms/directory-schema';
 import type {DomainStore,Versions} from './sponsor-store';
-import {digestText,sorted,sponsorKinds} from './sponsor-store';
+import {digestText,sorted,sponsorKinds,donorRecordKinds} from './sponsor-store';
 import type {Principal} from './permissions';
 import {CmsError} from './errors';
+import {archiveDonorInvoice} from './donor-invoices';
 
 const same=(a:unknown,b:unknown)=>JSON.stringify(sorted(a))===JSON.stringify(sorted(b));
 const idPattern=/^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,190}$/;
@@ -17,7 +18,7 @@ const personDraft=(person:CmsPerson)=>{
  return {id,name,role,group,teamId,bio,mediaId,email,phone,showContact,published,order,...(sportlinkId?{sportlinkId}:{} )};
 };
 /** Domain writes share the existing content lock and leave every live snapshot intact. */
-export async function persistDomainStore(tx:any,p:Principal,before:DomainStore,state:CmsState,requestId:string){
+export async function persistDomainStore(tx:any,p:Principal,before:DomainStore,state:CmsState,requestId:string,uploaded:string[]=[]){
  const original=before.state,sponsors=state.sponsorship!,directory=state.directory!;
  validateIds(state.people);validateIds(sponsors.sponsors);
  for(const company of sponsors.sponsors){
@@ -29,14 +30,15 @@ export async function persistDomainStore(tx:any,p:Principal,before:DomainStore,s
  }
  // Preserve original JSON bytes rather than deriving historical hashes from JSONB.
  for(const kind of sponsorKinds){
-  const values=kind==='settings'?[{...sponsors.settings,id:'sponsor-settings'}]:(sponsors[kind]||[]) as any[];
-  const previous=kind==='settings'?[{...original.sponsorship!.settings,id:'sponsor-settings'}]:(original.sponsorship![kind]||[]) as any[];
+  const donorKind=donorRecordKinds[kind as keyof typeof donorRecordKinds];
+  const values=donorKind?(sponsors.donors?.[donorKind]||[]):kind==='settings'?[{...sponsors.settings,id:'sponsor-settings'}]:((sponsors as any)[kind]||[]) as any[];
+  const previous=donorKind?(original.sponsorship!.donors?.[donorKind]||[]):kind==='settings'?[{...original.sponsorship!.settings,id:'sponsor-settings'}]:((original.sponsorship as any)[kind]||[]) as any[];
   if(kind!=='settings')validateIds(values);
   for(const value of values){
    const old=previous.find((v:any)=>v.id===value.id);if(same(old,value))continue;
    const stored=before.records.get(value.id);if(stored&&(stored.kind!==kind||(stored.sponsor_id||'')!==(value.sponsorId||'')))throw new CmsError('record-ownership','Een bestaand onderdeel kan niet naar een ander type of bedrijf worden verplaatst. Maak een nieuw onderdeel.',409);
    const candidate=kind==='settings'?sponsors.settings:value;
-   const schema=sponsorshipEntitySchemas[kind];
+   const schema=donorKind?donorEntitySchemas[donorKind]:sponsorshipEntitySchemas[kind as keyof typeof sponsorshipEntitySchemas];
    const parsed=schema.safeParse(kind==='settings'?candidate:[candidate]);
    if(!parsed.success)throw new CmsError('validation','Controleer dit onderdeel: '+parsed.error.issues[0].message,422);
    const data:any=kind==='settings'?parsed.data:(parsed.data as any[])[0];
@@ -48,6 +50,7 @@ export async function persistDomainStore(tx:any,p:Principal,before:DomainStore,s
    if(previousBytes&&(bytes!==previousBytes||!same(old?.snapshot,value.snapshot)))throw new CmsError('document-immutable','De vastgelegde documentinhoud mag niet worden overschreven.',409);
    const saved=await tx`insert into cms_sponsor_records(id,kind,sponsor_id,data,snapshot_bytes) values (${value.id},${kind},${value.sponsorId||null},${tx.json(data)},${bytes}) on conflict(id) do update set data=excluded.data,snapshot_bytes=excluded.snapshot_bytes,version=cms_sponsor_records.version+1,updated_at=now() where cms_sponsor_records.kind=excluded.kind and cms_sponsor_records.sponsor_id is not distinct from excluded.sponsor_id returning id`;
    if(!saved.length)throw new CmsError('record-ownership','Deze identificatie is al gekoppeld aan een ander onderdeel of bedrijf.',409);
+   if(kind==='donorInvoices')await archiveDonorInvoice(tx,data,p.id,uploaded);
    if(kind==='agreements'){
     if(digestText(bytes!)!==value.documentHash)throw new CmsError('document-integrity','De documenthash komt niet overeen met de vaste inhoud.',409);
     await tx`insert into cms_sponsor_documents(agreement_id,sponsor_id,snapshot_bytes,document_hash,document_version) values (${value.id},${value.sponsorId},${bytes},${value.documentHash},${value.version}) on conflict(agreement_id) do nothing`;
