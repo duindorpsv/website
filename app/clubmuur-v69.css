@@ -1,9 +1,11 @@
 /* v69: the local Permanent Marker face is the heading face across all surfaces.
-   Keep the fixed hero lettering and the approved header/hero-band lockup intact.
+   Keep the fixed hero lettering and the header/hero-band artwork intact.
    The explicit priority also covers CSS imported by route-level portal modules. */
-:root :is(h1,h2,h3,h4,h5,h6):not(.cm-headline h1,.cm-together h2),
+:root :is(h1,h2,h3,h4,h5,h6,[role="heading"]),
 [data-slot="dialog-title"],
 [data-slot="alert-dialog-title"],
+.cm-desktop-panel-heading>strong,
+.cm-menu-parent-title,
 .cm-life-photo-copy strong,
 .cm-community-news-copy>strong,
 .cm-community-event-copy>strong,
@@ -50,7 +52,7 @@
 }
 
 /* A title's brush/span/em must not restore a condensed face or tight tracking. */
-:is(h1,h2,h3,h4,h5,h6):not(.cm-headline h1,.cm-together h2) :is(span,strong,em,.brush) {
+:is(h1,h2,h3,h4,h5,h6,[role="heading"]) :is(span,strong,b,em,a,.brush) {
   font-family:inherit!important;
   font-weight:400!important;
   font-style:normal!important;
@@ -59,6 +61,7 @@
   letter-spacing:normal!important;
   white-space:normal!important;
 }
+.cm-headline h1 {line-height:1!important}
 
 /* Only these homepage sections share the header's wall recipe. No shared
    colour variable is changed, so the hero and other pages retain their art. */
