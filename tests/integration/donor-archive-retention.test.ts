@@ -23,23 +23,25 @@ test('archive retention: aged donor invoices and registration races survive whil
  const {user}=await getAuth().api.createUser({body:{email:'retention-'+crypto.randomUUID()+'@example.invalid',name:'Fictieve archiefbeheerder',password:crypto.randomUUID()+crypto.randomUUID()}});
  const first=invoice(),racing=invoice(),uploaded:string[]=[];
  async function archive(value:DonorInvoice){const line=value.lines[0],contribution={id:value.contributionId,donorId:value.donorId,itemId:line.itemId,description:line.description,quantity:line.quantity,unitPriceCents:line.unitPriceCents,taxRate:line.taxRate,startDate:line.startDate,endDate:line.endDate,status:'active',createdAt:value.createdAt,updatedAt:value.createdAt};await sql.begin(async tx=>{await workspaceLocks(tx);await tx`insert into cms_sponsor_records(id,kind,data) values (${value.donorId},'donorPeople',${tx.json(value.recipient)}),(${value.contributionId},'donorContributions',${tx.json(contribution)}),(${value.id},'donorInvoices',${tx.json(value)})`;await archiveDonorInvoice(tx,value,user.id,uploaded);});const [document]=await sql`select * from cms_donor_invoice_documents where invoice_id=${value.id}`;assert.ok(document);return document;}
- const existing=await archive(first),bytes=await getObject(existing.storage_key);assert.equal(hash(bytes),existing.file_hash);
+ const existing=await archive(first);assert.ok(existing.storage_key.startsWith('sponsorship/donor-invoices/'));const bytes=await getObject(existing.storage_key);assert.equal(hash(bytes),existing.file_hash);
  const principal:Principal={id:user.id,name:'Fictieve archiefbeheerder',email:user.email,roleId:'fixture',teamScoped:false,teams:[],departments:[],grants:[{module:'pages',action:'create'}],mfa:false};
  const media=await uploadDocument(principal,new File([Buffer.from(bytes)],'Fictief-archief.pdf',{type:'application/pdf'})),[registered]=await sql`select storage_key from cms_media_objects where id=${media.id}`;
- const variant='variants/'+crypto.randomUUID()+'.pdf',orphan='documents/'+crypto.randomUUID()+'.pdf',fresh='documents/'+crypto.randomUUID()+'.pdf';
- for(const key of [variant,orphan,fresh])await putObject(key,bytes,'application/pdf');await sql`update cms_media_objects set variants=${sql.json([{key:variant}])} where id=${media.id}`;
+ const variant='variants/'+crypto.randomUUID()+'.pdf',orphan='documents/'+crypto.randomUUID()+'.pdf',fresh='documents/'+crypto.randomUUID()+'.pdf',archiveOrphan='sponsorship/donor-invoices/'+crypto.randomUUID()+'.pdf';
+ for(const key of [variant,orphan,fresh,archiveOrphan])await putObject(key,bytes,'application/pdf');await sql`update cms_media_objects set variants=${sql.json([{key:variant}])} where id=${media.id}`;
  const old=new Date(Date.now()-49*3600000);let late:any;const scanned:string[]=[];
  // Listing is deliberately limited to this fixture. No shared object listing,
  // timestamps, records, sessions or cleanup jobs are modified or drained.
  await cleanOrphans(async prefix=>{
   scanned.push(prefix);
   if(prefix==='variants/')return [{key:variant,at:old}];
-  if(prefix!=='documents/')return [];
+  if(prefix==='documents/')return [{key:registered.storage_key,at:old},{key:orphan,at:old},{key:fresh,at:new Date()}];
+  if(prefix!=='sponsorship/donor-invoices/')return [];
   late=await archive(racing); // committed after the initial keep-set query
-  return [{key:existing.storage_key,at:old},{key:late.storage_key,at:old},{key:registered.storage_key,at:old},{key:orphan,at:old},{key:fresh,at:new Date()}];
+  assert.ok(late.storage_key.startsWith(prefix));
+  return [{key:existing.storage_key,at:old},{key:late.storage_key,at:old},{key:archiveOrphan,at:old}];
  });
- assert.deepEqual(scanned,['originals/','variants/','documents/']);assert.ok(late);
+ assert.deepEqual(scanned,['originals/','variants/','documents/','sponsorship/donor-invoices/']);assert.ok(late);
  for(const document of [existing,late]){assert.equal(hash(await getObject(document.storage_key)),document.file_hash);const [stored]=await sql`select file_hash,storage_key from cms_donor_invoice_documents where invoice_id=${document.invoice_id}`;assert.equal(stored.file_hash,document.file_hash);assert.equal(stored.storage_key,document.storage_key);}
  for(const key of [registered.storage_key,variant,fresh])assert.equal(hash(await getObject(key)),hash(bytes));
- await assert.rejects(getObject(orphan),'Only the fixture\'s aged, genuinely unregistered upload is removed');
+ for(const key of [orphan,archiveOrphan])await assert.rejects(getObject(key),'Only this fixture\'s aged, genuinely unregistered upload or crash orphan is removed');
 });

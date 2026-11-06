@@ -143,7 +143,8 @@ export async function cleanOrphans(scan:typeof listObjects=listObjects){
     // Only unregistered upload keys older than 48 hours; archived originals and
     // every registered document/variant remain available for recovery. An
     // invoice may be archived after the first scan, so recheck all registries.
-    for(const prefix of ['originals/','variants/','documents/'])for(const object of await scan(prefix))if(Date.now()-object.at.getTime()>48*3600000&&!kept.has(object.key)){
+    // Dedicated invoice keys also survive rollback to legacy upload cleaners.
+    for(const prefix of ['originals/','variants/','documents/','sponsorship/donor-invoices/'])for(const object of await scan(prefix))if(Date.now()-object.at.getTime()>48*3600000&&!kept.has(object.key)){
       const [registered]=await sql`select exists(select 1 from cms_media_objects where storage_key=${object.key} or variants @> ${sql.json([{key:object.key}])}) or exists(select 1 from cms_donor_invoice_documents where storage_key=${object.key}) or exists(select 1 from cms_sponsor_files where storage_key=${object.key}) as present`;
       if(!registered.present)await deleteObject(object.key);
     }

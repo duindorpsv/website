@@ -13,7 +13,7 @@ const hash=(bytes:Uint8Array)=>createHash('sha256').update(bytes).digest('hex');
 /** Issuance, permanent number, financial snapshot and metadata commit together. */
 export async function archiveDonorInvoice(tx:any,invoice:DonorInvoice,actorId:string,uploaded:string[]){
  const [existing]=await tx`select invoice_id from cms_donor_invoice_documents where invoice_id=${invoice.id}`;if(existing)return;
- const snapshotBytes=JSON.stringify(donorInvoiceSnapshot(invoice)),bytes=await buildDonorInvoicePdf(invoice),key='documents/donor-invoices/'+digestText(invoice.id)+'/'+randomUUID()+'.pdf';
+ const snapshotBytes=JSON.stringify(donorInvoiceSnapshot(invoice)),bytes=await buildDonorInvoicePdf(invoice),key='sponsorship/donor-invoices/'+digestText(invoice.id)+'/'+randomUUID()+'.pdf';
  uploaded.push(key);await putObject(key,bytes,'application/pdf');
  await tx`insert into cms_donor_invoice_documents(invoice_id,snapshot_bytes,document_hash,storage_key,file_hash,bytes,created_by) values (${invoice.id},${snapshotBytes},${digestText(snapshotBytes)},${key},${hash(bytes)},${bytes.length},${actorId})`;
 }
