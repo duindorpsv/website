@@ -31,10 +31,11 @@ docker run --rm -i --network none --read-only --entrypoint pg_restore postgres:1
 python3 - <<'PY'
 import json,pathlib
 listing=pathlib.Path('.runtime/database-backup-probe.list').read_text()
-expected=['TABLE DATA public cms_records','TABLE DATA auth users','TABLE DATA storage objects','TABLE DATA drizzle __drizzle_migrations',*["TABLE DATA public cms_archive_"+name for name in ['catalog','batches','media','contributions','revisions','relations']]]
+private_history=['cms_sponsor_agreement_deliveries','cms_sponsor_concepts','cms_sponsor_documents','cms_sponsor_files','cms_sponsor_records','cms_sponsor_signatures','cms_sponsor_signing_challenges','cms_audit','auth_user']
+expected=['TABLE DATA public cms_records','TABLE DATA auth users','TABLE DATA storage objects','TABLE DATA drizzle __drizzle_migrations',*["TABLE DATA public cms_archive_"+name for name in ['catalog','batches','media','contributions','revisions','relations']],*["TABLE DATA public "+name for name in private_history]]
 if not all(name in listing for name in expected):
     raise RuntimeError('Supabase backup is missing required application/provider data')
-proof={'format':'PostgreSQL custom','readable':True,'cms':True,'auth':True,'storageMetadata':True,'migrationJournal':True,'archiveTables':6}
+proof={'format':'PostgreSQL custom','readable':True,'cms':True,'auth':True,'storageMetadata':True,'migrationJournal':True,'archiveTables':6,'privateSponsorHistoryTables':private_history}
 pathlib.Path('.runtime/database-backup-proof.json').write_text(json.dumps(proof)+'\n')
-print('Supabase database backup verified: CMS, Auth, Storage metadata and migration journal')
+print('Supabase database backup verified: CMS, Auth, Storage metadata, private sponsor history and migration journal')
 PY

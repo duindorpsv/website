@@ -1,4 +1,6 @@
 import {createHash} from 'node:crypto';
+import {isDeepStrictEqual} from 'node:util';
+import {z} from 'zod';
 import {sqlClient} from '../../db';
 import type {SponsorDocumentMail} from '../cms/sponsorship-types';
 import {CmsError} from './errors';
@@ -11,25 +13,49 @@ export type DocumentMailPhase='proposal'|'agreement'|'signed';
 const kinds={proposal:'proposals',agreement:'agreements',signed:'agreements'} as const;
 const binaryHash=(bytes:Uint8Array)=>createHash('sha256').update(bytes).digest('hex');
 const digestText=(value:string)=>createHash('sha256').update(value,'utf8').digest('hex');
+const email=z.string().trim().toLowerCase().email().max(254);
+const businessIntent=z.object({source:z.literal('snapshot.sponsorEmail'),email:z.string().email().max(254),snapshotHash:z.string().regex(/^[a-f0-9]{64}$/),fingerprint:z.string().regex(/^[a-f0-9]{64}$/)}).strict();
+type BusinessRecipient=z.infer<typeof businessIntent>;
+const businessDeliveryId=(id:string,phase:DocumentMailPhase,intent:BusinessRecipient)=>digestText('sponsor-document-business\0'+id+'\0'+phase+'\0'+intent.fingerprint);
 async function documentContext(tx:any,id:string,phase:DocumentMailPhase){
- const [record]=await tx`select id,sponsor_id,data from cms_sponsor_records where id=${id} and kind=${kinds[phase]}`;
+ const [record]=await tx`select id,sponsor_id,data,snapshot_bytes from cms_sponsor_records where id=${id} and kind=${kinds[phase]}`;
  if(!record)throw new CmsError('missing','Dit sponsordocument bestaat niet.',404);
  const allowed=phase==='proposal'?['sent','accepted'].includes(record.data.status):phase==='agreement'?record.data.status==='awaiting-signature':record.data.status==='signed';
  if(!allowed)throw new CmsError('document-mail-status','Dit document kan in de huidige status niet per e-mail worden aangeboden.',422);
  return record;
 }
 async function eligibleRecipients(tx:any,sponsorId:string){return tx`select u.id,u.email from cms_sponsor_memberships sm join auth_user u on u.id=sm.user_id join cms_memberships m on m.user_id=u.id where sm.sponsor_id=${sponsorId} and 'signer'=any(sm.roles) and m.active and not coalesce(u.banned,false) and u.supabase_user_id is not null order by u.id`;}
+/** A notification address grants no account, company access or signing rights. */
+async function businessRecipient(tx:any,record:any,phase:DocumentMailPhase):Promise<BusinessRecipient|null>{
+ if(phase==='signed'||!record.snapshot_bytes)return null;
+ let snapshot:any;
+ try{snapshot=JSON.parse(record.snapshot_bytes);}catch{throw new CmsError('document-integrity','De vastgelegde documentinhoud kon niet worden gecontroleerd.',409);}
+ if(!isDeepStrictEqual(snapshot,record.data.snapshot))throw new CmsError('document-integrity','De vastgelegde documentinhoud is niet intact.',409);
+ const snapshotHash=digestText(record.snapshot_bytes);
+ if(phase==='agreement'){
+  const [document]=await tx`select sponsor_id,snapshot_bytes,document_hash from cms_sponsor_documents where agreement_id=${record.id}`;
+  if(!document||document.sponsor_id!==record.sponsor_id||document.snapshot_bytes!==record.snapshot_bytes||document.document_hash!==snapshotHash||record.data.documentHash!==snapshotHash)throw new CmsError('document-integrity','De vaste overeenkomst kon niet worden gecontroleerd.',409);
+ }
+ const frozen=email.safeParse(snapshot.sponsorEmail);if(!frozen.success)return null;
+ if(snapshot.contract){const contact=email.safeParse(snapshot.contract.company?.contactEmail);if(!contact.success||contact.data!==frozen.data)throw new CmsError('document-integrity','Het vastgelegde bedrijfsadres komt niet overeen met het document.',409);}
+ const [company]=await tx`select data from cms_sponsor_companies where id=${record.sponsor_id}`;
+ const current=email.safeParse(company?.data.businessDetails?company.data.businessDetails.contactEmail:company?.data.email);
+ if(!current.success||current.data!==frozen.data)return null;
+ return {source:'snapshot.sponsorEmail',email:frozen.data,snapshotHash,fingerprint:digestText('sponsor-business-recipient\0'+frozen.data+'\0'+snapshotHash)};
+}
 /** Explicit staff intent, never a historical scan or contact-email match. */
 export async function queueSponsorDocumentMail(tx:any,id:string,phase:DocumentMailPhase,operationId:string,actorId:string,required=true){
  const record=await documentContext(tx,id,phase),recipients=await eligibleRecipients(tx,record.sponsor_id);
+ const business=recipients.length?null:await businessRecipient(tx,record,phase);
+ if(business)recipients.push({id:null,email:business.email});
  if(!recipients.length&&!required)return {queued:0,status:'cancelled' as const};
- if(!recipients.length)throw new CmsError('document-mail-recipient','Koppel eerst een actieve tekenbevoegde sponsorcontactpersoon met een persoonlijk account aan dit bedrijf.',422);
+ if(!recipients.length)throw new CmsError('document-mail-recipient',phase==='signed'?'Koppel eerst een actieve tekenbevoegde sponsorcontactpersoon met een persoonlijk account aan dit bedrijf.':'Controleer het vastgelegde bedrijfsadres of koppel een actieve tekenbevoegde sponsorcontactpersoon met een persoonlijk account.',422);
  let queued=0;
  for(const account of recipients){
-  const deliveryId=digestText('sponsor-document\0'+id+'\0'+phase+'\0'+account.id);
+  const deliveryId=business?businessDeliveryId(id,phase,business):digestText('sponsor-document\0'+id+'\0'+phase+'\0'+account.id);
   const rows=await tx`insert into cms_sponsor_deliveries(id,sponsor_id,user_id,reference_id,kind) values (${deliveryId},${record.sponsor_id},${account.id},${id},${'document-'+phase}) on conflict(id) do update set status='queued',delivered_at=null where cms_sponsor_deliveries.status in ('failed','cancelled') returning id`;
   if(rows.length){
-   await tx`insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${'sponsor-document-'+deliveryId+'-'+operationId},'sponsor-document-mail',${tx.json({deliveryId,actorId})}) on conflict(operation_id) do nothing`;
+   await tx`insert into cms_jobs(id,operation_id,kind,payload) values (${crypto.randomUUID()},${'sponsor-document-'+deliveryId+'-'+operationId},'sponsor-document-mail',${tx.json({deliveryId,actorId,...(business?{businessRecipient:business}:{})})}) on conflict(operation_id) do nothing`;
    queued++;
   }
  }
@@ -52,12 +78,16 @@ export async function deliverSponsorDocumentMail(deliveryId:string){
   if(!delivery||['accepted','cancelled'].includes(delivery.status))return;
   // A deliberate retry may have been requested by a different authorized staff member.
   // Read the latest persisted intent instead of trusting a stale claimed job payload.
-  const [intent]=await tx`select payload->>'actorId' as actor_id from cms_jobs where kind='sponsor-document-mail' and payload->>'deliveryId'=${deliveryId} order by created_at desc,id desc limit 1`;
-  try{if(!intent?.actor_id)throw new CmsError('forbidden','De verzendaanvraag ontbreekt.',403);requireWrite(await actorPrincipal(intent.actor_id,tx),'sponsors','update');}catch(error){if(error instanceof CmsError&&[401,403].includes(error.status)){await tx`update cms_sponsor_deliveries set status='cancelled' where id=${deliveryId}`;await tx`update cms_domain_revision set version=version+1 where id=true`;return;}throw error;}
+  const [jobIntent]=await tx`select payload from cms_jobs where kind='sponsor-document-mail' and payload->>'deliveryId'=${deliveryId} order by created_at desc,id desc limit 1`;
+  const intent=jobIntent?.payload;
+  try{if(!intent?.actorId)throw new CmsError('forbidden','De verzendaanvraag ontbreekt.',403);requireWrite(await actorPrincipal(intent.actorId,tx),'sponsors','update');}catch(error){if(error instanceof CmsError&&[401,403].includes(error.status)){await tx`update cms_sponsor_deliveries set status='cancelled' where id=${deliveryId}`;await tx`update cms_domain_revision set version=version+1 where id=true`;return;}throw error;}
   const phase=delivery.kind.slice(9) as DocumentMailPhase;if(!Object.hasOwn(kinds,phase))throw new CmsError('document-mail-kind','De documentmail is ongeldig.',422);
   let record:any;try{record=await documentContext(tx,delivery.reference_id,phase);}catch(error){if(error instanceof CmsError&&['missing','document-mail-status'].includes(error.code)){await tx`update cms_sponsor_deliveries set status='cancelled' where id=${deliveryId}`;await tx`update cms_domain_revision set version=version+1 where id=true`;return;}throw error;}
-  const account=(await eligibleRecipients(tx,record.sponsor_id)).find((row:any)=>row.id===delivery.user_id);
-  if(!account){await tx`update cms_sponsor_deliveries set status='cancelled' where id=${deliveryId}`;await tx`update cms_domain_revision set version=version+1 where id=true`;return;}
+  const recipients=await eligibleRecipients(tx,record.sponsor_id),account=recipients.find((row:any)=>row.id===delivery.user_id);
+  const parsedBusiness=delivery.user_id===null?businessIntent.safeParse(intent?.businessRecipient):null;
+  const business=parsedBusiness?.success&&phase!=='signed'&&!recipients.length?await businessRecipient(tx,record,phase):null;
+  const validBusiness=business&&parsedBusiness?.success&&isDeepStrictEqual(business,parsedBusiness.data)&&businessDeliveryId(record.id,phase,business)===deliveryId;
+  if(delivery.sponsor_id!==record.sponsor_id||!account&&!validBusiness){await tx`update cms_sponsor_deliveries set status='cancelled' where id=${deliveryId}`;await tx`update cms_domain_revision set version=version+1 where id=true`;return;}
   let attachments:{filename:string;content:string}[]|undefined;
   if(phase==='signed'){
    const [file]=await tx`select f.* from cms_sponsor_files f join cms_sponsor_documents d on d.agreement_id=f.agreement_id where f.agreement_id=${record.id} and f.kind='agreement-final' and f.document_hash=d.document_hash and d.document_hash=${record.data.documentHash}`;
@@ -66,8 +96,8 @@ export async function deliverSponsorDocumentMail(deliveryId:string){
    attachments=[{filename:'Duindorp-SV-Overeenkomst-'+record.data.number.replace(/[^a-zA-Z0-9._-]/g,'-')+'.pdf',content:Buffer.from(bytes).toString('base64')}];
   }
   const subject=phase==='proposal'?'Je sponsorvoorstel bij Duindorp SV':phase==='agreement'?'Je sponsorovereenkomst staat klaar voor ondertekening':'Je ondertekende sponsorovereenkomst bij Duindorp SV';
-  const text=phase==='proposal'?'Er staat een sponsorvoorstel voor je klaar. Bekijk de vastgelegde afspraken en accepteer het voorstel in je persoonlijke sponsorportaal.':phase==='agreement'?'Je sponsorovereenkomst '+record.data.number+' staat klaar. Bekijk de vastgelegde afspraken en onderteken met je persoonlijke e-mailcode in het sponsorportaal.':'Je sponsorovereenkomst '+record.data.number+' is door beide partijen ondertekend. De definitieve, gearchiveerde PDF vind je in de bijlage en in je persoonlijke sponsorportaal.';
-  const receipts=await sponsorMail(account.email,subject,text,'sponsor-document-'+deliveryId,{label:'Sponsorportaal openen',href:env().APP_BASE_URL.replace(/\/$/,'')+'/sponsorportaal'},attachments);
+  const text=validBusiness?(phase==='proposal'?'Er staat een sponsorvoorstel voor je bedrijf klaar.':'Je sponsorovereenkomst '+record.data.number+' staat klaar.')+' Neem contact op met de sponsorcommissie om persoonlijke toegang voor een tekenbevoegde contactpersoon te regelen. Die kan het document daarna bekijken en '+(phase==='proposal'?'accepteren.':'ondertekenen.'):phase==='proposal'?'Er staat een sponsorvoorstel voor je klaar. Bekijk de vastgelegde afspraken en accepteer het voorstel in je persoonlijke sponsorportaal.':phase==='agreement'?'Je sponsorovereenkomst '+record.data.number+' staat klaar. Bekijk de vastgelegde afspraken en onderteken met je persoonlijke e-mailcode in het sponsorportaal.':'Je sponsorovereenkomst '+record.data.number+' is door beide partijen ondertekend. De definitieve, gearchiveerde PDF vind je in de bijlage en in je persoonlijke sponsorportaal.';
+  const receipts=await sponsorMail(validBusiness?business!.email:account.email,subject,text,'sponsor-document-'+deliveryId,validBusiness?undefined:{label:'Sponsorportaal openen',href:env().APP_BASE_URL.replace(/\/$/,'')+'/sponsorportaal'},attachments);
   await tx`update cms_sponsor_deliveries set status='accepted',delivered_at=now() where id=${deliveryId}`;
   await tx`update cms_domain_revision set version=version+1 where id=true`;
   await tx`insert into cms_audit(id,actor_id,action,record_id,request_id,metadata) values (${crypto.randomUUID()},null,'sponsor-document-mail-accepted',null,${deliveryId},${tx.json({referenceId:record.id,phase,providerAccepted:true,receiptCount:receipts.length,providerIds:receipts})})`;

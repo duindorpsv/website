@@ -1,0 +1,43 @@
+/* The bundled OnzeTrots brush face is Permanent Marker (club-font-9.ttf).
+   Keep body copy, form labels, navigation, logos and match numbers in their
+   existing readable faces. A named important layer also covers lazy CMS/modal
+   styles that otherwise explicitly reset heading faces to the body font. */
+@layer club-brand-headings {
+  :is(h1,h2,h3,h4,h5,h6,[role="heading"],[data-slot="dialog-title"],
+      .cm-desktop-panel-heading>strong,.cm-menu-parent-title,
+      .cm-life-photo-copy strong,.cht-stop>button>strong,
+      .xp-photo-copy strong,.hp-aside-motto strong,.hp-archive-links strong,
+      .org-blue-note>strong,.ca-aside-quote>span,.ca-linked-team>strong,
+      .tp-team-photo>div,.tp-walking-stamp,.td-report-art span,
+      .tport-report-art>b,.cmsp-image-empty>strong) {
+    font-family:'Permanent Marker',cursive!important;
+    font-weight:400!important;
+    font-style:normal!important;
+    font-synthesis:none!important;
+    letter-spacing:0!important;
+    line-height:1.22!important;
+    overflow-wrap:break-word;
+  }
+
+  :is(h1,h2,h3,h4,h5,h6) :is(em,strong,b,span,a) {
+    font-family:inherit!important;
+    font-weight:400!important;
+    font-style:normal!important;
+  }
+
+  /* The hero title is fixed lettering, not live text. Its full-height image
+     layout and the original hero colours remain intact. */
+  .cm-headline h1 {line-height:1!important;}
+
+  /* Permanent Marker is wider than the old condensed headings. Let the photo
+     heading wrap naturally without pushing its action out of the row. */
+  .cm-life-heading h2 {
+    font-size:clamp(32px,4.3vw,62px)!important;
+    white-space:normal!important;
+    line-height:1.15!important;
+  }
+  .nk-menu-combo h2 {white-space:normal!important;}
+  .cm-life-photo-copy strong {
+    font-size:clamp(25px,2.1vw,35px)!important;
+  }
+}

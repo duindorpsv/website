@@ -23,3 +23,4 @@
 .sb-manager .sb-event-row strong{display:block;font-size:12px;line-height:1.6}
 .sb-manager .sb-event-row small{display:block;margin-top:3px;color:var(--sb-muted);font-size:10px;line-height:1.7}
 .sb-manager .sb-event-row:hover{background:#f6f9fc}
+.sb-manager .sb-mini-title{flex-wrap:wrap}.sb-manager .sb-proposal-actions{align-items:center;min-width:340px;max-width:420px}.sb-manager .sb-proposal-actions .cms-button{white-space:nowrap}.sb-modal .sb-brand-preview>div{min-width:0;overflow-wrap:anywhere}

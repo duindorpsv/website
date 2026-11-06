@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {sponsorSnapshotBytes,calculateSponsorProposalTotals,getSponsorInvoiceTotals} from './sponsorship';
+import {sponsorSnapshotBytes,sponsorDocumentHash,calculateSponsorProposalTotals,getSponsorInvoiceTotals} from './sponsorship';
 import {getSponsorBusinessReadiness,validateSponsorContractTemplate} from './sponsor-contracts';
 const text=z.string(),id=text.min(1),date=text.refine(v=>!v||Number.isFinite(Date.parse(v)),'Ongeldige sponsordatum'),cents=z.number().int().nonnegative().max(1_000_000_000);
 const publicDay=text.refine(v=>!v||/^\d{4}-\d{2}-\d{2}$/.test(v)&&!v.startsWith('0000')&&Number.isFinite(Date.parse(v+'T12:00:00Z'))&&new Date(v+'T12:00:00Z').toISOString().slice(0,10)===v,'Gebruik een geldige kalenderdatum');
@@ -12,7 +12,30 @@ const line=z.object({id,itemId:text,name:text,description:text,quantity:z.number
 const business=z.object({legalName:text,companyNumber:text,registrationExempt:z.boolean(),registrationExemptionReason:text,vatNumber:text,vatStatus:z.enum(['registered','exempt','not-applicable']),address:text,postalCode:text,city:text,country:text,contactName:text,contactFunction:text,contactEmail:text,invoiceEmail:text,phone:text,confirmedAt:date,confirmedBy:text,updatedAt:date});
 const contractTemplate=z.object({id,name:text,description:text,title:text,body:text,active:z.boolean(),version:z.number().int().positive(),updatedAt:date});
 const contract=z.object({templateId:id,templateName:text,templateVersion:z.number().int().positive(),title:text,body:text,variables:z.record(text),company:business,packageName:text,totals:invoiceTotals});
-const snapshot=z.object({name:text,sponsorName:text,sponsorAddress:text,sponsorEmail:text,season:text,startDate:date,endDate:date,paymentTerms:text,terms:text,lines:unique(line),discountCents:cents,packageDiscountCents:cents.optional(),packageSurchargeCents:cents.optional(),capturedAt:date,contract:contract.optional()});
+const snapshotShape=z.object({name:text,sponsorName:text,sponsorAddress:text,sponsorEmail:text,season:text,startDate:date,endDate:date,paymentTerms:text,terms:text,lines:unique(line),discountCents:cents,packageDiscountCents:cents.optional(),packageSurchargeCents:cents.optional(),capturedAt:date,contract:contract.optional()});
+
+/** Captured document hashes cover the exact JSON, including object-key order.
+ * Validate every value first, then retain the original order of validated keys.
+ * Zod's normal object reconstruction must not rewrite an otherwise valid capture.
+ */
+function capturedKeyOrder<T>(raw:unknown,validated:T,ctx:z.RefinementCtx,path:(string|number)[]=[]):T{
+ if(Array.isArray(validated)){const original=Array.isArray(raw)?raw:[];return validated.map((value,index)=>capturedKeyOrder(original[index],value,ctx,[...path,index])) as T;}
+ if(validated!==null&&typeof validated==='object'){
+  const original=raw!==null&&typeof raw==='object'&&!Array.isArray(raw)?raw as Record<string,unknown>:{},checked=validated as Record<string,unknown>,originalKeys=Object.keys(original);
+  for(const key of originalKeys)if(!Object.hasOwn(checked,key))ctx.addIssue({code:'custom',path:[...path,key],message:'Onbekend veld in vastgelegde documentinhoud'});
+  const keys=[...originalKeys.filter(key=>Object.hasOwn(checked,key)),...Object.keys(checked).filter(key=>!Object.hasOwn(original,key))];
+  return Object.fromEntries(keys.map(key=>[key,capturedKeyOrder(original[key],checked[key],ctx,[...path,key])])) as T;
+ }
+ return validated;
+}
+export const sponsorProposalSnapshotSchema=z.unknown().transform((raw,ctx)=>{
+ const checked=snapshotShape.safeParse(raw);if(!checked.success){for(const issue of checked.error.issues)ctx.addIssue(issue);return z.NEVER;}
+ return capturedKeyOrder(raw,checked.data,ctx);
+});
+
+const snapshot=sponsorProposalSnapshotSchema;
+const conceptSnapshotShape=snapshotShape.extend({issuer:z.object({legalName:text.max(500).optional(),address:text.max(500).optional(),companyNumber:text.max(500).optional(),representative:text.max(500).optional(),representativeFunction:text.max(500).optional(),email:text.max(500).optional()}),totals:invoiceTotals}).refine(value=>!value.contract,'Een conceptvoorstel bevat geen overeenkomsttemplate');
+export const sponsorConceptSnapshotSchema=z.unknown().transform((raw,ctx)=>{const checked=conceptSnapshotShape.safeParse(raw);if(!checked.success){for(const issue of checked.error.issues)ctx.addIssue(issue);return z.NEVER;}return capturedKeyOrder(raw,checked.data,ctx);});
 
 const donorId=id.max(150).regex(/^[a-zA-Z0-9][a-zA-Z0-9._:-]*$/);
 const donorEmail=text.max(254).refine(value=>!value||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),'Ongeldig e-mailadres');
@@ -30,6 +53,8 @@ export const invoiceNumberingSchema=z.object({sponsors:invoiceNumberSeriesSchema
 
 const signingChallenge=z.object({id,agreementId:id,sponsorId:id,userId:id,party:z.enum(['sponsor','club']),email:text,emailHint:text,documentHash:text,createdAt:date,expiresAt:date,attempts:z.number().int().min(0).max(5),status:z.enum(['pending','consumed','revoked']),codeHash:text,consumedAt:date});
 export const sponsorshipSchema=z.object({
+ conceptDeliveries:unique(z.object({id,proposalId:id,sponsorId:id,version:z.number().int().positive(),recipient:text.email().max(254),subject:text.min(1).max(180).refine(value=>!/[\r\n]/.test(value),'Onderwerp mag geen regelafbreking bevatten'),message:text.max(5000),createdAt:date,createdBy:id.optional(),providerId:text.optional(),status:z.enum(['queued','accepted','failed','cancelled']),acceptedAt:date,error:text,snapshot:sponsorConceptSnapshotSchema,documentHash:text.regex(/^[a-f0-9]{64}$/)}).strict()).optional(),
+ agreementDeliveries:unique(z.object({id,agreementId:id,proposalId:text,sponsorId:id,agreementNumber:text.min(1),version:z.number().int().positive(),recipient:text.email().max(254),subject:text.min(1).max(180).refine(value=>!/[\r\n]/.test(value),'Onderwerp mag geen regelafbreking bevatten'),message:text.max(5000),createdAt:date,createdBy:id,status:z.enum(['queued','accepted','failed','cancelled']),acceptedAt:date.optional(),error:text.optional(),providerId:text.optional(),snapshot,snapshotBytes:text.optional(),documentHash:text.regex(/^[a-f0-9]{64}$/)}).strict()).optional(),
  donors:donorStateSchema.optional(),
  signingChallenges:unique(signingChallenge).optional(),
  contractTemplates:unique(contractTemplate).optional(),
@@ -38,7 +63,7 @@ export const sponsorshipSchema=z.object({
  memberships:unique(z.object({id,sponsorId:id,userId:id,roles:z.array(z.enum(['signer','billing','marketing'])).min(1).refine(r=>new Set(r).size===r.length)})),
  items:unique(z.object({id,name:text,description:text,kind:z.enum(['board','shirt','match','website','newsletter','screens','other']),priceCents:cents,isDonorItem:z.boolean().optional(),setupCostCents:cents.optional(),taxRate:tax,capacity:z.number().int().nonnegative(),period:z.enum(['season','year','once']),active:z.boolean()})),
  packages:unique(z.object({id,name:text,description:text,itemIds:z.array(id),priceCents:cents,taxRate:tax,active:z.boolean()})),
- proposals:unique(z.object({templateId:text.optional(),id,sponsorId:id,name:text,packageId:text,season:text,startDate:date,endDate:date,paymentTerms:text,terms:text,lines:unique(line),discountCents:cents,packageDiscountCents:cents.optional(),packageSurchargeCents:cents.optional(),status:z.enum(['draft','sent','accepted','declined','converted']),reservedUntil:date,createdAt:date,updatedAt:date,snapshot:snapshot.optional()})),
+ proposals:unique(z.object({documentKind:z.enum(['proposal','agreement']).optional(),deletedAt:date.refine(Boolean,'Een verwijdertijdstip is verplicht').optional(),templateId:text.optional(),id,sponsorId:id,name:text,packageId:text,season:text,startDate:date,endDate:date,paymentTerms:text,terms:text,lines:unique(line),discountCents:cents,packageDiscountCents:cents.optional(),packageSurchargeCents:cents.optional(),status:z.enum(['draft','sent','accepted','declined','converted']),reservedUntil:date,createdAt:date,updatedAt:date,snapshot:snapshot.optional()})),
  agreements:unique(z.object({snapshotBytes:text.optional(),hashFormat:z.literal('json-utf8-v1').optional(),signingMode:z.literal('dual-email-otp').optional(),id,sponsorId:id,proposalId:text,number:text,version:z.number().int().positive(),status:z.enum(['awaiting-signature','awaiting-club-signature','signed','cancelled']),snapshot,documentHash:text,signatures:unique(z.object({party:z.enum(['sponsor','club']).optional(),email:text.optional(),verifiedAt:date.optional(),challengeId:text.optional(),id,userId:id,name:text,function:text,at:date,ipAddress:text,verification:z.enum(['email-otp','demo-email-code']),documentHash:text,consent:z.boolean(),demo:z.boolean()})),createdAt:date,signedAt:date})),
  invoices:unique(z.object({id,sponsorId:id,agreementId:id,number:text,issueDate:publicDay,dueDate:publicDay,status:z.enum(['open','paid','cancelled']),lines:unique(line),discountCents:cents,packageDiscountCents:cents.optional(),packageSurchargeCents:cents.optional(),totalCents:cents,paidAt:date,paymentMethod:z.enum(['none','manual','mollie','manual-demo','mollie-demo']),createdAt:date,totals:invoiceTotals.optional(),installment:z.object({index:z.number().int().positive(),count:z.union([z.literal(1),z.literal(2),z.literal(3),z.literal(4),z.literal(6),z.literal(12)])}).optional()})),
  tasks:unique(z.object({id,sponsorId:id,agreementId:text,title:text,kind:z.enum(['board','shirt','match','website','newsletter','screens','other']),status:z.enum(['open','in-progress','done']),ownerId:text,dueDate:date,note:text,proofUrl:text,visibleToSponsor:z.boolean(),createdAt:date,completedAt:date})),
@@ -49,6 +74,15 @@ export const sponsorshipSchema=z.object({
 }).superRefine((s,ctx)=>{
  const sponsorIds=new Set(s.sponsors.map(v=>v.id)),itemIds=new Set(s.items.map(v=>v.id)),agreementIds=new Set(s.agreements.map(v=>v.id));
  const fail=(message:string)=>ctx.addIssue({code:'custom',message});
+ const conceptVersions=new Set<string>();
+ for(const row of s.conceptDeliveries||[]){const proposal=s.proposals.find(item=>item.id===row.proposalId);if(!proposal||proposal.sponsorId!==row.sponsorId)fail('Conceptverzending verwijst naar een ontbrekend of ander voorstel');const key=row.proposalId+'|'+row.version;if(conceptVersions.has(key))fail('Dubbele conceptverzendversie');conceptVersions.add(key);if(sponsorDocumentHash(JSON.stringify(row.snapshot))!==row.documentHash)fail('Documentcontrole van conceptvoorstel klopt niet');try{const totals=invoiceTotals.parse(calculateSponsorProposalTotals(row.snapshot));if(JSON.stringify(totals)!==JSON.stringify(invoiceTotals.parse(row.snapshot.totals)))fail('Vastgelegde conceptbedragen kloppen niet');}catch(error){fail(error instanceof Error?error.message:'Ongeldige conceptbedragen');}}
+ for(const proposal of s.proposals){if(proposal.deletedAt&&(proposal.status!=='draft'||s.agreements.some(row=>row.proposalId===proposal.id)))fail('Alleen een bewerkbaar concept zonder overeenkomst kan verwijderd zijn');}
+ for(const row of s.agreementDeliveries||[]){
+  const agreement=s.agreements.find(item=>item.id===row.agreementId);
+  if(!agreement||agreement.sponsorId!==row.sponsorId||agreement.proposalId!==row.proposalId||agreement.number!==row.agreementNumber||agreement.version!==row.version||agreement.documentHash!==row.documentHash)fail('Overeenkomstverzending verwijst naar een ontbrekende of andere documentversie');
+  try{sponsorSnapshotBytes(row);}catch(error){fail(error instanceof Error?error.message:'Documentcontrole van overeenkomstverzending klopt niet');}
+ }
+
  const invoiceNumbers=[...s.invoices,...(s.donors?.invoices||[])].map(invoice=>invoice.number.toLowerCase());if(new Set(invoiceNumbers).size!==invoiceNumbers.length)fail('Dubbele factuurnummers bij sponsors of donateurs');
  if(s.donors){const people=new Set(s.donors.people.map(row=>row.id)),contributions=new Map(s.donors.contributions.map(row=>[row.id,row])),invoiced=new Set<string>();
   if(s.donors.contributions.some(row=>!people.has(row.donorId)))fail('Bijdrage verwijst naar een ontbrekende donateur');
@@ -71,7 +105,7 @@ export const sponsorshipSchema=z.object({
  for(const captured of [...s.proposals,...s.proposals.flatMap(row=>row.snapshot?[row.snapshot]:[]),...s.agreements.map(row=>row.snapshot)]){for(const row of captured.lines){if(row.startDate&&row.endDate&&(row.startDate<captured.startDate||row.endDate>captured.endDate))fail('Regelperiode valt buiten de contractperiode');}try{calculateSponsorProposalTotals(captured);}catch(error){fail(error instanceof Error?error.message:'Ongeldige sponsorbedragen');}}
  if(s.proposals.some(p=>p.status!=='draft'&&!p.snapshot))fail('Verstuurd voorstel mist vastgelegde inhoud');
  if(s.agreements.some(a=>a.status==='signed'&&(!a.signedAt||!a.signatures.length)))fail('Ondertekende overeenkomst mist ondertekening');
- for(const a of s.agreements){if(a.snapshot.startDate>a.snapshot.endDate)fail('Ongeldige contractperiode');try{sponsorSnapshotBytes(a);}catch(error){fail(error instanceof Error?error.message:'Documentcontrole van overeenkomst klopt niet');}if(a.signatures.some(v=>!v.consent||v.documentHash!==a.documentHash))fail('Ondertekenverslag hoort niet bij dit document');if(a.snapshot.contract){if(!getSponsorBusinessReadiness(a.snapshot.contract.company).confirmed)fail('Overeenkomst mist bevestigde bedrijfsgegevens');if(JSON.stringify(calculateSponsorProposalTotals(a.snapshot))!==JSON.stringify(a.snapshot.contract.totals))fail('Vastgelegde contractbedragen kloppen niet');}
+ for(const a of s.agreements){if(a.snapshot.startDate>a.snapshot.endDate)fail('Ongeldige contractperiode');try{sponsorSnapshotBytes(a);}catch(error){fail(error instanceof Error?error.message:'Documentcontrole van overeenkomst klopt niet');}if(a.signatures.some(v=>!v.consent||v.documentHash!==a.documentHash))fail('Ondertekenverslag hoort niet bij dit document');if(a.snapshot.contract){if(!getSponsorBusinessReadiness(a.snapshot.contract.company).confirmed)fail('Overeenkomst mist bevestigde bedrijfsgegevens');if(JSON.stringify(invoiceTotals.parse(calculateSponsorProposalTotals(a.snapshot)))!==JSON.stringify(invoiceTotals.parse(a.snapshot.contract.totals)))fail('Vastgelegde contractbedragen kloppen niet');}
   if(a.signingMode==='dual-email-otp'){const sponsor=a.signatures.filter(row=>row.party==='sponsor'),club=a.signatures.filter(row=>row.party==='club');if(sponsor.length>1||club.length>1||a.signatures.length!==sponsor.length+club.length)fail('Ongeldige ondertekenpartijen');if(a.status==='awaiting-signature'&&a.signatures.length)fail('Sponsorondertekening hoort bij volgende documentstatus');if(a.status==='awaiting-club-signature'&&(sponsor.length!==1||club.length||a.signedAt))fail('Clubondertekening vereist eerst één sponsorondertekening');if(a.status==='signed'&&(sponsor.length!==1||club.length!==1||sponsor[0].userId===club[0].userId||sponsor[0].at>club[0].at||a.signatures[0].party!=='sponsor'))fail('Overeenkomst mist afzonderlijke sponsor- en clubondertekening in de juiste volgorde');for(const signature of a.signatures){const challenge=s.signingChallenges?.find(row=>row.id===signature.challengeId);if(!signature.email||!signature.verifiedAt||!challenge||challenge.status!=='consumed'||challenge.agreementId!==a.id||challenge.userId!==signature.userId||challenge.party!==signature.party||challenge.documentHash!==a.documentHash||challenge.email!==signature.email||challenge.consumedAt!==signature.verifiedAt)fail('Ondertekening mist bijbehorende e-mailverificatie');}}
  }
 });

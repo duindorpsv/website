@@ -13,6 +13,13 @@ function validateIds(values:{id?:string;personId?:string}[]){for(const value of 
 export function requireVersion(versions:Versions,actual:Versions,key:string){
  if(key in actual&&versions[key]!==actual[key])throw new CmsError('conflict','Dit dossier is ondertussen gewijzigd. Laad de actuele gegevens; je invoer blijft staan.',409);
 }
+/** Called only while holding the shared workspace locks, never for previews. */
+export async function numberNewSponsorAgreements(tx:any,before:DomainStore,state:CmsState){
+ const fresh=state.sponsorship!.agreements.filter(value=>!before.records.has(value.id));if(!fresh.length)return;
+ const prefix='DSV-'+new Date().getFullYear()+'-',used=await tx`select data->>'number' as number from cms_sponsor_records where kind='agreements' and data->>'number' like ${prefix+'%'}`;
+ let sequence=used.reduce((highest:number,row:any)=>{const value=Number(String(row.number).slice(prefix.length));return Number.isSafeInteger(value)?Math.max(highest,value):highest;},0);
+ for(const value of fresh)value.number=prefix+String(++sequence).padStart(3,'0');
+}
 const personDraft=(person:CmsPerson)=>{
  const {id,name,role='',group='',teamId='',bio='',mediaId='',email='',phone='',showContact=false,published=false,order=0,sportlinkId}=person;
  return {id,name,role,group,teamId,bio,mediaId,email,phone,showContact,published,order,...(sportlinkId?{sportlinkId}:{} )};

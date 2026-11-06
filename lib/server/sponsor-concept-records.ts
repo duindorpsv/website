@@ -1,0 +1,7 @@
+import {assertSponsorConceptSource,type SponsorConceptSource,type SponsorConceptDelivery} from '../cms/sponsor-concept';
+export function conceptSourceFromRow(row:any):SponsorConceptSource{
+ const source={proposalId:row.proposal_id,sponsorId:row.sponsor_id,version:row.version,snapshot:JSON.parse(row.snapshot_bytes),documentHash:row.document_hash};assertSponsorConceptSource(source);return source;
+}
+export function conceptDeliveryProjection(row:any):SponsorConceptDelivery{return {...conceptSourceFromRow(row),id:row.id,recipient:row.recipient,subject:row.subject,message:row.message,createdBy:row.created_by,createdAt:new Date(row.created_at).toISOString(),status:row.status,acceptedAt:row.accepted_at?new Date(row.accepted_at).toISOString():'',error:row.last_error||'',...(row.provider_id?{providerId:row.provider_id}:{})};}
+export async function sponsorConceptRows(tx:any,where:any){return tx`select c.*,(select a.metadata->'providerIds'->>0 from cms_audit a where a.action='sponsor-concept-mail-accepted' and a.request_id=c.id order by a.created_at desc limit 1) as provider_id from cms_sponsor_concepts c where ${where} order by c.created_at desc,c.version desc,c.id desc`;}
+export async function readConceptDeliveryRows(tx:any,sponsorIds:string[]):Promise<SponsorConceptDelivery[]>{if(!sponsorIds.length)return [];return (await sponsorConceptRows(tx,tx`c.sponsor_id in ${tx(sponsorIds)}`)).map(conceptDeliveryProjection);}

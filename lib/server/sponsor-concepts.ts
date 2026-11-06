@@ -9,8 +9,10 @@ import {workspaceActor,freshActor,requireWrite,workspaceLocks,workspaceRate,secu
 import {readDomainStore,sponsorStaff,digestText} from './sponsor-store';
 import {actorPrincipal,verifyOrigin,type Principal} from './permissions';
 import {CmsError} from './errors';
+import {env} from './env';
 import {getObject,putObject,deleteObject} from './storage';
 import {sponsorMail} from './sponsor-mail';
+import {conceptSourceFromRow as sourceFromRow,conceptDeliveryProjection as projection,sponsorConceptRows} from './sponsor-concept-records';
 const binaryHash=(bytes:Uint8Array)=>createHash('sha256').update(bytes).digest('hex');
 const inputSchema=z.discriminatedUnion('action',[
  z.object({action:z.literal('create'),operationId:z.string().uuid(),expectedHash:z.string().regex(/^[a-f0-9]{64}$/),recipient:z.string().trim().toLowerCase().email().max(254),subject:z.string().trim().min(1).max(180).refine(s=>!/[\r\n]/.test(s)),message:z.string().trim().min(1).max(5000)}).strict(),
@@ -18,14 +20,13 @@ const inputSchema=z.discriminatedUnion('action',[
 ]);
 export async function sponsorPdfAssets(){const root=join(process.cwd(),'public');const [logoPng,bodyFont,boldFont,headingFont,brushFont]=await Promise.all(['assets/logo.png','fonts/club-font-4.ttf','fonts/club-font-7.ttf','fonts/club-font-3.ttf','fonts/club-font-9.ttf'].map(path=>readFile(join(root,path))));return {logoPng,bodyFont,boldFont,headingFont,brushFont};}
 function requireRead(p:Principal){if(!sponsorStaff(p))throw new CmsError('forbidden','Je hebt sponsorbeheerrechten nodig voor conceptvoorstellen.',403);}
-function sourceFromRow(row:any):SponsorConceptSource{const source={proposalId:row.proposal_id,sponsorId:row.sponsor_id,version:row.version,snapshot:JSON.parse(row.snapshot_bytes),documentHash:row.document_hash};assertSponsorConceptSource(source);return source;}
-function projection(row:any):SponsorConceptDelivery{return {...sourceFromRow(row),id:row.id,recipient:row.recipient,subject:row.subject,message:row.message,createdAt:new Date(row.created_at).toISOString(),status:row.status,acceptedAt:row.accepted_at?new Date(row.accepted_at).toISOString():'',error:row.last_error||''};}
-async function proposal(tx:any,id:string){const [row]=await tx`select id,sponsor_id,version,data from cms_sponsor_records where id=${id} and kind='proposals'`;if(!row)throw new CmsError('missing','Het sponsorvoorstel bestaat niet.',404);return row;}
+async function proposal(tx:any,id:string,history=false){const [row]=await tx`select id,sponsor_id,version,data from cms_sponsor_records where id=${id} and kind='proposals'`;if(!row)throw new CmsError('missing','Het sponsorvoorstel bestaat niet.',404);if(row.data.deletedAt&&!history)throw new CmsError('draft-deleted','Dit concept is verwijderd. De verzendhistorie blijft beschikbaar.',409);return row;}
+async function activeConcept(tx:any,row:any){const [record]=await tx`select data from cms_sponsor_records where id=${row.proposal_id} and kind='proposals'`;if(record&&!record.data.deletedAt)return true;await tx`update cms_sponsor_concepts set status='cancelled',last_error='Het bronconcept is verwijderd.' where id=${row.id}`;await tx`update cms_domain_revision set version=version+1 where id=true`;return false;}
 export async function readSponsorConcepts(request:Request,proposalId:string){const actor=await workspaceActor(request.headers);return sqlClient().begin(async tx=>{
- const p=await freshActor(tx,actor);requireRead(p);await proposal(tx,proposalId);
- const rows=await tx`select * from cms_sponsor_concepts where proposal_id=${proposalId} order by version desc`;
+ const p=await freshActor(tx,actor);requireRead(p);await proposal(tx,proposalId,true);
+ const rows=await sponsorConceptRows(tx,tx`c.proposal_id=${proposalId}`);
  let source:SponsorConceptSource|null=null,error='';try{source=getSponsorConceptSource((await readDomainStore(tx,p)).state,p.id,proposalId,(rows[0]?.version||0)+1);}catch(reason){error=reason instanceof Error?reason.message:'Dit concept is niet beschikbaar.';}
- const fontUrl=new URL('/fonts/club-font-9.ttf',request.url).href;
+ const fontUrl=new URL('/fonts/club-font-9.ttf',env().APP_BASE_URL).href;
  return {source,error,html:source?getSponsorConceptHtml(source,fontUrl):'',deliveries:rows.map(projection)};
 });}
 /** Intent, immutable document and outbox commit together; source stays a draft. */
@@ -65,12 +66,14 @@ export async function deliverSponsorConcept(deliveryId:string){
  // after provider acceptance must never erase its start via a transaction rollback.
  await sql.begin(async tx=>{
   await workspaceLocks(tx);const [row]=await tx`select * from cms_sponsor_concepts where id=${deliveryId}`;if(!row||['accepted','cancelled'].includes(row.status))return;
+  if(!await activeConcept(tx,row))return;
   try{requireWrite(await actorPrincipal(row.requested_by,tx),'sponsors','update');}catch(error){if(error instanceof CmsError&&[401,403].includes(error.status)){await tx`update cms_sponsor_concepts set status='cancelled',last_error='Toegang van de aanvrager ingetrokken' where id=${deliveryId}`;await tx`update cms_domain_revision set version=version+1 where id=true`;return;}throw error;}
   if(row.first_attempt_at&&Date.now()-new Date(row.first_attempt_at).getTime()>23*3600000)throw new CmsError('concept-manual-check','Controleer de eerdere verzending bij de mailprovider.',409);
   sourceFromRow(row);await tx`update cms_sponsor_concepts set first_attempt_at=coalesce(first_attempt_at,now()) where id=${deliveryId}`;
  });
  await sql.begin(async tx=>{
   await workspaceLocks(tx);const [row]=await tx`select * from cms_sponsor_concepts where id=${deliveryId}`;if(!row||['accepted','cancelled'].includes(row.status))return;
+  if(!await activeConcept(tx,row))return;
   try{requireWrite(await actorPrincipal(row.requested_by,tx),'sponsors','update');}catch(error){if(error instanceof CmsError&&[401,403].includes(error.status)){await tx`update cms_sponsor_concepts set status='cancelled',last_error='Toegang van de aanvrager ingetrokken' where id=${deliveryId}`;await tx`update cms_domain_revision set version=version+1 where id=true`;return;}throw error;}
   if(row.first_attempt_at&&Date.now()-new Date(row.first_attempt_at).getTime()>23*3600000)throw new CmsError('concept-manual-check','Controleer de eerdere verzending bij de mailprovider.',409);
   sourceFromRow(row);const [file]=await tx`select * from cms_sponsor_files where id=${row.file_id} and kind='concept-proposal' and sponsor_id=${row.sponsor_id} and document_hash=${row.document_hash}`;

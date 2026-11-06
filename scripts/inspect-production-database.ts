@@ -1,4 +1,5 @@
 import postgres from 'postgres';
+import {inspectAuthProvider} from '../lib/server/auth-provider-diagnostics';
 import {databaseOptions} from '../lib/server/database-config';
 import {inspectDatabase,resetStalledConnections,safeDatabaseCode} from '../lib/server/database-diagnostics';
 
@@ -8,6 +9,7 @@ try {
   if(!process.env.MIGRATION_DATABASE_URL)throw new Error('Missing migration connection');
   sql=postgres(process.env.MIGRATION_DATABASE_URL,{...databaseOptions(1),connection:{application_name:'duindorp-production-diagnostics'}});
   console.log(JSON.stringify(await inspectDatabase(sql)));
+  console.log(JSON.stringify(await inspectAuthProvider({url:process.env.SUPABASE_URL,secret:process.env.SUPABASE_SECRET_KEY})));
   const requested=process.env.RESET_STALLED_PIDS?.trim();
   if(requested){
     if(!/^[1-9][0-9]{0,9}(,[1-9][0-9]{0,9}){0,19}$/.test(requested))throw new Error('Invalid application connection IDs');
