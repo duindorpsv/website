@@ -176,6 +176,13 @@
       "when": 1793936336535,
       "tag": "0024_mollie_payment_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1793980013036,
+      "tag": "0025_sponsor_agreement_deliveries",
+      "breakpoints": true
     }
   ]
 }

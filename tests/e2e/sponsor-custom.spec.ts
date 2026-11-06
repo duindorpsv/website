@@ -43,7 +43,7 @@ test('maatwerk in beheer: the explicit empty package choice opens, saves and rel
  await dialog.getByRole('button',{name:'Voorstel opbouwen',exact:true}).click();
  const startResponse=await started,request=startResponse.request().postDataJSON();
  const startCommand=request.commands.find((value:{name:string})=>value.name==='createSponsorProposal');
- expect(startCommand.args).toEqual([sponsor.id,'']);
+ expect(startCommand.args).toEqual([sponsor.id,'','proposal']);
  if(startResponse.status()!==200){
   await expect(dialog.getByRole('alert')).toBeVisible();
   writeFileSync(evidence+'/beheer-maatwerk-before-http.json',JSON.stringify({command:startCommand.name,args:startCommand.args,status:startResponse.status(),response:await startResponse.json()},null,2));
@@ -53,7 +53,7 @@ test('maatwerk in beheer: the explicit empty package choice opens, saves and rel
  dialog=page.getByRole('dialog');
  await expect(dialog.getByRole('heading',{name:'Samenwerking op maat',exact:true})).toBeVisible();
  await expect(dialog.locator('.sb-line-card')).toHaveCount(0);
- await dialog.getByLabel('Naam van het voorstel',{exact:false}).fill(proposalName);
+ await dialog.getByLabel('Naam van de samenwerking',{exact:false}).fill(proposalName);
  await dialog.getByLabel('Sponsoritem toevoegen',{exact:false}).selectOption(catalogItem.id);
  const line=dialog.locator('.sb-line-card');await expect(line).toHaveCount(1);
  await line.getByLabel('Naam in dit voorstel',{exact:false}).fill('Twee persoonlijke maatwerkborden');
@@ -67,7 +67,7 @@ test('maatwerk in beheer: the explicit empty package choice opens, saves and rel
  await page.getByRole('navigation',{name:'Sponsoring onderdelen'}).getByRole('button',{name:'Voorstellen',exact:true}).click();
  await page.getByRole('row').filter({hasText:proposalName}).getByRole('button',{name:'Bewerken',exact:false}).click();
  dialog=page.getByRole('dialog');
- await expect(dialog.getByLabel('Naam van het voorstel',{exact:false})).toHaveValue(proposalName);
+ await expect(dialog.getByLabel('Naam van de samenwerking',{exact:false})).toHaveValue(proposalName);
  await expect(dialog.locator('.sb-line-card')).toHaveCount(1);
  await expect(dialog.getByLabel('Naam in dit voorstel',{exact:false})).toHaveValue('Twee persoonlijke maatwerkborden');
  await expect(dialog.getByLabel('Toevoeging / concrete afspraak',{exact:false})).toHaveValue('Naast elkaar bij het hoofdveld.');
