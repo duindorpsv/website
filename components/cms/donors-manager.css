@@ -17,3 +17,4 @@
 .dc-document-top{justify-content:flex-start;flex-wrap:wrap}
 .dc-document-top>strong{order:2;margin-left:auto}
 .dc-invoice-actions{order:1}
+.dc-manager>.dd-toast{z-index:109}
