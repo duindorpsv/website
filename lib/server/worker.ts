@@ -132,13 +132,19 @@ export async function retain() { const sql = sqlClient(); await sql.begin(async 
     await tx `delete from cms_submissions where id=${row.id}`;
     await tx `insert into cms_audit(id,action,record_id,request_id) values (${crypto.randomUUID()},'retention-delete',${row.id},${crypto.randomUUID()})`;
 } }); await sql `delete from cms_rate_limits where expires_at<now()`; await sql`delete from cms_jobs where kind='auth-code-mail' and status in ('done','failed','cancelled') and created_at<now()-interval '1 day'`; await sql`delete from cms_auth_login_challenges where expires_at<now()`; await sql`delete from cms_auth_email_sessions where created_at<now()-interval '12 hours'`; await cleanExpiredNews(); await cleanArchiveUploads(); await cleanSponsorLogoUploads(); }
-export async function cleanOrphans(){
-    const sql=sqlClient(),objects=await sql`select storage_key,variants from cms_media_objects`;
+export async function cleanOrphans(scan:typeof listObjects=listObjects){
+    const sql=sqlClient();
+    const [objects,documents]=await Promise.all([
+      sql`select storage_key,variants from cms_media_objects`,
+      sql`select storage_key from cms_donor_invoice_documents union select storage_key from cms_sponsor_files`,
+    ]);
     const kept=new Set<string>();for(const object of objects){kept.add(object.storage_key);for(const variant of object.variants||[])kept.add(variant.key);}
+    for(const document of documents)kept.add(document.storage_key);
     // Only unregistered upload keys older than 48 hours; archived originals and
-    // every registered variant remain available for revision/backup recovery.
-    for(const prefix of ['originals/','variants/','documents/'])for(const object of await listObjects(prefix))if(Date.now()-object.at.getTime()>48*3600000&&!kept.has(object.key)){
-      const [nowRegistered]=await sql`select id from cms_media_objects where storage_key=${object.key} or variants @> ${sql.json([{key:object.key}])} limit 1`;
-      if(!nowRegistered)await deleteObject(object.key);
+    // every registered document/variant remain available for recovery. An
+    // invoice may be archived after the first scan, so recheck all registries.
+    for(const prefix of ['originals/','variants/','documents/'])for(const object of await scan(prefix))if(Date.now()-object.at.getTime()>48*3600000&&!kept.has(object.key)){
+      const [registered]=await sql`select exists(select 1 from cms_media_objects where storage_key=${object.key} or variants @> ${sql.json([{key:object.key}])}) or exists(select 1 from cms_donor_invoice_documents where storage_key=${object.key}) or exists(select 1 from cms_sponsor_files where storage_key=${object.key}) as present`;
+      if(!registered.present)await deleteObject(object.key);
     }
 }
