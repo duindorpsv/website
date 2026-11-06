@@ -1,0 +1,84 @@
+/* Match the header's darker club-blue paint on homepage sections after the hero.
+   Keep the hero's inherited club colours and photographic composition intact. */
+.concept-clubmuur[data-page='home'] {
+  --cm-section-royal: var(--cm-club-blue, #03438a);
+  --cm-section-royal-deep: #022d5e;
+}
+
+.concept-clubmuur[data-page='home'] :is(.cm-competition, .cht-widget, .cm-life) {
+  background: var(--cm-section-royal) url('/assets/clubmuur-wall.webp') center 80% / cover;
+  background-blend-mode: multiply;
+}
+
+.concept-clubmuur[data-page='home'] .cm-competition {
+  --competition-blue: var(--cm-section-royal);
+  background-color: var(--cm-section-royal);
+}
+
+.concept-clubmuur[data-page='home'] .cht-widget {
+  --cht-blue: var(--cm-section-royal);
+  --cht-deep: var(--cm-section-royal-deep);
+  background-color: var(--cm-section-royal);
+}
+
+.concept-clubmuur[data-page='home'] .cm-life {
+  --life-blue: var(--cm-section-royal);
+}
+
+/* Use the header's shading instead of an opaque white texture overlay, so
+   these surfaces keep the same dark blue rather than washing out to royal blue. */
+.concept-clubmuur[data-page='home'] :is(.cm-competition, .cht-widget, .cm-life)::before {
+  background: var(--cm-band-shade);
+  background-blend-mode: normal;
+  mix-blend-mode: normal;
+  opacity: 1;
+  -webkit-mask: none;
+  mask: none;
+}
+
+.concept-clubmuur[data-page='home'] .cm-competition::after {
+  background: none;
+}
+
+/* Retain the white timeline surface and its interaction states, using the
+   same header blue for its line, selected stop and primary action. */
+.concept-clubmuur[data-page='home'] .cht-explorer::before {
+  background: linear-gradient(90deg, var(--cht-blue), #6f99c6 45%, var(--cht-blue));
+}
+
+.concept-clubmuur[data-page='home'] .cht-overview-axis > button:hover::before,
+.concept-clubmuur[data-page='home'] :is(
+  .cht-overview-cursor,
+  .cht-stop.is-active .cht-stop-dot,
+  .cht-story-actions > a,
+  .cht-empty button
+) {
+  background: var(--cht-blue);
+}
+
+.concept-clubmuur[data-page='home'] .cht-stop.is-active .cht-stop-dot {
+  border-color: var(--cht-blue);
+}
+
+.concept-clubmuur[data-page='home'] :is(
+  .cht-stop.is-active .cht-stop-year,
+  .cht-stop.is-active > button > strong,
+  .cht-stop.is-active .cht-stop-open,
+  .cht-stop--add .cht-stop-year,
+  .cht-stop--add .cht-stop-open,
+  .cht-story-photo-open,
+  .cht-story-actions > button,
+  .cht-museum-wanted button,
+  .cht-footer > button,
+  .cht-footer > a
+) {
+  color: var(--cht-blue);
+}
+
+.concept-clubmuur[data-page='home'] .cht-museum-link {
+  color: var(--cht-blue) !important;
+}
+
+.concept-clubmuur[data-page='home'] .cht-story-actions > a:hover {
+  background: var(--cm-section-royal-deep);
+}

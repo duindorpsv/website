@@ -156,7 +156,8 @@ class AgreementLayout{
    if(isHeading){this.ensure(20);this.font('heading',15,INK);const titleLines=this.wrap(first,WIDTH);for(const title of titleLines){this.ensure(7);this.text(title,MARGIN,this.y);this.y+=6.5;}if(lines.length>1)this.paragraph(lines.slice(1).join('\n'),{size:8.8,gap:5});else this.y+=2;}
    else this.paragraph(paragraph,{size:8.8,gap:5});
   }
-  if(!contract){this.heading('Betaling');this.paragraph(this.snapshot.paymentTerms,{size:9,gap:8});}
+  if(this.snapshot.paymentTerms&&!clean(source).includes(clean(this.snapshot.paymentTerms))){this.heading('Betaalafspraken');this.paragraph(this.snapshot.paymentTerms,{size:9,gap:8});}
+  if(this.snapshot.terms&&!clean(source).includes(clean(this.snapshot.terms))){this.heading('Voorwaarden');this.paragraph(this.snapshot.terms,{size:9,gap:8});}
  }
  signatures(){
   this.nextPage('ONDERTEKENING EN BEWIJS');this.heading('Akkoord. Met vertrouwen.','DEZELFDE VERSIE, TWEE PARTIJEN');
@@ -192,7 +193,13 @@ class AgreementLayout{
 }
 
 export async function buildSponsorAgreementPdf(state:CmsState,actorId:string,id:string,options:SponsorPdfOptions={}):Promise<Uint8Array>{
- const agreement=sponsorAgreementPdfSource(state,actorId,id),assets=options.assets||await browserAssets();
+ return buildSponsorAgreementDocumentPdf(sponsorAgreementPdfSource(state,actorId,id),options);
+}
+
+/** Render already-authorized, captured document data without any persistence. */
+export async function buildSponsorAgreementDocumentPdf(agreement:SponsorAgreement,options:SponsorPdfOptions={}):Promise<Uint8Array>{
+ sponsorSnapshotBytes(agreement);
+ const assets=options.assets||await browserAssets();
  const {jsPDF}=await import('jspdf');const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true,putOnlyUsedFonts:true});
  const fonts=[['ClubBody','normal','club-body.ttf',assets.bodyFont],['ClubBody','bold','club-bold.ttf',assets.boldFont],['ClubHeading','normal','permanent-marker.ttf',assets.brushFont],['ClubBrush','normal','club-brush.ttf',assets.brushFont]] as const;
  for(const [name,style,file,bytes] of fonts){doc.addFileToVFS(file,base64(bytes));doc.addFont(file,name,style);}
