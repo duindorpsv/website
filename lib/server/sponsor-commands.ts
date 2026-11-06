@@ -23,6 +23,7 @@ import {env} from './env';
 import {checkSponsorLogoReference,claimSponsorLogoUploads} from './sponsor-logos';
 const portalCommands=new Set(['acceptSponsorProposal','requestSponsorBusinessChange','requestSponsorProfile','saveSponsorMaterial','registerSponsorEvent','cancelSponsorEvent','requestDirectoryGuardian','requestSponsorSigningCode','trySignSponsorAgreement']);
 const donorCommands=new Set(['saveDonor','saveDonorContribution','issueDonorInvoice','markDonorInvoicePaid','cancelDonorInvoice','sendDonorInvoice']);
+const documentMailCommands=new Set(['sendSponsorProposal','createSponsorAgreement','sendSponsorDocumentEmail']);
 const directoryCommands=new Set(['saveDirectoryPerson','bindDirectoryAccount','setDirectoryAccountActive','createDirectoryInvitation','revokeDirectoryInvitation','saveDirectoryGuardian','approveDirectoryGuardian','saveDirectoryAssignment','removeDirectoryAssignment','importDirectoryPeople']);
 type PreparedMail={to:string;subject:string;text:string;id:string;kind:'invitation'|'signature';link?:{label:string;href:string}};
 const failOtp=()=>new CmsError('otp-invalid','De ondertekeningscode is ongeldig of verlopen. Vraag zo nodig een nieuwe code aan.',422);
@@ -43,6 +44,7 @@ function checkCommandRight(p:WorkspaceActor['p'],mode:string,name:string,args:an
  if(mode==='donors'&&!donorCommands.has(name)&&name!=='saveInvoiceNumberingSettings')throw new CmsError('forbidden','Deze handeling hoort niet bij Donateurs.',403);
  if(donorCommands.has(name)){if(mode==='portal')throw new CmsError('forbidden','Deze handeling is niet beschikbaar in het portaal.',403);requireDonorRight(p,['saveDonor','saveDonorContribution'].includes(name)?'manage':'invoice');return;}
  if(name==='saveInvoiceNumberingSettings'){if(mode==='portal')throw new CmsError('forbidden','Deze handeling is niet beschikbaar in het portaal.',403);if(args[0]?.donors)requireDonorRight(p,'settings');if(args[0]?.sponsors)requireWrite(p,'sponsors','manage');return;}
+ if(documentMailCommands.has(name))requireWrite(p,'sponsors','update');
  if(mode==='portal'){if(!portalCommands.has(name))throw new CmsError('forbidden','Deze handeling is niet beschikbaar in het portaal.',403);return;}
  if(portalCommands.has(name)&&!['requestSponsorSigningCode'].includes(name)&&name!=='requestDirectoryGuardian')throw new CmsError('forbidden','Gebruik je eigen bedrijfsportaal voor deze handeling.',403);
  if(['saveMembership','removeSponsorMembership'].includes(name)&&globalRight(p,'users','manage'))return;
@@ -81,7 +83,7 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
   return {...c,args:schema.parse(c.args) as any[]};
  });
  // Cached results still require current session validity and current command rights.
- await sqlClient().begin(async tx=>{const p=await freshActor(tx,actor);for(const command of commands)if(donorCommands.has(command.name)||command.name==='saveInvoiceNumberingSettings'||command.name==='sendSponsorDocumentEmail')checkCommandRight(p,input.mode,command.name,command.args);});
+ await sqlClient().begin(async tx=>{const p=await freshActor(tx,actor);for(const command of commands)if(donorCommands.has(command.name)||command.name==='saveInvoiceNumberingSettings'||documentMailCommands.has(command.name))checkCommandRight(p,input.mode,command.name,command.args);});
  const cached=await existingOperation(input.operationId,actor.p.id,hash);if(cached)return cached;
  if(commands.some(c=>c.name==='requestSponsorSigningCode'||c.name.startsWith('try'))&&commands.length!==1)throw new CmsError('validation','Voer de ondertekenstap afzonderlijk uit.',422);
  const signing=commands.find(c=>c.name==='trySignSponsorAgreement'||c.name==='tryCountersignSponsorAgreement');
@@ -100,7 +102,7 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
  let result:any;try{result=await sqlClient().begin(async tx=>{
   await workspaceLocks(tx);const p=await freshActor(tx,actor);
   const [old]=await tx`select * from cms_domain_operations where id=${input.operationId}::uuid`;
-  if(old){if(old.actor_id!==p.id||old.request_hash!==hash)throw new CmsError('operation-conflict','Dit verzoeknummer is al gebruikt.',409);for(const command of commands)if(donorCommands.has(command.name)||command.name==='saveInvoiceNumberingSettings'||command.name==='sendSponsorDocumentEmail')checkCommandRight(p,input.mode,command.name,command.args);return old.result;}
+  if(old){if(old.actor_id!==p.id||old.request_hash!==hash)throw new CmsError('operation-conflict','Dit verzoeknummer is al gebruikt.',409);for(const command of commands)if(donorCommands.has(command.name)||command.name==='saveInvoiceNumberingSettings'||documentMailCommands.has(command.name))checkCommandRight(p,input.mode,command.name,command.args);return old.result;}
   const before=await readDomainStore(tx,p,{portal,companyId:input.companyId});
   const state=structuredClone(before.state);
   const logoUploads=new Set<string>();
@@ -177,6 +179,8 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
      if(name==='sendDonorInvoice'){const invoice=state.sponsorship!.donors!.invoices.find(row=>row.id===args[0])!;await queueDonorInvoiceMail(tx,invoice,p.id,input.operationId);}
      if(donorCommands.has(name)||name==='saveInvoiceNumberingSettings')await tx`insert into cms_audit(id,actor_id,action,record_id,request_id,metadata) values (${crypto.randomUUID()},${p.id},${name},null,${input.operationId},${tx.json({reference:typeof args[0]==='string'?args[0]:args[0]?.id||null,...(name==='markDonorInvoicePaid'?{paymentReference:args[1],method:'manual'}:{}),...(name==='cancelDonorInvoice'?{reason:args[1]}:{})})})`;
      if(name==='sendSponsorDocumentEmail')documentMailIntents.push({id:args[0],phase:args[1]==='agreement'&&changed.status==='signed'?'signed':args[1]});
+     if(name==='sendSponsorProposal')documentMailIntents.push({id:changed.id,phase:'proposal'});
+     if(name==='createSponsorAgreement')documentMailIntents.push({id:changed.id,phase:'agreement'});
      if(name==='logSponsorReminder')await queueSponsorReminder(tx,state,args[0],input.operationId);
      if(name==='createDirectoryInvitation'){
       const token=randomBytes(32).toString('hex');changed.token=digestText(token);

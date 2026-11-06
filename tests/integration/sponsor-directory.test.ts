@@ -125,6 +125,7 @@ test('sponsor directory: canonical identities, real invitations, bounded scopes,
  });
  await t.test('overlapping reservations serialize the last slot and conversion counts capacity once; stale saves conflict',async()=>{
   await command(admin.cookie,'saveSponsorBusinessDetails',[otherId,{...business,legalName:'Tweede fictieve partij'},true]);
+  const otherSigner=await fixture('sponsor');await command(admin.cookie,'saveMembership',[{id:crypto.randomUUID(),sponsorId:otherId,userId:otherSigner.id,roles:['signer']}]);
   const itemId=crypto.randomUUID();await command(staff.cookie,'saveSponsorItem',[{id:itemId,name:'Laatste testplek',description:'Capaciteitscontrole',kind:'board',priceCents:100,taxRate:'21',capacity:1,period:'year',active:true}]);
   const ids:string[]=[];for(const id of [companyId,otherId]){await command(staff.cookie,'createSponsorProposal',[id]);const proposal=(await read(staff.cookie)).state.sponsorship!.proposals.find(p=>p.sponsorId===id&&p.status==='draft')!;await command(staff.cookie,'saveSponsorProposal',[{...proposal,lines:[{id:crypto.randomUUID(),itemId,name:'Laatste testplek',description:'',quantity:1,unitPriceCents:100,taxRate:'21'}]}]);ids.push(proposal.id);}
   const results=await Promise.allSettled([command(admin.cookie,'sendSponsorProposal',[ids[0]]),command(staff.cookie,'sendSponsorProposal',[ids[1]])]);assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
