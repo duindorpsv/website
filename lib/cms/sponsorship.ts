@@ -364,3 +364,6 @@ export function sponsorSnapshotBytes(agreement:SponsorAgreement){
  ensure(sha256(bytes)===agreement.documentHash,'De vaste documenthash komt niet overeen.');
  return bytes;
 }
+
+/** Records explicit email intent; the server queues actual delivery and reports acceptance. */
+export const sendSponsorDocumentEmail=(state:CmsState,actorId:string,id:string,kind:'proposal'|'agreement')=>domainMutation('sendSponsorDocumentEmail',[state,actorId,id,kind],()=>{requireManager(state,actorId);const data=readSponsorship(state),record=kind==='proposal'?data.proposals.find(row=>row.id===id):data.agreements.find(row=>row.id===id);ensure(record,'Dit sponsordocument bestaat niet.');ensure(kind==='proposal'?record.status==='sent'||record.status==='accepted':['awaiting-signature','signed'].includes(record.status),'Dit document kan in de huidige status niet worden verzonden.');return record;});
