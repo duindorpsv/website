@@ -52,7 +52,7 @@ export async function provisionDatabase(sql:any,password:string,onStage:(stage:P
   await sql`revoke update,delete on cms_audit,cms_revisions,cms_publications from duindorp_app`;
   // Financial reservations and archived invoice documents are append-only.
   // During rolling provisioning the new additive migration may not exist yet.
-  for(const table of ['cms_invoice_numbers','cms_donor_invoice_documents']){
+  for(const table of ['cms_invoice_numbers','cms_donor_invoice_documents','cms_board_operations','cms_board_revisions']){
     const [found]=await sql`select to_regclass(${'public.'+table}) is not null as present`;
     if(found.present)await sql`revoke update,delete on ${sql('public.'+table)} from duindorp_app`;
   }

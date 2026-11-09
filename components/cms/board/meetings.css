@@ -1,0 +1,49 @@
+.bp-meeting-agenda-mobile {
+  display: none;
+}
+
+.bp-meeting-agenda-desktop {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.bp-meeting-tabs {
+  margin-top: 14px;
+}
+
+.bp-meeting-target {
+  min-width: 0;
+  scroll-margin-block-start: 16px;
+}
+
+.bp-meeting-progress {
+  gap: 12px;
+}
+
+.bp-meeting-note svg {
+  display: inline-block;
+  vertical-align: -.15em;
+}
+
+@container bp-board (max-width: 720px) {
+  .bp-meeting-agenda-mobile {
+    display: grid;
+    gap: 10px;
+  }
+
+  .bp-meeting-agenda-desktop {
+    display: none;
+  }
+
+  .bp-workspace .bp-meeting-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .bp-meeting-tabs .cms-button {
+    min-width: 0;
+    padding-inline: 6px;
+    overflow-wrap: anywhere;
+  }
+}

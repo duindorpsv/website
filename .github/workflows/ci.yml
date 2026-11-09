@@ -25,8 +25,8 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Validate serving-host checks and deployment identities
         run: python3 -m unittest discover -s ops/tests -v
-      - name: Install archive audio and video decoder for verification
-        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends ffmpeg
+      - name: Install archive decoder and PDF text verifier
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends ffmpeg poppler-utils
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version-file: .node-version

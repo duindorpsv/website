@@ -37,6 +37,7 @@ export function cmsPermissions(p:Principal):Permission[]{
  const modules:Permission[]=['news','stories','pages','media','people','forms','settings','users','directory','sponsors'];
  const permissions=modules.filter(module=>p.grants.some(grant=>grant.module==='*'||grant.module===module||module==='forms'&&grant.module==='submissions'));
  if(p.grants.some(grant=>grant.action==='publish'||grant.action==='*'))permissions.push('publish');
+ if(!p.teamScoped&&p.grants.some(g=>(g.module==='board'||g.module==='*')&&['read','manage','*'].includes(g.action)))permissions.push('board');
  return [...permissions,...donorPermissions(p.grants,p.teamScoped)];
 }
 export function has(p: Principal, module: string, action: string, scope?: {
