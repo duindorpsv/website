@@ -183,6 +183,13 @@
       "when": 1793980013036,
       "tag": "0025_sponsor_agreement_deliveries",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794228745177,
+      "tag": "0026_board_workspace",
+      "breakpoints": true
     }
   ]
 }

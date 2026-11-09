@@ -25,3 +25,9 @@
 @font-face{font-family:'Sponsor Club Condensed';font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/club-font-1.ttf) format('truetype')}
 @font-face{font-family:'Sponsor Club Condensed';font-style:normal;font-weight:800;font-display:swap;src:url(/fonts/club-font-2.ttf) format('truetype')}
 @font-face{font-family:'Sponsor Club Condensed';font-style:normal;font-weight:900;font-display:swap;src:url(/fonts/club-font-3.ttf) format('truetype')}
+
+/* Keep the Bestuur header responsive to its available width, including zoom. */
+.dd-cms:has(.bp-workspace) .dd-main{container:cms-board-shell / inline-size}
+@container cms-board-shell (max-width:720px){
+ .dd-topbar .dd-search{display:none}
+}
