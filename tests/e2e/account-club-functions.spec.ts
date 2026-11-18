@@ -36,8 +36,24 @@ test('account club functions open the canonical off-page dossier and save withou
  const accessWrites:string[]=[];
  page.on('request',request=>{if(request.method()==='PATCH'&&new URL(request.url()).pathname==='/api/cms/users/'+account.id)accessWrites.push(request.url());});
 
+ const firstAccountsResponse=page.waitForResponse(response=>response.request().method()==='GET'&&new URL(response.url()).pathname==='/api/cms/users');
  await page.goto('/beheer#rollen');
- await page.getByRole('button').filter({has:page.getByText(name,{exact:true})}).click();
+ const firstAccounts=await firstAccountsResponse;
+ expect(firstAccounts.status()).toBe(200);
+ const {total,limit}=await firstAccounts.json(),accountPages=Math.ceil(total/limit);
+ expect(total).toBeGreaterThan(0);
+ expect(limit).toBeGreaterThan(0);
+ const accounts=page.getByRole('region',{name:'Accounts',exact:true}),accountButton=accounts.getByRole('button').filter({has:page.getByText(name,{exact:true})});
+ // CI keeps integration fixtures, so this account may be on any account-list page.
+ for(let accountPage=1;accountPage<=accountPages;accountPage++){
+  await expect(accounts).toHaveAttribute('aria-busy','false');
+  await expect(accounts.getByRole('navigation',{name:'Paginering Accounts',exact:true})).toContainText(`${(accountPage-1)*limit+1}–${Math.min(accountPage*limit,total)} van ${total}`);
+  if(await accountButton.count()||accountPage===accountPages)break;
+  const nextAccountsResponse=page.waitForResponse(response=>{const url=new URL(response.url());return response.request().method()==='GET'&&url.pathname==='/api/cms/users'&&url.searchParams.get('offset')===String(accountPage*limit);});
+  await accounts.getByRole('button',{name:'Accounts: volgende pagina',exact:true}).click();
+  expect((await nextAccountsResponse).status()).toBe(200);
+ }
+ await accountButton.click();
  await expect(page.getByLabel(/^Toegangsrol/)).toHaveValue('admin');
  const link=page.getByRole('link',{name:'Clubfuncties beheren',exact:true});
  await expect(link).toHaveAttribute('href',`/beheer?persoon=${personId}&dossier=functions#register`);
