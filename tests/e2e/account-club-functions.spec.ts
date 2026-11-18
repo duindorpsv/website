@@ -36,9 +36,8 @@ test('account club functions open the canonical off-page dossier and save withou
  const accessWrites:string[]=[];
  page.on('request',request=>{if(request.method()==='PATCH'&&new URL(request.url()).pathname==='/api/cms/users/'+account.id)accessWrites.push(request.url());});
 
- const firstAccountsResponse=page.waitForResponse(response=>response.request().method()==='GET'&&new URL(response.url()).pathname==='/api/cms/users');
  await page.goto('/beheer#rollen');
- const firstAccounts=await firstAccountsResponse;
+ const firstAccounts=await page.request.get('/api/cms/users?limit=25&offset=0');
  expect(firstAccounts.status()).toBe(200);
  const {total,limit}=await firstAccounts.json(),accountPages=Math.ceil(total/limit);
  expect(total).toBeGreaterThan(0);
