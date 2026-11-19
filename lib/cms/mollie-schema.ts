@@ -8,16 +8,17 @@ const profile=z.object({id,name:z.string().min(1).max(300),website:z.string().ma
 const balance=z.object({id,description:z.string().min(1).max(300),currency:z.string().regex(/^[A-Z]{3}$/),status:z.enum(['active','inactive']),mode}).strict();
 const link=z.object({profileId:id,balanceId:id,verifiedBy:z.enum(['manual','provider']),verifiedAt:timestamp,evidence:z.string().trim().min(1).max(500)}).strict();
 const catalog=z.object({source:z.enum(['none','provider']),organizationId:z.string().max(120),bindingId:z.string().max(120),fetchedAt:z.union([z.literal(''),timestamp]),profiles:z.array(profile).max(10000),balances:z.array(balance).max(10000),links:z.array(link).max(10000)}).strict();
-const environment=z.object({authMode:z.enum(['advanced-token','profile-api-key']),credentialReference:z.enum(['','MOLLIE_TEST_TOKEN','MOLLIE_LIVE_TOKEN']),currentProfileId:optionalId,paymentsEnabled:z.literal(false),catalog,streams:z.array(mollieStreamSchema).max(100)}).strict();
+const environment=z.object({authMode:z.enum(['advanced-token','profile-api-key']),credentialReference:z.enum(['','stored-api-key','MOLLIE_TEST_TOKEN','MOLLIE_LIVE_TOKEN']),currentProfileId:optionalId,paymentsEnabled:z.boolean(),catalog,streams:z.array(mollieStreamSchema).max(100)}).strict();
 export const mollieSettingsSchema=z.object({mode,environments:z.object({test:environment,live:environment}).strict()}).strict().superRefine((value,ctx)=>{
  for(const name of ['test','live'] as const){
   const env=value.environments[name],c=env.catalog,fail=(message:string)=>ctx.addIssue({code:'custom',path:['environments',name],message});
-  if(env.credentialReference&&env.credentialReference!==`MOLLIE_${name.toUpperCase()}_TOKEN`)fail('Gebruik de beheerde toegang voor dezelfde omgeving.');
+  if(env.credentialReference&&env.credentialReference!=='stored-api-key'&&env.credentialReference!==`MOLLIE_${name.toUpperCase()}_TOKEN`)fail('Gebruik de beheerde toegang voor dezelfde omgeving.');
+  if(env.credentialReference==='stored-api-key'&&env.authMode!=='profile-api-key')fail('Een opgeslagen API-sleutel hoort bij één websiteprofiel.');
   for(const rows of [env.streams,c.profiles,c.balances])if(new Set(rows.map(row=>row.id)).size!==rows.length)fail('Dubbele referentie in de inrichting.');
   if(new Set(env.streams.map(row=>row.code)).size!==env.streams.length)fail('Elke geldstroom heeft een unieke code.');
   for(const code of ['sponsors','donations','webshop'])if(!env.streams.some(row=>row.code===code))fail('Behoud de drie vaste geldstromen.');
   if(c.source==='none'&&(c.profiles.length||c.balances.length||c.links.length||c.organizationId||c.bindingId||c.fetchedAt))fail('Een niet opgehaalde catalogus bevat geen accountgegevens.');
-  if(c.source==='provider'&&(!c.organizationId||!c.bindingId||!c.fetchedAt))fail('De catalogus mist zijn accountbinding of ophaaldatum.');
+  if(c.source==='provider'&&((env.authMode==='advanced-token'&&!c.organizationId)||!c.bindingId||!c.fetchedAt))fail('De catalogus mist zijn accountbinding of ophaaldatum.');
   if(c.profiles.some(row=>row.mode!==name)||c.balances.some(row=>row.mode!==name))fail('Test en live blijven gescheiden.');
   if(new Set(c.links.map(row=>row.profileId)).size!==c.links.length)fail('Een profiel heeft één geregistreerde balans.');
   if(c.links.some(row=>!c.profiles.some(p=>p.id===row.profileId)||!c.balances.some(b=>b.id===row.balanceId)))fail('Een registratie moet naar deze catalogus verwijzen.');

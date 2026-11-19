@@ -190,6 +190,13 @@
       "when": 1794228745177,
       "tag": "0026_board_workspace",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1795081581702,
+      "tag": "0027_mollie_credentials",
+      "breakpoints": true
     }
   ]
 }

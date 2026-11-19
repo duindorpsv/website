@@ -3,21 +3,22 @@ import {z} from 'zod';
 import {sqlClient} from '../../db';
 import {CmsError} from './errors';
 import {env} from './env';
-import {workspaceActor,freshActor,requireDonorRight,requireWrite,workspaceLocks} from './sponsor-access';
-import {resolveMollieCredential} from './mollie-provider';
+import {workspaceActor,freshActor,requireDonorRight,requireWrite,workspaceLocks,requireActiveSponsor,workspaceRate} from './sponsor-access';
+import {readMollieCredential} from './mollie-provider';
 import {resolveMollieServerRoute,readMollieConfiguration} from './mollie-settings';
 import {mollieCreateBody,performMollieCreate,molliePaymentRequest,verifyMolliePayment,sourceStream,type MollieAttemptSnapshot,type MollieFinancialSource} from './mollie-payment-core';
 const digest=(value:string)=>createHash('sha256').update(value).digest('hex');
-const inputSchema=z.object({operationId:z.string().uuid(),sourceKind:z.enum(['donors','sponsors']),sourceId:z.string().min(1).max(160),previousAttemptId:z.string().min(1).max(160).optional()}).strict();
-function right(p:any,kind:MollieFinancialSource['kind']){if(kind==='donors')requireDonorRight(p,'invoice');else requireWrite(p,'sponsors','manage');}
+const inputSchema=z.object({operationId:z.string().uuid(),sourceKind:z.enum(['donors','sponsors']),sourceId:z.string().min(1).max(160),previousAttemptId:z.string().min(1).max(160).optional(),expectedMode:z.enum(['test','live']).optional()}).strict();
+function right(p:Parameters<typeof requireWrite>[0],kind:MollieFinancialSource['kind']){if(kind==='donors')requireDonorRight(p,'invoice');else requireWrite(p,'sponsors','manage');}
 function snapshot(row:any):MollieAttemptSnapshot{if(digest(row.snapshot_bytes)!==row.snapshot_hash)throw new CmsError('payment-integrity','De betaalpoging kon niet worden gecontroleerd.',409);return JSON.parse(row.snapshot_bytes);}
-function safe(row:any){return {id:row.id,status:row.status,providerId:row.provider_id,checkoutUrl:row.checkout_url,errorCode:row.error_code};}
-async function source(tx:any,kind:MollieFinancialSource['kind'],id:string){
- const [row]=await tx`select data from cms_sponsor_records where id=${id} and kind=${kind==='donors'?'donorInvoices':'invoices'} for update`;
- if(!row||row.data.status!=='open')throw new CmsError('payment-source','Deze factuur staat niet open.',409);
+function safe(row:any){return {id:row.id,status:row.status,providerId:row.provider_id,checkoutUrl:row.checkout_url,errorCode:row.error_code,mode:snapshot(row).mode};}
+async function source(tx:any,kind:MollieFinancialSource['kind'],id:string,openOnly=true){
+ const [row]=await tx`select data,sponsor_id from cms_sponsor_records where id=${id} and kind=${kind==='donors'?'donorInvoices':'invoices'} for update`;
+ if(!row||openOnly&&row.data.status!=='open'||!openOnly&&!['open','paid'].includes(row.data.status))throw new CmsError('payment-source','Deze factuur staat niet open.',409);
+ if(kind==='sponsors')await requireActiveSponsor(tx,row.sponsor_id);
  return {kind,id,number:row.data.number,amountCents:row.data.totalCents} as MollieFinancialSource;
 }
-/** Execution is deliberately unavailable until a separately reviewed activation is implemented. */
+/** Routes and activation are rechecked against the saved, verified configuration. */
 export type MolliePaymentRuntime={resolveRoute:typeof resolveMollieServerRoute;readConfiguration:typeof readMollieConfiguration;transport:typeof fetch};
 // The HTTP route uses these fixed production dependencies. Tests supply a local provider adapter.
 export async function createInvoicePayment(request:Request,value:unknown,runtime:Partial<MolliePaymentRuntime>={}){
@@ -25,27 +26,30 @@ export async function createInvoicePayment(request:Request,value:unknown,runtime
  const input=inputSchema.parse(value),actor=await workspaceActor(request.headers),sql=sqlClient();
  const row=await sql.begin(async tx=>{
   await workspaceLocks(tx);const p=await freshActor(tx,actor);right(p,input.sourceKind);
+  await workspaceRate('mollie-create:'+p.id,30,60,tx);
+  await source(tx,input.sourceKind,input.sourceId,false);
   const [old]=await tx`select * from cms_mollie_payment_attempts where operation_id=${input.operationId}::uuid`;
   if(old){if(old.source_kind!==input.sourceKind||old.source_id!==input.sourceId||old.actor_id!==p.id)throw new CmsError('operation-conflict','Deze opdracht hoort bij een andere betaalpoging.',409);snapshot(old);return old;}
   const financial=await source(tx,input.sourceKind,input.sourceId);
   const configured=await services.resolveRoute(sourceStream(input.sourceKind),undefined,tx);
   const {route,credential,settings,version,configHash}=configured;
+  if(input.expectedMode&&route.mode!==input.expectedMode)throw new CmsError('payment-mode-changed','De betaalomgeving is gewijzigd. Controleer test of live en probeer opnieuw.',409);
   if(!(settings.environments[route.mode].paymentsEnabled as boolean))throw new CmsError('payments-disabled','Online betalingen zijn nog niet geactiveerd.',409);
-  const [active]=await tx`select * from cms_mollie_payment_attempts where source_kind=${input.sourceKind} and source_id=${input.sourceId} and status not in ('failed','canceled','expired')`;
+  const [active]=await tx`select * from cms_mollie_payment_attempts where source_kind=${input.sourceKind} and source_id=${input.sourceId} and snapshot_bytes::jsonb->>'mode'=${route.mode} and status not in ('failed','canceled','expired')`;
   if(active)return active;
-  const [previous]=await tx`select id from cms_mollie_payment_attempts where source_kind=${input.sourceKind} and source_id=${input.sourceId} order by created_at desc limit 1`;
+  const [previous]=await tx`select id from cms_mollie_payment_attempts where source_kind=${input.sourceKind} and source_id=${input.sourceId} and snapshot_bytes::jsonb->>'mode'=${route.mode} order by created_at desc limit 1`;
   if(previous&&input.previousAttemptId!==previous.id)throw new CmsError('payment-retry','Bevestig een nieuwe poging na de definitief afgesloten betaling.',409);
-  if(!route.profile||!route.balance||!route.link||!route.stream)throw new CmsError('payment-route','Controleer de geregistreerde betaalroute.',409);
-  const id=randomUUID(),frozen:Omit<MollieAttemptSnapshot,'request'>={id,source:financial,clubId:credential.binding.clubId,organizationId:credential.binding.organizationId,mode:route.mode,streamCode:sourceStream(input.sourceKind),profileId:route.profile.id,expectedBalanceId:route.balance.id,linkVerification:route.link.verifiedBy,linkVerifiedAt:route.link.verifiedAt,catalogFetchedAt:settings.environments[route.mode].catalog.fetchedAt,configVersion:version,configHash,credentialBindingId:credential.binding.id,idempotencyKey:'duindorp-'+id,reference:[route.stream.referencePrefix,financial.number].filter(Boolean).join(' · '),createdAt:new Date().toISOString()};
+  if(!route.profile||!route.stream||credential.binding.authMode==='advanced-token'&&(!route.balance||!route.link))throw new CmsError('payment-route','Controleer de geregistreerde betaalroute.',409);
+  const id=randomUUID(),frozen:Omit<MollieAttemptSnapshot,'request'>={id,source:financial,clubId:credential.binding.clubId,organizationId:credential.binding.organizationId,mode:route.mode,streamCode:sourceStream(input.sourceKind),profileId:route.profile.id,expectedBalanceId:route.balance?.id||'',linkVerification:route.link?.verifiedBy||'profile-key',linkVerifiedAt:route.link?.verifiedAt||settings.environments[route.mode].catalog.fetchedAt,catalogFetchedAt:settings.environments[route.mode].catalog.fetchedAt,configVersion:version,configHash,credentialBindingId:credential.binding.id,idempotencyKey:'duindorp-'+id,reference:[route.stream.referencePrefix,financial.number].filter(Boolean).join(' · '),createdAt:new Date().toISOString()};
   const bytes=JSON.stringify({...frozen,request:mollieCreateBody(frozen,credential,env().APP_BASE_URL)});
   const [created]=await tx`insert into cms_mollie_payment_attempts(id,operation_id,actor_id,source_kind,source_id,snapshot_bytes,snapshot_hash) values (${id},${input.operationId}::uuid,${p.id},${input.sourceKind},${input.sourceId},${bytes},${digest(bytes)}) returning *`;
   await tx`insert into cms_audit(id,actor_id,action,request_id,metadata) values (${randomUUID()},${p.id},'mollie-attempt-prepared',${input.operationId},${tx.json({attemptId:id,sourceId:input.sourceId,mode:route.mode})})`;
   return created;
  });
  if(!['prepared','uncertain'].includes(row.status))return safe(row);
- const frozen=snapshot(row),credential=resolveMollieCredential(frozen.mode,frozen.credentialBindingId);
+ const frozen=snapshot(row),credential=await readMollieCredential(frozen.mode,frozen.credentialBindingId);
  // Recheck access after the durable preparation; an opened dialog never retains a revoked grant.
- await sql.begin(async tx=>{await workspaceLocks(tx);right(await freshActor(tx,actor),input.sourceKind);await source(tx,input.sourceKind,input.sourceId);const config=await services.readConfiguration(tx);if(!(config.settings.environments[frozen.mode].paymentsEnabled as boolean))throw new CmsError('payments-disabled','Online betalingen zijn nog niet geactiveerd.',409);});
+ await sql.begin(async tx=>{await workspaceLocks(tx);right(await freshActor(tx,actor),input.sourceKind);await source(tx,input.sourceKind,input.sourceId);const config=await services.readConfiguration(tx);if(input.expectedMode&&config.settings.mode!==input.expectedMode)throw new CmsError('payment-mode-changed','De betaalomgeving is gewijzigd. Controleer test of live en probeer opnieuw.',409);if(!(config.settings.environments[frozen.mode].paymentsEnabled as boolean))throw new CmsError('payments-disabled','Online betalingen zijn nog niet geactiveerd.',409);});
  try{
   const payment=await performMollieCreate(frozen,credential,services.transport);
   if(!/^tr_[a-zA-Z0-9]+$/.test(payment.id||''))throw new CmsError('payment-uncertain','Mollie heeft geen geldige betaalidentiteit bevestigd.',503);
@@ -67,6 +71,34 @@ export async function createInvoicePayment(request:Request,value:unknown,runtime
   throw error;
  }
 }
+const invoiceIdentity=z.object({sourceKind:z.enum(['donors','sponsors']),sourceId:z.string().min(1).max(160)}).strict();
+/** Only financial staff can inspect a link; a checkout never grants CMS access. */
+export async function readInvoicePayment(request:Request){
+ const input=invoiceIdentity.parse(Object.fromEntries(new URL(request.url).searchParams)),actor=await workspaceActor(request.headers);
+ return sqlClient().begin(async tx=>{
+  const p=await freshActor(tx,actor);right(p,input.sourceKind);await source(tx,input.sourceKind,input.sourceId,false);
+  const config=await readMollieConfiguration(tx),mode=config.settings.mode;
+  const [attempt]=await tx`select * from cms_mollie_payment_attempts where source_kind=${input.sourceKind} and source_id=${input.sourceId} and snapshot_bytes::jsonb->>'mode'=${mode} order by created_at desc,id desc limit 1`;
+  let enabled=false,reason='';
+  try{const resolved=await resolveMollieServerRoute(sourceStream(input.sourceKind),mode,tx);enabled=resolved.settings.environments[mode].paymentsEnabled;reason=enabled?'':'Activeer online betalen bij de Mollie-instellingen.';}
+  catch(error){if(!(error instanceof CmsError))throw error;reason=error.message;}
+  return {mode,enabled,reason,attempt:attempt?safe(attempt):null};
+ });
+}
+/** An explicit refresh retrieves Mollie's result; URL returns never settle invoices. */
+export async function refreshInvoicePayment(request:Request,value:unknown){
+ const input=invoiceIdentity.extend({action:z.literal('verify')}).parse(value),actor=await workspaceActor(request.headers);
+ const providerId=await sqlClient().begin(async tx=>{
+  const p=await freshActor(tx,actor);right(p,input.sourceKind);await source(tx,input.sourceKind,input.sourceId,false);
+  await workspaceRate('mollie-verify:'+p.id,30,60,tx);
+  const config=await readMollieConfiguration(tx),mode=config.settings.mode;
+  const [attempt]=await tx`select * from cms_mollie_payment_attempts where source_kind=${input.sourceKind} and source_id=${input.sourceId} and snapshot_bytes::jsonb->>'mode'=${mode} order by created_at desc,id desc limit 1`;
+  return attempt?.provider_id as string|undefined;
+ });
+ if(providerId)await processMollieWebhook(providerId);
+ const url=new URL(request.url);url.search=new URLSearchParams({sourceKind:input.sourceKind,sourceId:input.sourceId}).toString();
+ return readInvoicePayment(new Request(url,{headers:request.headers}));
+}
 export async function processMollieWebhook(providerId:string){
  if(!/^tr_[a-zA-Z0-9]+$/.test(providerId))throw new CmsError('payment-id','Ongeldige betaalmelding.',422);
  const sql=sqlClient(),[initial]=await sql`select id from cms_mollie_payment_attempts where provider_id=${providerId}`;
@@ -79,13 +111,13 @@ export async function processMollieWebhook(providerId:string){
    await workspaceLocks(tx);
    const [current]=await tx`select *,updated_at::text as verification_version from cms_mollie_payment_attempts where id=${initial.id} for update`;
    verificationVersion=current.verification_version;
-   const frozen=snapshot(current),credential=resolveMollieCredential(frozen.mode,frozen.credentialBindingId);
+   const frozen=snapshot(current),credential=await readMollieCredential(frozen.mode,frozen.credentialBindingId,tx);
    const test=credential.binding.testmodeParameter&&frozen.mode==='test'?'&testmode=true':'';
    const payment=await molliePaymentRequest(credential,`/v2/payments/${providerId}?embed=refunds,chargebacks${test}`);
    const verified=verifyMolliePayment(frozen,credential,payment,providerId);
    const [invoice]=await tx`select data from cms_sponsor_records where id=${frozen.source.id} and kind=${frozen.source.kind==='donors'?'donorInvoices':'invoices'} for update`;
    let review=verified.review||current.status==='review';
-   if(verified.settle&&!current.settled_at&&!review){
+   if(frozen.mode==='live'&&verified.settle&&!current.settled_at&&!review){
     if(!invoice||invoice.data.status!=='open'||invoice.data.number!==frozen.source.number||invoice.data.totalCents!==frozen.source.amountCents)review=true;
     else{
      await tx`update cms_sponsor_records set data=data||${tx.json({status:'paid',paidAt:new Date().toISOString(),paymentMethod:'mollie',...(frozen.source.kind==='donors'?{paymentReference:providerId}:{})})}::jsonb,version=version+1,updated_at=now() where id=${frozen.source.id}`;
