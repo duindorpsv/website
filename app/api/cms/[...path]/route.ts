@@ -7,6 +7,7 @@ import {contentModules,loadState,mutate,permissionModule,recordOutput,scope,type
 import {bodyJson,CmsError,errorResponse} from '@/lib/server/errors';
 import {listSubscribers,changeSubscriber} from '@/lib/server/newsletter';
 import {activityAuthorization} from '@/lib/server/planning';
+import {readMollieConfiguration} from '@/lib/server/mollie-settings';
 export const dynamic='force-dynamic';
 const change=z.object({module:z.enum(contentModules),id:z.string().min(1).max(160),expectedVersion:z.number().int().min(0),action:z.enum(['save','publish','unpublish','trash','restore','schedule','cancelSchedule']),data:z.record(z.unknown()).optional(),scheduledAt:z.string().optional()}).strict();
 export async function GET(request:Request,{params}:{params:Promise<{path:string[]}>}){try{
@@ -19,7 +20,7 @@ export async function GET(request:Request,{params}:{params:Promise<{path:string[
  }
  if(path[0]==='audit'){authorize(p,'settings','manage');const {limit,offset}=listPagination(new URL(request.url));const rows=await sql`select id,actor_id,action,record_id,request_id,created_at from cms_audit order by created_at desc,id limit ${limit} offset ${offset}`;const [count]=await sql`select count(*)::int as total from cms_audit`;return Response.json({items:rows,total:count.total,limit,offset});}
  if(path[0]==='jobs'){authorize(p,'settings','read');const {limit,offset}=listPagination(new URL(request.url));const rows=await sql`select id,kind,status,attempts,last_error,run_at from cms_jobs where status in ('failed','waiting','pending') order by created_at desc,id limit ${limit} offset ${offset}`;const [count]=await sql`select count(*)::int as total from cms_jobs where status in ('failed','waiting','pending')`;return Response.json({items:rows,total:count.total,limit,offset});}
- if(path[0]==='integrations'){authorize(p,'settings','read');const rows=await sql`select id,kind,status,attempts,last_error,run_at from cms_jobs where status in ('failed','waiting','pending') order by created_at desc limit 100`;return Response.json({mailProvider:'resend',mailConfigured:!!(process.env.RESEND_API_KEY&&process.env.MAIL_FROM),sportlinkReadConfigured:!!process.env.SPORTLINK_CLIENT_ID,sportlinkRegistration:'manual-follow-up',newsletterManagement:'cms',jobs:rows});}
+ if(path[0]==='integrations'){authorize(p,'settings','read');const rows=await sql`select id,kind,status,attempts,last_error,run_at from cms_jobs where status in ('failed','waiting','pending') order by created_at desc limit 100`;const mollie=await readMollieConfiguration(sql).then(({settings})=>({mode:settings.mode,paymentsEnabled:settings.environments[settings.mode].paymentsEnabled})).catch(()=>null);return Response.json({mailProvider:'resend',mailConfigured:!!(process.env.RESEND_API_KEY&&process.env.MAIL_FROM),sportlinkReadConfigured:!!process.env.SPORTLINK_CLIENT_ID,sportlinkRegistration:'manual-follow-up',newsletterManagement:'cms',mollie,jobs:rows},{headers:{'Cache-Control':'private, no-store'}});}
  if(path[0]==='submissions'){
   const url=new URL(request.url),kind=url.searchParams.get('kind');if(!['contact','registration','request'].includes(kind||''))throw new CmsError('kind-required','Kies contact, aanmeldingen of aanvragen.');
   const {limit,offset}=listPagination(url);

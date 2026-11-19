@@ -15,7 +15,8 @@ const privateHeaders={'Cache-Control':'private, no-store','X-Content-Type-Option
 async function logoAccess(tx:any,p:Principal,sponsorId:string){
  if(!logoId.test(sponsorId))throw new CmsError('validation','Deze relatie-identificatie is ongeldig.',422);
  if(sponsorStaff(p)){
-  const [company]=await tx`select id from cms_sponsor_companies where id=${sponsorId}`;
+  const [company]=await tx`select id,data->>'deletedAt' as deleted_at from cms_sponsor_companies where id=${sponsorId}`;
+  if(company?.deleted_at)throw new CmsError('sponsor-deleted','Deze relatie is verwijderd. Maak een nieuwe relatie aan.',409);
   requireWrite(p,'sponsors',company?'update':'create');return;
  }
  const [link]=await tx`select roles from cms_sponsor_memberships where sponsor_id=${sponsorId} and user_id=${p.id}`;

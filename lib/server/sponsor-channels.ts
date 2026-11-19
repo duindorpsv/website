@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {env} from './env';
 import {sqlClient} from '../../db';
-import {workspaceActor,freshActor,workspaceLocks,requireWrite,secureCodeHash} from './sponsor-access';
+import {workspaceActor,freshActor,workspaceLocks,requireWrite,secureCodeHash,requireActiveSponsor} from './sponsor-access';
 import {CmsError} from './errors';
 import {verifyOrigin} from './permissions';
 import {emptyState,validateCandidate} from './records';
@@ -16,7 +16,7 @@ export async function sponsorChannelDraft(request:Request,body:unknown){
   await workspaceLocks(tx);const p=await freshActor(tx,actor);requireWrite(p,'sponsors','create');
   const [existing]=await tx`select * from cms_domain_operations where id=${input.operationId}::uuid`;
   if(existing){if(existing.actor_id!==p.id||existing.request_hash!==hash)throw new CmsError('conflict','Dit verzoeknummer is al gebruikt.',409);return existing.result;}
-  const [company]=await tx`select data from cms_sponsor_companies where id=${input.companyId}`;
+  const company=await requireActiveSponsor(tx,input.companyId);
   if(!company?.data.publicEnabled||!company.data.publicProfile?.name?.trim())throw new CmsError('profile-not-approved','Keur eerst het publieke sponsorprofiel goed.',422);
   const profile=company.data.publicProfile,title=('Samen voor de club: '+profile.name).slice(0,200),intro=(profile.description||profile.name+' steunt Duindorp SV. Samen bouwen we aan onze club en onze wijk.').slice(0,400),at=new Date().toISOString();
   let id='';

@@ -37,7 +37,7 @@ export function domainCommandVersionKey(name:string,args:any[]){
  if(name==='issueDonorInvoice')return 'record:'+args[0];
  if(name==='saveInvoiceNumberingSettings')return 'record:sponsor-settings';
  if(name==='saveDirectoryPerson')return 'person:'+args[0].person.id;
- if(['saveSponsor','saveSponsorBusinessDetails'].includes(name))return 'company:'+(typeof args[0]==='string'?args[0]:args[0].id);
+ if(['saveSponsor','saveSponsorBusinessDetails','deleteSponsor'].includes(name))return 'company:'+(typeof args[0]==='string'?args[0]:args[0].id);
  if(name==='saveDirectoryAssignment')return 'assignment:'+args[0].id;
  if(name==='removeDirectoryAssignment')return 'assignment:'+args[0];
  if(name==='saveDirectoryGuardian')return 'guardian:'+args[0].id;

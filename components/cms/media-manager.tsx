@@ -1,9 +1,11 @@
 'use client';
+
+import {RecordAction} from './record-action';
 import {useCmsPageHeader} from './page-header';
 import {Pagination,usePagination} from './pagination';
 import {equalContent} from '@/lib/cms/compare';
 import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
-import { ArrowDown, ArrowUp, Check, Folder, FolderPlus, GripVertical, ImagePlus, Images, Plus, RefreshCw, Search, Star, Trash2, Upload, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, Check, Folder, FolderPlus, GripVertical, ImagePlus, Images, Plus, RefreshCw, Search, Star, Upload, X } from 'lucide-react';
 import { useCMS } from './provider';
 import { now, slugify, uid } from '@/lib/cms/model';
 import { deleteMediaBlob, putMediaBlob, validateImageFile } from '@/lib/cms/media-storage';
@@ -154,12 +156,12 @@ export function MediaManager({ tab = 'media' }: {
                         return notify('Deze mapnaam bestaat al.');
                     await update(draft => { const f = draft.folders.find(x => x.id === folderId); if (f)
                         f.name = name; }, 'Map hernoemd');
-                }}>Hernoemen</button><button className="cms-button danger" onClick={async () => {
+                }}>Hernoemen</button><RecordAction action="delete" label="Lege map verwijderen" onClick={async () => {
                     if (state.media.some(m => m.folderId === folderId))
                         return notify('Deze map bevat nog foto’s, ook mogelijk in de prullenbak. Verplaats die eerst naar een andere map.');
                     if (await update(draft => { draft.folders = draft.folders.filter(f => f.id !== folderId); }, 'Lege map verwijderd'))
                         setFolderId('all');
-                }}><Trash2 size={14}/> Lege map verwijderen</button></div>}
+                }}/></div>}
       </aside>
       <div className="cms-media-main">
         <div className={`cms-upload-zone ${dropActive ? 'is-dragging' : ''}`} onDragOver={e => { e.preventDefault(); if (anyMediaPermission)
@@ -243,7 +245,7 @@ function MediaDetails({ media, onClose }: {
     </fieldset>
     {!!references.length && <div className="cms-media-usage"><strong>In gebruik</strong>{references.map(ref => <span key={ref}>{ref}</span>)}</div>}
     {media.published && <p className="cms-meta">Gepubliceerde wijzigingen zijn direct zichtbaar op de website.</p>}
-    <div className="cms-toolbar"><button className="cms-button primary" disabled={!contentEditable || !dirty||busy} onClick={save}><Check size={16}/>{busy?'Opslaan…':dirty ? 'Opslaan' : 'Opgeslagen'}</button><button className="cms-button danger" disabled={!editable||busy} onClick={async () => {
+    <div className="cms-toolbar"><button className="cms-button primary" disabled={!contentEditable || !dirty||busy} onClick={save}><Check size={16}/>{busy?'Opslaan…':dirty ? 'Opslaan' : 'Opgeslagen'}</button><RecordAction action="delete" label="Prullenbak" disabled={!editable||busy} onClick={async () => {
             if (references.length)
                 return notify(`Verwijderen kan nog niet. In gebruik bij: ${references.join(', ')}.`);
             if (await update(data => { const item = data.media.find(m => m.id === media.id); if (item) {
@@ -252,7 +254,7 @@ function MediaDetails({ media, onClose }: {
                 item.featured = false;
             } data.settings.homepagePhotoIds = data.settings.homepagePhotoIds.filter(id => id !== media.id); }, `Foto “${media.name}” naar prullenbak`))
                 onClose();
-        }}><Trash2 size={15}/> Prullenbak</button></div>
+        }}/></div>
   </aside>;
 }
 function albumDraft(value:CmsAlbum){const result={...value} as any;delete result.live;delete result.version;return result as CmsAlbum;}
@@ -356,12 +358,12 @@ function AlbumDetails({ album, onClose }: {
       <details className="cms-album-picker" open><summary>Foto’s toevoegen uit de bibliotheek</summary><div className="cms-toolbar"><label className="cms-field">Zoeken<input value={pickerQuery} onChange={e => setPickerQuery(e.target.value)} placeholder="Zoek op naam of beschrijving"/></label><label className="cms-field">Map<select value={pickerFolder} onChange={e => setPickerFolder(e.target.value)}><option value="all">Alle mappen</option><option value="">Losse bestanden</option>{state.folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label></div><div className="cms-album-picker-grid">{pickerPage.items.map(m => <button type="button" key={m.id} className={draft.mediaIds.includes(m.id) ? 'is-selected' : ''} onClick={() => togglePhoto(m.id)} aria-pressed={draft.mediaIds.includes(m.id)} aria-label={`${draft.mediaIds.includes(m.id) ? 'Verwijder' : 'Selecteer'} ${m.name}`}><img src={m.src} alt={m.alt || m.name}/><span>{m.name}</span>{draft.mediaIds.includes(m.id) && <Check size={15}/>}</button>)}</div>{!media.length && <p className="cms-meta">Upload eerst foto’s via de mediabibliotheek.</p>}<Pagination label="Albumfoto’s kiezen" {...pickerPage}/></details>
     </fieldset>
     {album.published && <p className="cms-meta">Gepubliceerd: {live?.mediaIds.length??album.mediaIds.length} foto’s. Werkversie: {draft.mediaIds.length} foto’s.</p>}
-    <div className="cms-toolbar cms-album-save"><button className="cms-button primary" disabled={!editable||busy||(!dirty&&!pending)||album.published&&!publishAllowed} onClick={()=>save(album.published?'publish':'save')}><Check size={16}/>{busy?'Opslaan…':album.published?'Opslaan en publiceren':'Concept bewaren'}</button>{album.published?<><button className="cms-button" disabled={!editable||busy||!dirty} onClick={()=>save('save')}>Alleen concept bewaren</button><button className="cms-button" disabled={!publishAllowed||busy} onClick={()=>save('unpublish')}>Terug naar concept</button></>:<button className="cms-button" disabled={!publishAllowed||busy} onClick={()=>save('publish')}>Album publiceren</button>}{album.published && <a className="cms-button" href={`/clubmuur/media/fotos/${album.slug}`} target="_blank" rel="noreferrer">Bekijk album</a>}<button className="cms-button danger" disabled={!editable} onClick={async () => {
+    <div className="cms-toolbar cms-album-save"><button className="cms-button primary" disabled={!editable||busy||(!dirty&&!pending)||album.published&&!publishAllowed} onClick={()=>save(album.published?'publish':'save')}><Check size={16}/>{busy?'Opslaan…':album.published?'Opslaan en publiceren':'Concept bewaren'}</button>{album.published?<><button className="cms-button" disabled={!editable||busy||!dirty} onClick={()=>save('save')}>Alleen concept bewaren</button><button className="cms-button" disabled={!publishAllowed||busy} onClick={()=>save('unpublish')}>Terug naar concept</button></>:<button className="cms-button" disabled={!publishAllowed||busy} onClick={()=>save('publish')}>Album publiceren</button>}{album.published && <a className="cms-button" href={`/clubmuur/media/fotos/${album.slug}`} target="_blank" rel="noreferrer">Bekijk album</a>}<RecordAction action="delete" label="Prullenbak" disabled={!editable} onClick={async () => {
             if (await update(data => { const a = data.albums.find(x => x.id === album.id); if (a) {
                 a.deletedAt = now();
                 a.published = false;
             } data.settings.homepageAlbumIds = data.settings.homepageAlbumIds.filter(id => id !== album.id); }, `Album “${album.title}” naar prullenbak`))
                 onClose();
-        }}><Trash2 size={15}/> Prullenbak</button></div>
+        }}/></div>
   </section>;
 }

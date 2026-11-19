@@ -2,9 +2,10 @@ import {createHmac} from 'node:crypto';
 import {z} from 'zod';
 import type {MollieAuthMode,MollieBalance,MollieCatalog,MollieMode,MollieProfile} from '../cms/mollie-types';
 import {CmsError} from './errors';
+import {readStoredMollieCredential} from './mollie-credentials';
 
 export type MollieCredentialBinding={id:string;clubId:'duindorpsv';organizationId:string;mode:MollieMode;authMode:MollieAuthMode;credentialKind:'advanced-access-token'|'oauth'|'profile-api-key';currentProfileId:string;scopes:string[];testmodeParameter:boolean};
-export type MollieCredential={token:string;binding:MollieCredentialBinding};
+export type MollieCredential={token:string;binding:MollieCredentialBinding;source?:'stored-api-key'|'environment';keyPreview?:string};
 const bindingSchema=z.object({clubId:z.literal('duindorpsv'),organizationId:z.string().regex(/^org_[A-Za-z0-9]+$/),mode:z.enum(['test','live']),authMode:z.enum(['advanced-token','profile-api-key']),credentialKind:z.enum(['advanced-access-token','oauth','profile-api-key']),currentProfileId:z.string().regex(/^pfl_[A-Za-z0-9]+$/).or(z.literal('')),scopes:z.array(z.enum(['organizations.read','profiles.read','balances.read','payments.read','payments.write'])).max(5),testmodeParameter:z.boolean()}).strict();
 /** The browser cannot choose a process variable or supply token/binding claims. */
 export function resolveMollieCredential(mode:MollieMode,expectedBindingId?:string):MollieCredential{
@@ -21,7 +22,24 @@ export function resolveMollieCredential(mode:MollieMode,expectedBindingId?:strin
  }else if(data.authMode!=='advanced-token'||data.credentialKind==='oauth'&&!data.testmodeParameter)throw new CmsError('mollie-binding','Controleer het bereik en de modus van de organisatietoegang.',503);
  const id=createHmac('sha256',token).update(JSON.stringify(data)).digest('hex');
  if(expectedBindingId&&id!==expectedBindingId)throw new CmsError('mollie-binding-changed','De Mollie-toegang is gewijzigd. Vernieuw de accountcatalogus en controleer de registraties.',409);
- return {token,binding:{...data,id}};
+ return {token,binding:{...data,id},source:'environment',keyPreview:data.credentialKind==='profile-api-key'?mode+'_••••'+token.slice(-4):'Beheerde organisatietoegang'};
+}
+/** Historical stored keys remain available only for their immutable payment binding. */
+export async function readMollieCredential(mode:MollieMode,expectedBindingId?:string,transaction?:any):Promise<MollieCredential>{
+ if(mode!=='test'&&mode!=='live')throw new CmsError('mollie-mode','Kies test of live.',422);
+ const stored=await readStoredMollieCredential(mode,expectedBindingId,transaction);if(stored)return stored;
+ return resolveMollieCredential(mode,expectedBindingId);
+}
+function profileCredential(mode:MollieMode,token:string,profileId=''):MollieCredential{
+ const data={clubId:'duindorpsv' as const,organizationId:'',mode,authMode:'profile-api-key' as const,credentialKind:'profile-api-key' as const,currentProfileId:profileId,scopes:['payments.read','payments.write'],testmodeParameter:false};
+ return {token,binding:{...data,id:createHmac('sha256',token).update(JSON.stringify(data)).digest('hex')},source:'stored-api-key',keyPreview:mode+'_••••'+token.slice(-4)};
+}
+/** A profile key proves its own profile and mode; it cannot prove an organization balance. */
+export async function verifyMollieProfileKey(mode:MollieMode,apiKey:string,fetcher:MollieFetcher=fetch){
+ if(!new RegExp('^'+mode+'_[A-Za-z0-9]{20,120}$').test(apiKey))throw new CmsError('mollie-key','Gebruik een geldige '+mode+'-API-sleutel uit Mollie.',422);
+ const candidate=profileCredential(mode,apiKey),catalog=await fetchMollieCatalog(candidate,fetcher),credential=profileCredential(mode,apiKey,catalog.profiles[0].id);
+ catalog.bindingId=credential.binding.id;
+ return {credential,catalog};
 }
 export function requireMollieScopes(credential:MollieCredential,scopes:string[]){
  if(scopes.some(scope=>!credential.binding.scopes.includes(scope)))throw new CmsError('mollie-scope','De beheerde Mollie-toegang mist de vereiste lees- of betaalrechten.',503);
@@ -69,8 +87,10 @@ async function normalizeProfile(raw:unknown,credential:MollieCredential,fetchedA
  requireMollieScopes(credential,['payments.read']);
  const parameters=new URLSearchParams();if(credential.binding.authMode==='advanced-token')parameters.set('profileId',p.id);if(credential.binding.testmodeParameter)parameters.set('testmode',String(credential.binding.mode==='test'));
  const methods=await mollieRequest(credential,'/v2/methods?'+parameters,fetcher),items=methods?._embedded?.methods;expect(Array.isArray(items));
- expect(items.every((row:any)=>typeof row?.id==='string'&&(row.status===null||['activated','pending-boarding','pending-review','pending-external','rejected'].includes(row.status))));
- const canReceivePayments=p.status==='verified'&&items.some((row:any)=>row.status==='activated');
+ expect(items.every((row:any)=>typeof row?.id==='string'&&(row.status===undefined||row.status===null||['activated','pending-boarding','pending-review','pending-external','rejected'].includes(row.status))));
+ // /methods returns enabled methods; the standard method object need not carry
+ // a status. Explicit pending/rejected states still cannot enable execution.
+ const canReceivePayments=p.status==='verified'&&items.some((row:any)=>row.status===undefined||row.status===null||row.status==='activated');
  return {id:p.id,name:p.name,website:p.website,status:p.status,mode:p.mode,canReceivePayments,readinessCheckedAt:fetchedAt};
 }
 /** Both independent inventories finish before the caller can atomically publish. */

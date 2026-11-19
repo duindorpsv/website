@@ -5,7 +5,7 @@ import {sqlClient} from '../../db';
 import {supabaseAdmin,supabaseRequest} from './supabase';
 import {CmsError,bodyJson,errorResponse} from './errors';
 import {verifyOrigin} from './permissions';
-import {secureCodeHash,codeMatches,workspaceRate,workspaceLocks} from './sponsor-access';
+import {secureCodeHash,codeMatches,workspaceRate,workspaceLocks,requireActiveSponsor} from './sponsor-access';
 import {digestText,maskEmail} from './sponsor-store';
 import {sponsorMail} from './sponsor-mail';
 import {requestKey} from './request-key';
@@ -17,7 +17,7 @@ async function invitationFor(headers:Headers){
  const nonce=parseCookieHeader(headers.get('cookie')||'').find(c=>c.name===cookie)?.value;
  if(!nonce||!/^[a-f0-9]{64}$/.test(nonce))throw invalid();
  const sql=sqlClient();const [invite]=await sql`select i.*,v.nonce_hash from cms_directory_invitations i join cms_directory_invitation_views v on v.invitation_id=i.id where v.nonce_hash=${digestText(nonce)} and v.expires_at>now() and i.expires_at>now() and i.status='pending' and i.mail_status='accepted'`;
- if(!invite)throw invalid();return invite;
+ if(!invite)throw invalid();if(invite.scope==='sponsor')await requireActiveSponsor(sql,invite.sponsor_id);return invite;
 }
 export async function invitationHandler(request:Request,action:string){
  const responseHeaders=new Headers({'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer'});
@@ -29,7 +29,7 @@ export async function invitationHandler(request:Request,action:string){
   await workspaceRate('invitation:ip:'+requestKey(request),100,900);
   if(action==='context'){
    const {token}=z.object({token:z.string().regex(/^[a-f0-9]{64}$/)}).strict().parse(body);
-   const [invite]=await sql`select i.id,i.scope,i.email,i.expires_at,r.draft->>'name' as name,c.data->>'name' as company from cms_directory_invitations i join cms_records r on r.id=i.person_id left join cms_sponsor_companies c on c.id=i.sponsor_id where i.token_hash=${digestText(token)} and i.status='pending' and i.mail_status='accepted' and i.expires_at>now() and r.deleted_at is null`;
+   const [invite]=await sql`select i.id,i.scope,i.email,i.expires_at,r.draft->>'name' as name,c.data->>'name' as company from cms_directory_invitations i join cms_records r on r.id=i.person_id left join cms_sponsor_companies c on c.id=i.sponsor_id where i.token_hash=${digestText(token)} and i.status='pending' and i.mail_status='accepted' and i.expires_at>now() and r.deleted_at is null and (i.scope='club' or coalesce(c.data->>'deletedAt','')='')`;
    if(!invite)throw invalid();
    const nonce=randomBytes(32).toString('hex');
    await sql`delete from cms_directory_invitation_views where expires_at<now()`;
@@ -69,6 +69,7 @@ export async function invitationHandler(request:Request,action:string){
     await workspaceLocks(tx);
     const [current]=await tx`select * from cms_directory_invitations where id=${invite.id} for update`;
     if(!current||current.status!=='pending'||new Date(current.expires_at).getTime()<=Date.now()||current.code_hash!==attempt.code_hash||current.code_nonce_hash!==invite.nonce_hash)throw invalid();
+    if(current.scope==='sponsor')await requireActiveSponsor(tx,current.sponsor_id);
     const [person]=await tx`select id,draft from cms_records where id=${current.person_id} and module='people' and deleted_at is null for update`;
     if(!person)throw invalid();
     const accounts=await tx`select u.*,a.person_id,m.active from auth_user u left join cms_person_accounts a on a.user_id=u.id left join cms_memberships m on m.user_id=u.id where lower(u.email)=${input.email} or u.supabase_user_id=${attempt.provider_id}::uuid or a.person_id=${person.id}`;

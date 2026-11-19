@@ -13,9 +13,16 @@ function balance(n:number){return {resource:'balance',id:`bal_${n}`,description:
 function page(kind:string,rows:unknown[],next:string|null=null){return Response.json({_embedded:{[kind]:rows},_links:{next:next?{href:next}:null}});}
 function settings(){const data=createMollieSettings(),env=data.environments.test;env.credentialReference='MOLLIE_TEST_TOKEN';env.catalog={source:'provider',organizationId:'org_unit',bindingId:'binding-unit',fetchedAt:stamp(),profiles:[{id:'pfl_1',name:'Club',website:'',status:'verified',mode:'test',canReceivePayments:true,readinessCheckedAt:stamp()}],balances:[{id:'bal_1',description:'Clubkas',currency:'EUR',status:'active',mode:'test'}],links:[{profileId:'pfl_1',balanceId:'bal_1',verifiedBy:'manual',verifiedAt:stamp(),evidence:'Gecontroleerd in Mollie-portaal'}]};env.streams[0]={...env.streams[0],enabled:true,profileId:'pfl_1'};return data;}
 
-test('Mollie starts disconnected with no fixtures, independent modes and permanently disabled execution',()=>{
+test('Mollie starts disconnected with no fixtures, independent modes and disabled execution',()=>{
  const value=createMollieSettings();assert.deepEqual(value.environments.test.catalog.profiles,[]);assert.equal(value.environments.live.paymentsEnabled,false);value.environments.test.streams[0].referencePrefix='ONLYTEST';assert.equal(value.environments.live.streams[0].referencePrefix,'SP');assert.equal(mollieSettingsSchema.safeParse(value).success,true);
- const demo=structuredClone(value) as any;demo.environments.test.catalog.source='demo';assert.equal(mollieSettingsSchema.safeParse(demo).success,false);value.environments.live.paymentsEnabled=true as never;assert.equal(mollieSettingsSchema.safeParse(value).success,false);
+ const demo=structuredClone(value) as any;demo.environments.test.catalog.source='demo';assert.equal(mollieSettingsSchema.safeParse(demo).success,false);value.environments.live.paymentsEnabled=true;assert.equal(mollieSettingsSchema.safeParse(value).success,true);
+});
+test('a verified profile API key routes invoices without inventing organization or balance access',()=>{
+ const data=settings(),env=data.environments.test;env.authMode='profile-api-key';env.currentProfileId='pfl_1';env.credentialReference='stored-api-key';env.catalog.organizationId='';env.catalog.balances=[];env.catalog.links=[];
+ assert.equal(mollieSettingsSchema.safeParse(data).success,true);
+ const route=getMollieStreamRoute(data,'sponsors');assert.equal(route.available,true);assert.equal(route.classification,'administrative');assert.equal(route.balance,undefined);assert.equal(route.link,undefined);
+ const preview=buildMolliePaymentPreview(data,'sponsors',{reference:'FACTUUR-1',amountCents:100});assert.equal(preview.routingSnapshot.balanceId,'');assert.equal(preview.routingSnapshot.linkVerification,'profile-key');assert.equal(preview.executionAllowed,false);
+ env.currentProfileId='pfl_other';assert.equal(getMollieStreamRoute(data,'sponsors').available,false);
 });
 test('routing fails closed for stale/future catalog, wrong mode/currency/status and missing mappings without fallback',()=>{
  assert.equal(getMollieStreamRoute(settings(),'sponsors').available,true);

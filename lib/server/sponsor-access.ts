@@ -40,3 +40,8 @@ export async function workspaceRate(key:string,maximum:number,seconds:number,tra
 }
 /** Same lock order for account changes, existing content and private relations. */
 export async function workspaceLocks(tx:any){await tx`select pg_advisory_xact_lock(736403)`;await tx`select pg_advisory_xact_lock(736402)`;await tx`select pg_advisory_xact_lock(736499)`;}
+export async function requireActiveSponsor(tx:any,sponsorId:string){
+ const [company]=await tx`select id,data from cms_sponsor_companies where id=${sponsorId} and coalesce(data->>'deletedAt','')=''`;
+ if(!company)throw new CmsError('missing','Deze relatie is verwijderd of niet beschikbaar.',404);
+ return company;
+}

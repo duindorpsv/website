@@ -1,7 +1,9 @@
 'use client';
 
+import {RecordAction} from '../record-action';
+
 import { useRef, useState, type FormEvent, type ReactNode } from 'react';
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CalendarDays, Check, ChevronRight, ClipboardList, Clock3, Download, FileText, Flag, LockKeyhole, MapPin, MessageSquare, Play, Plus, Send, Trash2, UsersRound, Vote } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CalendarDays, Check, ChevronRight, ClipboardList, Clock3, Download, FileText, Flag, LockKeyhole, MapPin, MessageSquare, Play, Plus, Send, UsersRound, Vote } from 'lucide-react';
 import { boardToday, makeBase, pointLabels, type BoardPageProps, type Meeting, type MeetingPoint, type PointKind } from '@/lib/cms/board';
 import './meetings.css';
 import {downloadBoardPdf} from './server-workspace';
@@ -177,7 +179,7 @@ function MeetingRoom(props: RoomProps) {
     <section className="bp-panel">
       <div className="bp-toolbar"><button className="cms-button" type="button" onClick={() => onNavigate('meetings')}><ArrowLeft size={15}/>Alle vergaderingen</button><span className="bp-pill">{meeting.code} · {stageLabels[meeting.status]}</span></div>
       <SectionTitle title={meeting.title} description={`Agenda versie ${meeting.agendaVersion} · ${completed} van ${meeting.points.length} punten afgehandeld`}/>
-      <div className="bp-toolbar bp-meta"><span><CalendarDays size={16}/> {dateLabel(meeting.date)}</span><span><Clock3 size={16}/> {meeting.time} uur</span><span><MapPin size={16}/> {meeting.location}</span>{canEditAgenda && <button type="button" className="cms-button" aria-expanded={editDetails} onClick={() => setEditDetails(value => !value)}>{editDetails ? 'Wijziging sluiten' : 'Vergadergegevens aanpassen'}</button>}</div>
+      <div className="bp-toolbar bp-meta"><span><CalendarDays size={16}/> {dateLabel(meeting.date)}</span><span><Clock3 size={16}/> {meeting.time} uur</span><span><MapPin size={16}/> {meeting.location}</span>{canEditAgenda && <RecordAction action="edit" label={editDetails ? 'Wijziging sluiten' : 'Vergadergegevens aanpassen'} aria-expanded={editDetails} onClick={() => setEditDetails(value => !value)}/>}</div>
       {editDetails && canEditAgenda && <form className="bp-form bp-stack" onSubmit={async event => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -402,10 +404,9 @@ function PointRoom(props: PointRoomProps) {
     </>}
     {canEditAgenda && <>
       <div className="bp-toolbar">
-        <button className="cms-button" type="button" onClick={() => setEdit(value => !value)}>{edit ? 'Bewerken sluiten' : 'Punt bewerken'}</button>
+        <span className="cms-record-actions"><RecordAction action="edit" label={edit ? 'Bewerken sluiten' : 'Punt bewerken'} aria-expanded={edit} onClick={() => setEdit(value => !value)}/><RecordAction action="delete" label="Agendapunt verwijderen" onClick={removePoint}/></span>
         <button className="cms-button" type="button" disabled={index <= 0} aria-label="Agendapunt omhoog" onClick={() => reorder(-1)}><ArrowUp size={15}/></button>
         <button className="cms-button" type="button" disabled={index >= sameGroup.length - 1} aria-label="Agendapunt omlaag" onClick={() => reorder(1)}><ArrowDown size={15}/></button>
-        <button className="cms-button" type="button" aria-label="Agendapunt verwijderen" onClick={removePoint}><Trash2 size={15}/></button>
       </div>
       {edit && <form className="bp-form bp-stack" onSubmit={async event => {
         event.preventDefault();

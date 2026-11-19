@@ -5,7 +5,7 @@ export type MollieFinancialSource={kind:'donors'|'sponsors';id:string;number:str
 export type MollieAttemptSnapshot={
  id:string;source:MollieFinancialSource;clubId:string;organizationId:string;mode:'test'|'live';
  streamCode:'donations'|'sponsors';profileId:string;expectedBalanceId:string;
- linkVerification:'manual'|'provider';linkVerifiedAt:string;catalogFetchedAt:string;
+ linkVerification:'manual'|'provider'|'profile-key';linkVerifiedAt:string;catalogFetchedAt:string;
  configVersion:number;configHash:string;credentialBindingId:string;idempotencyKey:string;
  reference:string;createdAt:string;request:Record<string,unknown>;
 };
@@ -21,7 +21,7 @@ export function mollieCreateBody(snapshot:Omit<MollieAttemptSnapshot,'request'>,
  if(origin.protocol!=='https:'&&!(origin.protocol==='http:'&&['127.0.0.1','localhost'].includes(origin.hostname)))throw new CmsError('payment-origin','Een veilige betaalretour is vereist.',503);
  const body:Record<string,unknown>={amount:{currency:'EUR',value:mollieAmount(snapshot.source.amountCents)},description:snapshot.reference,
   metadata:{streamCode:snapshot.streamCode,reference:snapshot.reference,mode:snapshot.mode,attemptId:snapshot.id,sourceId:snapshot.source.id},
-  redirectUrl:new URL('/clubmuur',origin).href,webhookUrl:new URL('/api/sponsorship/payments/webhook',origin).href};
+  redirectUrl:new URL('/betaling',origin).href,webhookUrl:new URL('/api/sponsorship/payments/webhook',origin).href};
  if(binding.authMode==='profile-api-key'){
   if(binding.currentProfileId!==snapshot.profileId)throw new CmsError('payment-binding','De sleutel hoort bij een ander betaalprofiel.',409);
  }else{
@@ -57,5 +57,5 @@ export function verifyMolliePayment(snapshot:MollieAttemptSnapshot,credential:Mo
  const reversal=[payment.amountRefunded,payment.amountChargedBack].some(value=>value&&(value.currency!=='EUR'||value.value!=='0.00'));
  const embedded=payment._embedded;
  if(payment.status==='paid'&&(reversal||!embedded||!Array.isArray(embedded.refunds)||!Array.isArray(embedded.chargebacks)||embedded.refunds.length||embedded.chargebacks.length))return {status:payment.status as string,settle:false,review:true};
- return {status:payment.status as string,settle:payment.status==='paid',review:false};
+ return {status:payment.status as string,settle:payment.status==='paid'&&snapshot.mode==='live',review:false};
 }

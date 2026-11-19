@@ -1,10 +1,12 @@
 'use client';
+
+import {RecordAction} from './record-action';
 import {PlanningSyncStatus} from './planning-sync-status';
 import {matchSide,matchSideLabel,matchColors} from '@/lib/cms/planning';
 import {PlanningMigrationReview} from './planning-migration-review';
 
 import { cloneElement,isValidElement,useId,useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent, type FormEvent, type ReactNode } from 'react';
-import { AlertCircle, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, Globe2, GripVertical, Layers3, LockKeyhole, MapPin, Plus, RotateCcw, Search, SlidersHorizontal, Trash2, UsersRound, X } from 'lucide-react';
+import { AlertCircle, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, Globe2, GripVertical, Layers3, LockKeyhole, MapPin, Plus, RotateCcw, Search, SlidersHorizontal, UsersRound, X } from 'lucide-react';
 import { useCMS } from './provider';
 import { CmsMultiSelect } from './multi-select';
 import { uid } from '@/lib/cms/model';
@@ -276,7 +278,7 @@ export function PlanningBoard({ initialType, activityId, newActivityDate }: { in
         {storageError&&<p className="plan-error" role="alert">{storageError}</p>}{errors.length > 0 && <div className="plan-form-errors" role="alert"><strong><AlertCircle size={16}/>Controleer de planning</strong><ul>{errors.slice(0, 12).map((error, index) => <li key={index}>{error}</li>)}</ul>{errors.length > 12 && <p>En {errors.length - 12} andere meldingen. Pas de reeks of reserveringen aan.</p>}</div>}
         {existing?.seriesId && <p className="plan-series-note"><Clock3 size={13}/>Dit is één activiteit uit een reeks. Wijzigingen gelden alleen voor deze datum.</p>}
         {confirmDelete && <div className="plan-delete-confirm"><strong>Deze activiteit verwijderen?</strong><p>De activiteit en alle bijbehorende reserveringen verdwijnen{existing?.seriesId ? ' voor deze datum' : ''}.</p><button type="button" className="plan-button danger" onClick={remove}>Ja, verwijderen</button><button type="button" className="plan-button" onClick={() => setConfirmDelete(false)}>Behouden</button></div>}
-      </div><footer>{existing && existing.source === 'manual' && <button type="button" className="plan-button danger subtle" disabled={!editorEnabled} onClick={() => setConfirmDelete(!confirmDelete)}><Trash2 size={15}/>Verwijderen</button>}<span/><button type="button" className="plan-button" onClick={close}>Annuleren</button><button type="submit" className={`plan-button ${!draft.public&&!existing?.published?'primary':''}`} disabled={!editorEnabled}><Check size={16}/>{!existing && repeat ? 'Trainingsreeks opslaan' : 'Activiteit opslaan'}</button>{!repeat&&(draft.public||existing?.published)&&<button type="button" className="plan-button primary" disabled={!editorEnabled||!canPublishActivity(draft)} onClick={event=>void save(event as unknown as FormEvent,true)}>{draft.public?existing?.published?'Publicatie bijwerken':'Opslaan en publiceren':'Publicatie intrekken'}</button>}</footer>
+      </div><footer>{existing && existing.source === 'manual' && <RecordAction action="delete" label="Verwijderen" disabled={!editorEnabled} onClick={() => setConfirmDelete(!confirmDelete)}/>}<span/><button type="button" className="plan-button" onClick={close}>Annuleren</button><button type="submit" className={`plan-button ${!draft.public&&!existing?.published?'primary':''}`} disabled={!editorEnabled}><Check size={16}/>{!existing && repeat ? 'Trainingsreeks opslaan' : 'Activiteit opslaan'}</button>{!repeat&&(draft.public||existing?.published)&&<button type="button" className="plan-button primary" disabled={!editorEnabled||!canPublishActivity(draft)} onClick={event=>void save(event as unknown as FormEvent,true)}>{draft.public?existing?.published?'Publicatie bijwerken':'Opslaan en publiceren':'Publicatie intrekken'}</button>}</footer>
     </form></div></div>}
   </div>;
 }

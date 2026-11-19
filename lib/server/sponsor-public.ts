@@ -1,7 +1,7 @@
 import type {CmsState} from '../cms/types';
 import {defaultSponsors} from '../cms/site-sponsors';
 export async function approvedSponsorProfiles(tx:any):Promise<{id:string;name:string;description:string;website:string;logoUrl:string}[]>{
- const rows=await tx`select id,data->'publicProfile' as profile from cms_sponsor_companies where data->>'publicEnabled'='true' and (coalesce(data->>'publicFrom','')='' or (data->>'publicFrom')::date<=current_date) and (coalesce(data->>'publicUntil','')='' or (data->>'publicUntil')::date>=current_date) order by lower(data#>>'{publicProfile,name}'),id`;
+ const rows=await tx`select id,data->'publicProfile' as profile from cms_sponsor_companies where coalesce(data->>'deletedAt','')='' and data->>'publicEnabled'='true' and (coalesce(data->>'publicFrom','')='' or (data->>'publicFrom')::date<=current_date) and (coalesce(data->>'publicUntil','')='' or (data->>'publicUntil')::date>=current_date) order by lower(data#>>'{publicProfile,name}'),id`;
  const valid=(value:string)=>!value||/^(https?:\/\/|\/(?!\/))[^\s<>"\\]*$/i.test(value);
  return rows.flatMap((r:any)=>{const profile=r.profile;if(!profile?.name?.trim()||!valid(profile.website)||!valid(profile.logoUrl))return[];return [{id:r.id,name:String(profile.name),description:String(profile.description||''),website:String(profile.website||''),logoUrl:String(profile.logoUrl||'')}];});
 }

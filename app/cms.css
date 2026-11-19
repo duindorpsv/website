@@ -31,3 +31,15 @@
 @container cms-board-shell (max-width:720px){
  .dd-topbar .dd-search{display:none}
 }
+
+/* Record actions share one shape, icon size and keyboard treatment across managers. */
+.cms-record-actions{display:inline-flex;align-items:center;flex-wrap:nowrap;gap:4px;vertical-align:middle}
+:is(.dd-cms,[role="dialog"],[role="alertdialog"]) .cms-icon-button.cms-record-action{display:inline-flex;align-items:center;justify-content:center;flex:0 0 32px;width:32px;height:32px;min-width:32px;min-height:32px;padding:0;border:1px solid transparent;border-radius:5px;background:transparent;color:#557caa;line-height:1;vertical-align:middle;cursor:pointer}
+:is(.dd-cms,[role="dialog"],[role="alertdialog"]) .cms-icon-button.cms-record-action:hover:not(:disabled){background:#edf4fc;border-color:#d4e3f3;color:#0758ad}
+:is(.dd-cms,[role="dialog"],[role="alertdialog"]) .cms-icon-button.cms-record-action.is-destructive:hover:not(:disabled){background:#fff1f1;border-color:#f1d2d2;color:#b74242}
+:is(.dd-cms,[role="dialog"],[role="alertdialog"]) .cms-icon-button.cms-record-action:focus-visible{outline:2px solid #2a86d0;outline-offset:2px}
+:is(.dd-cms,[role="dialog"],[role="alertdialog"]) .cms-icon-button.cms-record-action:disabled{opacity:.42;cursor:not-allowed}
+:is(.dd-cms,[role="dialog"],[role="alertdialog"]) .cms-record-action>svg{flex:0 0 15px;width:15px;height:15px}
+@media(max-width:700px){
+ :is(.dd-cms,[role="dialog"],[role="alertdialog"]) .cms-icon-button.cms-record-action{flex-basis:44px;width:44px;height:44px;min-width:44px;min-height:44px}
+}

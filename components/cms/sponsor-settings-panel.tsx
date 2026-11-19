@@ -60,7 +60,7 @@ export function SponsorSettingsPanel(){
       <label className="cms-field"><span>E-mailadres sponsorcommissie</span><input required type="email" value={draft.committeeEmail} onChange={event=>setDraft({...draft,committeeEmail:event.target.value})}/></label>
       <label className="cms-field"><span>Toelichting btw-behandeling</span><textarea rows={3} value={draft.vatNote} onChange={event=>setDraft({...draft,vatNote:event.target.value})}/></label>
       <div className="sb-inline-note"><ShieldCheck size={17}/><span>0% en vrijgesteld zijn verschillende keuzes. Laat de financiële inrichting aansluiten op de situatie van de vereniging.</span></div>
-      <label className="sb-check"><input type="checkbox" checked={false} disabled/><span>Mollie-betaalknop tonen in het sponsorportaal<br/><small>Online betalen is niet geconfigureerd. Ontvangen betalingen worden met een referentie handmatig geregistreerd.</small></span></label>
+      <p className="sb-no-margin">Mollie-betaallinks maak je vanuit Facturen. Je beheert de API-sleutel, betaalomgeving en activering centraal bij Mollie.</p>
       <div className="sb-mini-title"><strong>Verlengherinneringen</strong><span className="sb-badge">{data.settings.reminderDays.join(' / ')} dagen</span></div>
       <label className="cms-field"><span>Herinneringen vooraf (dagen, met komma's)</span><input value={reminderInput} onChange={event=>setReminderInput(event.target.value)} placeholder="14, 7, 1"/></label>
       <p className="sb-no-margin">Herinneringen worden via de achtergrondverwerking voorbereid voor de gekoppelde contactpersonen.</p>
