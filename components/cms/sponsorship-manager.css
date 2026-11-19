@@ -28,6 +28,9 @@
 /* The search container owns the only border, including when focused. */
 .dd-cms .sb-manager .sb-search>input{border:0;border-radius:0;box-shadow:none;background:transparent;outline:0;padding:10px 0;min-height:0}
 .sb-proposal-actions{display:flex;flex-wrap:wrap;gap:7px}
+.sb-manager .sb-proposals-table .sb-proposal-actions{justify-content:flex-end;flex-wrap:nowrap;min-width:0;max-width:none}
+.sb-proposals-table th:last-child{text-align:right}
+.sb-proposals-table td:last-child{width:1%}
 .sb-manager .sb-action-cell{justify-content:flex-end}
 .sb-modal .cms-button.is-destructive{color:#a43b3b;border-color:#e8baba;background:#fff4f4}
 .sb-modal .cms-button.is-destructive:hover{background:#fde7e7;border-color:#d78c8c}
