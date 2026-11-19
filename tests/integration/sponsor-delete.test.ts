@@ -1,0 +1,85 @@
+import {test,after} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {assertLocalSupabaseTests,loginEmail,authCookies} from '../helpers/supabase-auth';
+import {getAuth} from '../../lib/server/auth';
+import {sqlClient,closeDb} from '../../db';
+import {workspaceCommands} from '../../lib/server/sponsor-commands';
+import {workspaceRead} from '../../lib/server/sponsor-workspace';
+import {directoryPersonTemplate,directoryProfileTemplate} from '../../lib/cms/directory';
+import {archiveSponsorAgreement,sponsorAgreementDownload,sponsorDownload} from '../../lib/server/sponsor-files';
+import {getSponsorBusinessDetails} from '../../lib/cms/sponsorship';
+import type {Sponsor} from '../../lib/cms/sponsorship-types';
+assertLocalSupabaseTests();const sql=sqlClient();after(closeDb);
+const base=process.env.APP_BASE_URL!;
+const request=(path:string,cookie:string,body?:unknown)=>new Request(new URL(path,base),{method:body?'POST':'GET',headers:{cookie,origin:new URL(base).origin,'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+async function fixture(role:string){const email='delete-'+crypto.randomUUID()+'@example.invalid';const {user}=await getAuth().api.createUser({body:{email,name:'Fictieve '+role,password:crypto.randomUUID()+crypto.randomUUID()}});await sql`insert into cms_memberships(user_id,role_id) values (${user.id},${role})`;return {...user,cookie:authCookies(await loginEmail(email))};}
+async function read(cookie:string,portal=false,companyId=''){return workspaceRead(request('/workspace?mode='+(portal?'portal':'sponsorship')+'&companyId='+companyId,cookie),portal);}
+async function command(cookie:string,name:string,args:unknown[],portal=false,companyId=''){const current=await read(cookie,portal,companyId),body={operationId:crypto.randomUUID(),mode:portal?'portal':'sponsorship',companyId,versions:current.versions,commands:[{name,args,offset:0}]};return workspaceCommands(request('/command',cookie,body),body,portal);}
+async function sign(cookie:string,userId:string,agreementId:string,party:'sponsor'|'club',companyId:string){
+ const at=Date.now();await command(cookie,'requestSponsorSigningCode',[agreementId,party],party==='sponsor',party==='sponsor'?companyId:'');
+ const mails=(await readFile('.runtime/mail-sink.jsonl','utf8')).trim().split('\n').filter(Boolean).map(line=>JSON.parse(line));
+ const mail=mails.reverse().find(row=>row.subject==='Je ondertekeningscode voor Duindorp SV'&&row.at>=at);assert.ok(mail);
+ const code=mail.text.match(/Je code: (\d{8})/)![1],[challenge]=await sql`select id from cms_sponsor_signing_challenges where agreement_id=${agreementId} and user_id=${userId} and status='pending'`;
+ await command(cookie,party==='sponsor'?'trySignSponsorAgreement':'tryCountersignSponsorAgreement',[agreementId,{function:'Fictieve bevoegde',consent:true,verificationCode:code,challengeId:challenge.id}],party==='sponsor',party==='sponsor'?companyId:'');
+}
+
+test('forced relationship deletion revokes live scope, preserves sealed evidence, finishes its PDF archive and rejects resurrection',{timeout:120000},async()=>{
+ const staff=await fixture('admin'),signer=await fixture('sponsor'),companyId=crypto.randomUUID(),at=new Date().toISOString();
+ const company:Sponsor={id:companyId,name:'Fictieve verwijderbare relatie',companyNumber:'12345678',vatNumber:'',address:'Teststraat 1',postalCode:'1234 AB',city:'Den Haag',email:signer.email,phone:'',website:'',description:'',logoUrl:'',ownerId:staff.id,stage:'lead',notes:'',publicProfile:{name:'Fictieve publieke relatie',description:'',website:'',logoUrl:''},publicEnabled:true,publicFrom:'',publicUntil:'',createdAt:at,updatedAt:at,demo:false};
+ await command(staff.cookie,'saveSponsor',[company]);
+ await command(staff.cookie,'saveSponsorBusinessDetails',[companyId,{...getSponsorBusinessDetails(company),contactName:signer.name,contactFunction:'Directeur'},true]);
+ await command(staff.cookie,'saveMembership',[{id:crypto.randomUUID(),sponsorId:companyId,userId:signer.id,roles:['signer','billing','marketing']}]);
+ const itemId=crypto.randomUUID();await command(staff.cookie,'saveSponsorItem',[{id:itemId,name:'Fictief bord',description:'',kind:'board',priceCents:10000,taxRate:'21',capacity:1,period:'season',active:true}]);
+ await command(staff.cookie,'createSponsorProposal',[companyId]);
+ const proposal=(await read(staff.cookie)).state.sponsorship!.proposals.find(row=>row.sponsorId===companyId)!;
+ await command(staff.cookie,'saveSponsorProposal',[{...proposal,lines:[{id:crypto.randomUUID(),itemId,name:'Fictief bord',description:'',quantity:1,unitPriceCents:10000,taxRate:'21'}]}]);
+ await command(staff.cookie,'sendSponsorProposal',[proposal.id]);await command(staff.cookie,'createSponsorAgreement',[proposal.id]);
+ const agreementId=(await read(staff.cookie)).state.sponsorship!.agreements.find(row=>row.sponsorId===companyId)!.id;
+ await sign(signer.cookie,signer.id,agreementId,'sponsor',companyId);await sign(staff.cookie,staff.id,agreementId,'club',companyId);
+ await command(staff.cookie,'createSponsorInvoice',[agreementId]);
+ const before=await read(staff.cookie),original=before.state.sponsorship!.sponsors.find(row=>row.id===companyId)!;
+ const documentsBefore=await sql`select agreement_id,snapshot_bytes,document_hash from cms_sponsor_documents where sponsor_id=${companyId} order by agreement_id`;
+ const invoicesBefore=await sql`select id,data,snapshot_bytes from cms_sponsor_records where sponsor_id=${companyId} and kind='invoices' order by id`;
+ const signaturesBefore=await sql`select s.* from cms_sponsor_signatures s join cms_sponsor_documents d on d.agreement_id=s.agreement_id where d.sponsor_id=${companyId} order by s.id`;
+ assert.equal(documentsBefore.length,1);assert.equal(invoicesBefore.length,1);assert.equal(signaturesBefore.length,2);
+ assert.equal((await sql`select id from cms_sponsor_files where agreement_id=${agreementId} and kind='agreement-final'`).length,0,'Deletion happens before the asynchronous final PDF archive');
+ const personId=crypto.randomUUID(),email='delete-invite-'+crypto.randomUUID()+'@example.invalid';
+ await command(staff.cookie,'saveDirectoryPerson',[{person:{...directoryPersonTemplate(personId),name:'Contact van verwijderde relatie',email},profile:directoryProfileTemplate(personId),sponsorId:companyId}]);
+ await command(staff.cookie,'createDirectoryInvitation',[{personId,email,scope:'sponsor',sponsorId:companyId,sponsorRoles:['marketing']}]);
+ const [invite]=await sql`select id from cms_directory_invitations where person_id=${personId} and status='pending'`;
+ const deliveryId=crypto.randomUUID(),jobId=crypto.randomUUID();
+ await sql`insert into cms_sponsor_deliveries(id,sponsor_id,user_id,reference_id,kind) values (${deliveryId},${companyId},${signer.id},${agreementId},'signature')`;
+ await sql`insert into cms_jobs(id,operation_id,kind,payload,run_at) values (${jobId},${'deletion-proof-'+jobId},'sponsor-notification',${sql.json({deliveryId,reminderId:'signature-'+agreementId})},'2100-01-01')`;
+ const eventId=crypto.randomUUID();await command(staff.cookie,'saveSponsorEvent',[{id:eventId,title:'Vrijgekomen plaatsen',description:'',date:'2031-01-01T20:00:00Z',location:'Club',capacity:3,registrations:[]}]);
+ await command(signer.cookie,'registerSponsorEvent',[eventId,companyId,2],true,companyId);
+ await assert.rejects(command(signer.cookie,'deleteSponsor',[companyId],true,companyId),(error:any)=>error.status===403);
+ const current=await read(staff.cookie),body={operationId:crypto.randomUUID(),mode:'sponsorship',companyId:'',versions:current.versions,commands:[{name:'deleteSponsor',args:[companyId],offset:0}]};
+ const deleted=await workspaceCommands(request('/delete',staff.cookie,body),body);assert.equal(deleted.ok,true);
+ assert.deepEqual(await workspaceCommands(request('/delete',staff.cookie,body),body),deleted);
+ const state=(await read(staff.cookie)).state,active=state.sponsorship!;
+ assert.ok(!active.sponsors.some(row=>row.id===companyId));
+ for(const kind of ['memberships','proposals','agreements','invoices','tasks','activities','profileRequests','businessChangeRequests'] as const)assert.ok((active[kind]||[]).every(row=>row.sponsorId!==companyId),kind);
+ assert.deepEqual(active.events.find(row=>row.id===eventId)!.registrations,[]);
+ assert.ok(state.directory!.profiles.every(row=>!row.sponsorIds.includes(companyId)));
+ assert.ok(state.people.some(row=>row.id===personId));
+ await assert.rejects(read(signer.cookie,true,companyId),/geen toegang/);
+ await assert.rejects(sponsorAgreementDownload(request('/deleted-agreement',staff.cookie),agreementId),/verwijderd|niet beschikbaar/);
+ const {approvedSponsorProfiles}=await import('../../lib/server/sponsor-public');assert.ok(!(await approvedSponsorProfiles(sql)).some(row=>row.id===companyId));
+ const [tombstone]=await sql`select data from cms_sponsor_companies where id=${companyId}`;assert.ok(tombstone.data.deletedAt);assert.equal(tombstone.data.deletedBy,staff.id);assert.equal(tombstone.data.publicEnabled,false);
+ assert.equal((await sql`select status from cms_directory_invitations where id=${invite.id}`)[0].status,'revoked');
+ assert.equal((await sql`select status from cms_sponsor_deliveries where id=${deliveryId}`)[0].status,'cancelled');
+ assert.equal((await sql`select status from cms_jobs where id=${jobId}`)[0].status,'cancelled');
+ assert.equal((await sql`select id from cms_sponsor_memberships where sponsor_id=${companyId}`).length,0);
+ assert.deepEqual(await sql`select agreement_id,snapshot_bytes,document_hash from cms_sponsor_documents where sponsor_id=${companyId} order by agreement_id`,documentsBefore);
+ assert.deepEqual(await sql`select id,data,snapshot_bytes from cms_sponsor_records where sponsor_id=${companyId} and kind='invoices' order by id`,invoicesBefore);
+ assert.deepEqual(await sql`select s.* from cms_sponsor_signatures s join cms_sponsor_documents d on d.agreement_id=s.agreement_id where d.sponsor_id=${companyId} order by s.id`,signaturesBefore);
+ const [archiveJob]=await sql`select status from cms_jobs where kind='sponsor-final-pdf' and payload->>'agreementId'=${agreementId}`;assert.equal(archiveJob.status,'pending');
+ await archiveSponsorAgreement(agreementId,staff.id);
+ const [file]=await sql`select id from cms_sponsor_files where agreement_id=${agreementId} and kind='agreement-final'`;assert.ok(file);
+ await assert.rejects(sponsorDownload(request('/deleted-file',staff.cookie),file.id),/verwijderd|niet beschikbaar/);
+ const stale={operationId:crypto.randomUUID(),mode:'sponsorship',companyId:'',versions:before.versions,commands:[{name:'saveSponsor',args:[original],offset:0}]};
+ await assert.rejects(workspaceCommands(request('/resurrect',staff.cookie,stale),stale),(error:any)=>error.code==='sponsor-deleted');
+ await assert.rejects(command(staff.cookie,'saveMembership',[{id:crypto.randomUUID(),sponsorId:companyId,userId:signer.id,roles:['signer']}]),/Sponsor niet gevonden|sponsorbedrijf/);
+ assert.equal((await sql`select id from cms_audit where action='deleteSponsor' and metadata->>'sponsorId'=${companyId}`).length,1);
+});

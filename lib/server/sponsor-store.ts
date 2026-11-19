@@ -39,7 +39,7 @@ function invitation(row:any):DirectoryInvitation{
  return {mailStatus:row.mail_status,id:row.id,personId:row.person_id,email:row.email,scope:row.scope,sponsorId:row.sponsor_id||'',sponsorRoles:row.sponsor_roles,token:row.token_hash,status:row.status,createdAt:iso(row.created_at),expiresAt:iso(row.expires_at),createdBy:row.created_by,acceptedAt:iso(row.accepted_at),userId:row.user_id||''};
 }
 /** Internal state is never returned directly. Queries are bounded to the actor's domain. */
-export async function readDomainStore(tx:any,p:Principal,options:{peopleIds?:string[];companyId?:string;portal?:boolean}={}):Promise<DomainStore>{
+export async function readDomainStore(tx:any,p:Principal,options:{peopleIds?:string[];companyId?:string;portal?:boolean;archivedSponsorId?:string}={}):Promise<DomainStore>{
  const state=emptyState();state.directory={version:1,profiles:[],assignments:[],guardians:[],invitations:[],events:[]};state.sponsorship=createSponsorshipSeed();
  const versions:Versions={},isDirectory=fullDirectory(p),isStaff=sponsorStaff(p),isDonor=donorRight(p),isUsers=globalRight(p,'users','manage');
  const [ownLinks,roleRows,grantRows,teamRows,siteRows]=await Promise.all([
@@ -51,7 +51,10 @@ export async function readDomainStore(tx:any,p:Principal,options:{peopleIds?:str
  state.roles=roleRows.map((r:any):CmsRole=>({id:r.id,name:r.name,description:r.description,teamScoped:r.team_scoped,permissions:rolePermissions(grantRows.filter((g:any)=>g.role_id===r.id),r.team_scoped)}));
  const allowedCompanyIds:string[]=ownLinks.map((l:any)=>l.sponsor_id);
  if(options.portal&&options.companyId&&!allowedCompanyIds.includes(options.companyId))throw new CmsError('forbidden','Je hebt geen toegang tot dit bedrijfsdossier.',403);
- const companies=await tx`select * from cms_sponsor_companies where ${(isStaff||isDonor)&&!options.portal?tx`true`:options.portal?allowedCompanyIds.length?tx`id in ${tx(allowedCompanyIds)}`:tx`false`:isDirectory?tx`true`:tx`false`} order by data->>'name',id`;
+ // Only the internal sealed-PDF worker supplies archivedSponsorId; no request
+ // query is forwarded here. Human and portal workspaces always omit tombstones.
+ const archivedSponsorId=isStaff&&!options.portal?options.archivedSponsorId||'':'';
+ const companies=await tx`select * from cms_sponsor_companies where (coalesce(data->>'deletedAt','')='' or id=${archivedSponsorId}) and (${(isStaff||isDonor)&&!options.portal?tx`true`:options.portal?allowedCompanyIds.length?tx`id in ${tx(allowedCompanyIds)}`:tx`false`:isDirectory?tx`true`:tx`false`}) order by data->>'name',id`;
  state.sponsorship.sponsors=companies.map((r:any)=>isStaff&&!options.portal||options.portal&&r.id===options.companyId?{...r.data,id:r.id}:isDonor&&!options.portal?{...minimalCompany(r),email:r.data.email||''}:minimalCompany(r));
  for(const row of companies)versions['company:'+row.id]=row.version;
  const members=await tx`select u.id,u.name,u.email,u.email_verified,u.banned,u.supabase_user_id,m.role_id,m.active,a.person_id from auth_user u join cms_memberships m on m.user_id=u.id left join cms_person_accounts a on a.user_id=u.id
@@ -88,7 +91,7 @@ export async function readDomainStore(tx:any,p:Principal,options:{peopleIds?:str
  state.planning.committees=committees.map((r:any)=>({...r.draft,id:r.id}));
  const companyRole=ownLinks.find((l:any)=>l.sponsor_id===options.companyId)?.roles||[];
  const documents=companyRole.some((r:string)=>r==='signer'||r==='billing'),billing=companyRole.includes('billing');
- const recordRows=await tx`select * from cms_sponsor_records where ${isStaff&&!options.portal?tx`true`:isDonor&&!options.portal?tx`kind in ('items','packages','proposals','agreements','invoices','settings','donorPeople','donorContributions','donorInvoices')`:options.portal&&options.companyId?tx`(sponsor_id=${options.companyId} and (kind not in ('invoices','agreements','proposals') or kind='invoices' and ${billing} or kind in ('agreements','proposals') and ${documents})) or kind='events' or kind='settings'`:tx`false`} order by created_at desc,id`;
+ const recordRows=await tx`select * from cms_sponsor_records where (sponsor_id is null or sponsor_id=${archivedSponsorId} or exists(select 1 from cms_sponsor_companies c where c.id=cms_sponsor_records.sponsor_id and coalesce(c.data->>'deletedAt','')='')) and (${isStaff&&!options.portal?tx`true`:isDonor&&!options.portal?tx`kind in ('items','packages','proposals','agreements','invoices','settings','donorPeople','donorContributions','donorInvoices')`:options.portal&&options.companyId?tx`(sponsor_id=${options.companyId} and (kind not in ('invoices','agreements','proposals') or kind='invoices' and ${billing} or kind in ('agreements','proposals') and ${documents})) or kind='events' or kind='settings'`:tx`false`}) order by created_at desc,id`;
  const records=new Map<string,any>();
  if(recordRows.some((r:any)=>r.kind==='contractTemplates'))state.sponsorship.contractTemplates=[];
  for(const r of recordRows){

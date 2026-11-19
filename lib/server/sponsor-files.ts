@@ -4,7 +4,7 @@ import {randomUUID} from 'node:crypto';
 import sharp from 'sharp';
 import {sqlClient} from '../../db';
 import {bodyBytes,CmsError} from './errors';
-import {workspaceActor,freshActor,workspaceLocks,requireWrite,type WorkspaceActor} from './sponsor-access';
+import {workspaceActor,freshActor,workspaceLocks,requireWrite,requireActiveSponsor,type WorkspaceActor} from './sponsor-access';
 import {sponsorStaff,readDomainStore,digestText} from './sponsor-store';
 import {getObject,putObject,deleteObject} from './storage';
 import {buildSponsorAgreementPdf} from '../cms/sponsor-pdf';
@@ -14,6 +14,7 @@ const binaryHash=(bytes:Uint8Array)=>requireHash(bytes);
 import {createHash} from 'node:crypto';
 function requireHash(bytes:Uint8Array){return createHash('sha256').update(bytes).digest('hex');}
 async function fileAccess(tx:any,p:Principal,sponsorId:string,kind:string){
+ await requireActiveSponsor(tx,sponsorId);
  if(sponsorStaff(p))return;
  if(['concept-proposal','agreement-delivery'].includes(kind))throw new CmsError('forbidden','Verzendarchieven zijn alleen beschikbaar voor sponsorbeheer.',403);
  const [link]=await tx`select roles from cms_sponsor_memberships where sponsor_id=${sponsorId} and user_id=${p.id}`;
@@ -43,7 +44,7 @@ async function authorizedFile(actor:WorkspaceActor,id:string,inline=false){retur
   // The approved company identity is visible to each current contact inside
   // the portal, independently of public publication dates. This exception
   // never grants downloads or access to another unreviewed/private image.
-  const [approved]=await tx`select 1 from cms_sponsor_companies c join cms_sponsor_memberships m on m.sponsor_id=c.id where c.id=${file.sponsor_id} and m.user_id=${p.id} and m.roles && array['signer','billing','marketing']::text[] and c.data#>>'{publicProfile,logoUrl}'=${'/api/sponsorship/logos/'+id}`;
+  const [approved]=await tx`select 1 from cms_sponsor_companies c join cms_sponsor_memberships m on m.sponsor_id=c.id where c.id=${file.sponsor_id} and coalesce(c.data->>'deletedAt','')='' and m.user_id=${p.id} and m.roles && array['signer','billing','marketing']::text[] and c.data#>>'{publicProfile,logoUrl}'=${'/api/sponsorship/logos/'+id}`;
   if(approved)return file;
  }
  await fileAccess(tx,p,file.sponsor_id,file.kind);return file;
@@ -76,7 +77,8 @@ export async function archiveSponsorAgreement(id:string,actorId:string){
  // This internal worker job was queued by the second verified signature. The
  // worker renders the sealed record, without granting any human extra access.
  const system:Principal={id:actorId,name:'Documentarchief',email:'',roleId:'archive-worker',teamScoped:false,teams:[],departments:[],grants:[{module:'sponsors',action:'*'}],mfa:false};
- const store=await readDomainStore(sql,system);const agreement=store.state.sponsorship!.agreements.find(a=>a.id===id);
+ const [source]=await sql`select sponsor_id from cms_sponsor_records where id=${id} and kind='agreements'`;
+ const store=await readDomainStore(sql,system,{archivedSponsorId:source?.sponsor_id});const agreement=store.state.sponsorship!.agreements.find(a=>a.id===id);
  if(!agreement||agreement.status!=='signed'||agreement.signatures.length!==2||agreement.signatures.some(s=>s.verification!=='email-otp'||s.demo))throw new CmsError('pdf-not-signed','De overeenkomst heeft nog geen twee geldige ondertekeningen.',409);
  const roleId='archive-renderer';store.state.roles.push({id:roleId,name:'Interne documentverwerking',permissions:['sponsors'],teamScoped:false,description:''});store.state.members=store.state.members.filter(m=>m.id!==actorId);store.state.members.push({id:actorId,name:'Documentarchief',email:'',roleId,teamIds:[],active:true});
  const bytes=await buildSponsorAgreementPdf(store.state,actorId,id,{assets:await pdfAssets()}),fileId=randomUUID(),key='sponsorship/'+digestText(agreement.sponsorId)+'/agreements/'+digestText(id)+'/'+fileId+'.pdf';
@@ -87,7 +89,7 @@ export async function archiveSponsorAgreement(id:string,actorId:string){
  });if(!inserted.length)await deleteObject(key);}catch(error){await deleteObject(key);throw error;}
 }
 export async function publicSponsorLogo(id:string){
- const [file]=await sqlClient()`select f.* from cms_sponsor_files f join cms_sponsor_companies c on c.id=f.sponsor_id where f.id=${id} and f.mime='image/webp' and f.kind in ('material','logo') and c.data->>'publicEnabled'='true' and c.data#>>'{publicProfile,logoUrl}'=${'/api/sponsorship/logos/'+id} and (coalesce(c.data->>'publicFrom','')='' or (c.data->>'publicFrom')::date<=current_date) and (coalesce(c.data->>'publicUntil','')='' or (c.data->>'publicUntil')::date>=current_date)`;
+ const [file]=await sqlClient()`select f.* from cms_sponsor_files f join cms_sponsor_companies c on c.id=f.sponsor_id where f.id=${id} and f.mime='image/webp' and f.kind in ('material','logo') and coalesce(c.data->>'deletedAt','')='' and c.data->>'publicEnabled'='true' and c.data#>>'{publicProfile,logoUrl}'=${'/api/sponsorship/logos/'+id} and (coalesce(c.data->>'publicFrom','')='' or (c.data->>'publicFrom')::date<=current_date) and (coalesce(c.data->>'publicUntil','')='' or (c.data->>'publicUntil')::date>=current_date)`;
  if(!file)throw new CmsError('missing','Logo niet beschikbaar.',404);const bytes=await getObject(file.storage_key);if(binaryHash(bytes)!==file.file_hash)throw new CmsError('file-integrity','Logo niet beschikbaar.',409);
  return new Response(bytes as BodyInit,{headers:{'Content-Type':'image/webp','Cache-Control':'public, max-age=300','X-Content-Type-Options':'nosniff'}});
 }

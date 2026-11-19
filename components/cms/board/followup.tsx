@@ -1,5 +1,7 @@
 'use client';
 
+import {RecordAction} from '../record-action';
+
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import {
   Archive, ArrowLeft, ArrowRight, CalendarDays, Check, ChevronRight, CircleHelp,
@@ -415,7 +417,7 @@ export function Actions(props: BoardPageProps) {
       {!committeeView && <div className="bp-actions">
         {action.decisionId && <button type="button" className="cms-button" onClick={() => props.onNavigate('decisions', action.decisionId)}>Open besluit <ArrowRight size={15} /></button>}
         {action.meetingId && <button type="button" className="cms-button" onClick={() => props.onNavigate('meetings', action.meetingId)}>Open vergadering <ArrowRight size={15} /></button>}
-        {canManage && action.status !== 'done' && !editing && <button type="button" className="cms-button" onClick={() => setEditing(true)}>Toewijzing wijzigen</button>}
+        {canManage && action.status !== 'done' && !editing && <RecordAction action="edit" label="Toewijzing wijzigen" onClick={() => setEditing(true)}/>}
       </div>}
       {canManage && action.status !== 'done' && editing && <ActionEditor key={action.id} {...props} action={action} onClose={() => setEditing(false)} />}
       {!editing && <ActionProgress key={action.id} action={action} {...props} />}

@@ -33,7 +33,8 @@ export async function persistDomainStore(tx:any,p:Principal,before:DomainStore,s
   const result=sponsorshipEntitySchemas.sponsors.safeParse([company]);
   if(!result.success)throw new CmsError('validation','Controleer de bedrijfsgegevens: '+result.error.issues[0].message,422);
   const data=result.data[0];data.demo=false;
-  await tx`insert into cms_sponsor_companies(id,data) values (${company.id},${tx.json(data)}) on conflict(id) do update set data=excluded.data,version=cms_sponsor_companies.version+1,updated_at=now()`;
+  const saved=await tx`insert into cms_sponsor_companies(id,data) values (${company.id},${tx.json(data)}) on conflict(id) do update set data=excluded.data,version=cms_sponsor_companies.version+1,updated_at=now() where coalesce(cms_sponsor_companies.data->>'deletedAt','')='' returning id`;
+  if(!saved.length)throw new CmsError('sponsor-deleted','Deze relatie is verwijderd. Maak een nieuwe relatie aan.',409);
  }
  // Preserve original JSON bytes rather than deriving historical hashes from JSONB.
  for(const kind of sponsorKinds){
@@ -140,5 +141,21 @@ export async function persistDomainStore(tx:any,p:Principal,before:DomainStore,s
   await tx`insert into cms_directory_invitations(id,person_id,email,scope,sponsor_id,sponsor_roles,token_hash,status,created_by,expires_at) values (${invite.id},${invite.personId},${invite.email},${invite.scope},${invite.sponsorId||null},${invite.sponsorRoles},${invite.token},${invite.status},${p.id},${invite.expiresAt})`;
  }
  for(const event of directory.events)if(!original.directory!.events.some(v=>v.id===event.id))await tx`insert into cms_directory_events(id,person_id,actor_id,action,created_at) values (${event.id},${event.personId},${p.id},${event.action},now())`;
+ for(const company of original.sponsorship!.sponsors)if(!sponsors.sponsors.some(value=>value.id===company.id)){
+  // Tombstones preserve foreign keys and immutable contracts, invoices and
+  // evidence. Every active workspace query excludes this company's dossier.
+  await tx`update cms_sponsor_companies set data=data||jsonb_build_object('deletedAt',to_char(now() at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),'deletedBy',${p.id}::text,'publicEnabled',false),version=version+1,updated_at=now() where id=${company.id}`;
+  await tx`delete from cms_sponsor_memberships where sponsor_id=${company.id}`;
+  await tx`update cms_directory_profiles set data=jsonb_set(data,'{sponsorIds}',coalesce(data->'sponsorIds','[]'::jsonb)-${company.id}),version=version+1,updated_at=now() where coalesce(data->'sponsorIds','[]'::jsonb) ? ${company.id}`;
+  await tx`update cms_directory_invitations set status='revoked',code_hash=null,code_nonce_hash=null where sponsor_id=${company.id} and status='pending'`;
+  await tx`delete from cms_directory_invitation_views where invitation_id in (select id from cms_directory_invitations where sponsor_id=${company.id})`;
+  await tx`update cms_sponsor_signing_challenges set status='revoked' where sponsor_id=${company.id} and status='pending'`;
+  await tx`update cms_sponsor_logo_uploads set expires_at=least(expires_at,clock_timestamp()) where sponsor_id=${company.id}`;
+  await tx`update cms_sponsor_deliveries set status='cancelled' where sponsor_id=${company.id} and status in ('queued','failed')`;
+  await tx`update cms_sponsor_concepts set status='cancelled',last_error='De relatie is verwijderd.' where sponsor_id=${company.id} and status in ('queued','failed')`;
+  await tx`update cms_sponsor_agreement_deliveries set status='cancelled',last_error='De relatie is verwijderd.' where sponsor_id=${company.id} and status in ('queued','failed')`;
+  await tx`update cms_jobs set status='cancelled',lease_until=null,lease_owner=null where status in ('pending','processing') and kind in ('sponsor-notification','sponsor-document-mail','sponsor-concept-mail','sponsor-agreement-delivery-mail') and (payload->>'deliveryId' in (select id from cms_sponsor_deliveries where sponsor_id=${company.id}) or payload->>'deliveryId' in (select id from cms_sponsor_concepts where sponsor_id=${company.id}) or payload->>'deliveryId' in (select id from cms_sponsor_agreement_deliveries where sponsor_id=${company.id}))`;
+  await tx`insert into cms_audit(id,actor_id,action,record_id,request_id,metadata) values (${crypto.randomUUID()},${p.id},'deleteSponsor',null,${requestId},${tx.json({sponsorId:company.id,name:company.name,archivedDocuments:true})})`;
+ }
  await tx`insert into cms_audit(id,actor_id,action,record_id,request_id,metadata) values (${crypto.randomUUID()},${p.id},'private-workspace-update',null,${requestId},${tx.json({})})`;
 }

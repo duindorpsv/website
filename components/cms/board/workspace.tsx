@@ -1,5 +1,7 @@
 'use client';
 
+import {RecordAction} from '../record-action';
+
 import {useEffect,useRef,useState,type FormEvent} from 'react';
 import {ArrowRight,ArrowUpRight,BookOpen,CalendarDays,CheckCircle2,ClipboardList,FileText,FolderOpen,Gavel,ListChecks,Plus,Search,UsersRound} from 'lucide-react';
 import {boardToday,formatBoardDate,makeBase,pointLabels,type BoardActor,type BoardPageProps,type BoardRole,type Decision,type Dossier,type PointKind,type Portfolio,type Proposal} from '@/lib/cms/board';
@@ -267,7 +269,7 @@ function Proposals({board,actor,people,committees,focusId,change}:BoardPageProps
         {canReview&&<label className="bp-field">Toelichting bij beoordeling<textarea rows={3} value={review} onChange={event=>setReview(event.target.value)}/></label>}
         {error&&<p className="bp-error" role="alert">{error}</p>}
         <div className="bp-toolbar">
-          {editable&&<><button type="button" className="cms-button primary" onClick={submit}>Indienen bij voorzitter</button><button type="button" className="cms-button" onClick={()=>{select(proposal);setEditing(true);}}>Bewerken</button><button type="button" className="cms-button" onClick={discard}>Verwijderen</button></>}
+          {editable&&<><button type="button" className="cms-button primary" onClick={submit}>Indienen bij voorzitter</button><RecordAction action="edit" label="Bewerken" onClick={()=>{select(proposal);setEditing(true);}}/><RecordAction action="delete" label="Verwijderen" onClick={discard}/></>}
           {canReview&&<><button type="button" className="cms-button primary" onClick={()=>assess('ready')}>Gereed voor agendering</button><button type="button" className="cms-button" onClick={()=>assess('changes')}>Aanvulling vragen</button></>}
         </div>
         {proposal.versions.length>0&&<details className="bp-inset"><summary>Ingediende versies ({proposal.versions.length})</summary>

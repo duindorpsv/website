@@ -24,7 +24,7 @@ import {checkSponsorLogoReference,claimSponsorLogoUploads} from './sponsor-logos
 const portalCommands=new Set(['acceptSponsorProposal','requestSponsorBusinessChange','requestSponsorProfile','saveSponsorMaterial','registerSponsorEvent','cancelSponsorEvent','requestDirectoryGuardian','requestSponsorSigningCode','trySignSponsorAgreement']);
 const donorCommands=new Set(['saveDonor','saveDonorContribution','issueDonorInvoice','markDonorInvoicePaid','cancelDonorInvoice','sendDonorInvoice']);
 const documentMailCommands=new Set(['sendSponsorProposal','createSponsorAgreement','sendSponsorDocumentEmail']);
-const draftCommands=new Set(['saveSponsorProposal','deleteSponsorDraft']);
+const draftCommands=new Set(['saveSponsorProposal','deleteSponsorDraft','deleteSponsor']);
 const directoryCommands=new Set(['saveDirectoryPerson','bindDirectoryAccount','setDirectoryAccountActive','createDirectoryInvitation','revokeDirectoryInvitation','saveDirectoryGuardian','approveDirectoryGuardian','saveDirectoryAssignment','removeDirectoryAssignment','importDirectoryPeople']);
 type PreparedMail={to:string;subject:string;text:string;id:string;kind:'invitation'|'signature';link?:{label:string;href:string}};
 const failOtp=()=>new CmsError('otp-invalid','De ondertekeningscode is ongeldig of verlopen. Vraag zo nodig een nieuwe code aan.',422);
@@ -32,7 +32,7 @@ function asError(error:unknown):never{if(error instanceof CmsError)throw error;t
 function commandAction(name:string,args:any[],before?:DomainStore):'create'|'update'|'delete'|'publish'|'manage'{
  if(['tryCountersignSponsorAgreement','saveSponsorSettings'].includes(name)||name==='requestSponsorSigningCode'&&args[1]==='club')return 'manage';
  if(name==='approveSponsorProfile')return 'publish';
- if(['removeDirectoryAssignment','revokeDirectoryInvitation','removeSponsorMembership','removeSponsorContractTemplate','deleteSponsorDraft'].includes(name))return 'delete';
+ if(['removeDirectoryAssignment','revokeDirectoryInvitation','removeSponsorMembership','removeSponsorContractTemplate','deleteSponsorDraft','deleteSponsor'].includes(name))return 'delete';
  if(name==='saveDirectoryPerson')return before?.people.has(args[0].person.id)?'update':'create';
  if(name==='saveSponsor')return before?.state.sponsorship!.sponsors.some(value=>value.id===args[0].id)?'update':'create';
  if(name==='saveDirectoryAssignment')return before?.state.directory!.assignments.some(value=>value.id===args[0].id)?'update':'create';
@@ -111,7 +111,7 @@ export async function workspaceCommands(request:Request,value:unknown,portal=fal
   let documentMailStatus='none';
   const documentMailIntents:{id:string;phase:'proposal'|'agreement'|'signed'}[]=[];
   if(portal&&commands.some(c=>c.name==='acceptSponsorProposal')){
-   const rows=await tx`select id,kind,data from cms_sponsor_records where kind in ('items','packages','proposals','agreements') and (sponsor_id is null or sponsor_id<>${input.companyId})`;
+   const rows=await tx`select id,kind,data from cms_sponsor_records where kind in ('items','packages','proposals','agreements') and (sponsor_id is null or sponsor_id<>${input.companyId} and exists(select 1 from cms_sponsor_companies c where c.id=cms_sponsor_records.sponsor_id and coalesce(c.data->>'deletedAt','')=''))`;
    for(const r of rows){if((state.sponsorship as any)[r.kind].some((v:any)=>v.id===r.id))continue;(state.sponsorship as any)[r.kind].push({...r.data,id:r.id});extraIds.add(r.id);}
   }
   for(const command of commands){

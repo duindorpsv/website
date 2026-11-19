@@ -1,6 +1,8 @@
 'use client';
+
+import {RecordAction} from './record-action';
 import {useEffect,useMemo,useRef,useState} from 'react';
-import {Check,ExternalLink,ImagePlus,Pencil,Save,Search,Trash2,Upload,X} from 'lucide-react';
+import {Check,ExternalLink,ImagePlus,Save,Search,Upload,X} from 'lucide-react';
 import {defaultHeroPhotoIds,heroPhotoSource,type HeroPhotoId} from '@/lib/clubmuur-layouts';
 import {getHeroPhotoCatalog,heroPortraitKinds,validHeroPortraits,type HeroPortrait,type HeroPortraitKind} from '@/lib/cms/hero-portraits';
 import type {CmsMedia} from '@/lib/cms/types';
@@ -92,7 +94,7 @@ export function HeroPhotosManager(){
    <div className={styles.toolbar}><button type="button" className="cms-button primary" disabled={!editable||busy||uploading||draft.portraits.length>=200} onClick={()=>{setEditor(emptyEditor());setProcessing(false);setError('');}}><ImagePlus size={17}/>Foto toevoegen</button><label className={styles.search}><Search size={17}/><input aria-label="Spelersfoto’s zoeken" placeholder="Zoek een spelersfoto…" value={query} onChange={event=>setQuery(event.target.value)}/></label><button type="button" className="cms-button" disabled={!editable||busy} onClick={()=>change({...draft,items:catalog.map(photo=>photo.id)})}>Alles selecteren</button><button type="button" className="cms-button" disabled={!editable||busy} onClick={()=>change({...draft,items:[]})}>Alles uitsluiten</button></div>
    <div className={styles.grid}>{pagination.items.map(photo=><article key={photo.id} className={`${styles.card} ${draft.items.includes(photo.id)?styles.selected:''}`}>
     <label className={styles.selectPhoto}><div className={styles.image}><img src={heroPhotoSource(photo)} alt="" loading="lazy"/><span className={styles.badge}>{draft.items.includes(photo.id)?<><Check size={13}/>Doet mee</>:'Uitgesloten'}</span></div><div className={styles.caption}><input type="checkbox" aria-label={`${photo.name} opnemen in de hero`} checked={draft.items.includes(photo.id)} disabled={!editable||busy} onChange={event=>toggle(photo.id,event.target.checked)}/><div><strong>{photo.name}</strong><small>{draft.portraits.some(item=>item.id===photo.id)?'Mediabibliotheek':'Clubselectie'} · {heroPortraitKinds.find(kind=>kind.value===photo.kind)?.label}</small></div></div></label>
-    {draft.portraits.some(item=>item.id===photo.id)&&<div className={styles.cardActions}><button type="button" className="cms-button" disabled={!editable||busy||uploading} onClick={()=>editPortrait(photo.id)}><Pencil size={13}/>Bewerken</button><button type="button" className="cms-button danger" disabled={!editable||busy||uploading} aria-label={`${photo.name} verwijderen uit spelersfoto’s`} onClick={()=>{if(!window.confirm(`‘${photo.name}’ uit de spelersfoto’s verwijderen? De foto blijft in de mediabibliotheek.`))return;change({items:draft.items.filter(id=>id!==photo.id),portraits:draft.portraits.filter(item=>item.id!==photo.id)});}}><Trash2 size={14}/></button></div>}
+    {draft.portraits.some(item=>item.id===photo.id)&&<div className={styles.cardActions}><RecordAction action="edit" label="Bewerken" disabled={!editable||busy||uploading} onClick={()=>editPortrait(photo.id)}/><RecordAction action="delete" label={`${photo.name} verwijderen uit spelersfoto’s`} disabled={!editable||busy||uploading} onClick={()=>{if(!window.confirm(`‘${photo.name}’ uit de spelersfoto’s verwijderen? De foto blijft in de mediabibliotheek.`))return;change({items:draft.items.filter(id=>id!==photo.id),portraits:draft.portraits.filter(item=>item.id!==photo.id)});}}/></div>}
    </article>)}</div>
    {!photos.length&&<p className={styles.empty}>Geen spelersfoto’s gevonden. Pas je zoekopdracht aan of voeg een foto toe.</p>}
    <Pagination label="Spelersfoto’s" {...pagination} disabled={busy}/>

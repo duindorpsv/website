@@ -123,6 +123,20 @@ export function getSponsorStaffAccounts(state: CmsState, actorId: string) {
     return state.members.filter(member => canManageSponsorship(state, member.id)).map(({ id, name, active }) => ({ id, name, active }));
 }
 function _removeSponsorMembership(state: CmsState, actorId: string, id: string) { ensure(canManageSponsorship(state, actorId) || canManageUsers(state, actorId), 'Je hebt gebruikers- of sponsorbeheerrechten nodig.'); const data = ensureSponsorship(state); data.memberships = data.memberships.filter(m => m.id !== id); }
+/** Remove a relationship from active work; sealed documents remain in the server archive. */
+function _deleteSponsor(state:CmsState,actorId:string,sponsorId:string){
+ requireManager(state,actorId);const data=ensureSponsorship(state),sponsor=clone(getSponsor(data,sponsorId));
+ const referenceIds=new Set([...data.proposals,...data.agreements].filter(row=>row.sponsorId===sponsorId).map(row=>row.id));
+ data.sponsors=data.sponsors.filter(row=>row.id!==sponsorId);
+ for(const kind of ['memberships','proposals','agreements','invoices','tasks','activities','profileRequests','businessChangeRequests','signingChallenges','agreementDeliveries','conceptDeliveries'] as const){
+  const rows=data[kind];if(rows)(data[kind] as {sponsorId:string}[])=rows.filter(row=>row.sponsorId!==sponsorId);
+ }
+ if(data.documentMails)data.documentMails=data.documentMails.filter(row=>!referenceIds.has(row.referenceId));
+ for(const event of data.events)event.registrations=event.registrations.filter(row=>row.sponsorId!==sponsorId);
+ for(const profile of state.directory?.profiles||[])profile.sponsorIds=profile.sponsorIds.filter(id=>id!==sponsorId);
+ for(const invite of state.directory?.invitations||[])if(invite.sponsorId===sponsorId&&invite.status==='pending')invite.status='revoked';
+ return sponsor;
+}
 function _saveSponsorItem(state:CmsState,actorId:string,value:SponsorItem){requireManager(state,actorId);ensure(value.name.trim(),'Geef het sponsoritem een naam.');ensure(Number.isInteger(value.capacity)&&value.capacity>=0,'Gebruik een geldig aantal beschikbare plekken.');calculateSponsorTotals([{id:'check',itemId:value.id,name:value.name,description:'',quantity:1,unitPriceCents:value.priceCents,taxRate:value.taxRate,...(value.setupCostCents!==undefined?{setupCostCents:value.setupCostCents}:{})}]);const data=ensureSponsorship(state);if(value.capacity>0&&data.items.some(i=>i.id===value.id)){const committed=sponsorItemAvailability(state,value.id,today(),'9999-12-31').reserved;ensure(value.capacity>=committed,'Het aantal plekken is lager dan de bestaande reserveringen en overeenkomsten.');}assign(data.items,value);return value;}
 function _saveSponsorPackage(state: CmsState, actorId: string, value: SponsorPackage) { requireManager(state, actorId); const data = ensureSponsorship(state); ensure(value.name.trim() && value.itemIds.length, 'Kies een naam en minimaal één sponsoritem.'); ensure(value.itemIds.every(id => data.items.some(i => i.id === id && i.active)), 'Een geselecteerd sponsoritem is niet beschikbaar.'); ensure(new Set(value.itemIds).size === value.itemIds.length, 'Een item staat dubbel in het pakket.'); calculateSponsorTotals([{ id: 'check', itemId: '', name: value.name, description: '', quantity: 1, unitPriceCents: value.priceCents, taxRate: value.taxRate }]); assign(data.packages, value); return value; }
 const defaultTerms = 'De club levert de opgenomen sponsoruitingen binnen de afgesproken looptijd. Materiaal wordt vooraf door de sponsor aangeleverd en goedgekeurd. Verlengen gebeurt uitsluitend volgens de schriftelijke afspraken.';
@@ -368,6 +382,7 @@ function _saveSponsorEvent(state: CmsState, actorId: string, value: SponsorshipS
 else
     data.events.push(next); return next; }
 export const saveSponsor = (...args: Parameters<typeof _saveSponsor>): ReturnType<typeof _saveSponsor> => domainMutation('saveSponsor', args, () => _saveSponsor(...args));
+export const deleteSponsor = (...args: Parameters<typeof _deleteSponsor>): ReturnType<typeof _deleteSponsor> => domainMutation('deleteSponsor', args, () => _deleteSponsor(...args));
 export const saveSponsorBusinessDetails = (...args: Parameters<typeof _saveSponsorBusinessDetails>): ReturnType<typeof _saveSponsorBusinessDetails> => domainMutation('saveSponsorBusinessDetails', args, () => _saveSponsorBusinessDetails(...args));
 export const requestSponsorBusinessChange = (...args: Parameters<typeof _requestSponsorBusinessChange>): ReturnType<typeof _requestSponsorBusinessChange> => domainMutation('requestSponsorBusinessChange', args, () => _requestSponsorBusinessChange(...args));
 export const reviewSponsorBusinessChange = (...args: Parameters<typeof _reviewSponsorBusinessChange>): ReturnType<typeof _reviewSponsorBusinessChange> => domainMutation('reviewSponsorBusinessChange', args, () => _reviewSponsorBusinessChange(...args));

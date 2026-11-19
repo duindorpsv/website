@@ -24,3 +24,10 @@
 .sb-manager .sb-event-row small{display:block;margin-top:3px;color:var(--sb-muted);font-size:10px;line-height:1.7}
 .sb-manager .sb-event-row:hover{background:#f6f9fc}
 .sb-manager .sb-mini-title{flex-wrap:wrap}.sb-manager .sb-proposal-actions{align-items:center;min-width:340px;max-width:420px}.sb-manager .sb-proposal-actions .cms-button{white-space:nowrap}.sb-modal .sb-brand-preview>div{min-width:0;overflow-wrap:anywhere}
+
+/* The search container owns the only border, including when focused. */
+.dd-cms .sb-manager .sb-search>input{border:0;border-radius:0;box-shadow:none;background:transparent;outline:0;padding:10px 0;min-height:0}
+.sb-proposal-actions{display:flex;flex-wrap:wrap;gap:7px}
+.sb-manager .sb-action-cell{justify-content:flex-end}
+.sb-modal .cms-button.is-destructive{color:#a43b3b;border-color:#e8baba;background:#fff4f4}
+.sb-modal .cms-button.is-destructive:hover{background:#fde7e7;border-color:#d78c8c}

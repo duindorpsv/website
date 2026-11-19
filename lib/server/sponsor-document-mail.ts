@@ -5,7 +5,7 @@ import {sqlClient} from '../../db';
 import type {SponsorDocumentMail} from '../cms/sponsorship-types';
 import {CmsError} from './errors';
 import {actorPrincipal} from './permissions';
-import {workspaceLocks,requireWrite} from './sponsor-access';
+import {workspaceLocks,requireWrite,requireActiveSponsor} from './sponsor-access';
 import {sponsorMail} from './sponsor-mail';
 import {getObject} from './storage';
 import {env} from './env';
@@ -20,6 +20,7 @@ const businessDeliveryId=(id:string,phase:DocumentMailPhase,intent:BusinessRecip
 async function documentContext(tx:any,id:string,phase:DocumentMailPhase){
  const [record]=await tx`select id,sponsor_id,data,snapshot_bytes from cms_sponsor_records where id=${id} and kind=${kinds[phase]}`;
  if(!record)throw new CmsError('missing','Dit sponsordocument bestaat niet.',404);
+ await requireActiveSponsor(tx,record.sponsor_id);
  const allowed=phase==='proposal'?['sent','accepted'].includes(record.data.status):phase==='agreement'?record.data.status==='awaiting-signature':record.data.status==='signed';
  if(!allowed)throw new CmsError('document-mail-status','Dit document kan in de huidige status niet per e-mail worden aangeboden.',422);
  return record;

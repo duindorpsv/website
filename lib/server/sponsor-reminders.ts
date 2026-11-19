@@ -6,6 +6,7 @@ import type {Principal} from './permissions';
 import {readDomainStore,digestText} from './sponsor-store';
 import {sponsorMail} from './sponsor-mail';
 import {env} from './env';
+import {workspaceLocks} from './sponsor-access';
 const worker:Principal={id:'sponsor-scheduler',name:'Herinneringen',email:'',roleId:'system',teamScoped:false,teams:[],departments:[],grants:[{module:'sponsors',action:'*'}],mfa:false};
 function threshold(reminder:SponsorReminder,state:CmsState){
  const days=Math.ceil((Date.parse(reminder.dueDate)-Date.parse(new Date().toISOString().slice(0,10)))/86400000);
@@ -37,17 +38,19 @@ export async function scheduleSponsorReminders(){
  const sql=sqlClient();await sql.begin(async tx=>{
   // Only one scheduler instance performs a scan at a time; jobs deduplicate forever.
   const [lock]=await tx`select pg_try_advisory_xact_lock(736498) as owned`;if(!lock.owned)return;
+  await workspaceLocks(tx);
   const store=await readDomainStore(tx,worker);
   for(const reminder of getSponsorReminders(store.state))await queueSponsorReminder(tx,store.state,reminder.id);
  });
 }
 export async function deliverSponsorReminder(deliveryId:string,reminderId:string){
- const sql=sqlClient(),[delivery]=await sql`select * from cms_sponsor_deliveries where id=${deliveryId}`;
- if(!delivery||delivery.status==='accepted'||delivery.status==='cancelled')return;
- const store=await readDomainStore(sql,worker),reminder=getSponsorReminders(store.state).find(r=>r.id===reminderId);
- const allowed=reminder?await recipients(sql,store.state,reminder):[],account=allowed.find((u:any)=>u.id===delivery.user_id);
- if(!reminder||!account){await sql`update cms_sponsor_deliveries set status='cancelled' where id=${deliveryId}`;return;}
- try{await sponsorMail(account.email,'Duindorp SV · '+reminder.title,reminder.title+'\nBekijk je afspraken en de actuele status in je persoonlijke omgeving.','sponsor-reminder-'+deliveryId,{label:'Afspraken bekijken',href:env().APP_BASE_URL.replace(/\/$/,'')+(reminder.kind==='task'||reminder.kind==='renewal'||store.state.sponsorship!.agreements.find(a=>a.id===reminder.referenceId)?.status==='awaiting-club-signature'?'/beheer#sponsoring':'/sponsorportaal')});
- }catch(error){await sql`update cms_sponsor_deliveries set status='failed' where id=${deliveryId}`;throw error;}
- await sql`update cms_sponsor_deliveries set status='accepted',delivered_at=now() where id=${deliveryId}`;
+ const sql=sqlClient();try{await sql.begin(async tx=>{
+  await workspaceLocks(tx);const [delivery]=await tx`select * from cms_sponsor_deliveries where id=${deliveryId}`;
+  if(!delivery||delivery.status==='accepted'||delivery.status==='cancelled')return;
+  const store=await readDomainStore(tx,worker),reminder=getSponsorReminders(store.state).find(r=>r.id===reminderId);
+  const allowed=reminder?await recipients(tx,store.state,reminder):[],account=allowed.find((u:any)=>u.id===delivery.user_id);
+  if(!reminder||!account){await tx`update cms_sponsor_deliveries set status='cancelled' where id=${deliveryId}`;return;}
+  await sponsorMail(account.email,'Duindorp SV · '+reminder.title,reminder.title+'\nBekijk je afspraken en de actuele status in je persoonlijke omgeving.','sponsor-reminder-'+deliveryId,{label:'Afspraken bekijken',href:env().APP_BASE_URL.replace(/\/$/,'')+(reminder.kind==='task'||reminder.kind==='renewal'||store.state.sponsorship!.agreements.find(a=>a.id===reminder.referenceId)?.status==='awaiting-club-signature'?'/beheer#sponsoring':'/sponsorportaal')});
+  await tx`update cms_sponsor_deliveries set status='accepted',delivered_at=now() where id=${deliveryId}`;
+ });}catch(error){await sql.begin(async tx=>{await workspaceLocks(tx);await tx`update cms_sponsor_deliveries set status='failed' where id=${deliveryId} and status not in ('accepted','cancelled')`;});throw error;}
 }

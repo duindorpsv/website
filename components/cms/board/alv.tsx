@@ -1,5 +1,7 @@
 'use client';
 
+import {RecordAction} from '../record-action';
+
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowDown, ArrowUp, CalendarPlus, Check, ClipboardList, Download, Monitor, Plus, Vote } from 'lucide-react';
 import { makeBase, type BoardPageProps, type BoardState } from '@/lib/cms/board';
@@ -415,7 +417,7 @@ export function Alv({ board, actor, people, change, focusId, focusPane, onNaviga
             <div className="bp-alv-actions">
               {point.meetingId && <button className="cms-button" type="button" onClick={() => onNavigate('meetings', point.meetingId)}>Open bronvergadering</button>}
               {point.fromItemId && <span className="bp-alv-muted">Overgenomen van {board.alvItems.find(row => row.id === point.fromItemId)?.code ?? 'eerder ALV-punt'}</span>}
-              {canManage && cycle.status === 'draft' && <button className="cms-button" type="button" onClick={() => setEditPointId(point.id)}>Bewerk voorbereiding</button>}
+              {canManage && cycle.status === 'draft' && <RecordAction action="edit" label="Bewerk voorbereiding" onClick={() => setEditPointId(point.id)}/>}
             </div>
           </article>;
         })}
@@ -476,9 +478,9 @@ export function Alv({ board, actor, people, change, focusId, focusPane, onNaviga
               <button className="cms-button primary" type="button" onClick={() => confirmRound(round.id)}><Check size={16} /> Bevestig telling</button>}
             {!round.confirmedAt && round.countedBy === actor.id && <>
               <span className="bp-alv-muted">Een andere bevoegde gebruiker moet deze telling controleren.</span>
-              <button className="cms-button" type="button" onClick={() => {
+              <RecordAction action="delete" label="Verwijder concepttelling" onClick={() => {
                 if (window.confirm('Deze concepttelling verwijderen?')) removePendingRound(round.id);
-              }}>Verwijder concepttelling</button>
+              }}/>
             </>}
             {round.confirmedBy && <span className="bp-alv-muted">Gecontroleerd door {name(round.confirmedBy)}</span>}
             {round.decisionId && <button className="cms-button" type="button" onClick={() => onNavigate('decisions', round.decisionId)}>Bekijk ALV-besluit</button>}

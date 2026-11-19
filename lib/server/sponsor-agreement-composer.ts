@@ -5,7 +5,7 @@ import {createSponsorAgreementFromDraft} from '../cms/sponsorship';
 import {withDomainIds} from '../cms/domain-commands';
 import {getSponsorAgreementDeliverySource,getSponsorAgreementDeliveryHtml,type SponsorAgreementDeliveryTarget,type SponsorAgreementDeliverySource} from '../cms/sponsor-agreement-delivery';
 import {buildSponsorAgreementDeliveryPdf} from '../cms/sponsor-agreement-delivery-pdf';
-import {workspaceActor,freshActor,workspaceLocks,workspaceRate,requireWrite,secureCodeHash} from './sponsor-access';
+import {workspaceActor,freshActor,workspaceLocks,workspaceRate,requireWrite,secureCodeHash,requireActiveSponsor} from './sponsor-access';
 import {actorPrincipal,verifyOrigin,type Principal} from './permissions';
 import {readDomainStore,sponsorStaff,digestText} from './sponsor-store';
 import {persistDomainStore,numberNewSponsorAgreements} from './sponsor-persistence';
@@ -28,8 +28,9 @@ function requireRead(p:Principal){if(!sponsorStaff(p))throw new CmsError('forbid
 function asValidation(error:unknown):never{if(error instanceof CmsError)throw error;throw new CmsError('validation',error instanceof Error?error.message:'Controleer de overeenkomst.',422);}
 function queryTarget(request:Request){return targetSchema.parse(Object.fromEntries(new URL(request.url).searchParams));}
 async function requireTarget(tx:any,target:SponsorAgreementDeliveryTarget){
- const [row]=target.deliveryId?await tx`select id from cms_sponsor_agreement_deliveries where id=${target.deliveryId}`:await tx`select id from cms_sponsor_records where id=${target.agreementId||target.proposalId!} and kind=${target.agreementId?'agreements':'proposals'}`;
+ const [row]=target.deliveryId?await tx`select id,sponsor_id from cms_sponsor_agreement_deliveries where id=${target.deliveryId}`:await tx`select id,sponsor_id from cms_sponsor_records where id=${target.agreementId||target.proposalId!} and kind=${target.agreementId?'agreements':'proposals'}`;
  if(!row)throw new CmsError('missing','Dit sponsordocument bestaat niet.',404);
+ await requireActiveSponsor(tx,row.sponsor_id);
 }
 /** Preview reads and PDF rendering deliberately perform no database/storage writes. */
 export async function readSponsorAgreementComposer(request:Request){
@@ -49,6 +50,7 @@ async function knownSigner(tx:any,sponsorId:string,recipient:string){
  return account?.id||null;
 }
 async function currentAgreement(tx:any,row:any){
+ await requireActiveSponsor(tx,row.sponsor_id);
  const [record]=await tx`select a.data,d.snapshot_bytes,d.document_hash,d.document_version,d.sponsor_id from cms_sponsor_records a join cms_sponsor_documents d on d.agreement_id=a.id where a.id=${row.agreement_id} and a.kind='agreements'`;
  if(!record)throw new CmsError('missing','De vastgelegde overeenkomst ontbreekt.',404);
  agreementDeliverySourceFromRow(row);
