@@ -7,28 +7,35 @@ import {prepareArchiveFile} from './archive-uploads';
 import {putObject} from './storage';
 const root=()=>join(process.cwd(),'data/club-archive');
 /** Existing installations skip the first-install CMS seed. Complete this feature once before worker readiness. */
-export async function ensureClubArchive(){
+export async function ensureClubArchive(onProgress:()=>void=()=>{}){
  const [installed]=await sqlClient()`select id from cms_archive_catalog where kind='settings' and id='settings'`;
+ onProgress();
  if(installed)return false;
- await seedClubArchive();return true;
+ await seedClubArchive(onProgress);return true;
 }
-export async function seedClubArchive(){
+export async function seedClubArchive(onProgress:()=>void=()=>{}){
  const raw=await readFile(join(root(),'seed.json'),'utf8'),seed=JSON.parse(raw),manifest=JSON.parse(await readFile(join(root(),'media-manifest.json'),'utf8')),checksum=createHash('sha256').update(raw).digest('hex'),sql=sqlClient();
+ onProgress();
  await sql.begin(async tx=>{await archiveLock(tx);
-  const files=await readdir(join(root(),'images'));for(const name of files){const id='seed-'+name.replace(/\.webp$/,''),[old]=await tx`select id from cms_archive_media where id=${id}`;if(old)continue;
-   const bytes=await readFile(join(root(),'images',name)),sourceHash=createHash('sha256').update(bytes).digest('hex'),provenance=manifest.find((m:any)=>m.asset_path.endsWith('/'+name));if(!provenance||sourceHash!==provenance.sha256)throw new Error('De historische broncontrole is mislukt: '+name);const prepared=await prepareArchiveFile(bytes,'image/webp'),originalKey=`archive/${id}/original`,safeKey=`archive/${id}/safe.webp`;await putObject(originalKey,bytes,'application/octet-stream');await putObject(safeKey,prepared.safe,'image/webp');
+  onProgress();
+  const files=await readdir(join(root(),'images'));onProgress();for(const name of files){const id='seed-'+name.replace(/\.webp$/,''),[old]=await tx`select id from cms_archive_media where id=${id}`;onProgress();if(old)continue;
+   const bytes=await readFile(join(root(),'images',name)),sourceHash=createHash('sha256').update(bytes).digest('hex'),provenance=manifest.find((m:any)=>m.asset_path.endsWith('/'+name));if(!provenance||sourceHash!==provenance.sha256)throw new Error('De historische broncontrole is mislukt: '+name);const prepared=await prepareArchiveFile(bytes,'image/webp'),originalKey=`archive/${id}/original`,safeKey=`archive/${id}/safe.webp`;onProgress();await putObject(originalKey,bytes,'application/octet-stream');onProgress();await putObject(safeKey,prepared.safe,'image/webp');onProgress();
    await tx`insert into cms_archive_media(id,operation_id,original_key,safe_key,name,kind,mime,bytes,checksum,state,metadata) values (${id},${'archive-seed:'+id},${originalKey},${safeKey},${name},'image','image/webp',${bytes.length},${createHash('sha256').update(bytes).digest('hex')},'ready',${tx.json({...prepared.metadata,sourceCommit:'50b3944b78aebfe82845c0bd4d7b99288f03abc7',sourceVersion:58,sourceSha256:sourceHash,provenance:provenance.uses,usage:'Door de eigenaar aangeleverde historische bron; bronvermelding is geen bewijs van eigendom van het fysieke origineel.'})})`;
+   onProgress();
   }
   const url=(src:string)=>src?.startsWith('/assets/club-archive/')?archiveMediaPath('seed-'+src.split('/').pop()!.replace(/\.webp$/,'')):src;
   for(const [kind,items] of [['moment',seed.moments],['object',seed.objects]] as const){for(const original of items){const data=structuredClone(original);data.cover=url(data.cover);if(kind==='object')data.collectionIds=[String(data.collection).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-')];data.media=data.media.map((m:any)=>({...m,id:'seed-'+m.src.split('/').pop().replace(/\.webp$/,''),src:url(m.src),approved:true}));
     if(data.comparison){for(const key of ['before','after']){data.comparison[key]=url(data.comparison[key]);if(!data.media.some((m:any)=>m.src===data.comparison[key]))data.media.push({id:decodeURIComponent(data.comparison[key].split('/').pop()),kind:'image',src:data.comparison[key],name:data.comparison[key+'Label'],caption:data.comparison.caption,credit:data.sourceLabel,approved:true});}}
     await tx`insert into cms_archive_catalog(kind,id,draft,live,seed_hash) values (${kind},${data.id},${tx.json(data)},${tx.json(data)},${checksum}) on conflict do nothing`;
+    onProgress();
    }}
-  for(const name of [...new Set(seed.objects.map((o:any)=>o.collection))]){const id=String(name).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),data={id,title:String(name),description:'Digitale archiefcollectie van Duindorp SV.',cover:'',published:true};await tx`insert into cms_archive_catalog(kind,id,draft,live,seed_hash) values ('collection',${id},${tx.json(data)},${tx.json(data)},${checksum}) on conflict do nothing`;}
+  for(const name of [...new Set(seed.objects.map((o:any)=>o.collection))]){const id=String(name).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),data={id,title:String(name),description:'Digitale archiefcollectie van Duindorp SV.',cover:'',published:true};await tx`insert into cms_archive_catalog(kind,id,draft,live,seed_hash) values ('collection',${id},${tx.json(data)},${tx.json(data)},${checksum}) on conflict do nothing`;onProgress();}
   // Only create seed relations once. Re-running the seed must preserve editorial moves.
   const [configured]=await tx`select id from cms_archive_catalog where kind='settings' and id='settings'`;
-  if(!configured){await attachArchiveNavigation(tx);for(const o of seed.objects)for(const id of o.momentIds)await tx`insert into cms_archive_relations(moment_id,object_id) values (${id},${o.id}) on conflict do nothing`;const settings={widgetEnabled:seed.widgetEnabled,featuredMomentId:seed.featuredMomentId,featuredObjectId:seed.featuredObjectId};await tx`insert into cms_archive_catalog(kind,id,draft,live,seed_hash) values ('settings','settings',${tx.json(settings)},${tx.json(settings)},${checksum})`;}
+  onProgress();
+  if(!configured){await attachArchiveNavigation(tx);onProgress();for(const o of seed.objects)for(const id of o.momentIds){await tx`insert into cms_archive_relations(moment_id,object_id) values (${id},${o.id}) on conflict do nothing`;onProgress();}const settings={widgetEnabled:seed.widgetEnabled,featuredMomentId:seed.featuredMomentId,featuredObjectId:seed.featuredObjectId};await tx`insert into cms_archive_catalog(kind,id,draft,live,seed_hash) values ('settings','settings',${tx.json(settings)},${tx.json(settings)},${checksum})`;onProgress();}
  });
+ onProgress();
  return {moments:seed.moments.length,objects:seed.objects.length,sourceVersion:58,checksum};
 }
 

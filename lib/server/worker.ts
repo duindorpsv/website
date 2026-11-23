@@ -25,18 +25,24 @@ import {listObjects,deleteObject} from './storage';
 import {analyzeNewsSession,processNewsBatch,failNewsJob,cleanExpiredNews} from './news-imports';
 import {CmsError} from './errors';
 import {processSportlinkSync} from './sportlink-sync';
+import {createWorkerLeaseRenewal,type WorkerStage} from './worker-watchdog';
+type WorkerProgress=(stage:WorkerStage)=>void;
+const ignoreProgress:WorkerProgress=()=>{};
 /** Only the worker that still owns the task may keep its lease and readiness heartbeat alive. */
-export async function renewJobLease(jobId:string,workerId:string){return sqlClient()`with owned as (update cms_jobs set lease_until=now()+interval '60 seconds' where id=${jobId} and lease_owner=${workerId} and status='processing' returning id) insert into cms_heartbeats(id,at) select 'worker',now() from owned where true on conflict(id) do update set at=excluded.at`;}
-export async function runOnce(workerId = crypto.randomUUID()) {
+export async function renewJobLease(jobId:string,workerId:string){return sqlClient()`with owned as (update cms_jobs set lease_until=now()+interval '60 seconds' where id=${jobId} and lease_owner=${workerId} and status='processing' returning id) insert into cms_heartbeats(id,at) select 'worker',now() from owned where true on conflict(id) do update set at=excluded.at returning id`;}
+export async function runOnce(workerId = crypto.randomUUID(),progress:WorkerProgress=ignoreProgress) {
     const sql = sqlClient();
+    progress('storage');
     await storageReady();
+    progress('claim');
     await sql `insert into cms_heartbeats(id,at) values ('worker',now()) on conflict(id) do update set at=now()`;
     const claimed = await sql `update cms_jobs set status='processing',lease_owner=${workerId},lease_until=now()+interval '60 seconds',attempts=attempts+1 where id=(select id from cms_jobs where (status='pending' or (status='processing' and lease_until<now())) and run_at<=now() and attempts<max_attempts order by case when kind='auth-code-mail' then 0 when kind in ('publish','sponsor-final-pdf') then 1 when kind='sponsor-notification' then 3 else 2 end,run_at,id for update skip locked limit 1) returning *`;
     const job = claimed[0];
     if (!job)
         return false;
+    progress('job');
     let status = 'done';
-    const renewal=setInterval(()=>{void renewJobLease(job.id,workerId).catch(()=>{});},20000);
+    const renewal=createWorkerLeaseRenewal(()=>renewJobLease(job.id,workerId),progress);
     try {
         if(job.kind==='sponsor-enquiry')await processSponsorEnquiry(job.payload.submissionId);
         else if(job.kind==='sponsor-notification')await deliverSponsorReminder(job.payload.deliveryId,job.payload.reminderId);
@@ -132,15 +138,15 @@ export async function runOnce(workerId = crypto.randomUUID()) {
             await sql `update cms_submissions set delivery_status=${permanent ? 'failed' : 'retry'} where id=${job.payload.submissionId}`;
         if(permanent&&['news-analyze','news-import'].includes(job.kind))await failNewsJob(job.payload.sessionId,'De achtergrondtaak kon niet worden afgerond. Eerder opgeslagen berichten blijven behouden; probeer de mislukte geselecteerde berichten opnieuw.');
     }
-    finally{clearInterval(renewal);}
+    finally{renewal.stop();}
     return true;
 }
-export async function retain() { const sql = sqlClient(); await sql.begin(async (tx) => { const rows = await tx `select id from cms_submissions where retain_until<now() for update skip locked limit 100`; for (const row of rows) {
+export async function retain(progress:WorkerProgress=ignoreProgress) { const sql = sqlClient(); await sql.begin(async (tx) => { const rows = await tx `select id from cms_submissions where retain_until<now() for update skip locked limit 100`; for (const row of rows) {
     await tx `delete from cms_jobs where payload->>'submissionId'=${row.id}`;
     await tx `delete from cms_submissions where id=${row.id}`;
     await tx `insert into cms_audit(id,action,record_id,request_id) values (${crypto.randomUUID()},'retention-delete',${row.id},${crypto.randomUUID()})`;
-} }); await sql `delete from cms_rate_limits where expires_at<now()`; await sql`delete from cms_jobs where kind='auth-code-mail' and status in ('done','failed','cancelled') and created_at<now()-interval '1 day'`; await sql`delete from cms_auth_login_challenges where expires_at<now()`; await sql`delete from cms_auth_email_sessions where created_at<now()-interval '12 hours'`; await cleanExpiredNews(); await cleanArchiveUploads(); await cleanSponsorLogoUploads(); }
-export async function cleanOrphans(scan:typeof listObjects=listObjects){
+} }); progress('retention'); await sql `delete from cms_rate_limits where expires_at<now()`; await sql`delete from cms_jobs where kind='auth-code-mail' and status in ('done','failed','cancelled') and created_at<now()-interval '1 day'`; await sql`delete from cms_auth_login_challenges where expires_at<now()`; await sql`delete from cms_auth_email_sessions where created_at<now()-interval '12 hours'`; const retained=()=>progress('retention'); retained(); await cleanExpiredNews(retained); retained(); await cleanArchiveUploads(retained); retained(); await cleanSponsorLogoUploads(retained); }
+export async function cleanOrphans(scan:typeof listObjects=listObjects,progress:WorkerProgress=ignoreProgress){
     const sql=sqlClient();
     const [objects,documents]=await Promise.all([
       sql`select storage_key,variants from cms_media_objects`,
@@ -148,12 +154,17 @@ export async function cleanOrphans(scan:typeof listObjects=listObjects){
     ]);
     const kept=new Set<string>();for(const object of objects){kept.add(object.storage_key);for(const variant of object.variants||[])kept.add(variant.key);}
     for(const document of documents)kept.add(document.storage_key);
+    progress('orphan-cleanup');
     // Only unregistered upload keys older than 48 hours; archived originals and
     // every registered document/variant remain available for recovery. An
     // invoice may be archived after the first scan, so recheck all registries.
     // Dedicated invoice keys also survive rollback to legacy upload cleaners.
-    for(const prefix of ['originals/','variants/','documents/','sponsorship/donor-invoices/'])for(const object of await scan(prefix))if(Date.now()-object.at.getTime()>48*3600000&&!kept.has(object.key)){
-      const [registered]=await sql`select exists(select 1 from cms_media_objects where storage_key=${object.key} or variants @> ${sql.json([{key:object.key}])}) or exists(select 1 from cms_donor_invoice_documents where storage_key=${object.key}) or exists(select 1 from cms_sponsor_files where storage_key=${object.key}) as present`;
-      if(!registered.present)await deleteObject(object.key);
+    for(const prefix of ['originals/','variants/','documents/','sponsorship/donor-invoices/']){
+      const scanned=await scan(prefix);progress('orphan-cleanup');
+      for(const object of scanned)if(Date.now()-object.at.getTime()>48*3600000&&!kept.has(object.key)){
+        const [registered]=await sql`select exists(select 1 from cms_media_objects where storage_key=${object.key} or variants @> ${sql.json([{key:object.key}])}) or exists(select 1 from cms_donor_invoice_documents where storage_key=${object.key}) or exists(select 1 from cms_sponsor_files where storage_key=${object.key}) as present`;
+        if(!registered.present)await deleteObject(object.key);
+        progress('orphan-cleanup');
+      }
     }
 }

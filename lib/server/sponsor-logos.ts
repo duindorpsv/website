@@ -109,14 +109,19 @@ export async function claimSponsorLogoUploads(tx:any,actor:WorkspaceActor,ids:Se
 }
 
 /** Worker cleanup also covers interrupted requests between object and row writes. */
-export async function cleanSponsorLogoUploads(){
+export async function cleanSponsorLogoUploads(onProgress:()=>void=()=>{}){
  const sql=sqlClient();await sql.begin(async tx=>{
   await workspaceLocks(tx);
+  onProgress();
   const expired=await tx`select id,storage_key from cms_sponsor_logo_uploads where expires_at<=clock_timestamp() order by expires_at for update skip locked limit 100`;
-  for(const upload of expired){await deleteObject(upload.storage_key);await tx`delete from cms_sponsor_logo_uploads where id=${upload.id}`;}
+  onProgress();
+  for(const upload of expired){await deleteObject(upload.storage_key);onProgress();await tx`delete from cms_sponsor_logo_uploads where id=${upload.id}`;onProgress();}
  });
- for(const object of await listObjects('sponsorship/logos/'))if(Date.now()-object.at.getTime()>48*3600000){
+ onProgress();
+ const scanned=await listObjects('sponsorship/logos/');onProgress();for(const object of scanned)if(Date.now()-object.at.getTime()>48*3600000){
   const [registered]=await sql`select storage_key from cms_sponsor_files where storage_key=${object.key} union all select storage_key from cms_sponsor_logo_uploads where storage_key=${object.key} limit 1`;
+  onProgress();
   if(!registered)await deleteObject(object.key);
+  onProgress();
  }
 }
